@@ -3,13 +3,21 @@ import Foundation
 /// App-process coordination only. Holds across suspension; no nested or
 /// concurrent operations. External NE/OS starts remain a separate gate.
 @MainActor final class NativeOperationGate {
-    enum Operation: Equatable { case start, restore }
+    enum Operation: Equatable { case start, restore, nativeValidation }
     enum Failure: Error { case busy }
     private(set) var active: Operation?
+    private var reservation:UUID?
+    func reserve(_ operation:Operation) throws -> UUID {
+        guard active==nil else{throw Failure.busy}
+        let id=UUID();active=operation;reservation=id;return id
+    }
+    func release(_ id:UUID) {
+        guard reservation==id else{return}
+        reservation=nil;active=nil
+    }
     func perform<T>(_ operation: Operation, _ body: () async throws -> T) async throws -> T {
-        guard active == nil else {throw Failure.busy}
-        active=operation
-        defer {active=nil}
+        let id=try reserve(operation)
+        defer {release(id)}
         try Task.checkCancellation()
         return try await body()
     }

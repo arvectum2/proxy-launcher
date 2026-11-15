@@ -16,3 +16,17 @@ def test_provider_dispatch_precedes_legacy_and_never_starts_native_runtime():
     app=(IOS/'App/VPNController.swift').read_text()
     assert 'for item in matching {try requireLegacyManager(item)}' in app
     assert 'try requireLegacyManager(manager)\n        let changed = reconcile(manager)' in app
+
+
+def test_native_app_dispatch_stays_gated_and_never_creates_manager():
+    app=(IOS/'App/VPNController.swift').read_text()
+    section=app[app.index('func submitNativeCredentialValidation'):app.index('private func connectWithLease')]
+    assert 'named.count==1' in section and 'ownsConfiguration(proto.providerConfiguration,owner:owner)' in section
+    assert 'connection.startTunnel(options:$0)' in section
+    assert 'loadAllManagers(requireResult:true)' in section and 'nativeValidationPolicyIsEmpty()' in section
+    assert 'try dispatch.abortBeforeSubmission()' in section
+    assert 'if !dispatch.attempted' in section
+    assert 'saveToPreferences' not in section and 'NETunnelProviderManager()' not in section
+    assert app.count('func submitNativeCredentialValidation')==1
+    assert sum(p.read_text().count('submitNativeCredentialValidation(') for p in (IOS/'App').glob('*.swift'))==1
+    assert 'guard Self.operationGate.active != .nativeValidation else{return}' in app

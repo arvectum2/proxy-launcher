@@ -152,6 +152,32 @@ final class ProfileStore {
     #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
     /// Strict read-only legacy ID check plus exact native ticket consumption.
     /// Compiles only in explicit integration Debug builds, never default Release.
+    // Unknown/corrupt policy is not an empty policy. This validation path
+    // cannot implement exclusions or a normally-off routing policy.
+    func nativeValidationPolicyIsEmpty() throws -> Bool {
+        for key in [Key.manualExclusions,Key.exclusions] {
+            if let value=defaults.object(forKey:key) {
+                guard let entries=value as? [String] else{throw ProfileStoreError.corruptProfiles}
+                if !entries.isEmpty{return false}
+            }
+        }
+        if let value=defaults.object(forKey:Key.smartGraph) {
+            guard let data=value as? Data,data.count<=65_536 else{throw ProfileStoreError.corruptProfiles}
+            let graph=try decoder.decode(SmartExclusionGraph.self,from:data)
+            guard try graph.effective(manual:[]).isEmpty else{return false}
+        }
+        if let policy=defaults.object(forKey:Key.iosAppRoutingMode) {
+            guard policy as? String==IOSAppRoutingMode.normallyOn.rawValue else{return false}
+        }
+        return true
+    }
+
+    @MainActor func makeNativeValidationLaunchBoundary() -> NativeSessionLaunchBoundary {
+        NativeSessionLaunchBoundary(reader:NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain()),
+            repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
+            ticketItems:NativeCredentialKeychain(purpose:.handoff),legacyIDs:{[self] in Set(try profilesForMutation().map(\.id))})
+    }
+
     func makeNativeProviderValidationHandoff() -> NativeCredentialHandoff {
         let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
         return NativeCredentialHandoff(items:NativeCredentialKeychain(purpose:.handoff),

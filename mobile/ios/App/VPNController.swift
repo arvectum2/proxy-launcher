@@ -8,6 +8,10 @@ final class VPNController: ObservableObject {
 
     // Shared across controller instances in this app process, including Shortcuts.
     private static let operationGate = NativeOperationGate()
+    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+    private static var nativeValidationDispatch:NativeValidationDispatch?
+    private static let nativeValidationName="APL Native Credential Validation"
+    #endif
     private static let configurationName = "Arvectum Proxy Launcher"
 
     private var manager: NETunnelProviderManager?
@@ -37,8 +41,10 @@ final class VPNController: ObservableObject {
 
     func prepare() async {
         do {
-            manager = try await loadOrCreateManager()
-            refreshStatus()
+            try await Self.operationGate.perform(.start) {
+                manager = try await loadOrCreateManager()
+                refreshStatus()
+            }
         } catch {
             detail = ProxyFailureReason.safeDisplay(
                 for: userFacingError(error), translate: { AppL10n.tr($0) })
@@ -67,6 +73,54 @@ final class VPNController: ObservableObject {
             })
         }
     }
+
+    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+    /// Deliberately has no UI caller. Requires an externally provisioned,
+    /// uniquely owned validation manager; never creates/saves one here.
+    /// Successful API submission is NOT connection or drain acceptance.
+    func submitNativeCredentialValidation(reference:NativeCredentialRecord.Reference,owner:UUID) async throws {
+        guard Self.nativeValidationDispatch==nil,Self.operationGate.active==nil else{throw NativeOperationGate.Failure.busy}
+        let store=try ProfileStore(),boundary=store.makeNativeValidationLaunchBoundary()
+        guard try store.nativeValidationPolicyIsEmpty() else{throw NativeValidationDispatch.Failure.unownedManager}
+        let intent=try boundary.prepare(reference:reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        let dispatch=try NativeValidationDispatch(gate:Self.operationGate,boundary:boundary,intent:intent,owner:owner)
+        Self.nativeValidationDispatch=dispatch
+        do {
+            let all=try await loadAllManagers(requireResult:true)
+            try Task.checkCancellation()
+            let named=all.filter{ item in
+                let c=(item.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]
+                return NativeProviderStartRequest.hasReservedKey(Array(c.keys))
+            }
+            guard named.count==1,let target=named.first,let connection=target.connection as? NETunnelProviderSession else{throw NativeValidationDispatch.Failure.unownedManager}
+            func check()->Bool {
+                guard !Task.isCancelled,let proto=target.protocolConfiguration as? NETunnelProviderProtocol,
+                    proto.providerBundleIdentifier==AppShared.providerBundleIdentifier,
+                    target.localizedDescription==Self.nativeValidationName,proto.serverAddress==Self.nativeValidationName,
+                    NativeProviderStartRequest.ownsConfiguration(proto.providerConfiguration,owner:owner),
+                    target.isEnabled,target.connection === connection,
+                    (try? store.nativeValidationPolicyIsEmpty())==true else{return false}
+                let visible=all+(self.manager.map{[$0]} ?? [])
+                return visible.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
+            }
+            try dispatch.submit(checkOwnedAndQuiescent:check,start:{try connection.startTunnel(options:$0)})
+        } catch {
+            if !dispatch.attempted {
+                try dispatch.abortBeforeSubmission()
+                Self.nativeValidationDispatch=nil
+            }
+            // On ambiguous start, retain exact ownership. A later real drain
+            // receipt/reconciliation implementation is required before reuse.
+            throw error
+        }
+    }
+    /// Retry only a failed pre-submit cleanup. Never unlock a submitted start.
+    func abortNativeCredentialValidationBeforeSubmission() throws {
+        guard let dispatch=Self.nativeValidationDispatch else{return}
+        try dispatch.abortBeforeSubmission()
+        Self.nativeValidationDispatch=nil
+    }
+    #endif
 
     private func connectWithLease() async throws {
         var manager = try await loadOrCreateManager()
@@ -98,6 +152,7 @@ final class VPNController: ObservableObject {
     }
 
     func disconnect() {
+        guard Self.operationGate.active != .nativeValidation else{return}
         manager?.connection.stopVPNTunnel()
         detail = "Отключение…"
         refreshStatus()

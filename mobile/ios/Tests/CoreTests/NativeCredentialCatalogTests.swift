@@ -321,15 +321,45 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{calls+=1;if calls==2{m.bytes=changedBytes};return true}));XCTAssertEqual(m.bytes,changedBytes);XCTAssertNil(try c.reader.selectionAuthority(a.reference))
         try c.migrateLegacyForValidation(vpnInactive:{true});XCTAssertNil(try c.reader.selectionAuthority(a.reference));XCTAssertEqual(try c.reader.snapshot().current,[a.reference])
     }
+    @MainActor func testNativeDispatchPreSubmitDriftAndCleanupRetryKeepExactLease() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]}),gate=NativeOperationGate()
+        let intent=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        let dispatch=try NativeValidationDispatch(gate:gate,boundary:bridge,intent:intent,owner:UUID())
+        XCTAssertThrowsError(try gate.reserve(.start));gate.release(UUID());XCTAssertEqual(gate.active,.nativeValidation)
+        var checks=0,starts=0
+        XCTAssertThrowsError(try dispatch.submit(checkOwnedAndQuiescent:{checks+=1;return checks==1},start:{_ in starts+=1}))
+        XCTAssertEqual(starts,0);XCTAssertFalse(dispatch.attempted);XCTAssertEqual(tickets.values.count,1)
+        tickets.failRemove=true;XCTAssertThrowsError(try dispatch.abortBeforeSubmission());XCTAssertEqual(gate.active,.nativeValidation)
+        tickets.failRemove=false;try dispatch.abortBeforeSubmission();XCTAssertNil(gate.active);XCTAssertTrue(tickets.values.isEmpty)
+    }
+    @MainActor func testNativeDispatchAmbiguousStartCannotReleaseOrRetry() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]}),gate=NativeOperationGate(),owner=UUID()
+        let intent=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        let dispatch=try NativeValidationDispatch(gate:gate,boundary:bridge,intent:intent,owner:owner)
+        var calls=0
+        XCTAssertThrowsError(try dispatch.submit(checkOwnedAndQuiescent:{true},start:{options in
+            calls+=1
+            XCTAssertEqual(options[NativeProviderStartRequest.ownerKey] as? String,owner.uuidString)
+            guard case .validation=NativeProviderStartRequest.inspect(configuration:NativeProviderStartRequest.configuration(owner:owner),options:options,validationEnabled:true) else {return XCTFail("not validation")}
+            throw NativeValidationDispatch.Failure.invalidState
+        }))
+        XCTAssertTrue(dispatch.attempted);XCTAssertEqual(calls,1);XCTAssertEqual(gate.active,.nativeValidation)
+        XCTAssertThrowsError(try dispatch.abortBeforeSubmission());XCTAssertThrowsError(try dispatch.submit(checkOwnedAndQuiescent:{true},start:{_ in calls+=1}));XCTAssertThrowsError(try gate.reserve(.restore));XCTAssertEqual(calls,1)
+    }
     @MainActor func testProviderOptionBoundaryNeverFallsBackAndValidatesOneUse() async throws {
         let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let a=try record();try c.save(a,select:true)
         let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]})
         let intent=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
         var coordinator=TransportBackendCoordinator();guard case .start(let session)=try coordinator.begin(intent.plan) else{return XCTFail("start")}
-        let launch=try bridge.issue(intent,for:session),config=[NativeProviderStartRequest.modeKey:NativeProviderStartRequest.validationMode],opts=launch.validationOptions
+        let owner=UUID(),launch=try bridge.issue(intent,for:session),config=NativeProviderStartRequest.configuration(owner:owner),opts=launch.validationOptions(owner:owner)
         func denied(_ config:[String:Any]?,_ opts:[String:NSObject]?,_ enabled:Bool=true)->Bool {if case .denied=NativeProviderStartRequest.inspect(configuration:config,options:opts,validationEnabled:enabled){return true};return false}
         XCTAssertTrue(denied(config,opts,false));XCTAssertTrue(denied(config,nil));XCTAssertTrue(denied(nil,opts));XCTAssertTrue(denied(["APLNativeUnknown":true],nil))
+        var foreign=opts;foreign[NativeProviderStartRequest.ownerKey]=UUID().uuidString as NSString;XCTAssertTrue(denied(config,foreign))
         var mixed=opts;mixed["requestedByUser"]=NSNumber(value:true);XCTAssertTrue(denied(config,mixed))
         var wrong=opts;wrong[NativeProviderStartRequest.expectedKey]=try TransportNativeCodec.encode(NativeCredentialHandoff.Binding(reference:a.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:UUID())) as NSData;XCTAssertTrue(denied(config,wrong))
         XCTAssertEqual(tickets.values.count,1)

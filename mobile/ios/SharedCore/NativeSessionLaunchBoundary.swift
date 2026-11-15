@@ -21,8 +21,8 @@ import Foundation
     struct Launch: CustomStringConvertible, CustomReflectable {
         let ticketBytes: Data
         let expectedBytes: Data
-        var validationOptions:[String:NSObject] {
-            [NativeProviderStartRequest.modeKey:NativeProviderStartRequest.validationMode as NSString,NativeProviderStartRequest.expectedKey:expectedBytes as NSData,NativeProviderStartRequest.ticketKey:ticketBytes as NSData]
+        func validationOptions(owner:UUID)->[String:NSObject] {
+            [NativeProviderStartRequest.modeKey:NativeProviderStartRequest.validationMode as NSString,NativeProviderStartRequest.ownerKey:owner.uuidString as NSString,NativeProviderStartRequest.expectedKey:expectedBytes as NSData,NativeProviderStartRequest.ticketKey:ticketBytes as NSData]
         }
         var description: String {"NativeSessionLaunch(redacted)"}
         var customMirror: Mirror {Mirror(self,children:[:])}
@@ -75,11 +75,56 @@ import Foundation
         catch {try finish(intent);throw error}
     }
 
+    /// Never retire a different or already issued ticket on a failed preview.
+    func cancelBeforeDispatch(_ intent:Intent)throws {
+        if let active=issued {
+            guard active.intent==intent else{throw Failure.busy}
+            try finish(intent);return
+        }
+        if pending==intent {pending=nil}
+    }
+
     /// Explicitly retire the exact ticket on dispatch rejection, stop or
     /// confirmed consumption. A failed delete retains ownership for retry.
     func finish(_ intent:Intent) throws {
         if pending==intent {pending=nil;return}
         guard let active=issued,active.intent==intent else {throw Failure.invalidIntent}
         _=try handoff.revoke(active.ticket);issued=nil
+    }
+}
+
+/// Owns the app process lease across an actual start submission, even if
+/// startTunnel throws. Disconnection alone is not proof of native drain.
+/// Never manufactures a terminal receipt; only pre-submit abort is released.
+@MainActor final class NativeValidationDispatch {
+    enum Failure:Error {case invalidState, unownedManager}
+    private let gate:NativeOperationGate
+    private let lease:UUID
+    private let boundary:NativeSessionLaunchBoundary
+    private let intent:NativeSessionLaunchBoundary.Intent
+    private let owner:UUID
+    private var coordinator=TransportBackendCoordinator()
+    private var launch:NativeSessionLaunchBoundary.Launch?
+    private(set) var attempted=false
+    private var closed=false
+    init(gate:NativeOperationGate,boundary:NativeSessionLaunchBoundary,intent:NativeSessionLaunchBoundary.Intent,owner:UUID)throws {
+        self.gate=gate;self.boundary=boundary;self.intent=intent;self.owner=owner
+        lease=try gate.reserve(.nativeValidation)
+    }
+    func submit(checkOwnedAndQuiescent:()->Bool, start:([String:NSObject])throws->Void)throws {
+        guard !closed,!attempted,launch==nil else{throw Failure.invalidState}
+        guard checkOwnedAndQuiescent() else{throw Failure.unownedManager}
+        guard case .start(let session)=try coordinator.begin(intent.plan) else{throw Failure.invalidState}
+        launch=try boundary.issue(intent,for:session)
+        guard checkOwnedAndQuiescent(),let launch else{throw Failure.unownedManager}
+        attempted=true
+        try start(launch.validationOptions(owner:owner))
+    }
+    /// Only before any invocation of the OS start primitive. If cleanup throws,
+    /// retain the process lease and exact dispatch for a later explicit retry.
+    func abortBeforeSubmission()throws {
+        guard !closed,!attempted else{throw Failure.invalidState}
+        try boundary.cancelBeforeDispatch(intent)
+        launch=nil;closed=true;gate.release(lease)
     }
 }

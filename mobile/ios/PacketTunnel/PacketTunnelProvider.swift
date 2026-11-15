@@ -68,6 +68,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             guard startTask==nil,active==nil else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
             do {
                 let validationStore=try ProfileStore()
+                guard try validationStore.nativeValidationPolicyIsEmpty() else{throw NativeCredentialReceiver.Failure.invalidIdentity}
                 try request.validate(via:validationStore.makeNativeProviderValidationHandoff())
                 completionHandler(NSError(domain:"APLNativeStart",code:2))
             } catch {completionHandler(NSError(domain:"APLNativeStart",code:1))}

@@ -30,25 +30,32 @@ struct NativeCredentialReceiver {
 /// on-demand without ticket options must never become a legacy proxy tunnel.
 struct NativeProviderStartRequest: CustomStringConvertible, CustomReflectable {
     static let modeKey="aplNativeMode"
+    static let ownerKey="aplNativeOwner"
     static let expectedKey="aplNativeExpected"
     static let ticketKey="aplNativeTicket"
     static let validationMode="credential-validation-v1"
     enum Decision {case legacy, denied, validation(NativeProviderStartRequest)}
+    let owner:UUID
     let expected:NativeCredentialHandoff.Binding
     let ticketBytes:Data
     var description:String {"NativeProviderStartRequest(redacted)"}
     var customMirror:Mirror {Mirror(self,children:[:])}
 
     static func hasReservedKey(_ keys:[String])->Bool {keys.contains{$0.lowercased().hasPrefix("aplnative")}}
+    static func configuration(owner:UUID)->[String:String] {[modeKey:validationMode,ownerKey:owner.uuidString]}
+    static func ownsConfiguration(_ configuration:[String:Any]?,owner:UUID)->Bool {
+        guard let configuration,Set(configuration.keys)==[modeKey,ownerKey] else{return false}
+        return configuration[modeKey] as? String==validationMode && configuration[ownerKey] as? String==owner.uuidString
+    }
     static func inspect(configuration:[String:Any]?,options:[String:NSObject]?,validationEnabled:Bool)->Decision {
         let config=configuration ?? [:],opts=options ?? [:]
         guard hasReservedKey(Array(config.keys)) || hasReservedKey(Array(opts.keys)) else{return .legacy}
-        guard validationEnabled,Set(config.keys)==[modeKey],config[modeKey] as? String==validationMode,
-              Set(opts.keys)==[modeKey,expectedKey,ticketKey],opts[modeKey] as? String==validationMode,
+        guard validationEnabled,let ownerText=config[ownerKey] as? String,let owner=UUID(uuidString:ownerText),ownsConfiguration(config,owner:owner),
+              Set(opts.keys)==[modeKey,ownerKey,expectedKey,ticketKey],opts[modeKey] as? String==validationMode,opts[ownerKey] as? String==owner.uuidString,
               let raw=opts[expectedKey] as? Data,let ticket=opts[ticketKey] as? Data,
               let expected=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),expected.valid,
               let decoded=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,ticket),decoded.binding==expected else{return .denied}
-        return .validation(.init(expected:expected,ticketBytes:ticket))
+        return .validation(.init(owner:owner,expected:expected,ticketBytes:ticket))
     }
     /// Validation only, never a success receipt for NE startup.
     func validate(via handoff:NativeCredentialHandoff)throws {
