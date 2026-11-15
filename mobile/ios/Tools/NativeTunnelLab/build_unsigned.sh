@@ -5,6 +5,12 @@ umask 077
 [[ $# == 2 || ( $# == 3 && "$3" == --approved-sign-lab ) ]] || { echo "usage: $0 PINNED_ASSET PINNED_GO_MOD [--approved-sign-lab]" >&2; exit 2; }
 signed=0
 if [[ $# == 3 ]]; then signed=1; fi
+# Explicit local source artifact mode is unsigned-only. This does not grant
+# authority to sign or install a new candidate onto an owner device.
+source_candidate="${APL_QA_XRAY_SOURCE_CANDIDATE:-}"
+if [[ -n "$source_candidate" && "$signed" == 1 ]]; then
+    echo SOURCE_CANDIDATE_UNSIGNED_ONLY >&2; exit 2
+fi
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 python="${PYTHON:-python3}"
 work="$(mktemp -d "${TMPDIR:-/tmp}/apl-native-ne.XXXXXX")"
@@ -20,6 +26,18 @@ with zipfile.ZipFile(sys.argv[1]) as z:
         dest=p/key;dest.parent.mkdir(parents=True,exist_ok=True)
         dest.write_bytes(z.read(prefix+key))
 PY
+if [[ -n "$source_candidate" ]]; then
+    "$python" "$root/Tools/verify_xray_source_candidate.py" "$source_candidate"
+    cp "$source_candidate/libXray.a" "$work/Lib/Xray/libXray.a"
+    cp "$source_candidate/libXray.h" "$work/Lib/Xray/Headers/libXray.h"
+    # Validate the exact copied inputs as well (no time-of-check/copy drift).
+    mkdir "$work/SourceCheck"
+    cp "$work/Lib/Xray/libXray.a" "$work/Lib/Xray/Headers/libXray.h" "$work/SourceCheck/"
+    "$python" "$root/Tools/verify_xray_source_candidate.py" "$work/SourceCheck"
+    echo XRAY_LOCAL_SOURCE_CANDIDATE_UNSIGNED_ONLY
+else
+    echo XRAY_PINNED_UPSTREAM_CANDIDATE
+fi
 framework="${APL_QA_TUN2PROXY_FRAMEWORK:-$root/Frameworks/tun2proxy.xcframework}"
 "$python" "$root/Tools/verify_tun2proxy_lab_artifact.py" "$framework" ios-arm64 --require-connected-udp
 rust="$framework/ios-arm64"
@@ -98,7 +116,7 @@ targets:
         CODE_SIGNING_ALLOWED: NO
         SWIFT_INCLUDE_PATHS: "$(PROJECT_DIR)/Lib/Xray/Headers $(PROJECT_DIR)/Lib/Rust/Headers"
         LIBRARY_SEARCH_PATHS: "$(PROJECT_DIR)/Lib/Xray $(PROJECT_DIR)/Lib/Rust"
-        OTHER_LDFLAGS: "-lXray -ltun2proxy -lresolv -framework NetworkExtension -framework SystemConfiguration -framework Security"
+        OTHER_LDFLAGS: "-lXray -ltun2proxy -lresolv -framework NetworkExtension -framework SystemConfiguration -framework Security -framework CoreFoundation"
 schemes:
   NativeLabHost:
     build:
@@ -142,6 +160,8 @@ else
         [[ ! -e "$dest/NativeLabHost.app" && -z "$(find "$host" -name '*.dylib' -print)" ]]
         cp -R "$host" "$dest/"
         (cd "$dest" && shasum -a 256 NativeLabHost.app/NativeLabHost NativeLabHost.app/PlugIns/NativeLab.appex/NativeLab > NATIVE-SHA256SUMS)
+        (cd "$work/Lib/Xray" && shasum -a 256 libXray.a Headers/libXray.h Headers/module.modulemap) > "$dest/XRAY-INPUT-SHA256SUMS"
+        if [[ -n "$source_candidate" ]]; then echo local-source-unsigned-only > "$dest/XRAY-ORIGIN"; else echo pinned-upstream > "$dest/XRAY-ORIGIN"; fi
     fi
     echo ISOLATED_UNSIGNED_HOST_AND_EMBEDDED_NE_BUILD_AND_NATIVE_LINK_PASS
 fi

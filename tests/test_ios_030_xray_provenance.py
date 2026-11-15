@@ -136,3 +136,37 @@ def test_source_notice_inventory_preserves_original_and_rejects_replacement(tmp_
     graph.write_text(json.dumps(package))
     with pytest.raises(ValueError,match='unexpected module replacement'):
         inv.inventory(graph,go,tmp_path/'replaced')
+
+
+def test_exact_source_candidate_rejects_tamper_and_wrong_scope(tmp_path):
+    import pytest
+    script = SCRIPT.parent / 'verify_xray_source_candidate.py'
+    spec = importlib.util.spec_from_file_location('xray_source_candidate', script)
+    verifier = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(verifier)
+    files = {'libXray.a': b'archive fixture', 'libXray.h': b'header fixture'}
+    for name, raw in files.items():
+        (tmp_path / name).write_bytes(raw)
+    candidate = {'platform':'ios-arm64','scope':'unsigned NativeLab only','library_sha256':hashlib.sha256(files['libXray.a']).hexdigest(),'header_sha256':hashlib.sha256(files['libXray.h']).hexdigest()}
+    pin=tmp_path/'pin.json';pin.write_text(json.dumps({'validated_ios_source_candidate':candidate}))
+    assert verifier.verify(tmp_path,pin) == candidate
+    (tmp_path/'libXray.a').write_bytes(b'tampered')
+    with pytest.raises(ValueError,match='digest mismatch'):
+        verifier.verify(tmp_path,pin)
+    candidate['scope']='production';pin.write_text(json.dumps({'validated_ios_source_candidate':candidate}))
+    with pytest.raises(ValueError,match='scope mismatch'):
+        verifier.verify(tmp_path,pin)
+
+
+def test_nested_notice_inventory_preserves_package_ancestor(tmp_path):
+    script=SCRIPT.parent/'inventory_xray_source_licenses.py'
+    spec=importlib.util.spec_from_file_location('nested_inventory',script)
+    inv=importlib.util.module_from_spec(spec);spec.loader.exec_module(inv)
+    root=tmp_path/'module';child=root/'internal'/'pkg';child.mkdir(parents=True)
+    go=tmp_path/'go';go.mkdir()
+    for d in (root,child.parent,go): (d/'LICENSE').write_bytes(str(d.name).encode())
+    unrelated=root/'unused';unrelated.mkdir();(unrelated/'LICENSE').write_bytes(b'unused')
+    graph=tmp_path/'graph.json';graph.write_text(json.dumps({'Dir':str(child),'Module':{'Path':'example.invalid/module','Version':'v1','Dir':str(root)}}))
+    out=tmp_path/'out';inv.inventory(graph,go,out)
+    m=json.loads((out/'manifest.json').read_text());row=next(x for x in m['modules'] if x['module']=='example.invalid/module')
+    assert {f['module_relative_path'] for f in row['files']}=={'LICENSE','internal/LICENSE'}
