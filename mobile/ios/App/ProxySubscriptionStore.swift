@@ -6,6 +6,26 @@ struct SavedProxySubscription: Codable, Equatable, Identifiable {
     let title: String
     let providerHost: String
     let createdAt: Date
+    var refresh: SubscriptionRefreshSettings? = nil
+    var lastAttempt: Date? = nil
+}
+
+/// An absent policy is always manual. An opt-in never immediately requests data.
+struct SubscriptionRefreshSettings: Codable, Equatable {
+    enum Interval: String, Codable, CaseIterable, Identifiable {
+        case manual, hourly, daily, weekly
+        var id: String { rawValue }
+        var seconds: TimeInterval? {
+            switch self {case .manual:return nil;case .hourly:return 3600;case .daily:return 86400;case .weekly:return 604800}
+        }
+    }
+    let interval: Interval
+    let defaultType: ProxyType
+    func isDue(lastAttempt: Date?, now: Date = Date()) -> Bool {
+        guard let seconds=interval.seconds,let lastAttempt,defaultType != .auto else{return false}
+        let age=now.timeIntervalSince(lastAttempt)
+        return age.isFinite && age>=seconds
+    }
 }
 
 enum ProxySubscriptionStoreError: Error {
@@ -16,7 +36,7 @@ enum ProxySubscriptionStoreError: Error {
 /// query. Persist only display metadata in App Group, and store the full
 /// source URL in a separate Keychain service with ThisDeviceOnly protection.
 /// Unlike source-only signed managed manifests, this is user-approved
-/// manual refresh; it never rewrites profiles or changes the active VPN.
+/// manual or explicitly opted-in foreground refresh; it never rewrites profiles or changes the active VPN.
 final class ProxySubscriptionStore {
     private static let metadataKey = "proxy_subscriptions.v1"
     private static let service = "ru.arvectum.proxylauncher.ios.subscription.source.v1"
@@ -35,7 +55,8 @@ final class ProxySubscriptionStore {
         guard bytes.count <= 32 * 1024,
               let saved = try? JSONDecoder().decode([SavedProxySubscription].self, from: bytes),
               saved.count <= Self.maxSaved,
-              Set(saved.map(\.id)).count == saved.count else {
+              Set(saved.map(\.id)).count == saved.count,
+              saved.allSatisfy({$0.refresh?.defaultType != .auto && ($0.refresh == nil || $0.lastAttempt != nil)}) else {
             throw ProxySubscriptionStoreError.corruptMetadata
         }
         return saved
@@ -67,6 +88,28 @@ final class ProxySubscriptionStore {
         return entry
     }
 
+    func configureRefresh(_ id:UUID, interval:SubscriptionRefreshSettings.Interval, defaultType:ProxyType, now:Date=Date())throws {
+        guard defaultType != .auto else{throw ProxySubscriptionStoreError.corruptMetadata}
+        var saved=try list();guard let index=saved.firstIndex(where:{$0.id==id}) else{throw ProxySubscriptionStoreError.corruptMetadata}
+        saved[index].refresh=interval == .manual ? nil:.init(interval:interval,defaultType:defaultType)
+        saved[index].lastAttempt=interval == .manual ? nil:now
+        try writeMetadata(saved)
+    }
+    /// Reserve the attempt before any network operation, including failure.
+    /// No automatic retry storm on provider or Keychain errors.
+    func claimDue(_ expected:SavedProxySubscription, now:Date=Date())throws->SavedProxySubscription? {
+        var saved=try list();guard let index=saved.firstIndex(where:{$0.id==expected.id}),saved[index]==expected,
+          let policy=expected.refresh,policy.isDue(lastAttempt:expected.lastAttempt,now:now) else{return nil}
+        saved[index].lastAttempt=now;try writeMetadata(saved);return saved[index]
+    }
+    func markManualAttempt(_ expected:SavedProxySubscription, now:Date=Date())throws->SavedProxySubscription {
+        var saved=try list();guard let index=saved.firstIndex(where:{$0.id==expected.id}),saved[index]==expected else{throw ProxySubscriptionStoreError.corruptMetadata}
+        guard expected.refresh != nil else{return expected}
+        saved[index].lastAttempt=now;try writeMetadata(saved);return saved[index]
+    }
+    private func writeMetadata(_ entries:[SavedProxySubscription])throws {
+        let data=try JSONEncoder().encode(entries);guard data.count<=32*1024 else{throw ProxySubscriptionStoreError.corruptMetadata};defaults.set(data,forKey:Self.metadataKey)
+    }
     func source(for id: UUID) throws -> URL {
         guard try list().contains(where: { $0.id == id }) else {
             throw ProxySubscriptionStoreError.corruptMetadata

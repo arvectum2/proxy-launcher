@@ -5,12 +5,17 @@ import UIKit
 struct ProxyImportView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @State private var source = ""
     @State private var subscriptionURL = ""
     @State private var subscriptionTitle = ""
     @State private var savedSubscriptions: [SavedProxySubscription] = []
     @State private var isFetchingSubscription = false
     @State private var subscriptionTask: Task<Void, Never>?
+    @State private var refreshGeneration=UUID()
+    @State private var visible=false
+    @State private var automaticPreview:SavedProxySubscription?
+    @State private var activeSavedSource:SavedProxySubscription?
     @State private var defaultType: ProxyType = .http
     @State private var parsedType: ProxyType = .http
     @State private var candidates: [ImportedProxy] = []
@@ -23,7 +28,8 @@ struct ProxyImportView: View {
     @FocusState private var editorFocused: Bool
     var initialSource: String = ""
     private var preview: [ImportedProxy] {
-        parsedSource == source && parsedType == defaultType ? candidates : []
+        if automaticPreview != nil {return candidates}
+        return parsedSource == source && parsedType == defaultType ? candidates : []
     }
     private var pending: [ImportedProxy] {
         ProxyImport.withoutDuplicates(preview, existing: model.profiles)
@@ -70,6 +76,7 @@ struct ProxyImportView: View {
                     Text(ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
+                .disabled(automaticPreview != nil)
                 Section(ProxyImportUX.text("Список от поставщика")) {
                     TextField(ProxyImportUX.text("HTTPS-ссылка на подписку"), text: $subscriptionURL)
                         .keyboardType(.URL)
@@ -84,22 +91,31 @@ struct ProxyImportView: View {
                     Button(ProxyImportUX.text("Сохранить ссылку для обновления")) { saveSubscription() }
                         .disabled(isFetchingSubscription || subscriptionURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     if isFetchingSubscription { ProgressView() }
-                    Text(ProxyImportUX.text("Список загружается только по вашему запросу. После предпросмотра подтвердите импорт. Поддерживаются HTTP, HTTPS и SOCKS5."))
+                    Text(refreshText("Загрузка по запросу или по выбранному интервалу на открытом экране импорта. Добавление — только после подтверждения. HTTP, HTTPS и SOCKS5.","Load on request or at the chosen interval while this import screen is open. Confirm before adding. HTTP, HTTPS and SOCKS5."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
+                .disabled(automaticPreview != nil)
                 if !savedSubscriptions.isEmpty {
                     Section(ProxyImportUX.text("Сохранённые подписки")) {
                         ForEach(savedSubscriptions) { item in
-                            Button {
-                                loadSavedSubscription(item.id)
-                            } label: {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(item.title)
-                                    Text(verbatim: item.providerHost)
-                                        .font(.caption).foregroundStyle(.secondary)
+                            VStack(alignment:.leading,spacing:8) {
+                                Button {loadSavedSubscription(item.id)} label: {
+                                    VStack(alignment:.leading,spacing:4) {
+                                        Text(item.title)
+                                        Text(verbatim:item.providerHost).font(.caption).foregroundStyle(.secondary)
+                                    }
+                                }.buttonStyle(.borderless).disabled(isFetchingSubscription || automaticPreview != nil)
+                                Picker(refreshText("Автообновление","Auto refresh"),selection:Binding(get:{item.refresh?.interval ?? .manual},set:{configureRefresh(item.id,$0)})) {
+                                    Text(refreshText("Вручную","Manual")).tag(SubscriptionRefreshSettings.Interval.manual)
+                                    Text(refreshText("Каждый час","Hourly")).tag(SubscriptionRefreshSettings.Interval.hourly)
+                                    Text(refreshText("Раз в день","Daily")).tag(SubscriptionRefreshSettings.Interval.daily)
+                                    Text(refreshText("Раз в неделю","Weekly")).tag(SubscriptionRefreshSettings.Interval.weekly)
+                                }.disabled(isFetchingSubscription)
+                                if let policy=item.refresh {
+                                    Text(refreshText("Тип для строк без протокола: ","Default protocol: ")+policy.defaultType.rawValue).font(.caption)
+                                    if let last=item.lastAttempt {Text(refreshText("Отсчёт интервала: ","Interval starts: ")+last.formatted(date:.abbreviated,time:.shortened)).font(.caption2).foregroundStyle(.secondary)}
                                 }
                             }
-                            .disabled(isFetchingSubscription)
                         }
                         .onDelete { offsets in
                             let ids = offsets.compactMap { index in
@@ -107,6 +123,12 @@ struct ProxyImportView: View {
                             }
                             for id in ids { deleteSubscription(id) }
                         }
+                    }
+                }
+                if let automaticPreview {
+                    Section {
+                        Text(refreshText("Обновлён список: ","Refreshed list: ")+automaticPreview.title)
+                        Button(refreshText("Закрыть предпросмотр","Dismiss preview")){clearAutomaticPreview()}
                     }
                 }
                 if let message = importError {
@@ -156,9 +178,19 @@ struct ProxyImportView: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear {
                 if !initialSource.isEmpty { source = initialSource; parse() }
+                visible=true
                 refreshSavedSubscriptions()
+                refreshDueSubscription()
             }
-            .onDisappear { subscriptionTask?.cancel() }
+            .task(id:scenePhase) {
+                guard scenePhase == .active else{return}
+                while !Task.isCancelled {
+                    refreshDueSubscription()
+                    do {try await Task.sleep(nanoseconds:60_000_000_000)}catch{return}
+                }
+            }
+            .onChange(of:scenePhase){phase in if phase != .active {cancelSubscriptionFetch();clearAutomaticPreview()}}
+            .onDisappear {visible=false;cancelSubscriptionFetch();clearAutomaticPreview()}
             .sheet(isPresented: $scanQR) {
                 NavigationView {
                     ProxyQRScanner(onCode: { code in
@@ -209,6 +241,33 @@ struct ProxyImportView: View {
         }
     }
 
+    private func refreshText(_ ru:String,_ en:String)->String {AppL10n.effectiveLanguage == "ru" ? ru:en}
+    private func configureRefresh(_ id:UUID,_ interval:SubscriptionRefreshSettings.Interval){
+        do {
+            try ProxySubscriptionStore().configureRefresh(id,interval:interval,defaultType:defaultType)
+            if automaticPreview?.id==id {clearAutomaticPreview()}
+            refreshSavedSubscriptions()
+        }catch{importError=refreshText("Не удалось сохранить интервал обновления","Could not save refresh interval")}
+    }
+    private func cancelSubscriptionFetch(){
+        refreshGeneration=UUID();subscriptionTask?.cancel();subscriptionTask=nil;isFetchingSubscription=false;activeSavedSource=nil
+    }
+    private func clearAutomaticPreview(){
+        guard automaticPreview != nil else{return}
+        automaticPreview=nil;parsedSource="";candidates=[]
+    }
+    private func refreshDueSubscription(){
+        guard visible,scenePhase == .active,!isFetchingSubscription,!editorFocused,!scanQR,!chooseFile,
+              source.isEmpty,subscriptionURL.isEmpty,subscriptionTitle.isEmpty,automaticPreview==nil else{return}
+        do {
+            let store=try ProxySubscriptionStore()
+            guard let due=try store.list().filter({$0.refresh?.isDue(lastAttempt:$0.lastAttempt)==true}).min(by:{($0.lastAttempt ?? .distantPast)<($1.lastAttempt ?? .distantPast)}),
+                  let claimed=try store.claimDue(due),claimed.refresh != nil else{return}
+            refreshSavedSubscriptions()
+            let url=try store.source(for:claimed.id)
+            loadSubscription(savedURL:url,saved:claimed,automatic:true)
+        }catch{importError=refreshText("Не удалось обновить подписку","Could not refresh subscription")}
+    }
     private func refreshSavedSubscriptions() {
         do { savedSubscriptions = try ProxySubscriptionStore().list() }
         catch { importError = ProxyImportUX.text("Не удалось прочитать сохранённые подписки") }
@@ -227,6 +286,8 @@ struct ProxyImportView: View {
 
     private func deleteSubscription(_ id: UUID) {
         do {
+            if activeSavedSource?.id==id {cancelSubscriptionFetch()}
+            if automaticPreview?.id==id {clearAutomaticPreview()}
             try ProxySubscriptionStore().remove(id)
             refreshSavedSubscriptions()
         } catch {
@@ -235,19 +296,25 @@ struct ProxyImportView: View {
     }
 
     private func loadSavedSubscription(_ id: UUID) {
+        guard visible,scenePhase == .active,!isFetchingSubscription,automaticPreview==nil else{return}
         do {
-            let url = try ProxySubscriptionStore().source(for: id)
-            loadSubscription(savedURL: url)
+            let store=try ProxySubscriptionStore()
+            guard let saved=try store.list().first(where:{$0.id==id}) else{return}
+            let claimed=try store.markManualAttempt(saved)
+            refreshSavedSubscriptions()
+            let url=try store.source(for:id)
+            loadSubscription(savedURL:url,saved:claimed)
         } catch {
             importError = ProxyImportUX.text("Не удалось прочитать сохранённую подписку")
         }
     }
 
-    private func loadSubscription(savedURL: URL? = nil) {
-        guard !isFetchingSubscription else { return }
+    private func loadSubscription(savedURL: URL? = nil,saved:SavedProxySubscription?=nil,automatic:Bool=false) {
+        guard visible,scenePhase == .active,!isFetchingSubscription,automaticPreview==nil else { return }
         let originalURL = subscriptionURL
         let originalSource = source
-        let selectedType = defaultType
+        let originalType = defaultType
+        let selectedType = automatic ? (saved?.refresh?.defaultType ?? defaultType) : defaultType
         let url: URL
         do {
             url = try savedURL ?? ProxySubscriptionImport.sourceURL(originalURL)
@@ -257,20 +324,38 @@ struct ProxyImportView: View {
         }
         editorFocused = false
         isFetchingSubscription = true
+        activeSavedSource=saved
+        let generation=UUID();refreshGeneration=generation
         importError = nil
         subscriptionTask = Task {
-            defer { isFetchingSubscription = false; subscriptionTask = nil }
+            defer {if refreshGeneration==generation {isFetchingSubscription=false;subscriptionTask=nil;activeSavedSource=nil}}
             do {
                 let downloaded = try await ProxySubscriptionFetch.load(url, defaultType: selectedType)
                 try Task.checkCancellation()
                 // A concurrent user edit must not be overwritten by a delayed response.
-                guard subscriptionURL == originalURL, source == originalSource,
-                      defaultType == selectedType else { return }
-                source = downloaded
-                parse() // Preview only; the user must explicitly tap Import.
+                guard refreshGeneration==generation,visible,scenePhase == .active,!scanQR,!chooseFile,
+                      subscriptionURL == originalURL, source == originalSource, defaultType == originalType else{return}
+                if let saved {
+                    guard try ProxySubscriptionStore().list().contains(saved) else{return}
+                }
+                if automatic,let saved {
+                    // Do not display downloaded credentials in the editable input.
+                    let rows=try ProxyImport.parse(downloaded,defaultType:selectedType)
+                    var unique:[String:ImportedProxy]=[:]
+                    for row in rows {
+                        let key="\(row.type.rawValue)|\(row.host.lowercased())|\(row.port)|\(row.username)"
+                        if let previous=unique[key],previous.password != row.password {throw ProxySubscriptionError.invalidBody}
+                        unique[key]=row
+                    }
+                    candidates=rows;automaticPreview=saved;parsedSource=""
+                } else {
+                    source = downloaded
+                    parse() // Preview only; the user must explicitly tap Import.
+                }
             } catch is CancellationError {
                 return
             } catch {
+                guard refreshGeneration==generation,visible,scenePhase == .active else{return}
                 // Never interpolate the URL, redirect target, native NSError
                 // or supplier-supplied body into a public error message.
                 if case ProxySubscriptionError.oversized = error {
@@ -285,7 +370,11 @@ struct ProxyImportView: View {
     }
 
     private func importProfiles() {
+        guard visible,scenePhase == .active,!isFetchingSubscription else{return}
         editorFocused = false
+        if let automaticPreview {
+            guard (try? ProxySubscriptionStore().list().contains(automaticPreview))==true else{clearAutomaticPreview();return}
+        }
         let items = pending
         guard !items.isEmpty else { return }
         // Importing into an existing installation must not unexpectedly
