@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Offline source correspondence of three identified MPL Go modules exported with original module archives, pinned go.sum/go.mod and nonrelease manifest; validation guards tested."
   - "Explicit digest-pinned local source Xray candidate in NativeLab unsigned-only build path; full iPhoneOS host/NE linked, origin and input/output hashes exported. Nested original license notices included for package ancestors (4 new)."
   - "Source-built macOS Xray offline verification runner and synthetic lifecycle probe; source/upstream same observed config/lifecycle result. iOS upstream comparison identified 13 differing member payloads, not just archive metadata."
   - "Official Go1.27.3 verified and isolated, exact annotated tag resolved to clean peeled commit, locked Go modules verified. Actual source-built iPhoneOS arm64 C archive and link twice; local repeat object contents match15/15. Xray source-root notice inventory49 components/66 files verified."
@@ -160,7 +161,7 @@ completed:
 
 
 
-current: "Source-built exact iPhoneOS Xray SHA811a60... now successfully linked to full isolated unsigned NativeLab app/NE with existing verified Rust candidate. Explicit opt-in source mode verifies library/header before and after copy, denies source-mode signing, exports artifact/input hashes and origin. Source graph inventory extended to 70 root/nested notices for 49 components, hashes70/70. Targeted pytest20/20. No signing, device or VPN actions; no actual packet exchange for new source-built archive. Prior macOS synthetic config/lifecycle and physical upstream acceptance retained."
+current: "Exact 434c91443 CI7/7. Three MPL modules (Xray-core, Reality, gopher-luar) source correspondence archive set exported from verified offline module cache, lock sums, ZIP CRC, path and SHA verified, manifest nonrelease. Targeted pytest21/21. No new packet-plane acceptance; previous source NativeLab unsigned compile/link and source macOS config/lifecycle remain accepted. Phone untouched."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -172,8 +173,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "dd4591351 plus source candidate unsigned app/NE build, exported artifact SHA and nested notices70/70, targeted pytest20 locally verified; exact new CI pending"
+last_verified_commit: "434c91443 CI7/7; MPL source archive export and SHA3/3, pytest21/21 verified locally; new CI pending"
 test_results:
+  - "Exact 434c91443 CI7/7; go mod verify, three MPL archives CRC/locked sums/export SHA PASS, targeted pytest21/21. No data-plane or new signed runtime acceptance."
   - "NativeLab unsigned build/link PASS, Xray and Rust symbols verified, exported host/NE SHA256 validated, no embedded profile/dylib; source candidate digest/scope and nested notice pytest20/20. Xray49 components/70 notice hashes verified. No runtime data-plane test for this new archive, no signing or device changes."
   - "Offline source cache all modules verified, VLESS2/2 for both, valid/invalid WG config and 3 start/stop cycles for both, repeated runner PASS, pytest11/11. iOS archive local/upstream 2/15 member payload hashes match. No data-plane/NE/phone acceptance."
   - "Xray source download/Go mod verify PASS, offline iOS build and link2/2, header and archive member payloads15/15 equal; full archives not byte-identical to each other/upstream. Notice SHA66/66. Initial source pin comparison failed because annotated tag != peeled commit; corrected. Link required CoreFoundation/Security; rerun PASS. Wrong Python runner fixed using python3.14 pytest. No runtime activation."
@@ -282,4 +284,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact PR383 head CI. Next local-only source-built Xray data-plane acceptance using existing synthetic local fixture, only if scoped and supported, no external endpoint or real credentials; review current NativeLab unsigned artifact native-artifacts/native-source-xray-unsigned-20261115 (not signed or installed) and prepare later supervised acceptance. Do not repeat accepted upstream physical20 or identical failed simulator launch. Finish nested source/notice obligations beyond named files, Rust two unresolved notices, actual NE route/DNS and shared Keychain, integration UI, CloudKit/backup and handoff. No production linkage, new registrations, sign/install/publish or owner-device changes without separate approval. Continue independent offline work from checkpoint."
+resume_instruction: "Verify exact-head PR383 CI. Continue independent release-readiness engineering: consolidate candidate inventory and explicit remaining acceptance gates; prepare safe scope for local source-built data-plane validation with existing fixtures, without widening existing fixture authorization or modifying owner devices. Actual signed cross-process Keychain, routing/DNS, Wi-Fi/LTE, CloudKit and runtime integration remain open. Source correspondence exists in native-artifacts/xray-source-20261115/mpl-source-correspondence; final legal review, distribution method and Rust two missing notices unresolved. No repeat of accepted physical20 or failed sim launch; no sign/install/merge/publish without approval."

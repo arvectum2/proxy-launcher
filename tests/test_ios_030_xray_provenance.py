@@ -170,3 +170,21 @@ def test_nested_notice_inventory_preserves_package_ancestor(tmp_path):
     out=tmp_path/'out';inv.inventory(graph,go,out)
     m=json.loads((out/'manifest.json').read_text());row=next(x for x in m['modules'] if x['module']=='example.invalid/module')
     assert {f['module_relative_path'] for f in row['files']}=={'LICENSE','internal/LICENSE'}
+
+
+def test_mpl_correspondence_rejects_incomplete_wrong_lock_and_archive_paths(tmp_path):
+    import pytest
+    import zipfile
+    spec=importlib.util.spec_from_file_location('mpl_export',SCRIPT.parent/'export_xray_mpl_sources.py')
+    m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+    cache=tmp_path/'cache';cache.mkdir();rows=[];lock=set()
+    for i,name in enumerate(m.MODULES):
+        z=cache/f'{i}.zip';version='v1.0.0'
+        with zipfile.ZipFile(z,'w') as f:f.writestr(name+'@'+version+'/LICENSE','Mozilla Public License')
+        row={'Path':name,'Version':version,'Zip':str(z),'Sum':'h1:fixture','GoModSum':'h1:modfixture'}
+        rows.append(row);lock.update([(name,version,row['Sum']),(name,version+'/go.mod',row['GoModSum'])])
+    assert len(m.check_rows(rows,lock,cache))==3
+    with pytest.raises(ValueError,match='module set mismatch'):m.check_rows(rows[:-1],lock,cache)
+    with pytest.raises(ValueError,match='locked sum mismatch'):m.check_rows(rows,set(),cache)
+    with zipfile.ZipFile(rows[0]['Zip'],'w') as f:f.writestr('../LICENSE','Mozilla Public License')
+    with pytest.raises(ValueError,match='unexpected archive paths'):m.check_rows(rows,lock,cache)
