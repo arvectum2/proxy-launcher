@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stages33-34 owned runtime dispatch, explicit disposable QA harness with metadata export, exact setup/stale/drain receipts and OS-off; pinned containing build verified, physical runbook added. Offline only."
   - "Stage34a actual QA-only product host command, disposable manager/fixture guards, exact setup/stale-epoch observations and independently verifiable drain exchange; focused Swift2/2 and Python3/3 pass; actual QA-harness containing build pending."
   - "Stage33a shared app dispatch with distinct explicit native runtime mode, exact manager ownership and pre/post-drain census; focused 2 Swift and 3 Python checks pass, containing build pending."
   - "Stage32 Rust native exact DNS, explicit full Xray WG route, VLESS dual-stack scoped datagrams, pinned actual containing build and binding."
@@ -241,8 +242,9 @@ completed:
 
 
 
-current: "Stage33 exact 0e7d71de unsigned containing ARM64 build PASS, manifest7319e64bd876ee6c4b319114685bace8ab224af1a6d73d1af3d09b846fdc1ffe hostbc3e5f4787249009ad53428f3e54baebafd227ffad6247c7a20469f4b6f9f1af providerb391afafe2ef5c02dcec8daf878414100e2a145ae1213f5c1a9aa8ff3351339f, 11 Go+214 Rust. Stage34 explicit separate QA harness source with bounded fixed witnesses, manager-only operations on disposable fixture with no preexisting legacy manager, setup/stale rejection before probe and exact drain+OS-off before receipt; focused Swift2/2 and Python3/3. No signing or device actions. Build pending."
+current: "Stages33-34 offline owned dispatch and explicit QA harness complete. Exact bf886675 unsigned containing ARM64 build/link PASS, manifest16ed8927690ea2d27afbe6da9c079039f72a715158c55e434b3669d4f6f582d5; five evidence hashes verified; 467 recorded sources, 11 Go+214 Rust objects. No signed physical acceptance. Runbook docs/mobile/native-runtime-physical-acceptance.md. Blocked on approved disposable physical/peer/signing environment; expanded peer fixtures and final legal/security remain open."
 blocked_on:
+  - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
   - "No physical test or release without appropriate user supervision/approval; previous isolated native data/control permission blockers resolved."
@@ -253,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "0e7d71de exact gated ARM64 containing build+link PASS; Stage34 focused Swift2/2 and Python3/3, actual harness build pending"
+last_verified_commit: "bf886675d2aba327bb35c48dc85e04d984e1b48e exact gated unsigned ARM64 containing build/link PASS; Stage34 focused Swift2/2, Python3/3 before final actor fix; final build and five artifact hash checks PASS; exact CI mirror SUCCESS, six checks queued at observation."
 test_results:
+  - "Stage34 focused Swift2/2 + Python3/3 PASS; initial actor isolation compile error corrected; exact bf886675 final unsigned ARM64 build/link PASS, five manifest evidence hashes PASS; no physical runtime or signing."
   - "Stage32 Rust arithmetic/address+scope regression1/1 PASS, Swift ticket/full-route/VLESS config1/1 PASS, actual unsigned containing ARM64 build+link PASS; no physical/runtime/broad QA."
   - "Stage31 focused Swift1/1 PASS, unsigned ARM64 runtime-review containing build/link PASS; previous5cbf00e4 CI7/7. No physical traffic/GUI/full-suite."
   - "Stage30 final Go ARM64 c-archive/link and actual containing unsigned DEBUG PASS, one focused Go down-state/lifecycle test PASS, 463 source hashes; no live VPN or signed acceptance."
@@ -410,4 +413,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify Stage34 exact QA-harness containing unsigned build with APL_COMPILE_NATIVE_RUNTIME_QA_HARNESS=1 and pinned native DNS inputs. Fix compiler errors if present. Prepare concrete signed disposable device acceptance commands and independent witness requirements; update checkpoint. Actual user device/account/signing/manager mutations not authorized. After offline gates, mark blocked on approved exact test environment and explicit scope; do not manufacture further compile-only tasks."
+resume_instruction: "Do not spin on blocked task. On explicit approval of disposable physical device, exact signed artifact and isolated independent peers, follow docs/mobile/native-runtime-physical-acceptance.md. Verify exact-head CI and signed identities, adapt expanded peer fixtures, perform K1/K2 then scoped runtime witness/capture and fault acceptance with fresh requests. Retain default production gates. CloudKit two-device, VLESS full DNS/domain exclusion policy, notices/security and release approval remain separate. Never modify owner devices/accounts or publish without authorization."
