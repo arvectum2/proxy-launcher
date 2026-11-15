@@ -18,7 +18,7 @@ tar -xzf "$archive" -C "$work"
 export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off
 mkdir "$work/lab"
 ln -s "$source_dir" "$work/upstream"
-cp "$root"/main.go "$root"/go.mod "$root"/go.sum "$work/lab/"
+cp "$root"/main.go "$root"/client.go "$root"/go.mod "$root"/go.sum "$work/lab/"
 cd "$work/lab"
 go mod verify
 GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -mod=readonly -trimpath -o "$output" .

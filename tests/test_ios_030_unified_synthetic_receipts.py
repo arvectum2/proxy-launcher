@@ -106,3 +106,33 @@ def test_containing_host_requires_explicit_arm_and_preserves_production_targets(
     assert 'HOST_REQUIRES_SYNTHETIC_RUNTIME' in b and 'embed: true' in b and "x.pop('APLKeychainAccessGroup',None)" in b
     assert 'no runnable bundle retained' in b
     assert 'UnifiedAcceptanceHost' not in (TOOLS.parent/'project.yml').read_text()
+
+
+@pytest.mark.parametrize('mode,counts',[('positive','tcp4=0 tcp6=0 udp4=0 udp6=1 sent=10 received=11'),('wrong-key','tcp4=0 tcp6=0 udp4=0 udp6=0 sent=0 received=2')])
+def test_reference_wg_adapter_checks_joined_peer_and_exact_family(mode,counts):
+    import adapt_unified_wg_peer_receipt as a
+    m,private,peer=f.generate('wireGuard','udp6',mode,None);w=f.witness_input(m,private)
+    log='PEER_QA_READY_server\nWG_WITNESS '+counts+'\nPEER_QA_STOPPED_server\n'
+    result=a.convert(m,private,peer,w,log,0)
+    assert result['witnessCounts']['udp6']==int(mode=='positive')
+    for bad in (log+log,log.replace('PEER_QA_STOPPED_server',''),log.replace('udp4=0','udp4=1'),log.replace('received=','received=99999')):
+        with pytest.raises(v.Invalid):a.convert(m,private,peer,w,bad,0)
+    with pytest.raises(v.Invalid):a.convert(m,private,dict(peer,nonce='0'*40),w,log,0)
+    with pytest.raises(v.Invalid):a.convert(m,private,peer,w,log,1)
+
+
+@pytest.mark.parametrize('mode',['positive','wrong-key'])
+def test_vless_adapter_preserves_measured_byte_units(mode):
+    import adapt_unified_vless_peer_receipt as a
+    m,private,peer=f.generate('vlessReality','tcp4',mode,None);w=f.witness_input(m,private)
+    positive=mode=='positive';expected=f.digest(('APL_RECEIPT:'+private['nonce']).encode()) if positive else None
+    obs={**{k:m[k] for k in ('runID','candidateManifestSHA256','peerInputSHA256','challengeSHA256')},'ready':True,'stopped':True,'processExit':0,'observationClosed':True,'ingressBytes':1300,'egressBytes':800,'witnessCount':int(positive),'responseSHA256':expected}
+    p=a.convert(m,private,peer,w,obs);assert p['schema']==2 and p['ingressBytes']==1300 and 'ingressPackets' not in p
+    for delta in ({'ingressBytes':0},{'ingressBytes':True},{'egressBytes':1048577},{'stopped':False},{'processExit':1},{'runID':f.uid()},{'witnessCount':2},{'responseSHA256':'0'*64}):
+        with pytest.raises(v.Invalid):a.convert(m,private,peer,w,dict(obs,**delta))
+    exchanges=[];identity=m['identity']
+    for action,state,i in [('observe','starting',identity),('observe','rejected',dict(identity,epoch=f.uid())),('drain','drained',identity)]:
+        q={'version':1,'id':f.uid(),'identity':i,'action':action};exchanges.append({'request':q,'response':dict(q,state=state)})
+    h={**{k:m[k] for k in ('runID','owner','identity','fixtureSHA256','probe','mode')},'schema':1,'exchanges':exchanges,'responseSHA256':expected,'probeAttempted':True,'osOff':True}
+    assert v.validate(m,h,p,private)['release_authorized'] is False
+    with pytest.raises(v.Invalid):v.validate(m,h,dict(p,ingressPackets=1300),private)

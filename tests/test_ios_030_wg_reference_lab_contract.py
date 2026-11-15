@@ -19,8 +19,9 @@ def test_separate_official_pinned_runtime():
 def test_single_loopback_udp_peer_and_single_synthetic_tcp_destination():
     src = (LAB / "main.go").read_text()
     assert "net.IPv4(127, 0, 0, 1)" in src
-    assert "a.Port() != 39881" in src
-    assert "e.Port() != 39881" in src
+    assert "a.Port() != l.remote()" in src
+    assert "return 39881" in src
+    assert "e.Port() != l.remote()" in src
     assert 'netstack.CreateNetTUN' in src
     assert '"198.51.100.77:39883"' in src
     assert 'net.DialTimeout("tcp4", "127.0.0.1:39883"' in src

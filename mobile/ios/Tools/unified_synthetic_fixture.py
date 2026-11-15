@@ -31,7 +31,7 @@ def generate(kind,probe,mode,local,candidate=CONTAINING_CANDIDATE):
     nonce=secrets.token_hex(24 if kind=='amneziaWG1' else 20)
     if kind=='wireGuard':
         fixture=(' [Interface]\nPrivateKey = '+b64(cp)+'\nAddress = 10.77.0.2/32, 2001:db8:77::2/128\n[Peer]\nPublicKey = '+b64(w)+'\nPresharedKey = '+b64(psk)+'\nEndpoint = 192.168.1.80:39881\nAllowedIPs = 198.51.100.77/32, 2001:db8:77::77/128\n').lstrip().encode()
-        server={'private':sp.hex(),'peer':cu.hex(),'psk':psk.hex(),'dual':True}
+        server={'private':sp.hex(),'peer':cu.hex(),'psk':psk.hex(),'dual':True,'nonce':nonce}
     elif kind=='amneziaWG1':
         fixture=cp+w+(secrets.token_bytes(32) if mode=='wrong-psk' else psk)
         server={'Private':sp.hex(),'Peer':cu.hex(),'PSK':psk.hex(),'Nonce':nonce,'ClientIP':str(IPv4Address(local))}

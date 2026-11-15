@@ -41,11 +41,16 @@ def validate(m,h,p,private):
         identity(r['identity'],provider);need(q['action']==action and r==dict(q,state=state),'response mismatch')
     expected=digest((('APL:' if kind=='amneziaWG1' else 'APL_RECEIPT:')+nonce).encode())
     positive=mode=='positive';need(h['responseSHA256']==(expected if positive else None),'host response mismatch')
-    exact(p,'schema runID candidateManifestSHA256 challengeSHA256 peerInputSHA256 probe mode observationClosed ingressPackets egressPackets witnessCounts responseSHA256')
-    need(type(p['schema'])==int and p['schema']==1 and p['observationClosed'] is True,'peer observation incomplete')
+    fields='schema runID candidateManifestSHA256 challengeSHA256 peerInputSHA256 probe mode observationClosed witnessCounts responseSHA256'
+    if kind=='vlessReality' and p.get('schema')==2:
+        exact(p,fields+' ingressBytes egressBytes');keys=('ingressBytes','egressBytes');limit=1048576
+    else:
+        exact(p,fields+' ingressPackets egressPackets');keys=('ingressPackets','egressPackets');limit=4096
+        need(p.get('schema')==1,'unsupported receipt schema')
+    need(type(p['schema'])==int and p['observationClosed'] is True,'peer observation incomplete')
     for k in ('runID','candidateManifestSHA256','challengeSHA256','peerInputSHA256','probe','mode'):need(p[k]==m[k],'peer binding mismatch')
-    for k in ('ingressPackets','egressPackets'):need(type(p[k])==int and 0<=p[k]<=4096,'invalid transport counters')
-    need(p['ingressPackets']>0 and (not positive or p['egressPackets']>0),'missing independent packet observation')
+    for k in keys:need(type(p[k])==int and 0<=p[k]<=limit,'invalid transport counters')
+    need(p[keys[0]]>0 and (not positive or p[keys[1]]>0),'missing independent transport observation')
     counts=p['witnessCounts'];exact(counts,'tcp4 tcp6 udp4 udp6');need(all(type(v)==int for v in counts.values()) and counts=={k:int(positive and k==probe) for k in counts},'unexpected witness count or family')
     need(p['responseSHA256']==(expected if positive else None),'peer response mismatch')
     return {'status':'correlated_receipt_only','runtime_authorized':False,'release_authorized':False,'runID':m['runID'],'kind':kind,'probe':probe,'mode':mode,'scope':'requires independent provenance and actual signed binary identity review; no ready claim'}
