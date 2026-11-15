@@ -7,3 +7,6 @@
 • معلومات آلے پر رہتی ہیں اور پاس ورڈ کی چین میں محفوظ ہوتے ہیں
 
 اپنے پراکسی سرور کی تفصیل درج کریں؛ APL سرور فراہم نہیں کرتا۔
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

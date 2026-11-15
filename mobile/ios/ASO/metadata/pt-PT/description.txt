@@ -7,3 +7,6 @@ Ligue o iPhone a um proxy configurado por si e controle facilmente as ligações
 • Dados guardados no dispositivo e palavra-passe no Porta-chaves
 
 Utilize o seu servidor proxy; o APL não fornece nem vende servidores.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

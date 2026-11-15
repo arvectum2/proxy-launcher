@@ -7,3 +7,6 @@ iPhone’unuzu kendi yapılandırdığınız proxy üzerinden bağlayın ve bağ
 • Bilgiler cihazda kalır, parolalar Anahtar Zinciri’nde saklanır
 
 Kendi proxy sunucunuz gerekir; APL sunucu sağlamaz.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

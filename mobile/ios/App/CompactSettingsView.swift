@@ -14,6 +14,7 @@ struct CompactSettingsView<Header: View>: View {
     let qaProfile: Bool
     let header: Header
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var showAbout=false
 
     /// On regular iPhones the entire Settings overview fits without scrolling.
     /// Smaller devices and Accessibility text sizes get a scrollable fallback,
@@ -35,6 +36,17 @@ struct CompactSettingsView<Header: View>: View {
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height,
                        alignment: .top)
+            }
+        }.sheet(isPresented:$showAbout) {
+            NavigationView {
+                ScrollView {
+                    VStack(alignment:.leading,spacing:16) {
+                        Text("Arvectum Proxy Launcher").font(.headline)
+                        Text(AppShared.version).font(.subheadline)
+                        Text(verbatim:AppL10n.effectiveLanguage=="ru" ? "Создано с использованием Yandex Mobile Ads SDK" : "Developed with the use of Yandex Mobile Ads SDK")
+                        Text(verbatim:AppL10n.effectiveLanguage=="ru" ? "Создано с использованием Yandex AppMetrica SDK" : "Developed with the use of Yandex AppMetrica SDK")
+                    }.padding().frame(maxWidth:.infinity,alignment:.leading)
+                }.navigationTitle(AppL10n.effectiveLanguage=="ru" ? "О программе" : "About")
             }
         }
     }
@@ -202,11 +214,15 @@ struct CompactSettingsView<Header: View>: View {
             if !model.profiles.isEmpty || qaProfile {
                 compactAutomaticRoutingSettings
             }
-            HStack {
-                Text(AppL10n.tr("Версия"))
-                Spacer()
-                Text(AppShared.version)
-            }
+            Button {showAbout=true} label: {
+                HStack {
+                    Text(verbatim:AppL10n.effectiveLanguage=="ru" ? "О программе" : "About")
+                    Spacer()
+                    Text(AppShared.version)
+                    Image(systemName:"chevron.right").accessibilityHidden(true)
+                }
+            }.buttonStyle(.plain)
+            .accessibilityIdentifier("settings.aboutSDKAttribution")
             .font(.caption)
             .foregroundStyle(Brand.softGray)
             .padding(.horizontal, 10)

@@ -28,6 +28,9 @@ for row in rows:
  intro=row['intro']
  features=[f"• HTTP, HTTPS CONNECT, SOCKS5",f"• {row['profiles']}",f"• {row['exclusions']}",f"• {row['shortcuts']}",f"• {row['privacy']}"]
  description=intro+'\n\n'+'\n'.join(features)+'\n\n'+row['disclaimer']
+ # Required SDK attribution for future authorized metadata; no upload.
+ attribution = ('Создано с использованием ' if locale=='ru' else 'Developed with the use of ')
+ description += '\n\n'+attribution+'Yandex Mobile Ads SDK.\n'+attribution+'Yandex AppMetrica SDK.'
  keyword=row['keywords'].replace('，',',').replace('،',',').strip()
  data={'locale':locale,'iosLanguage':APP_CODES[locale],
        'name':name,'subtitle':row['subtitle'],

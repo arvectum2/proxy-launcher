@@ -7,3 +7,6 @@ Route your iPhone traffic through a proxy you choose, with straightforward contr
 • Connection details stay on the device; passwords use Keychain
 
 Enter your own proxy details. APL does not supply proxy servers.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

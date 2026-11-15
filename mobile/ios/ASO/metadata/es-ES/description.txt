@@ -7,3 +7,6 @@ Conecta tu iPhone a través del proxy que tú configuras, con controles claros y
 • Los datos del proxy quedan en tu dispositivo y la contraseña se guarda en el llavero
 
 Necesitas tu propio servidor proxy; APL no vende ni proporciona servidores.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

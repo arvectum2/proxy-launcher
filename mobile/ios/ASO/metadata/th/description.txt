@@ -7,3 +7,6 @@
 • ข้อมูลอยู่ในเครื่อง และรหัสผ่านเก็บไว้ในพวงกุญแจ
 
 ต้องใช้เซิร์ฟเวอร์พร็อกซีของคุณเอง APL ไม่ได้ให้บริการเซิร์ฟเวอร์
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.
