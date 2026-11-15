@@ -321,6 +321,58 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{calls+=1;if calls==2{m.bytes=changedBytes};return true}));XCTAssertEqual(m.bytes,changedBytes);XCTAssertNil(try c.reader.selectionAuthority(a.reference))
         try c.migrateLegacyForValidation(vpnInactive:{true});XCTAssertNil(try c.reader.selectionAuthority(a.reference));XCTAssertEqual(try c.reader.snapshot().current,[a.reference])
     }
+    @MainActor func testLaunchBoundaryConnectsAllThreeStoredKindsToProviderReceiver() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=Curve25519.KeyAgreement.PrivateKey(),b=Curve25519.KeyAgreement.PrivateKey()
+        let src="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
+        let awg=src.replacingOccurrences(of:"[Peer]",with:"Jc=0\nJmin=0\nJmax=0\nS1=15\nS2=18\nH1=123456\nH2=67543\nH3=123123\nH4=32345\n[Peer]")
+        let key=b.publicKey.rawRepresentation.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
+        let vless="vless://\(UUID().uuidString.lowercased())@192.0.2.42:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk=\(key)&sid=abcd"
+        let records=[try NativeCredentialRecord.create(profileID:UUID(),expected:.wireGuard,source:src),try NativeCredentialRecord.create(profileID:UUID(),expected:.amneziaWG1,source:awg),try NativeCredentialRecord.create(profileID:UUID(),expected:.vlessReality,source:vless)]
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]})
+        let receiverHandoff=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{try c.reader.authorizes($0)})
+        var coordinator=TransportBackendCoordinator()
+        for r in records {
+            try c.save(r,select:true)
+            let intent=try bridge.prepare(reference:r.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+            guard case .start(let session)=try coordinator.begin(intent.plan) else {return XCTFail("expected start")}
+            let expected=try intent.expectedBinding(for:session),launch=try bridge.issue(intent,for:session)
+            XCTAssertEqual(Mirror(reflecting:launch).children.count,0)
+            XCTAssertFalse(String(decoding:launch.ticketBytes,as:UTF8.self).contains("192.0.2.42"))
+            XCTAssertThrowsError(try bridge.issue(intent,for:session))
+            var receiver=try NativeCredentialReceiver(expected:expected,provider:r.reference.kind.provider)
+            let ok=try receiver.consumeForValidation(launch.ticketBytes,via:receiverHandoff){route,bytes in route.provider==r.reference.kind.provider && route.remoteAddress=="192.0.2.42" && !bytes.isEmpty}
+            XCTAssertTrue(ok);XCTAssertTrue(tickets.values.isEmpty)
+            try bridge.finish(intent)
+            _=try coordinator.ready(session.token,provider:session.plan.provider);_=try coordinator.requestStop(session.token)
+            _=try coordinator.acknowledgeNativeDrain(session.token);_=try coordinator.acknowledgeOSDisconnected(session.token)
+        }
+        XCTAssertEqual(items.values.count,3);XCTAssertEqual(coordinator.phase,.idle)
+    }
+    @MainActor func testLaunchBoundaryRejectsProductionCapabilitiesAndStaleSelection() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]})
+        func prepare(_ scope:TransportBackendPlan.Scope = .syntheticLab,_ required:Set<TransportProbeCapability> = [.tcpIPv4],_ exclusions:[String] = []) throws -> NativeSessionLaunchBoundary.Intent {try bridge.prepare(reference:a.reference,scope:scope,routes:.tunnelOnly,required:required,siteExclusions:exclusions,applicationExclusions:[])}
+        XCTAssertThrowsError(try prepare(.production));XCTAssertThrowsError(try prepare(.syntheticLab,[.dns]));XCTAssertThrowsError(try prepare(.syntheticLab,[.tcpIPv4],["example.com"]))
+        let intent=try prepare();var coordinator=TransportBackendCoordinator();guard case .start(let session)=try coordinator.begin(intent.plan) else{return XCTFail("start")}
+        try c.select(a.reference);XCTAssertThrowsError(try bridge.issue(intent,for:session));XCTAssertTrue(tickets.values.isEmpty)
+        XCTAssertThrowsError(try bridge.issue(intent,for:session))
+    }
+    @MainActor func testLaunchBoundaryWrongSessionAndFailedCleanupRetainsOwnership() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]})
+        func prepare() throws -> NativeSessionLaunchBoundary.Intent {try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])}
+        let bad=try prepare();let other=try TransportBackendPlan.prepare(profileID:b.reference.profileID,revision:b.reference.revision,protocol:.wireGuard,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4]);var unrelated=TransportBackendCoordinator()
+        guard case .start(let wrong)=try unrelated.begin(other) else{return XCTFail("start")}
+        XCTAssertThrowsError(try bridge.issue(bad,for:wrong));XCTAssertTrue(tickets.values.isEmpty)
+        let intent=try prepare();var coordinator=TransportBackendCoordinator();guard case .start(let session)=try coordinator.begin(intent.plan) else{return XCTFail("start")}
+        _=try bridge.issue(intent,for:session);tickets.failRemove=true
+        XCTAssertThrowsError(try bridge.finish(intent));XCTAssertThrowsError(try prepare());XCTAssertEqual(tickets.values.count,1)
+        tickets.failRemove=false;try bridge.finish(intent);XCTAssertTrue(tickets.values.isEmpty);XCTAssertEqual(items.values.count,2)
+    }
     @MainActor func testCorruptCatalogAndLegacyCollisionFailClosed() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),r=try record()
         let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[r.reference.profileID]})
