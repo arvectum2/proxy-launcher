@@ -55,3 +55,12 @@ def test_isolated_host_only_bounded_explicit_owned_manager():
     assert 'item.removeFromPreferences()' in host
     assert '.onAppear' not in host and '.onDemandRules' not in host
     assert 'NativeLabHost' not in (IOS / "project.yml").read_text()
+
+
+def test_real_native_control_endpoint_exists_only_in_lab():
+    endpoint=IOS / "Tools/NETunnelNativeControlEndpoint.swift"
+    assert endpoint.is_file()
+    assert "labProviderID" in endpoint.read_text()
+    assert "NETunnelNativeControlEndpoint.swift" not in (IOS / "ArvectumProxyLauncherIOS.xcodeproj/project.pbxproj").read_text()
+    assert "Tools/NETunnelNativeControlEndpoint.swift" in (IOS / "Tools/NativeTunnelLab/build_unsigned.sh").read_text()
+    assert "Tools/NETunnelNativeControlEndpoint.swift" in (IOS / "Tools/AWGNativeLab/build_packet_flow.sh").read_text()

@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "scope": "local research evidence, not release authorization",
+  "source_commit": "434c91443552d54a53e0e9a7127b9c254276b7bc",
+  "inventories": {
+    "xray": {"path":"xray-source-20261115/ios-license-inventory-nested/manifest.json","sha256":"bafc1906d5bf07c462e01f5f958e1ae495a476f20a54d88ae36b4da93e1e1d66"},
+    "mpl": {"path":"xray-source-20261115/mpl-source-correspondence/manifest.json","sha256":"da4920d10810cf4e791f2b76d31befb56db7146e5b495338e1a3a61bc85e69f9"},
+    "awg": {"path":"awg-ios-source-license-inventory-20261115/manifest.json","sha256":"8c29add5efe9035f12c288ca99489e3ce4f1323cd8f85c6a63c353f812f9fac4"},
+    "rust": {"path":"tun2proxy-ios-source-license-inventory-20261115/manifest.json","sha256":"3988ff7d3414c8ac849ea20b4d7d6324898417e23e17f3c9c12bf5a944a2d338"}
+  },
+  "lab": {"path":"native-source-xray-unsigned-20261115","sha256s":{
+    "NATIVE-SHA256SUMS":"4e49252ea295947e4ce56214b225800d5be503ca9a55e12a976ee0b22f3e562e",
+    "XRAY-INPUT-SHA256SUMS":"5bd44cdc49e548e86fcdf41147e8b4f4d2d4e87805805ab3769be8a4a8f1fb1b",
+    "XRAY-ORIGIN":"9043d3d60d1e6a1e18ded8adcdb951d9881e12433f2811eac6eaeb3617747ec3"
+  }}
+}

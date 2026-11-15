@@ -35,7 +35,6 @@
 		1A54AB50DD8E10256EE15147 /* NativeProfilePreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35837878A368D550BC7FC497 /* NativeProfilePreparation.swift */; };
 		1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		1B739A721964FF8EBD71E441 /* VLESSRealityShareLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */; };
-		1C2290B65AC0B770EF3F8834 /* NETunnelNativeControlEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC69CC9F96A680E06E987F94 /* NETunnelNativeControlEndpoint.swift */; };
 		1E23FF60E2DF996751E3EE47 /* TunnelEngineExitGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */; };
 		1EA289B35370B82540C513DA /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
@@ -691,7 +690,6 @@
 		EB2FAF44FD51DBD2778B69A0 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		EB4BD1E88767A4DFC13ACE41 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		EBB1FC6F3E7A137B67CF8C60 /* PhysicalVPNEgressHostTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNEgressHostTests.swift; sourceTree = "<group>"; };
-		EC69CC9F96A680E06E987F94 /* NETunnelNativeControlEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NETunnelNativeControlEndpoint.swift; sourceTree = "<group>"; };
 		ECD24223C3044B4C0F33BC36 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		ED06A97B13E9981968F60FE3 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		ED9A0A9D12DC4FD6895628A1 /* ProfilesScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesScreenView.swift; sourceTree = "<group>"; };
@@ -961,7 +959,6 @@
 				D3EAE75AFADAFE338F502B8D /* JournalView.swift */,
 				83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */,
 				1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */,
-				EC69CC9F96A680E06E987F94 /* NETunnelNativeControlEndpoint.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				0E65F6FC66967039D32722A9 /* ProfileBackupUX.swift */,
 				751E6300F0328159413E5DFF /* ProfileBackupView.swift */,
@@ -1377,7 +1374,6 @@
 				A70DFE418DD0D380C7D6D088 /* JournalView.swift in Sources */,
 				9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */,
 				8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */,
-				1C2290B65AC0B770EF3F8834 /* NETunnelNativeControlEndpoint.swift in Sources */,
 				446F8BFF2B7019A5503901F4 /* NativeCredentialCatalog.swift in Sources */,
 				893B4353972600B380BFA0FE /* NativeCredentialHandoff.swift in Sources */,
 				B2BB96A78CD0EF39BC0B78E4 /* NativeCredentialKeychain.swift in Sources */,

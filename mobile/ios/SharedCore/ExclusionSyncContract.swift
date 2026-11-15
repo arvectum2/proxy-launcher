@@ -101,3 +101,23 @@ enum ExclusionSyncContract {
         }
     }
 }
+
+/// Short-lived account identity proof. Memory only, never encoded or logged.
+struct ExclusionCloudAccountReview: CustomStringConvertible, CustomReflectable {
+    private let accountID: String
+    private let issued: TimeInterval
+    static let lifetime: TimeInterval = 300
+    init(accountID: String, elapsed: TimeInterval) throws {
+        guard Self.valid(accountID), elapsed.isFinite, elapsed >= 0 else {throw ExclusionSyncError.invalid}
+        self.accountID=accountID;self.issued=elapsed
+    }
+    func matches(accountID: String, elapsed: TimeInterval) -> Bool {
+        let age=elapsed-issued
+        return Self.valid(accountID) && accountID == self.accountID && age.isFinite && age >= 0 && age < Self.lifetime
+    }
+    private static func valid(_ id: String) -> Bool {
+        !id.isEmpty && id.utf8.count <= 512 && !id.unicodeScalars.contains{CharacterSet.controlCharacters.contains($0) || CharacterSet.whitespacesAndNewlines.contains($0)}
+    }
+    var description: String {"ExclusionCloudAccountReview(redacted)"}
+    var customMirror: Mirror {Mirror(self,children:[:])}
+}

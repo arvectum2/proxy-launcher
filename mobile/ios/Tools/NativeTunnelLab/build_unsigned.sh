@@ -55,7 +55,7 @@ cp "$root/SharedCore/VLESSRealityShareLink.swift" "$root/SharedCore/ManagedProfi
 for name in TransportBackendContract TransportBackendAdapter TransportNativeControl OwnedNativeControlSlot; do
     cp "$root/SharedCore/$name.swift" "$work/Host/"
 done
-cp "$root/App/NETunnelNativeControlEndpoint.swift" "$root/Tools/NativeControlLabHost.swift" "$work/Host/"
+cp "$root/Tools/NETunnelNativeControlEndpoint.swift" "$root/Tools/NativeControlLabHost.swift" "$work/Host/"
 # Only the future explicitly approved isolated signing will use these.
 cat >"$work/Lab.entitlements" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>

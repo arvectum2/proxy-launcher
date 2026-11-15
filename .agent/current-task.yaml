@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Account-bound CloudKit review checked around reads (including absence) and writes with 5min monotonic expiry and redacted memory-only ID. Unified research evidence integrity audit pinned manifests/344 notices/3 MPL sources/2 lab binaries. Moved unchanged real lab-only control endpoint out of production source target and rebuilt both labs."
   - "Offline source correspondence of three identified MPL Go modules exported with original module archives, pinned go.sum/go.mod and nonrelease manifest; validation guards tested."
   - "Explicit digest-pinned local source Xray candidate in NativeLab unsigned-only build path; full iPhoneOS host/NE linked, origin and input/output hashes exported. Nested original license notices included for package ancestors (4 new)."
   - "Source-built macOS Xray offline verification runner and synthetic lifecycle probe; source/upstream same observed config/lifecycle result. iOS upstream comparison identified 13 differing member payloads, not just archive metadata."
@@ -161,7 +162,7 @@ completed:
 
 
 
-current: "Exact 434c91443 CI7/7. Three MPL modules (Xray-core, Reality, gopher-luar) source correspondence archive set exported from verified offline module cache, lock sums, ZIP CRC, path and SHA verified, manifest nonrelease. Targeted pytest21/21. No new packet-plane acceptance; previous source NativeLab unsigned compile/link and source macOS config/lifecycle remain accepted. Phone untouched."
+current: "Phone unavailable per owner: offline CloudKit account-bound 5min review and consolidated pinned evidence integrity audit complete. Found full-regression isolation failure (existing lab-only endpoint in production App source); moved unchanged endpoint to Tools and both lab scripts updated. Swift347/347, full iOS pytest411/411 +1527 subtests, unsigned Release, explicit gated simulator Debug, source-Xray NativeLab, AWG device/simulator unsigned builds PASS. Evidence 344 notices,3 MPL archives,2 unsigned executable digests and source graph/archive verified; 2 missing Rust notices. Prior 9bf869958 CI7/7. No actual Apple account, owner Keychain, signing, phone or production activation."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -173,8 +174,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "434c91443 CI7/7; MPL source archive export and SHA3/3, pytest21/21 verified locally; new CI pending"
+last_verified_commit: "9bf869958 exact CI7/7; CloudKit/evidence/isolation working tree Swift347/pytest411+1527/4 build groups locally verified; new CI pending"
 test_results:
+  - "Swift347/347, full iOS pytest411/411 +1527 subtests, unsigned iPhoneOS Release, gated simulator Debug, source Xray NativeLab unsigned host/NE, AWG unsigned iPhoneOS/sim PASS. Source inventory audit PASS, release_authorized=false. Initial ARC long command HTTP400 no changes and full regression409/410 (old lab isolation mismatch) fixed and rerun PASS. No account/physical acceptance; two Rust notice gaps remain."
   - "Exact 434c91443 CI7/7; go mod verify, three MPL archives CRC/locked sums/export SHA PASS, targeted pytest21/21. No data-plane or new signed runtime acceptance."
   - "NativeLab unsigned build/link PASS, Xray and Rust symbols verified, exported host/NE SHA256 validated, no embedded profile/dylib; source candidate digest/scope and nested notice pytest20/20. Xray49 components/70 notice hashes verified. No runtime data-plane test for this new archive, no signing or device changes."
   - "Offline source cache all modules verified, VLESS2/2 for both, valid/invalid WG config and 3 start/stop cycles for both, repeated runner PASS, pytest11/11. iOS archive local/upstream 2/15 member payload hashes match. No data-plane/NE/phone acceptance."
@@ -284,4 +286,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact-head PR383 CI. Continue independent release-readiness engineering: consolidate candidate inventory and explicit remaining acceptance gates; prepare safe scope for local source-built data-plane validation with existing fixtures, without widening existing fixture authorization or modifying owner devices. Actual signed cross-process Keychain, routing/DNS, Wi-Fi/LTE, CloudKit and runtime integration remain open. Source correspondence exists in native-artifacts/xray-source-20261115/mpl-source-correspondence; final legal review, distribution method and Rust two missing notices unresolved. No repeat of accepted physical20 or failed sim launch; no sign/install/merge/publish without approval."
+resume_instruction: "Owner explicitly asks do everything possible without physical iPhone. Verify exact PR383 head CI. Continue independent offline work only: prioritize remaining integration UI for native profile/backup review (inactive feature gate), release readiness and full regression, unresolved license/source obligations, synthetic privacy and storage/lifecycle failure tests; do not widen fixtures or repeat accepted20 physical cases/identical failed sim launch. Actual native cross-process Keychain, signed source-built data plane, route/DNS, Wi-Fi/LTE, two-device CloudKit and owner-device acceptance remain blocked until device/explicit approvals available. No main merge, signing, registration, publication or production activation. Continue via existing watchdog; no new task."

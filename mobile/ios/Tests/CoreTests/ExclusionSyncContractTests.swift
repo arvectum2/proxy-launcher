@@ -96,6 +96,23 @@ final class ExclusionSyncContractTests: XCTestCase {
             previewTag: "tag-1", currentTag: ""))
     }
 
+    func testAccountBoundReviewRejectsOtherAccountEvenWithIdenticalRecord() throws {
+        let r=try ExclusionCloudAccountReview(accountID:"test-account-a",elapsed:100)
+        XCTAssertTrue(r.matches(accountID:"test-account-a",elapsed:100))
+        XCTAssertFalse(r.matches(accountID:"test-account-b",elapsed:101))
+        XCTAssertFalse(r.matches(accountID:"",elapsed:101))
+        XCTAssertFalse(String(reflecting:r).contains("test-account-a"))
+        XCTAssertEqual(Mirror(reflecting:r).children.count,0)
+    }
+    func testAccountReviewExpiryAndInvalidClock() throws {
+        let r=try ExclusionCloudAccountReview(accountID:"test-account-a",elapsed:100)
+        XCTAssertTrue(r.matches(accountID:"test-account-a",elapsed:399.99))
+        for t in [400.0,99.0,Double.nan,Double.infinity] {XCTAssertFalse(r.matches(accountID:"test-account-a",elapsed:t))}
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"",elapsed:100))
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"a b",elapsed:100))
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"a",elapsed:-1))
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"a",elapsed:.nan))
+    }
     func testRejectsOversizeInvalidDeviceAndFutureTimestamp() throws {
         XCTAssertThrowsError(try ExclusionSyncContract.decode(Data(repeating: 65, count: 16_385)))
         XCTAssertThrowsError(try ExclusionSyncContract.encode(

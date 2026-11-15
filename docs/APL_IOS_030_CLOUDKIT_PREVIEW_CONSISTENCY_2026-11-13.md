@@ -105,3 +105,11 @@ iCloud container provisioning, two different physical devices, race latency,
 account sign-out, record deletion and CloudKit conflict handling still need
 explicitly authorised integration tests. No iCloud data, Keychain, VPN
 settings, signed iPhone, or App Store release was touched.
+
+## 15 November — account-bound, expiring review
+
+The optional CloudKit UI now obtains a memory-only, non-Codable review of the current container user record ID and monotonic uptime. Before and after a remote read (including unknownItem/absence), before upload and after its result, the service rechecks account identity/availability and a five-minute expiry. A different account, invalid clock, cancellation or expired review fails closed; the UI discards the review after an apply/upload attempt. Raw account IDs never enter payloads, storage or diagnostics. Existing record-ID, exact payload, change-tag, CAS and explicit-confirmation gates are retained. This is a best-effort account check, not an atomic guarantee across an OS account switch while a CloudKit request is already in flight. Actual account sign-out/switch, two-device races and container provisioning remain explicit integration gates. No account access or capability was enabled in this stage.
+
+Swift347/347, CloudKit-focused Python10/10 and first unsigned iPhoneOS Release / explicit gated Simulator Debug compilation PASS. Full extended iOS regression subsequently identified an unrelated lab-only endpoint in the app source target; moved that unchanged implementation to Tools and updated both lab build scripts. Full iOS Python411/411 +1527 subtests PASS.
+
+Final post-move verification: unsigned production Release, explicit gated Simulator Debug, source-Xray NativeLab host/NE, AWG isolated iPhoneOS and Simulator all built successfully. Production experimental native symbols remain absent; CloudKit flag/entitlement remain disabled.

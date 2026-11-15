@@ -38,7 +38,7 @@ def test_cloudkit_user_consent_and_local_vpn_rollback():
     assert "await model.saveExclusions(" in view
     assert "currentRemote.manualDomains, graph: model.smartGraph)" in view
     assert "ExclusionSyncContract.remoteUnchanged(" in view
-    assert "cloud.previewRemote()" in view
+    assert "cloud.previewRemote(expectedAccount:account)" in view
     assert "ExclusionSyncContract.localUnchanged(" in view
     assert "localAtPreview" in view
     assert "onApplied()" in view
@@ -56,3 +56,19 @@ def test_cloudkit_no_credentials_or_packet_tunnel_or_background_sync():
     assert "PacketTunnelProvider" not in combined
     assert "CKContainer(identifier:" in service
     assert "manualDomains:" in combined
+
+
+def test_review_bound_to_current_account_and_expiry_even_when_record_absent():
+    service=(APP/'ExclusionCloudKitService.swift').read_text()
+    view=(APP/'ExclusionCloudSyncView.swift').read_text()
+    preview=service.split('func previewRemote(',1)[1].split('func upload(',1)[0]
+    upload=service.split('func upload(',1)[1].split('private func deviceID()',1)[0]
+    assert 'container.userRecordID()' in service
+    assert 'review.matches(accountID:id' in service
+    assert preview.count('requireReview(expectedAccount)') == 3
+    assert '.unknownItem {\n                try await requireReview(expectedAccount)' in preview
+    assert 'previewRemote(expectedAccount:expectedAccount)' in upload
+    assert upload.index('requireReview(expectedAccount)') < upload.index('database.modifyRecords(')
+    assert 'let account = accountAtPreview' in view
+    assert 'accountAtPreview = nil' in view
+    assert 'expectedAccount:account' in view
