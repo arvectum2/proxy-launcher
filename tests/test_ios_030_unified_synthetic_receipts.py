@@ -136,3 +136,42 @@ def test_vless_adapter_preserves_measured_byte_units(mode):
     h={**{k:m[k] for k in ('runID','owner','identity','fixtureSHA256','probe','mode')},'schema':1,'exchanges':exchanges,'responseSHA256':expected,'probeAttempted':True,'osOff':True}
     assert v.validate(m,h,p,private)['release_authorized'] is False
     with pytest.raises(v.Invalid):v.validate(m,h,dict(p,ingressPackets=1300),private)
+
+
+@pytest.mark.parametrize('action',['prepare','remove'])
+def test_manager_command_is_current_candidate_and_exact_owner_readback(action):
+    import unified_manager_command as a
+    m,_,_=f.generate('wireGuard','tcp4','positive',None)
+    cmd=a.command(m,action);receipt=dict(cmd,matched=int(action=='prepare'),allVisibleOff=True)
+    assert a.verify(m,cmd,receipt)['runtime_authorized'] is False
+    for change in ({'owner':f.uid()},{'requestID':f.uid()},{'matched':2},{'matched':True},{'allVisibleOff':False},{'action':'other'}):
+        with pytest.raises(v.Invalid):a.verify(m,cmd,dict(receipt,**change))
+    with pytest.raises(v.Invalid):a.command(dict(m,candidateManifestSHA256=f.HISTORICAL_CONTAINING_CANDIDATE),action)
+
+
+def test_signed_identity_scope_contract_rejects_unrelated_or_shared_entitlements():
+    import datetime
+    import verify_unified_signed_bundle as a
+    team='TESTTEAM01';device='00000000-0000000000000000';ident=a.BASE+'.PacketTunnel';app=team+'.'+ident
+    now=datetime.datetime.now(datetime.timezone.utc)
+    info={'CFBundleIdentifier':ident,'NSExtension':{'NSExtensionPointIdentifier':'com.apple.networkextension.packet-tunnel'}}
+    e={'application-identifier':app,'com.apple.developer.team-identifier':team,'get-task-allow':True,'com.apple.developer.networking.networkextension':['packet-tunnel-provider'],'keychain-access-groups':[app]}
+    profile={'Entitlements':dict(e),'TeamIdentifier':[team],'ProvisionedDevices':[device],'ExpirationDate':now+datetime.timedelta(days=1)}
+    a.validate_scope(info,profile,e,ident,team,device,now)
+    for change in ({'application-identifier':team+'.production'},{'get-task-allow':False},{'keychain-access-groups':[team+'.shared']},{'com.apple.security.application-groups':['group.production']},{'com.apple.developer.networking.networkextension':['packet-tunnel-provider','app-proxy-provider']},{'com.apple.developer.icloud-services':['CloudKit']}):
+        with pytest.raises(v.Invalid):a.validate_scope(info,profile,dict(e,**change),ident,team,device,now)
+    with pytest.raises(v.Invalid):a.validate_scope(info,dict(profile,ExpirationDate=now),e,ident,team,device,now)
+    with pytest.raises(v.Invalid):a.validate_scope(info,dict(profile,ProvisionedDevices=[]),e,ident,team,device,now)
+    with pytest.raises(v.Invalid):a.validate_scope(dict(info,APLKeychainAccessGroup='shared'),profile,e,ident,team,device,now)
+
+
+def test_manager_mutation_is_separate_from_runtime_and_default_denied():
+    h=(TOOLS/'UnifiedAcceptanceHost/UnifiedAcceptanceApp.swift').read_text();m=(TOOLS/'UnifiedAcceptanceHost/UnifiedManagerLifecycle.swift').read_text()
+    assert 'args.contains(Self.managerFlag) && !args.contains(Self.launchFlag)' in h
+    assert 'args.contains(Self.launchFlag) && !args.contains(Self.managerFlag)' in h
+    assert 'managerMode,armed,quiescence,!busy,!used,!cancelled' in h
+    assert 'UnifiedManagerLifecycle.perform(command,authorized:' in h
+    assert 'guard lab.isEmpty' in m and 'lab.count==1' in m and 'allOff(before)' in m and 'allOff(after)' in m
+    assert 'try await item.saveToPreferences()' in m and 'try await item.removeFromPreferences()' in m
+    assert 'startTunnel' not in m and 'stopVPNTunnel' not in m
+    assert 'UnifiedManagerLifecycle.matches(item,owner:owner)' in (TOOLS/'NativeSyntheticProductControlHost.swift').read_text()

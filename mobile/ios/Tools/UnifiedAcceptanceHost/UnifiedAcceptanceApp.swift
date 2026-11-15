@@ -5,6 +5,10 @@ import Foundation
 
 @MainActor final class UnifiedAcceptanceModel:ObservableObject {
     static let launchFlag="--apl-explicit-unified-qa"
+    static let managerFlag="--apl-explicit-unified-manager-qa"
+    var managerMode:Bool {let args=ProcessInfo.processInfo.arguments;return args.contains(Self.managerFlag) && !args.contains(Self.launchFlag)}
+    @Published private(set) var managerAction:String?
+    private var command:UnifiedManagerCommand?
     @Published private(set) var status="Not armed. No VPN action."
     @Published private(set) var busy=false
     @Published private(set) var armed=false
@@ -14,7 +18,7 @@ import Foundation
     private var cancelled=false
     private var generation=UUID()
     private let directory=FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]
-    private var approvedLaunch:Bool {ProcessInfo.processInfo.arguments.contains(Self.launchFlag)}
+    private var approvedLaunch:Bool {let args=ProcessInfo.processInfo.arguments;return args.contains(Self.launchFlag) && !args.contains(Self.managerFlag)}
     func arm() {
         guard approvedLaunch,!busy,!armed,!used,!cancelled else{return}
         do {
@@ -31,8 +35,35 @@ import Foundation
         } catch {status="Input rejected. No VPN action."}
     }
     func invalidate() {
-        cancelled=true;generation=UUID();input=nil;armed=false;quiescence=false
+        cancelled=true;generation=UUID();input=nil;command=nil;managerAction=nil;armed=false;quiescence=false
         if !busy {status="Disarmed. Any attempted VPN requires explicit reconciliation."}
+    }
+    func armManager() {
+        guard managerMode,!busy,!armed,!used,!cancelled else{return}
+        do {
+            let path=directory.appendingPathComponent("unified-qa-manager-command.json")
+            let attrs=try path.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey,.fileSizeKey])
+            guard attrs.isRegularFile==true,attrs.isSymbolicLink==false,let size=attrs.fileSize,(1...1024).contains(size) else{throw UnifiedManagerLifecycle.Failure.invalid}
+            let f=try FileHandle(forReadingFrom:path);defer{try? f.close()}
+            let data=try f.read(upToCount:1025) ?? Data()
+            guard data.count<=1024,let raw=try JSONSerialization.jsonObject(with:data) as? [String:Any],Set(raw.keys)==["schema","requestID","owner","action"] else{throw UnifiedManagerLifecycle.Failure.invalid}
+            let c=try JSONDecoder().decode(UnifiedManagerCommand.self,from:data)
+            guard c.valid else{throw UnifiedManagerLifecycle.Failure.invalid}
+            try FileManager.default.removeItem(at:path);command=c;managerAction=c.action.rawValue
+            armed=true;status="Manager command consumed: \(c.action.rawValue). Independent authorization required. No tunnel start."
+        }catch{status="Manager command rejected. No VPN action."}
+    }
+    func executeManager() async {
+        guard managerMode,armed,quiescence,!busy,!used,!cancelled,let command else{return}
+        let token=generation;busy=true;used=true;armed=false;quiescence=false;self.command=nil;managerAction=nil
+        defer{busy=false}
+        do {
+            let receipt=try await UnifiedManagerLifecycle.perform(command,authorized:{self.generation==token && !self.cancelled})
+            guard generation==token,!cancelled else{throw UnifiedManagerLifecycle.Failure.unconfirmed}
+            let path=directory.appendingPathComponent("unified-qa-manager-receipt-\(command.requestID.uuidString).json")
+            try JSONEncoder().encode(receipt).write(to:path,options:[.withoutOverwriting,.completeFileProtection])
+            status="Manager operation read back. No tunnel started."
+        }catch{status="Manager state unconfirmed. Inspect exact owned profile before any further operation; no automatic retry."}
     }
     func execute() async {
         guard approvedLaunch,armed,quiescence,!busy,!used,!cancelled,let input else{return}
@@ -75,9 +106,13 @@ import Foundation
                 Text("APL Unified QA").font(.title2)
                 Text("Unsigned research candidate. Not a release. Only an explicitly authorized isolated test may run.")
                 Text(model.status).font(.footnote)
-                Button("Read and consume test input"){model.arm()}.disabled(model.busy || model.armed)
+                if model.managerMode {
+                    Button("Read and consume manager command"){model.armManager()}.disabled(model.busy || model.armed)
+                } else {Button("Read and consume test input"){model.arm()}.disabled(model.busy || model.armed)}
                 Toggle("Independent process and manager quiescence confirmed",isOn:$model.quiescence).disabled(!model.armed || model.busy)
-                Button("Run one synthetic test"){Task {await model.execute()}}.disabled(!model.armed || !model.quiescence || model.busy)
+                if model.managerMode {
+                    Button("Apply \(model.managerAction ?? "manager command")"){Task {await model.executeManager()}}.disabled(!model.armed || !model.quiescence || model.busy)
+                } else {Button("Run one synthetic test"){Task {await model.execute()}}.disabled(!model.armed || !model.quiescence || model.busy)}
                 Button("Disarm"){model.invalidate()}.disabled(model.busy)
             }.padding().onChange(of:phase){if $0 == .background {model.invalidate()}}
         }

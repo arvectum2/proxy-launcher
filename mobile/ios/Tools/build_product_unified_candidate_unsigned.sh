@@ -82,7 +82,7 @@ fi
 scheme=PacketTunnelCandidate
 if [[ "$host_flag" == 1 ]]; then
     mkdir "$work/Host"
-    cp "$root/Tools/NativeSyntheticProductControlHost.swift" "$root/Tools/UnifiedAcceptanceHost/UnifiedAcceptanceApp.swift" "$work/Host/"
+    cp "$root/Tools/NativeSyntheticProductControlHost.swift" "$root/Tools/UnifiedAcceptanceHost/UnifiedAcceptanceApp.swift" "$root/Tools/UnifiedAcceptanceHost/UnifiedManagerLifecycle.swift" "$work/Host/"
     python3 - "$work/Info.plist" <<'PYPLIST'
 import plistlib,sys,pathlib
 p=pathlib.Path(sys.argv[1]);x=plistlib.loads(p.read_bytes());x.pop('APLKeychainAccessGroup',None);p.write_bytes(plistlib.dumps(x))
@@ -178,6 +178,7 @@ if host.is_dir():
     host_sources={f.name:sha(f) for f in (work/'Host').glob('*.swift')}
     assert host_sources['NativeSyntheticProductControlHost.swift']==sha(root/'Tools/NativeSyntheticProductControlHost.swift')
     assert host_sources['UnifiedAcceptanceApp.swift']==sha(root/'Tools/UnifiedAcceptanceHost/UnifiedAcceptanceApp.swift')
+    assert host_sources['UnifiedManagerLifecycle.swift']==sha(root/'Tools/UnifiedAcceptanceHost/UnifiedManagerLifecycle.swift')
     report['containing_host']={'binary_sha256':sha(host/'UnifiedAcceptanceHost'),'host_info_sha256':sha(host/'Info.plist'),'extension_info_sha256':sha(binary.parent/'Info.plist'),'host_sources':host_sources,'symbols_sha256':sha(out/'host-symbols.txt'),'scope':'unsigned embedded target; no runnable bundle retained, no install authorization'}
 (out/'manifest.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print('UNIFIED_PRODUCT_COMPILE_LINK_ONLY_PASS',report['binary_sha256'],len(sources),'sources')

@@ -37,8 +37,6 @@ struct UnifiedSyntheticHostReceipt:Codable {
 
 @MainActor final class NativeSyntheticProductControlHost {
     enum Failure:Error {case unowned,invalidState,missingReceipt,timeout}
-    private static let providerID="ru.arvectum.proxylauncher.lab.productunifiedcompile.PacketTunnel"
-    private static let name="APL isolated unified synthetic QA"
     private let manager:NETunnelProviderManager
     private let connection:NETunnelProviderSession
     private let owner:UUID
@@ -68,10 +66,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
         options=values
         guard owned(manager) else{throw Failure.unowned}
     }
-    private func owned(_ item:NETunnelProviderManager)->Bool {
-        guard let proto=item.protocolConfiguration as? NETunnelProviderProtocol,let config=proto.providerConfiguration,Set(config.keys)==Set(NativeSyntheticRuntimeRequest.configuration(owner:owner).keys) else{return false}
-        return proto.providerBundleIdentifier==Self.providerID && item.localizedDescription==Self.name && proto.serverAddress==Self.name && config[NativeProviderStartRequest.modeKey] as? String==NativeSyntheticRuntimeRequest.mode && config[NativeProviderStartRequest.ownerKey] as? String==owner.uuidString && item.isEnabled && !item.isOnDemandEnabled && (item.onDemandRules ?? []).isEmpty
-    }
+    private func owned(_ item:NETunnelProviderManager)->Bool {UnifiedManagerLifecycle.matches(item,owner:owner)}
     private var ownsConnection:Bool {owned(manager) && manager.connection === connection}
     private func censusOff()async throws {
         let all:[NETunnelProviderManager]=try await withCheckedThrowingContinuation { c in
@@ -80,7 +75,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
             }
         }
         try Task.checkCancellation()
-        guard ownsConnection,connection.status == .disconnected,all.filter({owned($0)}).count==1,
+        guard ownsConnection,connection.status == .disconnected,all.filter(UnifiedManagerLifecycle.related).count==1,all.filter({owned($0)}).count==1,
               all.allSatisfy({$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}) else{throw Failure.unowned}
     }
     /// Only an external trusted harness may attest fresh process quiescence.
