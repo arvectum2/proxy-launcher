@@ -26,6 +26,20 @@ final class NativeSyntheticRuntimeRequestTests:XCTestCase {
         mixed=opts;mixed[NativeSyntheticRuntimeRequest.fixtureKey]=Data(repeating:0,count:4097) as NSData
         XCTAssertNil(NativeSyntheticRuntimeRequest.inspect(configuration:config,options:mixed,provider:.rustXray))
     }
+    func testUnifiedSelectorClaimsOnlyOneExactSessionEvenAfterRejectedRequests()throws {
+        let (_,x,opts)=try input(.wireGuard),(_,a,aw)=try input(.amneziaWG1)
+        var selector=NativeSyntheticEngineSelection()
+        XCTAssertNil(selector.claim(configuration:x,options:opts,supported:[.standaloneAWG]))
+        XCTAssertNil(selector.claimed)
+        let selected=try XCTUnwrap(selector.claim(configuration:a,options:aw,supported:[.rustXray,.standaloneAWG]))
+        XCTAssertEqual(selected.binding.reference.kind,.amneziaWG1)
+        XCTAssertEqual(selector.claimed,selected.binding.session)
+        XCTAssertNil(selector.claim(configuration:x,options:opts,supported:[.rustXray,.standaloneAWG]))
+        XCTAssertNil(selector.claim(configuration:a,options:aw,supported:[.rustXray,.standaloneAWG]))
+        var second=NativeSyntheticEngineSelection()
+        XCTAssertEqual(second.claim(configuration:x,options:opts,supported:[.rustXray,.standaloneAWG])?.binding.reference.kind,.wireGuard)
+        XCTAssertNil(second.claim(configuration:a,options:aw,supported:[.rustXray,.standaloneAWG]))
+    }
     func testAWGOnlyExactFixtureSizeAndPriorLANAddressScope()throws {
         let (_,config,opts)=try input(.amneziaWG1)
         XCTAssertNotNil(NativeSyntheticRuntimeRequest.inspect(configuration:config,options:opts,provider:.standaloneAWG))

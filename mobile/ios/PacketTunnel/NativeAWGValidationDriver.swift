@@ -1,9 +1,13 @@
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_AWG_CANDIDATE
-#if APL_NATIVE_XRAY_CANDIDATE
+#if APL_NATIVE_XRAY_CANDIDATE && !APL_NATIVE_UNIFIED_GO_CANDIDATE
 #error("Separate Go runtime candidates must not be linked together")
 #endif
 import Foundation
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE
+import APLUnifiedGo
+#else
 import APLAWGBridge
+#endif
 
 /// Dedicated Go UAPI validation. The validation bind cannot open or send
 /// sockets. No start, packet pump, manager creation or route activation.

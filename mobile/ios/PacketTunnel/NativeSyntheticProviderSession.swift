@@ -3,7 +3,11 @@ import Foundation
 import NetworkExtension
 
 #if !APL_NATIVE_XRAY_CANDIDATE && !APL_NATIVE_AWG_CANDIDATE
-#error("Synthetic runtime requires exactly one candidate engine")
+#error("Synthetic runtime requires a candidate engine")
+#endif
+
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE && (!APL_NATIVE_XRAY_CANDIDATE || !APL_NATIVE_AWG_CANDIDATE)
+#error("Unified candidate requires both driver gates")
 #endif
 
 @MainActor protocol NativeSyntheticProviderSession:AnyObject {
@@ -26,6 +30,7 @@ extension NativeXrayPacketSession:NativeSyntheticProviderSession {
 /// here unless the exact synthetic envelope is present. Never publishes ready.
 @MainActor final class NativeSyntheticProviderOwner {
     private var session:(any NativeSyntheticProviderSession)?
+    private static var selection=NativeSyntheticEngineSelection()
     private var used=false
     private var retired=false
     private var starting=false
@@ -34,20 +39,33 @@ extension NativeXrayPacketSession:NativeSyntheticProviderSession {
     private func finish(_ error:Error?){let c=completion;completion=nil;c?(error)}
     private func failure(_ code:Int)->NSError {NSError(domain:"APLNativeSynthetic",code:code)}
     func start(provider:NEPacketTunnelProvider,options:[String:NSObject]?,completionHandler:@escaping(Error?)->Void) async {
-        #if APL_NATIVE_XRAY_CANDIDATE
-        let kind:TransportProvider = .rustXray
+        #if APL_NATIVE_UNIFIED_GO_CANDIDATE
+        let supported:Set<TransportProvider> = [.rustXray,.standaloneAWG]
+        #elseif APL_NATIVE_XRAY_CANDIDATE
+        let supported:Set<TransportProvider> = [.rustXray]
         #else
-        let kind:TransportProvider = .standaloneAWG
+        let supported:Set<TransportProvider> = [.standaloneAWG]
         #endif
-        guard !used,!retired,let request=NativeSyntheticRuntimeRequest.inspect(configuration:(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration,options:options,provider:kind) else{completionHandler(failure(1));return}
+        guard !used,!retired,let request=Self.selection.claim(configuration:(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration,options:options,supported:supported) else{completionHandler(failure(1));return}
         used=true;starting=true;completion=completionHandler
         defer{starting=false}
         do {
-            #if APL_NATIVE_XRAY_CANDIDATE
-            let runtime=try NativeXrayPacketSession(owner:request.binding)
-            #else
-            let runtime=try NativeAWGPacketSession(owner:request.binding)
-            #endif
+            let runtime:any NativeSyntheticProviderSession
+            switch request.binding.reference.kind.provider {
+            case .rustXray:
+                #if APL_NATIVE_XRAY_CANDIDATE
+                runtime=try NativeXrayPacketSession(owner:request.binding)
+                #else
+                throw failure(1)
+                #endif
+            case .standaloneAWG:
+                #if APL_NATIVE_AWG_CANDIDATE
+                runtime=try NativeAWGPacketSession(owner:request.binding)
+                #else
+                throw failure(1)
+                #endif
+            default:throw failure(1)
+            }
             session=runtime
             timeout=Task { @MainActor [weak self,weak provider] in
                 try? await Task.sleep(nanoseconds:8_000_000_000)

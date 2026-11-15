@@ -33,3 +33,15 @@ struct NativeSyntheticRuntimeRequest: CustomStringConvertible, CustomReflectable
         return .init(owner:owner,binding:binding,fixture:fixture,localIPv4:nil)
     }
 }
+
+/// Process-local one-shot selector. A rejected request does not consume it;
+/// a claimed request cannot switch engine even after a failed start.
+struct NativeSyntheticEngineSelection {
+    private(set) var claimed:TransportNativeIdentity?
+    mutating func claim(configuration:[String:Any]?,options:[String:NSObject]?,supported:Set<TransportProvider>)->NativeSyntheticRuntimeRequest? {
+        guard claimed==nil else{return nil}
+        let matches=supported.compactMap{NativeSyntheticRuntimeRequest.inspect(configuration:configuration,options:options,provider:$0)}
+        guard matches.count==1,let request=matches.first else{return nil}
+        claimed=request.binding.session;return request
+    }
+}

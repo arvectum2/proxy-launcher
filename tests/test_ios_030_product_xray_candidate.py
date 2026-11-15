@@ -74,7 +74,7 @@ def test_actual_provider_synthetic_runtime_is_separate_and_not_ready_claim():
     assert 'syntheticOwner.message(messageData,provider:self)' in provider
     owner=(IOS/'PacketTunnel/NativeSyntheticProviderSession.swift').read_text()
     assert owner.startswith(gate+'\n')
-    assert 'NativeSyntheticRuntimeRequest.inspect' in owner and 'guard !used,!retired' in owner
+    assert 'Self.selection.claim' in owner and 'guard !used,!retired' in owner
     assert 'ExactLabTUNDescriptor.find(address:"192.0.2.177")' in owner
     assert 'control.ready()' not in owner and 'ProfileStore' not in owner
     assert 'await session.respond(request,provider:provider)' in owner
@@ -99,3 +99,21 @@ def test_unified_go_archive_is_compile_only_and_pinned():
     assert "'release_authorized':False" in script
     assert 'devicectl' not in script and 'simctl' not in script and 'codesign' not in script
     assert 'mv "$E" "$out"' in script and 'ios-unified-link-probe' not in script.split('mkdir -p "$work/src" "$work/evidence"')[1].split('mv "$E" "$out"')[-1]
+
+
+def test_unified_product_links_one_go_archive_and_uses_process_selector():
+    script=(IOS/'Tools/build_product_unified_candidate_unsigned.sh').read_text()
+    assert '57b279f366b47fd27a46b201088a997fb03f68205f5189dc2931ae43f00011e6' in script
+    assert 'module APLUnifiedGo' in script and '-lAPLUnified -ltun2proxy' in script
+    assert '-lXray' not in script and '-lAWG ' not in script
+    assert 'CODE_SIGNING_ALLOWED=NO' in script and "'release_authorized':False" in script
+    owner=(IOS/'PacketTunnel/NativeSyntheticProviderSession.swift').read_text()
+    assert 'private static var selection=NativeSyntheticEngineSelection()' in owner
+    assert 'Self.selection.claim' in owner and 'switch request.binding.reference.kind.provider' in owner
+    assert 'APL_NATIVE_UNIFIED_GO_CANDIDATE' not in (IOS/'project.yml').read_text()
+    host=(IOS/'Tools/NativeSyntheticProductControlHost.swift').read_text()
+    assert 'externalQuiescenceConfirmed' in host and 'try await censusOff()' in host
+    assert 'reply.matches(request)' in host and 'reply.state == .starting' in host
+    assert 'stale.state == .rejected' in host and 'reply.state == .drained' in host
+    assert 'saveToPreferences' not in host and 'ProfileStore' not in host
+    assert all('NativeSyntheticProductControlHost' not in p.read_text() for p in (IOS/'App').glob('*.swift'))

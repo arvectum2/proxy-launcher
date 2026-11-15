@@ -76,7 +76,15 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             do {
                 let validationStore=try ProfileStore()
                 guard try validationStore.nativeValidationPolicyIsEmpty() else{throw NativeCredentialReceiver.Failure.invalidIdentity}
-#if APL_NATIVE_XRAY_CANDIDATE
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE
+                switch request.expected.reference.kind.provider {
+                case .rustXray:
+                    try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeXrayRuntimeDriver.shared.validate)
+                case .standaloneAWG:
+                    try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeAWGValidationDriver.validate)
+                default:throw NativeCredentialReceiver.Failure.providerMismatch
+                }
+#elseif APL_NATIVE_XRAY_CANDIDATE
                 guard request.expected.reference.kind.provider == .rustXray else{throw NativeCredentialReceiver.Failure.providerMismatch}
                 let driver=NativeXrayRuntimeDriver.shared
                 try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:driver.validate)

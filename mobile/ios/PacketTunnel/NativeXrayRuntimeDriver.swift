@@ -2,7 +2,11 @@
 import Foundation
 import Darwin
 import CoreFoundation
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE
+import APLUnifiedGo
+#else
 import LibXray
+#endif
 import tun2proxy
 
 /// Concrete v3 C ABI, compiled only against the exact unsigned source

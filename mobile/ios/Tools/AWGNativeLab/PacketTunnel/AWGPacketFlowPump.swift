@@ -2,7 +2,11 @@
 import Darwin
 import Foundation
 import NetworkExtension
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE
+import APLUnifiedGo
+#else
 import APLAWGBridge
+#endif
 
 final class AWGPacketFlowPump: @unchecked Sendable {
     private let queue = DispatchQueue(label: "apl.awg.isolated.packet-flow")
