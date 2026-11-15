@@ -56,3 +56,24 @@ import Foundation
     func cancelReview(){review.cancel()}
     func clear(){review.cancel();store.bytes=nil;items.items.removeAll()}
 }
+
+/// Tracks one outstanding asynchronous file-panel action. A callback must
+/// carry the receipt captured at presentation, not the latest mutable mode.
+/// No reuse of a receipt after cancellation, backgrounding or dismissal.
+struct NativeReviewFileLifecycle {
+    enum Action: Equatable {case configuration(NativeCredentialRecord.Kind), backup, export}
+    struct Receipt: Equatable {let id: UUID;let action: Action}
+    private(set) var pending: Receipt?
+    private(set) var visible = false
+    mutating func appear(){visible=true}
+    mutating func invalidate(){pending=nil}
+    mutating func leave(){visible=false;invalidate()}
+    mutating func begin(_ action: Action) -> Receipt? {
+        guard visible,pending==nil else{return nil}
+        let r=Receipt(id:UUID(),action:action);pending=r;return r
+    }
+    mutating func consume(_ receipt: Receipt?) -> Action? {
+        guard visible,let r=receipt,pending==r else{return nil}
+        pending=nil;return r.action
+    }
+}

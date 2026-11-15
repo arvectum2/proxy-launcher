@@ -7,3 +7,7 @@ The app has an explicitly gated `DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnv
 Verified Swift Core 351/351 (four new session tests including all three protocols in one encrypted backup, independent restore, wrong password, cancellation, expiry and cleanup), full iOS Python 413/413 plus 1527 subtests, explicit simulator Debug build. The simulator app UI was not launched, so Files picker interaction, visual layout, actual sheet lifecycle and export destination behavior remain unaccepted. No physical iPhone action.
 
 Default unsigned Release build also PASS; simulator QA entry string and native engine symbols absent from shipping executables.
+
+## Review lifecycle hardening
+
+One outstanding file action has a unique receipt carrying the exact selected protocol or backup/export operation. Core rejects stale, duplicate and cancelled receipts. The QA view captures receipts at presentation, clears temporary records and password/file references on background and dismissal, supplies explicit recovery for cancelled panels, and uses unique encrypted export filenames. Actual SwiftUI callback delivery, Files picker and background lifecycle behavior remain unaccepted until S1 in the remaining acceptance runbook. Swift361/361, Python417/417+1527, gated simulator Debug and unsigned Release PASS; normal QA UI and experimental engine markers absent.

@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 /// Simulator-only screen; no real store, VPN manager or account.
 @MainActor struct NativeProfileReviewLabView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var phase
     @State private var session=NativeProfileReviewSession()
     @State private var kind:NativeCredentialRecord.Kind = .wireGuard
     @State private var summary:NativeRestoreReview.Summary?
@@ -12,10 +13,13 @@ import UniformTypeIdentifiers
     @State private var repeatedPassword=""
     @State private var file:Data?
     @State private var choosing=false
-    @State private var backupMode=false
+    @State private var lifecycle=NativeReviewFileLifecycle()
+    @State private var importReceipt:NativeReviewFileLifecycle.Receipt?
+    @State private var exportReceipt:NativeReviewFileLifecycle.Receipt?
     @State private var exporting=false
     @State private var showExporter=false
     @State private var document:RehearsalBackupDocument?
+    @State private var exportFilename="APL-Native-QA-Encrypted"
     @State private var total=0
     @State private var failed=false
 
@@ -31,11 +35,11 @@ import UniformTypeIdentifiers
                         Text("WireGuard").tag(NativeCredentialRecord.Kind.wireGuard)
                         Text("AmneziaWG 1").tag(NativeCredentialRecord.Kind.amneziaWG1)
                         Text("VLESS Reality").tag(NativeCredentialRecord.Kind.vlessReality)
-                    }.onChange(of:kind){_ in resetReview()}
-                    Button("Choose synthetic configuration text file") { resetReview();backupMode=false;choosing=true }
+                    }.onChange(of:kind){_ in resetReview();lifecycle.invalidate();importReceipt=nil}
+                    Button("Choose synthetic configuration text file") { beginImport(.configuration(kind)) }
                 }
                 Section("Encrypted backup") {
-                    Button("Choose synthetic backup JSON") { resetReview();backupMode=true;choosing=true }
+                    Button("Choose synthetic backup JSON") { beginImport(.backup) }
                     if file != nil {
                         SecureField("Backup password",text:$password).textContentType(.password)
                         Button("Review backup",action:reviewBackup).disabled(password.isEmpty)
@@ -56,22 +60,46 @@ import UniformTypeIdentifiers
                         Button("Cancel",role:.cancel){resetReview()}
                     }
                 }
+                if lifecycle.pending != nil && !choosing && !showExporter {
+                    Button("Discard cancelled file operation",role:.cancel){cancelPanel()}
+                }
                 if failed { Text("Review failed. No new records added.").foregroundStyle(.red) }
             }
+            .disabled(choosing || showExporter)
             .navigationTitle("Native profiles · QA")
-            .toolbar {ToolbarItem(placement:.cancellationAction){Button("Close"){dismiss()}}}
+            .toolbar {ToolbarItem(placement:.cancellationAction){Button("Close"){leave();dismiss()}}}
         }
-        .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:false, onCompletion:readFile)
-        .fileExporter(isPresented:$showExporter,document:document,contentType:.json,defaultFilename:"APL-Native-QA-Encrypted"){_ in document=nil}
-        .onDisappear {resetReview();session.clear();document=nil;total=0}
+        .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:false, onCompletion:{ [receipt=importReceipt] result in readFile(result,receipt:receipt) })
+        .fileExporter(isPresented:$showExporter,document:document,contentType:.json,defaultFilename:exportFilename){ [receipt=exportReceipt] _ in
+            guard lifecycle.consume(receipt) == .export else{return}
+            document=nil;exportReceipt=nil
+        }
+        .onAppear { if phase == .active { lifecycle.appear() } }
+        .onChange(of:phase){value in
+            if value == .background {leave()}
+            else if value == .active {lifecycle.appear()}
+        }
+        .onDisappear {leave()}
     }
     private func resetReview(){session.cancelReview();summary=nil;password="";repeatedPassword="";file=nil;exporting=false;failed=false}
     private func fail(){resetReview();failed=true}
-    private func readFile(_ result:Result<[URL],Error>){
+    private func cancelPanel(){lifecycle.invalidate();importReceipt=nil;exportReceipt=nil;document=nil;resetReview()}
+    private func leave(){lifecycle.leave();resetReview();session.clear();importReceipt=nil;exportReceipt=nil;choosing=false;showExporter=false;document=nil;total=0}
+    private func beginImport(_ action:NativeReviewFileLifecycle.Action){
+        guard phase == .active,lifecycle.pending==nil else{return}
+        resetReview();guard let receipt=lifecycle.begin(action) else{return};importReceipt=receipt;choosing=true
+    }
+    private func readFile(_ result:Result<[URL],Error>,receipt:NativeReviewFileLifecycle.Receipt?){
+        guard let action=lifecycle.consume(receipt) else{return}
+        importReceipt=nil
+
         do {
             guard let url=try result.get().first else{return}
+            guard url.isFileURL else{throw ProfileBackupError.invalidFile}
             let scoped=url.startAccessingSecurityScopedResource();defer{if scoped{url.stopAccessingSecurityScopedResource()}}
-            if backupMode {file=try ProfileBackupCodec.readEncryptedFile(at:url)} else {
+            switch action {
+            case .backup: file=try ProfileBackupCodec.readEncryptedFile(at:url)
+            case .configuration(let reviewedKind):
                 let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()}
                 var bytes=Data()
                 while bytes.count<=NativeCredentialRecord.maxBytes {
@@ -79,13 +107,14 @@ import UniformTypeIdentifiers
                     if part.isEmpty{break};bytes.append(part)
                 }
                 guard bytes.count<=NativeCredentialRecord.maxBytes,let raw=String(data:bytes,encoding:.utf8) else {throw ProfileBackupError.invalidFile}
-                summary=try session.previewSource(raw,kind:kind)
+                summary=try session.previewSource(raw,kind:reviewedKind)
+            case .export:throw ProfileBackupError.invalidFile
             }
         } catch {fail()}
     }
-    private func reviewBackup(){guard let file else{return};let p=password;resetReview();do{summary=try session.previewBackup(file,password:p)}catch{fail()}}
-    private func accept(_ value:NativeRestoreReview.Summary){do{total=try session.addToRehearsal(value).total;resetReview()}catch{fail()}}
-    private func encrypt(){guard password==repeatedPassword else{fail();return};let p=password;resetReview();do{document=RehearsalBackupDocument(bytes:try session.encryptedBackup(password:p));showExporter=true}catch{fail()}}
+    private func reviewBackup(){guard phase == .active,lifecycle.visible,lifecycle.pending==nil,let file else{return};let p=password;resetReview();do{summary=try session.previewBackup(file,password:p)}catch{fail()}}
+    private func accept(_ value:NativeRestoreReview.Summary){guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return};do{total=try session.addToRehearsal(value).total;resetReview()}catch{fail()}}
+    private func encrypt(){guard phase == .active,lifecycle.visible,lifecycle.pending==nil,password==repeatedPassword else{fail();return};let p=password;resetReview();do{let bytes=try session.encryptedBackup(password:p);guard let receipt=lifecycle.begin(.export) else{throw ProfileBackupError.invalidFile};exportReceipt=receipt;exportFilename="APL-Native-QA-Encrypted-"+receipt.id.uuidString.lowercased();document=RehearsalBackupDocument(bytes:bytes);showExporter=true}catch{fail()}}
 }
 private struct RehearsalBackupDocument:FileDocument {
     static var readableContentTypes:[UTType]{[.json]}

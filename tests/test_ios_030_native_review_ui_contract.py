@@ -21,3 +21,13 @@ def test_rehearsal_is_memory_only_and_has_no_connection_api():
     assert 'Never reuse' in core
     for forbidden in ('NativeCredentialKeychain','ProfileStore','NetworkExtension','startTunnel','SecItem','UserDefaults'):
         assert forbidden not in core
+
+
+def test_file_callbacks_use_captured_action_and_background_clears():
+    view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
+    assert '[receipt=importReceipt]' in view and '[receipt=exportReceipt]' in view
+    assert 'lifecycle.consume(receipt)' in view
+    assert 'kind:reviewedKind' in view and 'if value == .background {leave()}' in view
+    assert 'lifecycle.leave();resetReview();session.clear()' in view
+    assert 'receipt.id.uuidString.lowercased()' in view
+    assert 'Discard cancelled file operation' in view

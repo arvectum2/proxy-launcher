@@ -31,3 +31,22 @@ def test_pinned_inventory_set_and_nonrelease_boundary():
     assert all(len(x['sha256'])==64 for x in pins['inventories'].values())
     assert pins['scope']=='local research evidence, not release authorization'
     assert "'release_authorized':False" in SCRIPT.read_text()
+
+
+def test_supplemental_notice_receipt_preserves_historical_missing_set(tmp_path):
+    lock=SCRIPT.with_name('tun2proxy-v0.8.3.Cargo.lock')
+    rows=[]
+    for name,version,status in [('tun','0.8.14','original_source_header_preserved'),('tproxy-config','7.0.9','declared_only_original_text_missing')]:
+        folder=tmp_path/name;folder.mkdir();archive=folder/'original.crate';archive.write_bytes(b'fixture')
+        files=[]
+        if name=='tun':
+            notice=folder/'LICENSE-HEADER.original.txt';notice.write_bytes(b'original header')
+            files.append({'file':str(notice.relative_to(tmp_path)),'sha256':hashlib.sha256(notice.read_bytes()).hexdigest()})
+        rows.append({'name':name,'version':version,'notice_status':status,'archive':str(archive.relative_to(tmp_path)),'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'files':files})
+    manifest={'schema':1,'release_authorized':False,'lock_sha256':hashlib.sha256(lock.read_bytes()).hexdigest(),'components':rows,'unresolved_original_text':['tproxy-config@7.0.9']}
+    path=tmp_path/'manifest.json';path.write_text(json.dumps(manifest));pin={'path':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    missing=['tun@0.8.14','tproxy-config@7.0.9']
+    assert m.audit_rust_supplement(tmp_path,pin,missing)['unresolved_original_text']==['tproxy-config@7.0.9']
+    with pytest.raises(ValueError,match='declaration drift'):m.audit_rust_supplement(tmp_path,pin,missing[:1])
+    (tmp_path/'tun'/'LICENSE-HEADER.original.txt').write_bytes(b'modified')
+    with pytest.raises(ValueError,match='digest mismatch'):m.audit_rust_supplement(tmp_path,pin,missing)

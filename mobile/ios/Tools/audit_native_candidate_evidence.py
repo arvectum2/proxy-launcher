@@ -23,6 +23,29 @@ def verify(root, relative, expected):
     return path
 
 
+def audit_rust_supplement(root, spec, historical_missing):
+    mpath=verify(root,spec['path'],spec['sha256']);manifest=json.loads(mpath.read_text())
+    if manifest.get('schema')!=1 or manifest.get('release_authorized') is not False:
+        raise ValueError('unexpected supplemental authorization')
+    lock=Path(__file__).with_name('tun2proxy-v0.8.3.Cargo.lock')
+    verify(lock.parent,lock.name,manifest['lock_sha256'])
+    seen=set();files=set();unresolved=set()
+    for row in manifest['components']:
+        key=row['name']+'@'+row['version']
+        if key in seen:raise ValueError('duplicate supplemental component')
+        seen.add(key)
+        entries=[{'file':row['archive'],'sha256':row['archive_sha256']}]+row['files']
+        for entry in entries:
+            name=entry['file']
+            if name in files:raise ValueError('duplicate supplemental file')
+            files.add(name);verify(mpath.parent,name,entry['sha256'])
+        status=row['notice_status']
+        if status=='declared_only_original_text_missing':unresolved.add(key)
+        elif status!='original_source_header_preserved':raise ValueError('unknown supplemental status')
+        elif not any(f['file'].endswith('/LICENSE-HEADER.original.txt') for f in row['files']):raise ValueError('missing original header')
+    if seen!=set(historical_missing) or unresolved!=set(manifest['unresolved_original_text']):raise ValueError('supplemental notice declaration drift')
+    return {'components':len(seen),'files':len(files),'unresolved_original_text':sorted(unresolved)}
+
 def audit(root, pins):
     if pins.get('schema')!=1 or set(pins['inventories'])!={'xray','mpl','awg','rust'}:raise ValueError('invalid pin set')
     results={}; missing=[]
@@ -46,6 +69,7 @@ def audit(root, pins):
             verify(mpath.parent,'go.sum',m['go_sum_sha256']);verify(mpath.parent,'go.mod',m['go_mod_sha256'])
         if label=='rust' and set(m['missing_root_notice'])!=set(missing):raise ValueError('missing notice declaration drift')
         results[label]={'components':len(rows),'files':len(files)}
+    supplement=audit_rust_supplement(root,pins['rust_supplement'],missing)
     lab=root/pins['lab']['path']
     for name,sha in pins['lab']['sha256s'].items():verify(root,pins['lab']['path']+'/'+name,sha)
     if (lab/'XRAY-ORIGIN').read_text().strip()!='local-source-unsigned-only':raise ValueError('unexpected lab origin')
@@ -61,7 +85,7 @@ def audit(root, pins):
     verify(root,'xray-source-20261115/source-build/libXray.h',upstream['header_sha256'])
     declared=dict((name,sha) for sha,name in (line.split('  ',1) for line in (lab/'XRAY-INPUT-SHA256SUMS').read_text().splitlines()))
     if declared.get('libXray.a')!=upstream['library_sha256'] or declared.get('Headers/libXray.h')!=upstream['header_sha256']:raise ValueError('source input receipt mismatch')
-    return {'status':'evidence_integrity_pass','release_authorized':False,'scope':'pinned source inventories and unsigned lab binaries only','inventories':results,'unresolved_notices':sorted(missing),'unsigned_lab_binaries':len(entries),'remaining_gates':['final linked closure and legal review','signed shared Keychain and backup restore','actual source-built iOS data plane and route/DNS acceptance','physical network handoff','CloudKit account/two-device acceptance','production integration and explicit release approval']}
+    return {'status':'evidence_integrity_pass','release_authorized':False,'scope':'pinned source inventories and unsigned lab binaries only','inventories':results,'historical_missing_root_notices':sorted(missing),'rust_supplement':supplement,'unresolved_notices':supplement['unresolved_original_text'],'unsigned_lab_binaries':len(entries),'remaining_gates':['final linked closure and legal review','signed shared Keychain and backup restore','actual source-built iOS data plane and route/DNS acceptance','physical network handoff','CloudKit account/two-device acceptance','production integration and explicit release approval']}
 
 if __name__=='__main__':
     if len(sys.argv)!=2:raise SystemExit('usage: audit_native_candidate_evidence.py ARTIFACT_ROOT')

@@ -8,6 +8,22 @@ final class NativeProfileReviewSessionTests:XCTestCase {
         let key=Curve25519.KeyAgreement.PrivateKey().publicKey.rawRepresentation.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
         return "vless://\(UUID().uuidString.lowercased())@192.0.2.43:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk=\(key)&sid=abcd"
     }
+    func testFileLifecycleRejectsOldCallbackAfterBackgroundAndReopen() throws {
+        var g=NativeReviewFileLifecycle()
+        XCTAssertNil(g.begin(.backup));g.appear()
+        let old=try XCTUnwrap(g.begin(.configuration(.wireGuard)))
+        XCTAssertNil(g.begin(.backup));g.leave();XCTAssertNil(g.consume(old))
+        g.appear();let new=try XCTUnwrap(g.begin(.configuration(.vlessReality)))
+        XCTAssertNil(g.consume(old));XCTAssertEqual(g.pending,new)
+        XCTAssertEqual(g.consume(new),.configuration(.vlessReality));XCTAssertNil(g.consume(new))
+    }
+    func testCancelledPanelCannotConsumeNewExportAndActionsAreBound() throws {
+        var g=NativeReviewFileLifecycle();g.appear()
+        let first=try XCTUnwrap(g.begin(.backup));g.invalidate()
+        let second=try XCTUnwrap(g.begin(.export))
+        XCTAssertNotEqual(first.id,second.id);XCTAssertNil(g.consume(first));XCTAssertEqual(g.consume(second),.export)
+        g.leave();XCTAssertNil(g.begin(.export))
+    }
     @MainActor func testPreviewOnlyUntilConfirmationAndEncryptedRoundTrip() async throws {
         let a=NativeProfileReviewSession(),b=NativeProfileReviewSession(),password="Synthetic-strong-password"
         let summary=try a.previewSource(vless(),kind:.vlessReality)
