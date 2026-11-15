@@ -93,6 +93,7 @@
 		563BFF4157A93CA8DE832045 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 558988BBD730E81E42CF9FA6 /* PrivacyInfo.xcprivacy */; };
 		5646E63EC14EFF44A70E3F03 /* NativeCredentialCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA405D9F632E59F42E62B054 /* NativeCredentialCatalog.swift */; };
 		57BAAE35E7C2B77B580887E8 /* PhysicalUpgradeReadOnlyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1466211D399BCFEA6B1A63C /* PhysicalUpgradeReadOnlyUITests.swift */; };
+		57BB8F62CFB8C35AAC7B0A28 /* NativePersistentProfileSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459A0DFD4005304541CF1160 /* NativePersistentProfileSession.swift */; };
 		5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6111701DABA6167BA25D76 /* AppShared.swift */; };
@@ -223,6 +224,7 @@
 		F1AF265179F650329F6A8242 /* AdaptiveRouteCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */; };
 		F3EA3807F63730B95976C691 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
+		F58A785920BD7940E66CBEA7 /* NativePersistentProfilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF9487F37FB740D55CC8F0 /* NativePersistentProfilesView.swift */; };
 		F64C3AA91E0C2A2B9F111F99 /* NativeProfileReviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */; };
 		F74D4045688ACD261002E20E /* NativeXrayPacketSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60C531C130FA18F41AFA484 /* NativeXrayPacketSession.swift */; };
 		F7898E8D4636D03F5C53E73F /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
@@ -231,6 +233,7 @@
 		FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A9D0427123A9620FB1C3DE /* VPNController.swift */; };
 		FB52493F346AB26C8062A06D /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */; };
 		FC7DAC5F4EDAD359D78EF662 /* SmartExclusionsUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88FA65A6768406583504159F /* SmartExclusionsUX.swift */; };
+		FC7DC344D1FDA936CDBBC764 /* NativePersistentProfileSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459A0DFD4005304541CF1160 /* NativePersistentProfileSession.swift */; };
 		FD5C26344FEE8ED2529269E8 /* SetupGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB04057014F01C39512BA98A /* SetupGuideView.swift */; };
 		FE5073C850657CE0C9BA10DA /* TransportBackendAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7ED7DCDC596BC4976FA655 /* TransportBackendAdapter.swift */; };
 		FF2FF6FD4FE32378C4794669 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */; };
@@ -397,6 +400,7 @@
 		432E96296AD64194777B1AC6 /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		443FC77C3715235F42ECCC32 /* ky */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ky; path = ky.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		4581175C13A3D789266F9F55 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/SmartExclusions.strings"; sourceTree = "<group>"; };
+		459A0DFD4005304541CF1160 /* NativePersistentProfileSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePersistentProfileSession.swift; sourceTree = "<group>"; };
 		46422353EAFD9ABB5CF3A1C5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		4643EC938821922A488F854B /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		487E17EE008DC87066666AEC /* hy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hy; path = hy.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
@@ -428,6 +432,7 @@
 		5726A3C35A31E9CDF6117CAC /* be */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = be; path = be.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalProxyHandshakeReadOnlyTests.swift; sourceTree = "<group>"; };
 		58B994740429D8BD945D92E1 /* tk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tk; path = tk.lproj/Localizable.strings; sourceTree = "<group>"; };
+		58DF9487F37FB740D55CC8F0 /* NativePersistentProfilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePersistentProfilesView.swift; sourceTree = "<group>"; };
 		594817B40932AC8030EBC952 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		59778D4844BEE69A905F98E6 /* hy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hy; path = hy.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		597A65F5E6A0C37BF25EF4B0 /* tun2proxy.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tun2proxy.xcframework; path = Frameworks/tun2proxy.xcframework; sourceTree = "<group>"; };
@@ -923,6 +928,7 @@
 				DC4A6EBB1933CAEECB232B22 /* NativeCredentialHandoff.swift */,
 				7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */,
 				B9369FC5EF32F2948046AFB2 /* NativeCredentialRecord.swift */,
+				459A0DFD4005304541CF1160 /* NativePersistentProfileSession.swift */,
 				3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */,
 				35837878A368D550BC7FC497 /* NativeProfilePreparation.swift */,
 				220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */,
@@ -995,6 +1001,7 @@
 				D3EAE75AFADAFE338F502B8D /* JournalView.swift */,
 				83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */,
 				1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */,
+				58DF9487F37FB740D55CC8F0 /* NativePersistentProfilesView.swift */,
 				C54EC389905ECC8C8E1E33C5 /* NativeProfileReviewLabView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				0E65F6FC66967039D32722A9 /* ProfileBackupUX.swift */,
@@ -1276,6 +1283,7 @@
 				867506C8F75536FC4900E348 /* NativeCredentialKeychain.swift in Sources */,
 				773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */,
 				640A84B680F6138B4C5F3850 /* NativeCredentialRecord.swift in Sources */,
+				FC7DC344D1FDA936CDBBC764 /* NativePersistentProfileSession.swift in Sources */,
 				67F93519B1AE50DD47EBA3AA /* NativeProfileBackupCodec.swift in Sources */,
 				1A54AB50DD8E10256EE15147 /* NativeProfilePreparation.swift in Sources */,
 				2710584D29A11CDDC62C8F83 /* NativeProfileReviewSession.swift in Sources */,
@@ -1427,6 +1435,8 @@
 				10BC6C456EDAF87C727A4C14 /* NativeCredentialReceiver.swift in Sources */,
 				0C2FADD9A379E9A407602A29 /* NativeCredentialRecord.swift in Sources */,
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
+				57BB8F62CFB8C35AAC7B0A28 /* NativePersistentProfileSession.swift in Sources */,
+				F58A785920BD7940E66CBEA7 /* NativePersistentProfilesView.swift in Sources */,
 				613692D01D05F42598A9CE52 /* NativeProfileBackupCodec.swift in Sources */,
 				C4A33CFEC3AB3639096D08E5 /* NativeProfilePreparation.swift in Sources */,
 				5D02E07D6A3B6A14DA8423B5 /* NativeProfileReviewLabView.swift in Sources */,

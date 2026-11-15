@@ -40,6 +40,11 @@ final class AppViewModel: ObservableObject {
     @Published var events: [TunnelEvent] = []
     @Published var errorMessage: String?
 
+    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    func makePersistentNativeLibrary() -> NativePersistentProfileSession {
+        NativePersistentProfileSession(catalog:store.makeNativeCredentialCatalog(),policy:{ [store] in store.nativeRoutingAdmission() })
+    }
+    #endif
     let vpn = VPNController()
     private let store: ProfileStore
     private let telemetry = TelemetryStore()

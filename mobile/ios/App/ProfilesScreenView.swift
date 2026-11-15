@@ -14,6 +14,9 @@ struct ProfilesScreenView<Header: View>: View {
     #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
     @State private var showNativeLibrary = false
     #endif
+    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    @State private var showPersistentNativeLibrary=false
+    #endif
     @State private var profileSearch = ""
     @State private var profileGroupFilter = "all"
     @State private var pendingGroupIDs: Set<UUID> = []
@@ -38,6 +41,9 @@ struct ProfilesScreenView<Header: View>: View {
                     Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")){showNativeLibrary=true}
                         .font(.subheadline.weight(.medium))
                         .accessibilityIdentifier("profiles.nativeReviewQA")
+                    #endif
+                    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+                    Button(NativePersistentProfilesView.title){showPersistentNativeLibrary=true}.accessibilityIdentifier("profiles.nativeStorageQA")
                     #endif
                     if model.profiles.isEmpty {
                         VStack(spacing: 10) {
@@ -101,6 +107,9 @@ struct ProfilesScreenView<Header: View>: View {
         }
         #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
         .sheet(isPresented:$showNativeLibrary){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
+        #endif
+        #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        .sheet(isPresented:$showPersistentNativeLibrary){NativePersistentProfilesView(model:model)}
         #endif
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }

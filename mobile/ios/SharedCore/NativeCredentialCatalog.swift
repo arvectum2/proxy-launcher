@@ -207,41 +207,51 @@ struct NativeCredentialCatalogReader {
         guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
         s.pendingRestore=nil;try publish(s)
     }
-    func select(_ ref: Ref) throws {
+    func select(_ ref: Ref, vpnInactive: () throws -> Bool = {true}) throws {
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         let legacy=try legacyIDs()
         guard !legacy.contains(ref.profileID) else { throw Failure.collision }
         var s = try writableSnapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         guard s.current.contains(ref), try repository.read(ref) != nil else { throw Failure.missing }
         guard try legacyIDs() == legacy, try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         s.selected = ref; s.selectionNonce = UUID(); try publish(s)
     }
-    func remove(_ ref: Ref) throws {
+    func remove(_ ref: Ref, vpnInactive: () throws -> Bool = {true}) throws {
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         var s = try writableSnapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         guard s.current.contains(ref) else { throw Failure.missing }
         guard s.retired.count < 64 else { throw Failure.capacity }
         s.current.removeAll{$0 == ref}; s.retired.append(ref)
         if s.selected == ref { s.selected = nil; s.selectionNonce = nil }
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         try publish(s)
     }
     /// Recovery is safe after interruption at either side of record insertion.
     /// Never deletes any currently published or retired revision.
-    func reconcilePendingInsert() throws {
+    func reconcilePendingInsert(vpnInactive: () throws -> Bool = {true}) throws {
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         var s = try writableSnapshot()
         guard let ref = s.pendingInsert else { return }
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         _ = try repository.remove(ref)
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
         s.pendingInsert = nil; try publish(s)
     }
     /// Delete only explicitly recorded retired revisions. Retry is idempotent
     /// if a crash happens after item deletion but before catalog publication.
-    func reconcileRetired() throws {
+    func reconcileRetired(vpnInactive: () throws -> Bool = {true}) throws {
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         var s = try writableSnapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         for ref in s.retired {
+            guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
             guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
             _ = try repository.remove(ref)
+            guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
             guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
             s.retired.removeAll{$0 == ref}; try publish(s)
         }

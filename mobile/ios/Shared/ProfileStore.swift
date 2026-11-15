@@ -128,7 +128,8 @@ final class ProfileStore {
     /// A damaged on-disk list must never look like an empty installation to
     /// a writer. Otherwise saving one new profile would erase all old metadata.
     private func profilesForMutation() throws -> [ProxyProfile] {
-        guard let bytes = defaults.data(forKey: Key.profiles) else { return [] }
+        guard let raw = defaults.object(forKey: Key.profiles) else { return [] }
+        guard let bytes = raw as? Data else {throw ProfileStoreError.corruptProfiles}
         guard let entries = try? decoder.decode([ProxyProfile].self, from: bytes) else {
             throw ProfileStoreError.corruptProfiles
         }
@@ -154,23 +155,10 @@ final class ProfileStore {
     /// Compiles only in explicit integration Debug builds, never default Release.
     // Unknown/corrupt policy is not an empty policy. This validation path
     // cannot implement exclusions or a normally-off routing policy.
-    func nativeValidationPolicyIsEmpty() throws -> Bool {
-        for key in [Key.manualExclusions,Key.exclusions] {
-            if let value=defaults.object(forKey:key) {
-                guard let entries=value as? [String] else{throw ProfileStoreError.corruptProfiles}
-                if !entries.isEmpty{return false}
-            }
-        }
-        if let value=defaults.object(forKey:Key.smartGraph) {
-            guard let data=value as? Data,data.count<=65_536 else{throw ProfileStoreError.corruptProfiles}
-            let graph=try decoder.decode(SmartExclusionGraph.self,from:data)
-            guard try graph.effective(manual:[]).isEmpty else{return false}
-        }
-        if let policy=defaults.object(forKey:Key.iosAppRoutingMode) {
-            guard policy as? String==IOSAppRoutingMode.normallyOn.rawValue else{return false}
-        }
-        return true
+    func nativeRoutingAdmission() -> NativeRoutingAdmission {
+        NativeRoutingAdmission.inspect(manual:defaults.object(forKey:Key.manualExclusions),legacy:defaults.object(forKey:Key.exclusions),graph:defaults.object(forKey:Key.smartGraph),mode:defaults.object(forKey:Key.iosAppRoutingMode))
     }
+    func nativeValidationPolicyIsEmpty() throws -> Bool {nativeRoutingAdmission().permitsSelection}
 
     @MainActor func makeNativeValidationLaunchBoundary() -> NativeSessionLaunchBoundary {
         NativeSessionLaunchBoundary(reader:NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain()),

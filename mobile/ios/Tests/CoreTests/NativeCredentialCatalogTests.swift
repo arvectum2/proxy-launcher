@@ -28,6 +28,43 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let source="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
         return try .create(profileID:id,expected:.wireGuard,source:source)
     }
+    @MainActor func testPersistentLibraryExplicitSelectionAndRemovalCleanup() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)
+        var policy=NativeRoutingAdmission.tunnelOnly
+        let s=NativePersistentProfileSession(catalog:c,policy:{policy})
+        let select=try s.prepare(.select(b.reference));policy = .siteExclusions
+        XCTAssertThrowsError(try s.confirm(select,vpnInactive:{true}));XCTAssertTrue(try c.reader.isSelected(a.reference));XCTAssertFalse(try s.state().policyAllowsSelection)
+        policy = .tunnelOnly;let next=try s.prepare(.select(b.reference));try s.confirm(next,vpnInactive:{true});XCTAssertTrue(try c.reader.isSelected(b.reference))
+        XCTAssertThrowsError(try s.confirm(next,vpnInactive:{true}))
+        let deletion=try s.prepare(.remove(b.reference));XCTAssertThrowsError(try s.confirm(deletion,vpnInactive:{false}));XCTAssertNotNil(try repo.read(b.reference))
+        let again=try s.prepare(.remove(b.reference));try s.confirm(again,vpnInactive:{true})
+        XCTAssertEqual(try s.state().retiredCount,1);XCTAssertNotNil(try repo.read(b.reference));XCTAssertNil(try c.reader.snapshot().selected)
+        let purge=try s.prepare(.purgeRetired);var active=true;items.onRemove={_ in active=false}
+        XCTAssertThrowsError(try s.confirm(purge,vpnInactive:{active}));XCTAssertEqual(try s.state().retiredCount,1);XCTAssertNotNil(try repo.read(a.reference))
+        items.onRemove=nil;let retry=try s.prepare(.purgeRetired);try s.confirm(retry,vpnInactive:{true});XCTAssertEqual(try s.state().retiredCount,0);XCTAssertNil(try repo.read(b.reference));XCTAssertNotNil(try repo.read(a.reference))
+    }
+    @MainActor func testPersistentLibraryMigrationAndEmptyPendingRecovery() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true);var legacy=try c.reader.snapshot();legacy.version=1;m.bytes=try JSONEncoder().encode(legacy)
+        var clock=10.0;let s=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly},elapsed:{clock})
+        XCTAssertTrue(try s.state().migrationRequired);let first=try s.prepare(.migrate);clock+=300
+        XCTAssertThrowsError(try s.confirm(first,vpnInactive:{true}));let migrate=try s.prepare(.migrate);try s.confirm(migrate,vpnInactive:{true})
+        XCTAssertTrue(try s.state().selectionNeedsReview);XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        let tmp=try record();try repo.insert(tmp);var pending=try c.reader.snapshot();pending.pendingInsert=tmp.reference;m.bytes=try JSONEncoder().encode(pending)
+        XCTAssertTrue(try s.state().recoveryRequired);let recover=try s.prepare(.recover);s.cancel();XCTAssertThrowsError(try s.confirm(recover,vpnInactive:{true}));XCTAssertNotNil(try repo.read(tmp.reference))
+        let retry=try s.prepare(.recover);try s.confirm(retry,vpnInactive:{true});XCTAssertFalse(try s.state().recoveryRequired);XCTAssertNil(try repo.read(tmp.reference));XCTAssertNotNil(try repo.read(a.reference))
+    }
+    @MainActor func testPersistentLibraryImportDoesNotSelectAndStaleReceiptFails() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let s=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly})
+        let old=try s.prepare(.remove(a.reference));try c.save(try record(),select:false);XCTAssertThrowsError(try s.confirm(old,vpnInactive:{true}))
+        let key=Curve25519.KeyAgreement.PrivateKey(),peer=Curve25519.KeyAgreement.PrivateKey()
+        let source="[Interface]\nPrivateKey=\(key.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(peer.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
+        let preview=try s.previewSource(source,kind:.wireGuard);XCTAssertEqual(items.values.count,2);try s.confirmImport(preview,vpnInactive:{true});XCTAssertEqual(items.values.count,3);XCTAssertTrue(try c.reader.isSelected(a.reference))
+        XCTAssertThrowsError(try s.confirmImport(preview,vpnInactive:{true}))
+    }
     @MainActor func testReplacementRejectsAlreadyIssuedTicketBeforeCleanup() async throws {
         let m=CatalogMemory(), items=RecordMemory(), tickets=RecordMemory(), repo=NativeCredentialRepository(items:items)
         let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})

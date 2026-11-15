@@ -76,6 +76,22 @@ final class VPNController: ObservableObject {
         }
     }
 
+    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    /// No preference creation or repair. App-process lease, not an OS lock.
+    func withNativeLibraryWrite(_ body: (() throws -> Bool) throws -> Void) async throws {
+        try await Self.operationGate.perform(.restore) {
+            let all=try await loadAllManagers(requireResult:true)
+            try Task.checkCancellation()
+            let inactive:()throws->Bool = {
+                guard !Task.isCancelled else{return false}
+                return (all+(self.manager.map{[$0]} ?? [])).allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
+            }
+            guard try inactive() else{throw ProfileBackupError.vpnActive}
+            try body(inactive)
+        }
+    }
+    #endif
+
     #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
     /// Deliberately has no UI caller. Requires an externally provisioned,
     /// uniquely owned validation manager; never creates/saves one here.
