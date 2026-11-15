@@ -41,6 +41,31 @@ final class NativeProfileBackupCodecTests: XCTestCase {
             XCTAssertEqual(try a.compile().0.withEngineConfiguration{$0},try b.compile().0.withEngineConfiguration{$0})
         }
     }
+    func testNativePasswordBoundUsesBytesNotGraphemeCount() throws {
+        let source=try records()
+        let oversized=String(repeating:"a\u{0301}",count:11)+"a"+String(repeating:"\u{0301}",count:3000)
+        XCTAssertEqual(oversized.count,12)
+        XCTAssertGreaterThan(oversized.utf8.count,NativeProfileBackupCodec.maxPasswordBytes)
+        XCTAssertThrowsError(try NativeProfileBackupCodec.seal(source,password:oversized)) { error in
+            guard case ProfileBackupError.weakPassword=error else{return XCTFail("wrong error")}
+        }
+        let sealed=try NativeProfileBackupCodec.seal(source,password:password)
+        XCTAssertThrowsError(try NativeProfileBackupCodec.open(sealed,password:oversized)) { error in
+            guard case ProfileBackupError.weakPassword=error else{return XCTFail("wrong error")}
+        }
+        let unicode="Синтетический-пароль-2026"
+        XCTAssertEqual(try NativeProfileBackupCodec.open(NativeProfileBackupCodec.seal(source,password:unicode),password:unicode).count,3)
+    }
+    func testOversizedCiphertextRejectedBeforePasswordDerivation() throws {
+        let sealed=try NativeProfileBackupCodec.seal(records(),password:password)
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:sealed) as? [String:Any])
+        json["ciphertext"]=Data(repeating:0,count:ProfileBackupCodec.maxFileBytes/2+29).base64EncodedString()
+        let malformed=try JSONSerialization.data(withJSONObject:json)
+        XCTAssertLessThan(malformed.count,ProfileBackupCodec.maxFileBytes)
+        XCTAssertThrowsError(try NativeProfileBackupCodec.open(malformed,password:"short")) {error in
+            guard case ProfileBackupError.invalidFile=error else{return XCTFail("expected pre-KDF size rejection")}
+        }
+    }
     func testInvalidRecordsCapacityAndLegacyFormatRejected() throws {
         let source=try records();XCTAssertThrowsError(try NativeProfileBackupCodec.seal([],password:password));XCTAssertThrowsError(try NativeProfileBackupCodec.seal([source[0],source[0]],password:password))
         XCTAssertThrowsError(try NativeProfileBackupCodec.prepareRestore(source,existingNativeIDs:Set((0..<30).map{_ in UUID()}),legacyIDs:[]))

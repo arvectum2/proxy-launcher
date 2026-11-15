@@ -120,7 +120,7 @@ enum ProfileBackupCodec {
               envelope.format == format, envelope.version == 1,
               envelope.kdf == "PBKDF2-HMAC-SHA256", envelope.iterations == iterations,
               envelope.salt.count == saltSize,
-              (28...maxFileBytes).contains(envelope.ciphertext.count) else {
+              (28...(maxFileBytes / 2 + 28)).contains(envelope.ciphertext.count) else {
             throw ProfileBackupError.invalidFile
         }
         // A pasted import passphrase is untrusted user input as well. Bound it

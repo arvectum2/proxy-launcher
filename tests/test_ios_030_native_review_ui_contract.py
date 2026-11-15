@@ -31,3 +31,16 @@ def test_file_callbacks_use_captured_action_and_background_clears():
     assert 'lifecycle.leave();resetReview();session.clear()' in view
     assert 'receipt.id.uuidString.lowercased()' in view
     assert 'Discard cancelled file operation' in view
+
+
+def test_qa_dedicated_ru_en_localization_keys_and_fallback():
+    import re,json
+    view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
+    entry=(IOS/'App/ProfileBackupView.swift').read_text()
+    ru=dict((json.loads(k),json.loads(v)) for k,v in re.findall(r'^\s*(".*?"):\s*(".*?"),$',view,re.M))
+    assert len(ru)==21 and all(k!=v for k,v in ru.items())
+    assert set(re.findall(r'tr\("([^"]+)"\)',view))|{'Native profiles · Simulator QA'}==set(ru)
+    assert 'NativeReviewQAL10n.tr' in entry
+    assert ru['Temporary profiles: %d'].count('%d')==1
+    assert 'AppL10n.effectiveLanguage == "ru" else {return key}' in view
+    assert not list((IOS/'Resources').glob('*.lproj/NativeReviewQA.strings'))

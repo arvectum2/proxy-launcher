@@ -47,7 +47,7 @@ struct ProfileBackupView: View {
         NavigationView {
             Form {
                 #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
-                Section { Button("Native profiles · Simulator QA") { showNativeReviewLab = true } }
+                Section { Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")) { showNativeReviewLab = true } }
                 #endif
                 Section {
                     // Show only the essential label by default; detailed

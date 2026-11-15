@@ -2,6 +2,37 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// QA-only bilingual labels, excluded from the shipping catalogs and code.
+enum NativeReviewQAL10n {
+    static func tr(_ key: String) -> String {
+        guard AppL10n.effectiveLanguage == "ru" else {return key}
+        return russian[key] ?? key
+    }
+    private static let russian: [String:String] = [
+        "Native profiles · Simulator QA": "Нативные профили · тестирование в симуляторе",
+        "Simulator QA only. Use synthetic test files. Nothing is saved to the profile library or connected to VPN.": "Только для тестирования в симуляторе. Используйте искусственные тестовые файлы. Профили не сохраняются в библиотеке, VPN не подключается.",
+        "Temporary profiles: %d": "Временных профилей: %d",
+        "Configuration review": "Проверка конфигурации",
+        "Protocol": "Протокол",
+        "Choose synthetic configuration text file": "Выбрать тестовый файл конфигурации",
+        "Encrypted backup": "Зашифрованная резервная копия",
+        "Choose synthetic backup JSON": "Выбрать тестовую копию JSON",
+        "Backup password": "Пароль резервной копии",
+        "Review backup": "Проверить копию",
+        "Prepare encrypted export": "Подготовить зашифрованный экспорт",
+        "New password": "Новый пароль",
+        "Repeat password": "Повторите пароль",
+        "Encrypt": "Зашифровать",
+        "Review — counts only": "Предпросмотр — только количество",
+        "Add to test memory only": "Добавить только во временную память",
+        "Cancel": "Отмена",
+        "Discard cancelled file operation": "Сбросить отменённую файловую операцию",
+        "Review failed. No new records added.": "Проверка не пройдена. Новые записи не добавлены.",
+        "Native profiles · QA": "Нативные профили · тестирование",
+        "Close": "Закрыть",
+    ]
+}
+
 /// Simulator-only screen; no real store, VPN manager or account.
 @MainActor struct NativeProfileReviewLabView: View {
     @Environment(\.dismiss) private var dismiss
@@ -23,51 +54,53 @@ import UniformTypeIdentifiers
     @State private var total=0
     @State private var failed=false
 
+    private func tr(_ key: String) -> String { NativeReviewQAL10n.tr(key) }
+
     var body: some View {
         NavigationView {
             Form {
                 Section {
-                    Text("Simulator QA only. Use synthetic test files. Nothing is saved to the profile library or connected to VPN.")
-                    Text("Temporary profiles: \(total)")
+                    Text(tr("Simulator QA only. Use synthetic test files. Nothing is saved to the profile library or connected to VPN."))
+                    Text(String(format:tr("Temporary profiles: %d"),Int32(total)))
                 }
-                Section("Configuration review") {
-                    Picker("Protocol",selection:$kind) {
+                Section(tr("Configuration review")) {
+                    Picker(tr("Protocol"),selection:$kind) {
                         Text("WireGuard").tag(NativeCredentialRecord.Kind.wireGuard)
                         Text("AmneziaWG 1").tag(NativeCredentialRecord.Kind.amneziaWG1)
                         Text("VLESS Reality").tag(NativeCredentialRecord.Kind.vlessReality)
                     }.onChange(of:kind){_ in resetReview();lifecycle.invalidate();importReceipt=nil}
-                    Button("Choose synthetic configuration text file") { beginImport(.configuration(kind)) }
+                    Button(tr("Choose synthetic configuration text file")) { beginImport(.configuration(kind)) }
                 }
-                Section("Encrypted backup") {
-                    Button("Choose synthetic backup JSON") { beginImport(.backup) }
+                Section(tr("Encrypted backup")) {
+                    Button(tr("Choose synthetic backup JSON")) { beginImport(.backup) }
                     if file != nil {
-                        SecureField("Backup password",text:$password).textContentType(.password)
-                        Button("Review backup",action:reviewBackup).disabled(password.isEmpty)
+                        SecureField(tr("Backup password"),text:$password).textContentType(.password)
+                        Button(tr("Review backup"),action:reviewBackup).disabled(password.isEmpty)
                     }
-                    Button("Prepare encrypted export") {resetReview();exporting=true}.disabled(total==0)
+                    Button(tr("Prepare encrypted export")) {resetReview();exporting=true}.disabled(total==0)
                     if exporting {
-                        SecureField("New password",text:$password).textContentType(.newPassword)
-                        SecureField("Repeat password",text:$repeatedPassword).textContentType(.newPassword)
-                        Button("Encrypt",action:encrypt).disabled(password.count<12 || password != repeatedPassword)
+                        SecureField(tr("New password"),text:$password).textContentType(.newPassword)
+                        SecureField(tr("Repeat password"),text:$repeatedPassword).textContentType(.newPassword)
+                        Button(tr("Encrypt"),action:encrypt).disabled(password.count<12 || password != repeatedPassword)
                     }
                 }
                 if let summary {
-                    Section("Review — counts only") {
+                    Section(tr("Review — counts only")) {
                         Text("WireGuard: \(summary.wireGuard)")
                         Text("AmneziaWG 1: \(summary.amneziaWG1)")
                         Text("VLESS Reality: \(summary.vless)")
-                        Button("Add to test memory only") { accept(summary) }
-                        Button("Cancel",role:.cancel){resetReview()}
+                        Button(tr("Add to test memory only")) { accept(summary) }
+                        Button(tr("Cancel"),role:.cancel){resetReview()}
                     }
                 }
                 if lifecycle.pending != nil && !choosing && !showExporter {
-                    Button("Discard cancelled file operation",role:.cancel){cancelPanel()}
+                    Button(tr("Discard cancelled file operation"),role:.cancel){cancelPanel()}
                 }
-                if failed { Text("Review failed. No new records added.").foregroundStyle(.red) }
+                if failed { Text(tr("Review failed. No new records added.")).foregroundStyle(.red) }
             }
             .disabled(choosing || showExporter)
-            .navigationTitle("Native profiles · QA")
-            .toolbar {ToolbarItem(placement:.cancellationAction){Button("Close"){leave();dismiss()}}}
+            .navigationTitle(tr("Native profiles · QA"))
+            .toolbar {ToolbarItem(placement:.cancellationAction){Button(tr("Close")){leave();dismiss()}}}
         }
         .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:false, onCompletion:{ [receipt=importReceipt] result in readFile(result,receipt:receipt) })
         .fileExporter(isPresented:$showExporter,document:document,contentType:.json,defaultFilename:exportFilename){ [receipt=exportReceipt] _ in
