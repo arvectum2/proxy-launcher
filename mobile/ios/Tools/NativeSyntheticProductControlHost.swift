@@ -20,9 +20,17 @@ struct UnifiedSyntheticHostInput:Decodable,CustomStringConvertible,CustomReflect
     let runID:UUID;let owner:UUID;let identity:TransportNativeIdentity
     let kind:NativeCredentialRecord.Kind;let probe:String;let mode:String
     let nonce:String;let fixture:Data;let localIPv4:UInt32?
+    let splitCase:NativeSyntheticSplitRoutePlan.ProbeCase?
     var description:String {"UnifiedSyntheticHostInput(redacted)"}
     var customMirror:Mirror {Mirror(self,children:[])}
     var valid:Bool {
+        if splitCase != nil {
+            #if APL_NATIVE_SYNTHETIC_SPLIT_ROUTE
+            guard kind == .amneziaWG1,mode == "positive" else{return false}
+            #else
+            return false
+            #endif
+        }
         let probes=kind == .vlessReality ? ["tcp4"]:["tcp4","tcp6","udp4","udp6"]
         let modes=kind == .amneziaWG1 ? ["positive","wrong-key","wrong-psk"]:["positive","wrong-key"]
         return identity.valid && identity.generation==1 && identity.provider==kind.providerName && probes.contains(probe) && modes.contains(mode) && nonce.utf8.count==(kind == .amneziaWG1 ? 48:40) && nonce.utf8.allSatisfy{(48...57).contains($0)||(97...102).contains($0)}
@@ -32,6 +40,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
     struct Exchange:Codable {let request:TransportNativeRequest;let response:TransportNativeResponse}
     let schema:Int;let runID:UUID;let owner:UUID;let identity:TransportNativeIdentity
     let fixtureSHA256:String;let probe:String;let mode:String
+    let splitCase:NativeSyntheticSplitRoutePlan.ProbeCase?
     let exchanges:[Exchange];let responseSHA256:String?;let probeAttempted:Bool;let osOff:Bool
 }
 
@@ -45,6 +54,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
     private(set) var attempted=false, observedSetup=false, staleRejected=false, drained=false, off=false
     private var busy=false
     private let runID:UUID,fixtureSHA256:String,probeKind:String,mode:String,kind:NativeCredentialRecord.Kind
+    private let splitCase:NativeSyntheticSplitRoutePlan.ProbeCase?
     private var challenge:String
     private var exchanges:[UnifiedSyntheticHostReceipt.Exchange]=[]
     private var probeAttempted=false,responseSHA256:String?
@@ -52,7 +62,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
     init(manager:NETunnelProviderManager,input:UnifiedSyntheticHostInput)throws {
         guard input.valid else{throw Failure.invalidState}
         let owner=input.owner,kind=input.kind,fixture=input.fixture,localIPv4=input.localIPv4
-        self.kind=kind;runID=input.runID;fixtureSHA256=Self.hex(fixture);probeKind=input.probe;mode=input.mode;challenge=input.nonce
+        self.kind=kind;splitCase=input.splitCase;runID=input.runID;fixtureSHA256=Self.hex(fixture);probeKind=input.probe;mode=input.mode;challenge=input.nonce
         guard let connection=manager.connection as? NETunnelProviderSession else{throw Failure.unowned}
         self.manager=manager;self.connection=connection;self.owner=owner
         identity=input.identity
@@ -62,7 +72,13 @@ struct UnifiedSyntheticHostReceipt:Codable {
         values[NativeProviderStartRequest.expectedKey]=try TransportNativeCodec.encode(binding) as NSData
         values[NativeSyntheticRuntimeRequest.fixtureKey]=fixture as NSData
         if let localIPv4 {values[NativeSyntheticRuntimeRequest.localKey]=String(localIPv4) as NSString}
-        guard NativeSyntheticRuntimeRequest.inspect(configuration:config,options:values,provider:kind.provider) != nil else{throw Failure.invalidState}
+        #if APL_NATIVE_SYNTHETIC_SPLIT_ROUTE
+        if let splitCase {values[NativeSyntheticRuntimeRequest.splitKey]=splitCase.rawValue as NSString}
+        let allowSplitRoute=true
+        #else
+        let allowSplitRoute=false
+        #endif
+        guard NativeSyntheticRuntimeRequest.inspect(configuration:config,options:values,provider:kind.provider,allowSplitRoute:allowSplitRoute) != nil else{throw Failure.invalidState}
         options=values
         guard owned(manager) else{throw Failure.unowned}
     }
@@ -124,7 +140,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
         busy=true;defer{busy=false};probeAttempted=true
         let nonce=challenge;challenge=""
         let awg=kind == .amneziaWG1,udp=probeKind.hasPrefix("udp"),v4=probeKind.hasSuffix("4")
-        let host=awg ? (v4 ? "192.0.2.2":"2001:db8::2"):(v4 ? "198.51.100.77":"2001:db8:77::77")
+        let host=splitCase.map{NativeSyntheticSplitRoutePlan.target($0,ipv6:!v4)} ?? (awg ?  (v4 ? "192.0.2.2":"2001:db8::2"):(v4 ? "198.51.100.77":"2001:db8:77::77"))
         let expected=Data(((awg ? "APL:":"APL_RECEIPT:")+nonce).utf8)
         var reply:Data?
         if awg || udp {
@@ -160,7 +176,7 @@ struct UnifiedSyntheticHostReceipt:Codable {
     }
     func receipt()throws->UnifiedSyntheticHostReceipt {
         guard !busy,attempted,observedSetup,staleRejected,probeAttempted,drained,off else{throw Failure.missingReceipt}
-        return .init(schema:1,runID:runID,owner:owner,identity:identity,fixtureSHA256:fixtureSHA256,probe:probeKind,mode:mode,exchanges:exchanges,responseSHA256:responseSHA256,probeAttempted:probeAttempted,osOff:off)
+        return .init(schema:1,runID:runID,owner:owner,identity:identity,fixtureSHA256:fixtureSHA256,probe:probeKind,mode:mode,splitCase:splitCase,exchanges:exchanges,responseSHA256:responseSHA256,probeAttempted:probeAttempted,osOff:off)
     }
     /// Always allow exact cleanup after attempted setup, even if observation
     /// failed. Never infer drain from OS disconnect or a missing response.

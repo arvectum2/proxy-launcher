@@ -46,7 +46,12 @@ extension NativeXrayPacketSession:NativeSyntheticProviderSession {
         #else
         let supported:Set<TransportProvider> = [.standaloneAWG]
         #endif
-        guard !used,!retired,let request=Self.selection.claim(configuration:(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration,options:options,supported:supported) else{completionHandler(failure(1));return}
+        #if APL_NATIVE_SYNTHETIC_SPLIT_ROUTE && APL_NATIVE_AWG_CANDIDATE
+        let allowSplitRoute=true
+        #else
+        let allowSplitRoute=false
+        #endif
+        guard !used,!retired,let request=Self.selection.claim(configuration:(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration,options:options,supported:supported,allowSplitRoute:allowSplitRoute) else{completionHandler(failure(1));return}
         used=true;starting=true;completion=completionHandler
         defer{starting=false}
         do {

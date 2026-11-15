@@ -34,3 +34,21 @@ extension NativeTunnelNetworkSettings {
     }
 }
 #endif
+
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME && APL_NATIVE_SYNTHETIC_SPLIT_ROUTE && APL_NATIVE_AWG_CANDIDATE
+extension NativeTunnelNetworkSettings {
+    /// Actual scoped lab objects; no default routes, DNS or arbitrary input.
+    static func makeSyntheticSplitRoute()throws->NEPacketTunnelNetworkSettings {
+        let plan=try NativeSyntheticSplitRoutePlan.prepare()
+        let settings=NEPacketTunnelNetworkSettings(tunnelRemoteAddress:"192.168.1.80")
+        let v4=NEIPv4Settings(addresses:["192.0.2.1"],subnetMasks:["255.255.255.255"])
+        v4.includedRoutes=plan.included.filter{!$0.isIPv6}.map{NEIPv4Route(destinationAddress:$0.address,subnetMask:$0.ipv4Mask!)}
+        v4.excludedRoutes=plan.excluded.filter{!$0.isIPv6}.map{NEIPv4Route(destinationAddress:$0.address,subnetMask:$0.ipv4Mask!)}
+        let v6=NEIPv6Settings(addresses:["2001:db8::1"],networkPrefixLengths:[128])
+        v6.includedRoutes=plan.included.filter{$0.isIPv6}.map{NEIPv6Route(destinationAddress:$0.address,networkPrefixLength:NSNumber(value:$0.length))}
+        v6.excludedRoutes=plan.excluded.filter{$0.isIPv6}.map{NEIPv6Route(destinationAddress:$0.address,networkPrefixLength:NSNumber(value:$0.length))}
+        settings.ipv4Settings=v4;settings.ipv6Settings=v6;settings.mtu=1280
+        return settings
+    }
+}
+#endif

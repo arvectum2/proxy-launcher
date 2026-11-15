@@ -4,7 +4,7 @@ Expected record must be independently obtained from authorized signing/build.
 It does not prove signed Mach-O equivalence with previous unsigned build.
 """
 import datetime,hashlib,json,pathlib,plistlib,re,subprocess,sys
-from unified_synthetic_fixture import CONTAINING_CANDIDATE
+from unified_synthetic_fixture import CONTAINING_CANDIDATE,SPLIT_CANDIDATE
 from validate_unified_synthetic_receipt import exact,need,read
 BASE='ru.arvectum.proxylauncher.lab.productunifiedcompile'
 
@@ -13,7 +13,7 @@ def sha(p):
 
 def validate_record(r):
     exact(r,'schema candidateManifestSHA256 team device hostSHA256 extensionSHA256 hostInfoSHA256 extensionInfoSHA256')
-    need(type(r['schema'])==int and r['schema']==1 and r['candidateManifestSHA256']==CONTAINING_CANDIDATE,'wrong candidate')
+    need(type(r['schema'])==int and r['schema']==1 and r['candidateManifestSHA256'] in (CONTAINING_CANDIDATE,SPLIT_CANDIDATE),'wrong candidate')
     need(type(r['team'])==str and re.fullmatch('[A-Z0-9]{10}',r['team']) and type(r['device'])==str and re.fullmatch('[0-9A-Fa-f-]{24,40}',r['device']),'invalid expected identity')
     for k in ('hostSHA256','extensionSHA256','hostInfoSHA256','extensionInfoSHA256'):need(type(r[k])==str and re.fullmatch('[a-f0-9]{64}',r[k]),'invalid expected hash')
 
@@ -44,7 +44,7 @@ def verify_bundle(host,record):
         actual=plistlib.loads(subprocess.check_output(['codesign','-d','--entitlements',':-',str(bundle)],stderr=subprocess.DEVNULL,timeout=10))
         profile=plistlib.loads(subprocess.check_output(['security','cms','-D','-i',str(provision)],stderr=subprocess.DEVNULL,timeout=10))
         validate_scope(plistlib.loads(info.read_bytes()),profile,actual,ident,record['team'],record['device'],now)
-    return {'status':'signed_identity_scope_verified_only','candidateManifestSHA256':CONTAINING_CANDIDATE,'hostSHA256':record['hostSHA256'],'extensionSHA256':record['extensionSHA256'],'runtime_authorized':False,'release_authorized':False}
+    return {'status':'signed_identity_scope_verified_only','candidateManifestSHA256':record['candidateManifestSHA256'],'hostSHA256':record['hostSHA256'],'extensionSHA256':record['extensionSHA256'],'runtime_authorized':False,'release_authorized':False}
 
 if __name__=='__main__':
     if len(sys.argv)!=4:raise SystemExit('usage: verify_unified_signed_bundle.py APP EXPECTED_PRIVATE_RECORD EXPECTED_RECORD_SHA256')

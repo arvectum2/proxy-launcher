@@ -85,3 +85,19 @@ struct NativeIPSplitRoutePlan:Equatable {
         return .init(base:base,exclusions:rules)
     }
 }
+
+/// Fixed documentation-address QA plan, not a full-tunnel production plan.
+/// The adjacent excluded address must have an independently provisioned
+/// isolated external witness before any physical test; no such route is created here.
+struct NativeSyntheticSplitRoutePlan:Equatable {
+    enum ProbeCase:String,Codable {case included,excluded}
+    let included:[NativeLiteralIPPrefix]
+    let excluded:[NativeLiteralIPPrefix]
+    private init(included:[NativeLiteralIPPrefix],excluded:[NativeLiteralIPPrefix]){self.included=included;self.excluded=excluded}
+    static func prepare()throws->Self {
+        .init(included:try ["192.0.2.2/31","2001:db8::2/127"].map(NativeLiteralIPPrefix.init),excluded:try ["192.0.2.3/32","2001:db8::3/128"].map(NativeLiteralIPPrefix.init))
+    }
+    static func target(_ probe:ProbeCase,ipv6:Bool)->String {
+        switch (probe,ipv6){case (.included,false):return "192.0.2.2";case (.excluded,false):return "192.0.2.3";case (.included,true):return "2001:db8::2";case (.excluded,true):return "2001:db8::3"}
+    }
+}

@@ -17,7 +17,7 @@ def uuidstr(x):
 def identity(x,provider):
     exact(x,'epoch generation provider');need(uuidstr(x['epoch']) and type(x['generation'])==int and x['generation']==1 and x['provider']==provider,'identity mismatch')
 
-def validate(m,h,p,private):
+def validate_host(m,h,private):
     exact(m,'schema runID owner identity kind probe mode candidateManifestSHA256 challengeSHA256 fixtureSHA256 peerInputSHA256 runtime_authorized')
     exact(private,'runID owner identity kind probe mode nonce fixture localIPv4')
     need(type(m['schema'])==int and m['schema']==1 and m['runtime_authorized'] is False and m['candidateManifestSHA256'] in CANDIDATES,'candidate mismatch')
@@ -41,6 +41,11 @@ def validate(m,h,p,private):
         identity(r['identity'],provider);need(q['action']==action and r==dict(q,state=state),'response mismatch')
     expected=digest((('APL:' if kind=='amneziaWG1' else 'APL_RECEIPT:')+nonce).encode())
     positive=mode=='positive';need(h['responseSHA256']==(expected if positive else None),'host response mismatch')
+    return expected
+
+def validate(m,h,p,private):
+    expected=validate_host(m,h,private)
+    kind,probe,mode=m['kind'],m['probe'],m['mode'];positive=mode=='positive'
     fields='schema runID candidateManifestSHA256 challengeSHA256 peerInputSHA256 probe mode observationClosed witnessCounts responseSHA256'
     if kind=='vlessReality' and p.get('schema')==2:
         exact(p,fields+' ingressBytes egressBytes');keys=('ingressBytes','egressBytes');limit=1048576

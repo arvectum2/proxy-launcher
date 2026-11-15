@@ -31,7 +31,7 @@ import Foundation
             let decoded=try JSONDecoder().decode(UnifiedSyntheticHostInput.self,from:data)
             guard decoded.valid else{throw NativeSyntheticProductControlHost.Failure.invalidState}
             try FileManager.default.removeItem(at:path)
-            input=decoded;armed=true;status="Input consumed: \(decoded.kind.rawValue) / \(decoded.probe) / \(decoded.mode). Confirm isolated process and manager separately."
+            input=decoded;armed=true;status=decoded.splitCase != nil ? "Split-route QA: verify separate isolated external witness and physical route preflight before confirming. Case: \(decoded.splitCase!.rawValue)." : "Input consumed: \(decoded.kind.rawValue) / \(decoded.probe) / \(decoded.mode). Confirm isolated process and manager separately."
         } catch {status="Input rejected. No VPN action."}
     }
     func invalidate() {

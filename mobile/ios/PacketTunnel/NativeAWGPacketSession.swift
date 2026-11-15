@@ -33,11 +33,18 @@ private final class AWGSessionCompletion: @unchecked Sendable {
         guard !retired,!starting,!draining,pump==nil,request.binding==owner,let local=request.localIPv4 else{throw Failure.unsupported}
         starting=true;defer{starting=false}
         do {
-            let settings=NEPacketTunnelNetworkSettings(tunnelRemoteAddress:"192.168.1.80")
+            var settings=NEPacketTunnelNetworkSettings(tunnelRemoteAddress:"192.168.1.80")
             let v4=NEIPv4Settings(addresses:["192.0.2.1"],subnetMasks:["255.255.255.255"])
             v4.includedRoutes=[NEIPv4Route(destinationAddress:"192.0.2.2",subnetMask:"255.255.255.255")];settings.ipv4Settings=v4
             let v6=NEIPv6Settings(addresses:["2001:db8::1"],networkPrefixLengths:[128])
             v6.includedRoutes=[NEIPv6Route(destinationAddress:"2001:db8::2",networkPrefixLength:128)];settings.ipv6Settings=v6;settings.mtu=1280
+            if request.splitCase != nil {
+                #if APL_NATIVE_SYNTHETIC_SPLIT_ROUTE
+                settings=try NativeTunnelNetworkSettings.makeSyntheticSplitRoute()
+                #else
+                throw Failure.unsupported
+                #endif
+            }
             settingsInstalled=true;try await provider.setTunnelNetworkSettings(settings)
             guard !retired else{throw Failure.busy}
             let bridge=AWGPacketFlowPump(flow:provider.packetFlow){[weak self,weak provider] in

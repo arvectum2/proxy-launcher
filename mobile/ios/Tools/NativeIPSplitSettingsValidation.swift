@@ -42,5 +42,15 @@ import NetworkExtension
         }
         guard count==12 else{exit(3)}
         print("NATIVE_EXPLICIT_IP_SETTINGS_OBJECTS_PASS_12_OF_12")
+        #if APL_NATIVE_SYNTHETIC_SPLIT_ROUTE
+        let lab=try NativeTunnelNetworkSettings.makeSyntheticSplitRoute()
+        guard let a=lab.ipv4Settings,let b=lab.ipv6Settings,lab.dnsSettings==nil,lab.proxySettings==nil,lab.tunnelRemoteAddress=="192.168.1.80",lab.mtu==1280,
+              a.addresses==["192.0.2.1"],b.addresses==["2001:db8::1"],
+              a.includedRoutes?.map({$0.destinationAddress+"/"+$0.destinationSubnetMask})==["192.0.2.2/255.255.255.254"],
+              a.excludedRoutes?.map({$0.destinationAddress+"/"+$0.destinationSubnetMask})==["192.0.2.3/255.255.255.255"],
+              b.includedRoutes?.map({$0.destinationAddress+"/"+$0.destinationNetworkPrefixLength.stringValue})==["2001:db8::2/127"],
+              b.excludedRoutes?.map({$0.destinationAddress+"/"+$0.destinationNetworkPrefixLength.stringValue})==["2001:db8::3/128"] else{exit(4)}
+        print("NATIVE_SYNTHETIC_SPLIT_SETTINGS_OBJECT_PASS")
+        #endif
     }
 }

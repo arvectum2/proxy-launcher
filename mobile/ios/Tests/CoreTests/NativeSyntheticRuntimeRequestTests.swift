@@ -50,4 +50,30 @@ final class NativeSyntheticRuntimeRequestTests:XCTestCase {
         var bad=opts;bad[NativeSyntheticRuntimeRequest.fixtureKey]=Data(repeating:1,count:95) as NSData
         XCTAssertNil(NativeSyntheticRuntimeRequest.inspect(configuration:config,options:bad,provider:.standaloneAWG))
     }
+    func testSplitCaseRequiresSeparateGateAndExactAWGEnvelope()throws {
+        let (_,a,aw)=try input(.amneziaWG1),(_,w,wg)=try input(.wireGuard)
+        for mode in ["included","excluded"] {
+            var opts=aw;opts[NativeSyntheticRuntimeRequest.splitKey]=mode as NSString
+            XCTAssertNil(NativeSyntheticRuntimeRequest.inspect(configuration:a,options:opts,provider:.standaloneAWG))
+            XCTAssertEqual(NativeSyntheticRuntimeRequest.inspect(configuration:a,options:opts,provider:.standaloneAWG,allowSplitRoute:true)?.splitCase?.rawValue,mode)
+            var s=NativeSyntheticEngineSelection();XCTAssertNil(s.claim(configuration:a,options:opts,supported:[.standaloneAWG]));XCTAssertNil(s.claimed)
+            XCTAssertNotNil(s.claim(configuration:a,options:opts,supported:[.standaloneAWG],allowSplitRoute:true));XCTAssertNil(s.claim(configuration:a,options:opts,supported:[.standaloneAWG],allowSplitRoute:true))
+            var bad=wg;bad[NativeSyntheticRuntimeRequest.splitKey]=mode as NSString
+            XCTAssertNil(NativeSyntheticRuntimeRequest.inspect(configuration:w,options:bad,provider:.rustXray,allowSplitRoute:true))
+        }
+        var invalid=aw;invalid[NativeSyntheticRuntimeRequest.splitKey]="192.0.2.9" as NSString
+        XCTAssertNil(NativeSyntheticRuntimeRequest.inspect(configuration:a,options:invalid,provider:.standaloneAWG,allowSplitRoute:true))
+        XCTAssertNil(NativeSyntheticRuntimeRequest.inspect(configuration:a,options:aw,provider:.standaloneAWG,allowSplitRoute:true)?.splitCase)
+    }
+    func testFixedSyntheticPlanContainsOnlyAdjacentExcludedHosts()throws {
+        let p=try NativeSyntheticSplitRoutePlan.prepare()
+        XCTAssertEqual(p.included.map(\.description),["192.0.2.2/31","2001:db8::2/127"])
+        XCTAssertEqual(p.excluded.map(\.description),["192.0.2.3/32","2001:db8::3/128"])
+        for v6 in [false,true] {
+            let yes=try NativeLiteralIPPrefix(NativeSyntheticSplitRoutePlan.target(.included,ipv6:v6)),no=try NativeLiteralIPPrefix(NativeSyntheticSplitRoutePlan.target(.excluded,ipv6:v6))
+            XCTAssertTrue(p.included.contains{$0.overlaps(yes)});XCTAssertTrue(p.included.contains{$0.overlaps(no)})
+            XCTAssertFalse(p.excluded.contains{$0.overlaps(yes)});XCTAssertTrue(p.excluded.contains{$0.overlaps(no)})
+        }
+    }
+
 }

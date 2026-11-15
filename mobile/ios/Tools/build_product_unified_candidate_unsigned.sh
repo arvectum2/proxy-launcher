@@ -29,6 +29,9 @@ cp "$rust/ios-arm64/Headers/"* "$work/Lib/Rust/Headers/"
 [[ $(shasum -a 256 "$work/Lib/Rust/libtun2proxy.a" | cut -d' ' -f1) == e81642cf494e218aeb3314289f235eeff8dff21dc8d72b8bd23ded8b41c0b852 ]] || { echo WRONG_RUST_VARIANT >&2; exit 2; }
 runtime_flag="${APL_COMPILE_SYNTHETIC_RUNTIME:-0}"
 host_flag="${APL_COMPILE_CONTAINING_HOST:-0}"
+split_flag="${APL_COMPILE_SYNTHETIC_SPLIT_ROUTE:-0}"
+[[ "$split_flag" == 0 || "$split_flag" == 1 ]]
+[[ "$split_flag" == 0 || ( "$runtime_flag" == 1 && "$host_flag" == 1 ) ]] || { echo SPLIT_REQUIRES_ISOLATED_HOST_AND_RUNTIME >&2; exit 2; }
 [[ "$host_flag" == 0 || "$host_flag" == 1 ]]
 [[ "$host_flag" == 0 || "$runtime_flag" == 1 ]] || { echo HOST_REQUIRES_SYNTHETIC_RUNTIME >&2; exit 2; }
 [[ "$runtime_flag" == 0 || "$runtime_flag" == 1 ]]
@@ -125,6 +128,14 @@ schemes:
 PYYAML
     scheme=UnifiedAcceptanceHost
 fi
+if [[ "$split_flag" == 1 ]]; then
+    python3 - "$work/project.yml" <<'PYGATE'
+import pathlib,sys
+p=pathlib.Path(sys.argv[1]);s=p.read_text().replace("APL_NATIVE_SYNTHETIC_RUNTIME'","APL_NATIVE_SYNTHETIC_RUNTIME APL_NATIVE_SYNTHETIC_SPLIT_ROUTE'")
+s=s.replace("        SWIFT_VERSION: '5.9'\n        ENABLE_DEBUG_DYLIB: NO","        SWIFT_VERSION: '5.9'\n        SWIFT_ACTIVE_COMPILATION_CONDITIONS: 'DEBUG APL_NATIVE_SYNTHETIC_SPLIT_ROUTE'\n        ENABLE_DEBUG_DYLIB: NO")
+p.write_text(s)
+PYGATE
+fi
 (cd "$work" && xcodegen generate >/dev/null)
 if ! xcodebuild -project "$work/APLProductUnifiedCompileOnly.xcodeproj" -scheme "$scheme" -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO -derivedDataPath "$work/Build" build > "$work/build.log" 2>&1; then
     grep -E 'error:|BUILD FAILED' "$work/build.log" | tail -25; exit 1
@@ -149,15 +160,17 @@ grep -q 'NativeAWGValidationDriver' "$work/symbols.txt" || [[ "$runtime_flag" ==
 if [[ "$runtime_flag" == 1 ]]; then
     grep -q 'NativeAWGPacketSession' "$work/symbols.txt"
     grep -q 'NativeSyntheticProviderOwner' "$work/symbols.txt"
+    if [[ "$split_flag" == 1 ]]; then grep -q 'makeSyntheticSplitRoute' "$work/symbols.txt"; else ! grep -q 'makeSyntheticSplitRoute' "$work/symbols.txt"; fi
 fi
 # Receipt only; no runnable bundle is exported from this compile lane.
 mkdir -m 700 "$out"
 cp "$work/build.log" "$out/build.log"
 cp "$work/symbols.txt" "$out/symbols.txt"
 if [[ "$host_flag" == 1 ]]; then cp "$work/host-symbols.txt" "$out/host-symbols.txt"; fi
-python3 - "$root" "$work" "$app/PacketTunnelCandidate" "$out" <<'PY'
+python3 - "$root" "$work" "$app/PacketTunnelCandidate" "$out" "$split_flag" <<'PY'
 import hashlib,json,pathlib,sys,subprocess
-root,work,binary,out=map(pathlib.Path,sys.argv[1:])
+root,work,binary,out=map(pathlib.Path,sys.argv[1:5])
+split_enabled=sys.argv[5]=="1"
 def sha(p):
     with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 sources={}
@@ -168,7 +181,7 @@ for folder in ('PacketTunnel','Shared','SharedCore'):
 fixture_origins={'XrayWireGuardLabConfig.swift': 'Tools/XrayWireGuardLabConfig.swift', 'ExactLabTUNDescriptor.swift': 'Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift','AWGPacketFlowPump.swift':'Tools/AWGNativeLab/PacketTunnel/AWGPacketFlowPump.swift'}
 for f in sorted((work/'FixtureSupport').glob('*.swift')):
     sources[str(f.relative_to(work))]=sha(f);assert sha(f)==sha(root/fixture_origins[f.name])
-report={'schema':1,'unified_go_receipt_sha256':'57b279f366b47fd27a46b201088a997fb03f68205f5189dc2931ae43f00011e6','synthetic_runtime_compiled':bool(list((work/'FixtureSupport').glob('*.swift'))),'scope':'actual product extension sources; unsigned compile/link only; no install/runtime authorization','release_authorized':False,'base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'sources':sources,'binary_sha256':sha(binary),'inputs':{str(p.relative_to(work)):sha(p) for p in sorted((work/'Lib').rglob('*')) if p.is_file()},'build_log_sha256':sha(out/'build.log'),'symbol_table_sha256':sha(out/'symbols.txt')}
+report={'schema':1,'unified_go_receipt_sha256':'57b279f366b47fd27a46b201088a997fb03f68205f5189dc2931ae43f00011e6','synthetic_split_route_compiled':split_enabled,'synthetic_runtime_compiled':bool(list((work/'FixtureSupport').glob('*.swift'))),'scope':'actual product extension sources; unsigned compile/link only; no install/runtime authorization','release_authorized':False,'base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'sources':sources,'binary_sha256':sha(binary),'inputs':{str(p.relative_to(work)):sha(p) for p in sorted((work/'Lib').rglob('*')) if p.is_file()},'build_log_sha256':sha(out/'build.log'),'symbol_table_sha256':sha(out/'symbols.txt')}
 host=work/'Build/Build/Products/Debug-iphoneos/UnifiedAcceptanceHost.app'
 if host.is_dir():
     import plistlib
