@@ -367,7 +367,12 @@ final class NativeCredentialCatalogTests: XCTestCase {
         guard case .validation(let request)=NativeProviderStartRequest.inspect(configuration:config,options:opts,validationEnabled:true) else{return XCTFail("validation rejected")}
         XCTAssertEqual(Mirror(reflecting:request).children.count,0)
         let receiver=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{try c.reader.authorizes($0)})
-        try request.validate(via:receiver);XCTAssertThrowsError(try request.validate(via:receiver));XCTAssertTrue(tickets.values.isEmpty)
+        var inspected=0
+        try request.validate(via:receiver,inspectConfiguration:{route,bytes in
+            inspected+=1;XCTAssertEqual(route.provider,.rustXray)
+            let json=try JSONSerialization.jsonObject(with:bytes) as? [String:Any]
+            XCTAssertNotNil(json?["outbounds"]);XCTAssertNotNil(json?["inbounds"])
+        });XCTAssertThrowsError(try request.validate(via:receiver));XCTAssertEqual(inspected,1);XCTAssertTrue(tickets.values.isEmpty)
         try bridge.finish(intent);XCTAssertEqual(items.values.count,1)
     }
     @MainActor func testLaunchBoundaryConnectsAllThreeStoredKindsToProviderReceiver() async throws {

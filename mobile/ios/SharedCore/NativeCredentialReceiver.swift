@@ -58,10 +58,11 @@ struct NativeProviderStartRequest: CustomStringConvertible, CustomReflectable {
         return .validation(.init(owner:owner,expected:expected,ticketBytes:ticket))
     }
     /// Validation only, never a success receipt for NE startup.
-    func validate(via handoff:NativeCredentialHandoff)throws {
+    func validate(via handoff:NativeCredentialHandoff, inspectConfiguration: (NativeValidationRoute,Data)throws->Void = {_,_ in})throws {
         var receiver=try NativeCredentialReceiver(expected:expected,provider:expected.reference.kind.provider)
-        try receiver.consumeForValidation(ticketBytes,via:handoff){_,bytes in
+        try receiver.consumeForValidation(ticketBytes,via:handoff){route,bytes in
             guard !bytes.isEmpty else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            try inspectConfiguration(route,bytes)
         }
     }
 }

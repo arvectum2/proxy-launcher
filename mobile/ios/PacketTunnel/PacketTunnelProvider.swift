@@ -69,7 +69,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             do {
                 let validationStore=try ProfileStore()
                 guard try validationStore.nativeValidationPolicyIsEmpty() else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+#if APL_NATIVE_XRAY_CANDIDATE
+                guard request.expected.reference.kind.provider == .rustXray else{throw NativeCredentialReceiver.Failure.providerMismatch}
+                let driver=NativeXrayRuntimeDriver.shared
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:driver.validate)
+#else
                 try request.validate(via:validationStore.makeNativeProviderValidationHandoff())
+#endif
                 completionHandler(NSError(domain:"APLNativeStart",code:2))
             } catch {completionHandler(NSError(domain:"APLNativeStart",code:1))}
 #else

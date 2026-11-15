@@ -118,6 +118,7 @@
 		7075B2D0812B1A74044A2BB8 /* ProxyProfileSharingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5E95F28B3DFE5133AD7DBA /* ProxyProfileSharingUITests.swift */; };
 		70AF24A28FCAA4C704936223 /* ConnectionPressurePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */; };
 		70B812CA1398C795094CFA8F /* AdaptiveDirectProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 958B0FD5A8FB574BFE60A494 /* AdaptiveDirectProbe.swift */; };
+		739EC468E2BE5EA10AC9A12C /* NativeXrayRuntimeDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64350B8E866FF41D720FF9A /* NativeXrayRuntimeDriver.swift */; };
 		773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */; };
 		789890C484E3622982E4CD5D /* ProfileLibraryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62E3E6A5C03575EA7455F4A /* ProfileLibraryRowView.swift */; };
 		7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
@@ -566,6 +567,7 @@
 		A3FDC7AF35CF0F7C9CE2DAB4 /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		A43163CC551F11F491F9EA4B /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		A4AC8477D2AC3A296EAFB204 /* et */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = et; path = et.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A64350B8E866FF41D720FF9A /* NativeXrayRuntimeDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeXrayRuntimeDriver.swift; sourceTree = "<group>"; };
 		A64828C70BD24B80F7B56D31 /* ProfileLibraryBulkActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibraryBulkActionsView.swift; sourceTree = "<group>"; };
 		A6ADF37169317172D7BCBA09 /* NativeTunnelNetworkSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTunnelNetworkSettings.swift; sourceTree = "<group>"; };
 		A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNControlledUITests.swift; sourceTree = "<group>"; };
@@ -854,6 +856,7 @@
 		7993D6249BA5ED912325B875 /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				A64350B8E866FF41D720FF9A /* NativeXrayRuntimeDriver.swift */,
 				E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */,
 				EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */,
 				39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */,
@@ -1260,6 +1263,7 @@
 				FF9C5FE7948D370AAD0B664C /* NativeTunnelNetworkSettings.swift in Sources */,
 				1A49F18501D7792927D01F61 /* NativeTunnelRoutePlan.swift in Sources */,
 				2794DA0B10542C6F609FAF2D /* NativeWireGuardRuntimeConfig.swift in Sources */,
+				739EC468E2BE5EA10AC9A12C /* NativeXrayRuntimeDriver.swift in Sources */,
 				EFC7EC059096108CF7E192FA /* OwnedNativeControlSlot.swift in Sources */,
 				3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */,
 				21B8BD7485A20FA97AA0EB10 /* ProfileBackup.swift in Sources */,
