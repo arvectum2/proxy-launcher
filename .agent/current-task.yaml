@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "15.11 09:00: AWG signed existing NativeLab targeted physical native-control case PASS, independent TCP4 witness1, outer sent/received5/5, stale request rejection and native drain before OS OFF; owned cleanup, uninstall, Netherlands 2 restored and three fingerprints unchanged. Both isolated native-control hardware gates PASS."
   - "15.11 08:52: same WG preview parser reused for in-memory standard WG/AWG1 engine configuration, explicit format and route policy validation, redacted diagnostics, exact pinned native config acceptance on macOS without activation, regenerated production Xcode project; existing native activation deny gate unchanged."
   - "15.11 08:33: Xray native control physical receipt PASS; same NativeLab IDs reused, exact application witness1, all control receipts, cleanup confirmed, production restored and three owner hashes unchanged."
   - "14.11 23:48: existing NativeLab Xray and AWG host wired to shared opt-in real NE control slot, explicit wrong-epoch rejection, strict complete receipt validator, targeted two hardware runners, offline signed both with existing profiles only."
@@ -148,7 +149,7 @@ completed:
 
 
 
-current: "15.11 08:58 MSK: owner requested finish physical acceptance while iPhone available. AWG signed variant and peer verified; initial Netherlands 2 active and all three profile fingerprints unchanged. Existing NativeLab installed, production disconnected normally; prepare-only ID 604F726E-8260-4D3B-91A8-BE97B3850D39, visible OS VPN consent prompt, no receipt yet. No traffic test running."
+current: "15.11 09:00 MSK: AWG targeted signed native-control physical case PASS exit0, exact positive TCP4 application witness1, outer packets5/5, zero foreign, strict nativeReady/OSConnected/stale rejection/drained/OSOff acceptance. Cleanup confirmed, lab uninstalled, Netherlands 2 production extension restored, three owner hashes unchanged. Xray and AWG isolated native-control hardware gates now accepted; no new IDs or production replacement. Next offline routing/DNS/underlay and profile integration."
 blocked_on:
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
@@ -186,8 +187,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "c96abe631 plus native config compiler validated locally Swift296/Python50/native parse2/release build PASS"
+last_verified_commit: "11485bba5 plus actual AWG signed native-control physical case exit0 and owner restoration verified; prior Xray control PASS"
 test_results:
+  - "AWG_NATIVE_CONTROL_RECEIPTS_PASS, AWG_PHYSICAL_CASE tcp4 positive WITNESS (1,0,0,0,5,5,0) PASS, AWG_PHYSICAL_PROFILE_CLEANED, AWG_PHYSICAL_NATIVE_CONTROL_PASS exit0. Production extension active, lab absent, profile/selected/organization hashes all unchanged. External production egress not separately tested."
   - "Swift296/296 (6 new config tests), Python50/50, pinned Xray config test and AWG IpcSet 2/2 PASS, standalone repeatable validation runner exit0, unsigned iPhoneOS Release app/NE build exit0, no experimental native symbols. No phone or production changes. One larger tool invocation blocked before execution; narrower ordinary test coverage written and verified separately."
   - "Xray targeted case exit0, HTTP200 exact receipt, RSS48480256 bytes, counters TCP/SOCKS/target1 each; XRAY_NATIVE_CONTROL_RECEIPTS_PASS; lab removal and owner restore verified. AWG permission pending."
   - "Swift290/290 PASS, Python50/50 PASS, focused physical receipt5/5 PASS, unsigned Xray device + AWG device/sim builds PASS, artifact checksums and reused-profile signatures/deep verification PASS. Latest previous head CI still running; no actual device control tests or production activation."
@@ -284,4 +286,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Check matching AWG prepare receipt ID 604F726E-8260-4D3B-91A8-BE97B3850D39 prepared true, actual en0 IP and all extensions OFF. Execute targeted run_physical.py --approved suite --native-control with matching ID, actual IP and verified AWG peer digest. Cleanup/uninstall/restore Netherlands 2 and all three fingerprint checks. If consent unavailable abort and restore. Xray native control and AWG data plane already accepted, do not repeat. Continue offline route/DNS/underlay planning afterward; no new IDs or publishing."
+resume_instruction: "Do not repeat accepted WG/VLESS data-plane10/10, AWG data-plane8/8, or targeted native-control hardware Xray+AWG2/2. Verify latest PR383 exact-head CI. Continue typed compiler outputs into offline route/DNS/underlay plan and profile integration boundary, production deny gate retained. Preserve existing HTTPS/SOCKS profile storage/backup. Remaining production packaging/license/security, broader AWG interoperability and Wi-Fi/LTE/CloudKit/release gates; no publishing or owner app replacement. Same lab IDs are mutually exclusive, actual production cross-provider switching not accepted. AWG log /tmp/apl-awg-native-control-physical-20261115/run.log exit0."
