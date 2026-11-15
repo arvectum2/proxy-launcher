@@ -113,6 +113,11 @@ import Foundation
     }
 }
 
+struct NativeReviewControlExchange:Codable,Equatable {
+    let request:TransportNativeRequest
+    let response:TransportNativeResponse
+}
+
 /// Owns the app process lease across an actual start submission, even if
 /// startTunnel throws. Disconnection alone is not proof of native drain.
 /// Never manufactures a terminal receipt; exact native drain and a separate
@@ -128,6 +133,11 @@ import Foundation
     private var prepared=false
     private var terminalRequest:TransportNativeRequest?
     private(set) var terminalEvidence=false
+    private(set) var terminalExchange:NativeReviewControlExchange?
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    private var observationRequests:[TransportNativeRequest]=[]
+    private(set) var setupExchanges:[NativeReviewControlExchange]=[]
+#endif
     private var terminalTicketRetired=false
     private(set) var attempted=false
     private var closed=false
@@ -147,6 +157,26 @@ import Foundation
         },start:start)
     }
 #endif
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    /// OS setup is deliberately not native data-plane readiness. The current
+    /// provider must answer .starting, and a different epoch must be rejected.
+    func requestSetupObservation()throws->[TransportNativeRequest] {
+        guard attempted,!closed,terminalRequest==nil,!terminalEvidence,setupExchanges.isEmpty,let session=coordinator.active else{throw Failure.invalidState}
+        let identity=try intent.expectedBinding(for:session).session
+        let stale=TransportNativeIdentity(epoch:UUID(),generation:identity.generation,provider:identity.provider)
+        guard stale != identity else{throw Failure.invalidState}
+        observationRequests=[.init(identity:identity,action:.observe),.init(identity:stale,action:.observe)]
+        return observationRequests
+    }
+    func acceptSetupObservation(_ responses:[TransportNativeResponse])throws->[NativeReviewControlExchange] {
+        guard attempted,!closed,terminalRequest==nil,!terminalEvidence,setupExchanges.isEmpty,observationRequests.count==2,responses.count==2,
+              responses[0].matches(observationRequests[0]),responses[0].state == .starting,
+              responses[1].matches(observationRequests[1]),responses[1].state == .rejected else{throw Failure.invalidState}
+        setupExchanges=zip(observationRequests,responses).map{.init(request:$0.0,response:$0.1)}
+        observationRequests=[]
+        return setupExchanges
+    }
+#endif
     private func submitOwned(checkOwnedAndQuiescent:()->Bool,issue:(TransportBackendCoordinator.Session)throws->[String:NSObject],start:([String:NSObject])throws->Void)throws {
         guard !closed,!attempted,!prepared else{throw Failure.invalidState}
         guard checkOwnedAndQuiescent() else{throw Failure.unownedManager}
@@ -164,10 +194,14 @@ import Foundation
         guard attempted,!closed,!terminalEvidence,let session=coordinator.active else{throw Failure.invalidState}
         let binding=try intent.expectedBinding(for:session)
         let request=TransportNativeRequest(identity:binding.session,action:.drain)
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        observationRequests=[]
+#endif
         terminalRequest=request;return request
     }
     func acceptTerminalDrain(_ response:TransportNativeResponse)throws {
         guard attempted,!closed,let request=terminalRequest,response.matches(request),response.state == .drained else{throw Failure.invalidState}
+        terminalExchange = .init(request:request,response:response)
         terminalRequest=nil;terminalEvidence=true
     }
     func finishAfterTerminalDrain(osOffAndOwned:()->Bool)throws {

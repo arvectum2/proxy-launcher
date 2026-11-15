@@ -39,6 +39,14 @@ def test_runtime_review_uses_same_owned_lease_without_ordinary_caller():
     assert 'let before=try await loadAllManagers(requireResult:true)' in section
     assert 'let afterDrain=try await loadAllManagers(requireResult:true)' in section
     assert 'NativeRuntimeReviewRequest.ownsConfiguration' in app
-    assert sum(p.read_text().count('submitNativeRuntimeReview(') for p in (IOS/'App').glob('*.swift'))==1
+    assert sum(p.read_text().count('submitNativeRuntimeReview(') for p in (IOS/'App').glob('*.swift') if p.name!='NativeRuntimeReviewQAView.swift')==1
+    harness=(IOS/'App/NativeRuntimeReviewQAView.swift').read_text()
+    assert harness.count('submitNativeRuntimeReview(')==1 and 'APL_NATIVE_RUNTIME_QA_HARNESS' in harness.splitlines()[0]
+    assert 'if NativeRuntimeReviewQAView.enabled' in (IOS/'App/ArvectumProxyLauncherApp.swift').read_text()
+    assert 'APL_NATIVE_RUNTIME_QA_HARNESS' not in (IOS/'project.yml').read_text()
+    assert 'guard authorized(),Self.nativeValidationDispatch==nil' in app and 'guard known.isEmpty' in app
+    assert 'nativeRuntimeQAFixtureIsIsolated' in app and 'try await item.removeFromPreferences()' in app
+    assert 'independentWitnessRequired=true' in harness and 'releaseAuthorized=false' in harness
+    assert 'readAndConsume' in harness and '.withoutOverwriting' in harness
     assert 'proto.proxySettings==nil && !proto.includeAllNetworks && !proto.enforceRoutes' in section
     assert 'saveToPreferences' not in section and 'NETunnelProviderManager()' not in section

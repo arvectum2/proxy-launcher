@@ -129,8 +129,8 @@ final class VPNController: ObservableObject {
 #if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
     /// Explicit supervised review only. Never called by ordinary UI, Settings
     /// or Shortcuts, and never provisions a manager or accepts OS setup as data proof.
-    func submitNativeRuntimeReview(reference:NativeCredentialRecord.Reference,owner:UUID,probeIPv4:String?,scope:NativeCredentialHandoff.RuntimeScope?=nil,probeIPv6:String?=nil) async throws {
-        try await submitNativeReview(reference:reference,owner:owner,mode:.runtime(probeIPv4:probeIPv4,scope:scope,probeIPv6:probeIPv6))
+    func submitNativeRuntimeReview(reference:NativeCredentialRecord.Reference,owner:UUID,probeIPv4:String?,scope:NativeCredentialHandoff.RuntimeScope?=nil,probeIPv6:String?=nil,stillAuthorized:()->Bool={true}) async throws {
+        try await submitNativeReview(reference:reference,owner:owner,mode:.runtime(probeIPv4:probeIPv4,scope:scope,probeIPv6:probeIPv6),stillAuthorized:stillAuthorized)
     }
 #endif
     private func reviewOwns(_ item:NETunnelProviderManager,owner:UUID,mode:NativeReviewMode)->Bool {
@@ -150,8 +150,8 @@ final class VPNController: ObservableObject {
                 names.contains(item.localizedDescription ?? "") || names.contains(proto?.serverAddress ?? "")
         }
     }
-    private func submitNativeReview(reference:NativeCredentialRecord.Reference,owner:UUID,mode:NativeReviewMode) async throws {
-        guard Self.nativeValidationDispatch==nil,Self.operationGate.active==nil else{throw NativeOperationGate.Failure.busy}
+    private func submitNativeReview(reference:NativeCredentialRecord.Reference,owner:UUID,mode:NativeReviewMode,stillAuthorized:()->Bool={true}) async throws {
+        guard stillAuthorized(),Self.nativeValidationDispatch==nil,Self.operationGate.active==nil else{throw NativeOperationGate.Failure.busy}
         let store=try ProfileStore(),boundary=store.makeNativeValidationLaunchBoundary()
         guard try store.nativeValidationPolicyIsEmpty() else{throw NativeValidationDispatch.Failure.unownedManager}
         let intent=try boundary.prepare(reference:reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
@@ -163,8 +163,13 @@ final class VPNController: ObservableObject {
             let named=reviewManagers(all)
             guard named.count==1,let target=named.first,let connection=target.connection as? NETunnelProviderSession else{throw NativeValidationDispatch.Failure.unownedManager}
             func check()->Bool {
-                guard !Task.isCancelled,reviewOwns(target,owner:owner,mode:mode),target.connection === connection,
+                guard !Task.isCancelled,stillAuthorized(),reviewOwns(target,owner:owner,mode:mode),target.connection === connection,
                     (try? store.nativeValidationPolicyIsEmpty())==true else{return false}
+#if APL_NATIVE_RUNTIME_QA_HARNESS
+                if case .runtime=mode {
+                    guard (try? store.nativeRuntimeQAFixtureIsIsolated(reference))==true,all.filter(isArvectumManager).count==1 else{return false}
+                }
+#endif
                 let visible=all+(self.manager.map{[$0]} ?? [])
                 return visible.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
             }
@@ -192,50 +197,84 @@ final class VPNController: ObservableObject {
         try dispatch.abortBeforeSubmission()
         Self.nativeValidationDispatch=nil;Self.nativeValidationTarget=nil
     }
-    /// Future concrete terminal path. No caller until runtime acceptance.
+    private func reviewOwns(_ target:NativeReviewTarget)->Bool {
+        target.manager.connection === target.connection && reviewOwns(target.manager,owner:target.owner,mode:target.mode)
+    }
+    private func reviewCensus(_ all:[NETunnelProviderManager],target:NativeReviewTarget)->Bool {
+        let marked=reviewManagers(all)
+        guard reviewOwns(target),marked.count==1,let item=marked.first,reviewOwns(item,owner:target.owner,mode:target.mode) else{return false}
+        let others=all.filter{$0 !== item}+(manager.flatMap{$0 === target.manager ? nil:[$0]} ?? [])
+        return others.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
+    }
+    private func reviewExchange(_ request:TransportNativeRequest,target:NativeReviewTarget)async throws->TransportNativeResponse {
+        guard !Task.isCancelled,reviewOwns(target),target.connection.status == .connected else{throw NativeValidationDispatch.Failure.unownedManager}
+        let bytes=try TransportNativeCodec.encode(request)
+        let reply:Data=try await withCheckedThrowingContinuation { continuation in
+            let completion=NativeReconcileCompletion(continuation)
+            do {try target.connection.sendProviderMessage(bytes){data in
+                if let data {completion.finish(.success(data))} else {completion.finish(.failure(NativeValidationDispatch.Failure.invalidState))}
+            }}catch{completion.finish(.failure(error))}
+            DispatchQueue.global().asyncAfter(deadline:.now()+6){completion.finish(.failure(NativeValidationDispatch.Failure.invalidState))}
+        }
+        try Task.checkCancellation()
+        guard reviewOwns(target),target.connection.status == .connected else{throw NativeValidationDispatch.Failure.unownedManager}
+        return try TransportNativeCodec.decode(TransportNativeResponse.self,reply)
+    }
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    /// Exact setup receipt only. No peer-ready state, traffic, or retry.
+    func observeNativeRuntimeReviewSetup(owner:UUID)async throws->[NativeReviewControlExchange] {
+        guard !Self.nativeReconcileInFlight,let dispatch=Self.nativeValidationDispatch,dispatch.attempted,
+              let target=Self.nativeValidationTarget,target.owner==owner,case .runtime=target.mode else{throw NativeValidationDispatch.Failure.invalidState}
+        Self.nativeReconcileInFlight=true;defer{Self.nativeReconcileInFlight=false}
+        let deadline=ProcessInfo.processInfo.systemUptime+8
+        while reviewOwns(target) && (target.connection.status == .connecting || target.connection.status == .disconnected) && ProcessInfo.processInfo.systemUptime<deadline {
+            try await Task.sleep(nanoseconds:100_000_000)
+        }
+        let all=try await loadAllManagers(requireResult:true)
+        guard !Task.isCancelled,reviewCensus(all,target:target),target.connection.status == .connected else{throw NativeValidationDispatch.Failure.unownedManager}
+        let requests=try dispatch.requestSetupObservation()
+        var responses:[TransportNativeResponse]=[]
+        for request in requests {responses.append(try await reviewExchange(request,target:target))}
+        let after=try await loadAllManagers(requireResult:true)
+        guard !Task.isCancelled,reviewCensus(after,target:target),target.connection.status == .connected else{throw NativeValidationDispatch.Failure.unownedManager}
+        return try dispatch.acceptSetupObservation(responses)
+    }
+    func reconcileNativeRuntimeReview(owner:UUID)async throws->NativeReviewControlExchange {
+        guard let target=Self.nativeValidationTarget,target.owner==owner,case .runtime=target.mode else{throw NativeValidationDispatch.Failure.invalidState}
+        return try await reconcileNativeReview()
+    }
+#endif
     /// Never infer native drain from OS status or from a missing reply.
     func reconcileNativeCredentialValidation() async throws {
+        guard let target=Self.nativeValidationTarget,case .validation=target.mode else{throw NativeValidationDispatch.Failure.invalidState}
+        _=try await reconcileNativeReview()
+    }
+    private func reconcileNativeReview()async throws->NativeReviewControlExchange {
         guard !Self.nativeReconcileInFlight,let dispatch=Self.nativeValidationDispatch,dispatch.attempted,
               let target=Self.nativeValidationTarget else{throw NativeValidationDispatch.Failure.invalidState}
         Self.nativeReconcileInFlight=true;defer{Self.nativeReconcileInFlight=false}
-        func owned()->Bool {
-            target.manager.connection === target.connection && reviewOwns(target.manager,owner:target.owner,mode:target.mode)
-        }
-        func census(_ all:[NETunnelProviderManager])->Bool {
-            let marked=reviewManagers(all)
-            guard owned(),marked.count==1,let item=marked.first,reviewOwns(item,owner:target.owner,mode:target.mode) else{return false}
-            return all.filter{$0 !== item}.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
-        }
         try Task.checkCancellation()
         let before=try await loadAllManagers(requireResult:true)
-        guard !Task.isCancelled,census(before) else{throw NativeValidationDispatch.Failure.unownedManager}
+        guard !Task.isCancelled,reviewCensus(before,target:target) else{throw NativeValidationDispatch.Failure.unownedManager}
         if !dispatch.terminalEvidence {
-            guard target.connection.status == .connected else{throw NativeValidationDispatch.Failure.invalidState}
-            let request=try dispatch.requestTerminalDrain(),bytes=try TransportNativeCodec.encode(request)
-            let reply:Data=try await withCheckedThrowingContinuation { continuation in
-                let completion=NativeReconcileCompletion(continuation)
-                do {try target.connection.sendProviderMessage(bytes){data in
-                    if let data {completion.finish(.success(data))} else {completion.finish(.failure(NativeValidationDispatch.Failure.invalidState))}
-                }}catch{completion.finish(.failure(error))}
-                DispatchQueue.global().asyncAfter(deadline:.now()+6){completion.finish(.failure(NativeValidationDispatch.Failure.invalidState))}
-            }
-            try Task.checkCancellation();guard owned() else{throw NativeValidationDispatch.Failure.unownedManager}
-            try dispatch.acceptTerminalDrain(TransportNativeCodec.decode(TransportNativeResponse.self,reply))
+            let request=try dispatch.requestTerminalDrain()
+            try dispatch.acceptTerminalDrain(try await reviewExchange(request,target:target))
         }
         let afterDrain=try await loadAllManagers(requireResult:true)
-        guard !Task.isCancelled,census(afterDrain) else{throw NativeValidationDispatch.Failure.unownedManager}
+        guard !Task.isCancelled,reviewCensus(afterDrain,target:target),let exchange=dispatch.terminalExchange else{throw NativeValidationDispatch.Failure.unownedManager}
         if target.connection.status == .connected {target.connection.stopVPNTunnel()}
         let deadline=ProcessInfo.processInfo.systemUptime+10
-        while owned() && (target.connection.status == .connected || target.connection.status == .disconnecting) && ProcessInfo.processInfo.systemUptime<deadline {
+        while reviewOwns(target) && (target.connection.status == .connected || target.connection.status == .disconnecting) && ProcessInfo.processInfo.systemUptime<deadline {
             try await Task.sleep(nanoseconds:100_000_000)
         }
         try Task.checkCancellation()
         let all=try await loadAllManagers(requireResult:true)
         try dispatch.finishAfterTerminalDrain(osOffAndOwned:{
-            guard !Task.isCancelled,census(all),target.connection.status == .disconnected else{return false}
+            guard !Task.isCancelled,reviewCensus(all,target:target),target.connection.status == .disconnected else{return false}
             return all.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
         })
         Self.nativeValidationDispatch=nil;Self.nativeValidationTarget=nil
+        return exchange
     }
     #endif
 
@@ -430,7 +469,9 @@ final class VPNController: ObservableObject {
     /// Do not silently repair or adopt a manager reserved for future native use.
     private func requireLegacyManager(_ manager: NETunnelProviderManager) throws {
         let config=(manager.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]
-        guard !NativeProviderStartRequest.hasReservedKey(Array(config.keys)) else {
+        guard !NativeProviderStartRequest.hasReservedKey(Array(config.keys)),
+              !["APL Native Credential Validation","APL Native Runtime Review"].contains(manager.localizedDescription ?? ""),
+              !["APL Native Credential Validation","APL Native Runtime Review"].contains(manager.protocolConfiguration?.serverAddress ?? "") else {
             throw NSError(domain:"APLNativeStart",code:1)
         }
     }
@@ -510,6 +551,52 @@ final class VPNController: ObservableObject {
             return ProxyDiagnosticError(.tunnel)
         }
     }
+
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW && APL_NATIVE_RUNTIME_QA_HARNESS
+    /// Separate operator-confirmed manager-only lane. A production/legacy
+    /// manager is never edited, adopted, stopped or removed by this method.
+    func nativeRuntimeQACanOpenFixtureLibrary()async throws->Bool {
+        guard Self.operationGate.active==nil,Self.nativeValidationDispatch==nil else{return false}
+        let all=try await loadAllManagers(requireResult:true)
+        return try ProfileStore().nativeRuntimeQAFixtureIsIsolated(nil) && all.filter(isArvectumManager).isEmpty && reviewManagers(all).isEmpty &&
+            all.allSatisfy{$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
+    }
+    func performNativeRuntimeQAManager(owner:UUID,reference:NativeCredentialRecord.Reference,remove:Bool,authorized:()->Bool)async throws {
+        guard authorized(),Self.nativeValidationDispatch==nil else{throw NativeValidationDispatch.Failure.invalidState}
+        try await Self.operationGate.perform(.nativeValidation) {
+            let store=try ProfileStore()
+            let mode=NativeReviewMode.runtime(probeIPv4:nil,scope:nil,probeIPv6:nil)
+            func related(_ all:[NETunnelProviderManager])->[NETunnelProviderManager] {
+                let marked=reviewManagers(all)
+                return all.filter{item in isArvectumManager(item) || marked.contains(where:{$0 === item})}
+            }
+            func off(_ all:[NETunnelProviderManager])->Bool {
+                all.allSatisfy{$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
+            }
+            let before=try await loadAllManagers(requireResult:true)
+            guard !Task.isCancelled,authorized(),off(before),try store.nativeRuntimeQAFixtureIsIsolated(reference) else{throw NativeValidationDispatch.Failure.unownedManager}
+            let known=related(before)
+            if remove {
+                guard known.count==1,let item=known.first,reviewOwns(item,owner:owner,mode:mode),authorized() else{throw NativeValidationDispatch.Failure.unownedManager}
+                try await item.removeFromPreferences()
+            } else {
+                guard known.isEmpty else{throw NativeValidationDispatch.Failure.unownedManager}
+                let item=NETunnelProviderManager(),proto=NETunnelProviderProtocol()
+                proto.providerBundleIdentifier=AppShared.providerBundleIdentifier;proto.serverAddress=mode.name
+                proto.providerConfiguration=NativeRuntimeReviewRequest.configuration(owner:owner)
+                proto.includeAllNetworks=false;proto.enforceRoutes=false;proto.proxySettings=nil
+                item.protocolConfiguration=proto;item.localizedDescription=mode.name
+                item.isEnabled=true;item.isOnDemandEnabled=false;item.onDemandRules=[]
+                guard authorized(),reviewOwns(item,owner:owner,mode:mode) else{throw NativeValidationDispatch.Failure.unownedManager}
+                try await item.saveToPreferences()
+            }
+            // Ambiguous persistence never triggers a blind rollback/retry.
+            let after=try await loadAllManagers(requireResult:true),remaining=related(after)
+            guard !Task.isCancelled,authorized(),off(after),try store.nativeRuntimeQAFixtureIsIsolated(reference),
+                  remaining.count==(remove ? 0:1),remaining.allSatisfy({reviewOwns($0,owner:owner,mode:mode)}) else{throw NativeValidationDispatch.Failure.invalidState}
+        }
+    }
+#endif
 
     private func save(_ manager: NETunnelProviderManager) async throws {
         try await withCheckedThrowingContinuation {

@@ -165,6 +165,20 @@ final class ProfileStore {
     #endif
     func nativeValidationPolicyIsEmpty() throws -> Bool {nativeRoutingAdmission().permitsSelection}
 
+#if APL_NATIVE_RUNTIME_QA_HARNESS
+    /// Disposable fixture namespace only. No migration, repair, or writes.
+    func nativeRuntimeQAFixtureIsIsolated(_ reference:NativeCredentialRecord.Reference?)throws->Bool {
+        guard try profilesForMutation().isEmpty,nativeRoutingAdmission().permitsSelection else{return false}
+        let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
+        let snapshot=try reader.snapshot()
+        guard snapshot.version==2,!snapshot.hasPendingWrite,snapshot.retired.isEmpty else{return false}
+        guard let reference else{return snapshot.current.count<=1}
+        guard snapshot.current==[reference],snapshot.selected==reference,let nonce=try reader.selectionAuthority(reference),
+              try NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)).read(reference) != nil else{return false}
+        return try reader.snapshot()==snapshot && reader.selectionAuthority(reference)==nonce && profilesForMutation().isEmpty
+    }
+#endif
+
     @MainActor func makeNativeValidationLaunchBoundary() -> NativeSessionLaunchBoundary {
         NativeSessionLaunchBoundary(reader:NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain()),
             repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),

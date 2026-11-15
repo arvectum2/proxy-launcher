@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage34a actual QA-only product host command, disposable manager/fixture guards, exact setup/stale-epoch observations and independently verifiable drain exchange; focused Swift2/2 and Python3/3 pass; actual QA-harness containing build pending."
   - "Stage33a shared app dispatch with distinct explicit native runtime mode, exact manager ownership and pre/post-drain census; focused 2 Swift and 3 Python checks pass, containing build pending."
   - "Stage32 Rust native exact DNS, explicit full Xray WG route, VLESS dual-stack scoped datagrams, pinned actual containing build and binding."
   - "Stage31 separate runtime ticket purpose/owner/scope, actual gated PacketTunnel lifecycle, full-route AWG, explicit scoped user-config WG/VLESS and exact TUN descriptor, unsigned containing build."
@@ -240,7 +241,7 @@ completed:
 
 
 
-current: "Stage33a shared explicit runtime-review dispatch, independent purpose-bound ticket, one lease, strict named and reserved manager census with no preference writes, exact native drain then independent OS-off. Swift focused2/2 and Python3/3 PASS. Containing gated build pending at next commit. Stage32 exact 66f88fa0 CI7/7. No actual device/runtime or manager changes."
+current: "Stage33 exact 0e7d71de unsigned containing ARM64 build PASS, manifest7319e64bd876ee6c4b319114685bace8ab224af1a6d73d1af3d09b846fdc1ffe hostbc3e5f4787249009ad53428f3e54baebafd227ffad6247c7a20469f4b6f9f1af providerb391afafe2ef5c02dcec8daf878414100e2a145ae1213f5c1a9aa8ff3351339f, 11 Go+214 Rust. Stage34 explicit separate QA harness source with bounded fixed witnesses, manager-only operations on disposable fixture with no preexisting legacy manager, setup/stale rejection before probe and exact drain+OS-off before receipt; focused Swift2/2 and Python3/3. No signing or device actions. Build pending."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -252,7 +253,7 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "bbbeee4e exact new native DNS containing app/provider build+link PASS; focused Rust1/1 and Swift1/1 PASS, prior98106479 CI2/7 successes at entry; actual runtime unverified, new CI pending"
+last_verified_commit: "0e7d71de exact gated ARM64 containing build+link PASS; Stage34 focused Swift2/2 and Python3/3, actual harness build pending"
 test_results:
   - "Stage32 Rust arithmetic/address+scope regression1/1 PASS, Swift ticket/full-route/VLESS config1/1 PASS, actual unsigned containing ARM64 build+link PASS; no physical/runtime/broad QA."
   - "Stage31 focused Swift1/1 PASS, unsigned ARM64 runtime-review containing build/link PASS; previous5cbf00e4 CI7/7. No physical traffic/GUI/full-suite."
@@ -409,4 +410,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage33a source changes plus focused checks committed; verify exact containing ARM64 build with pinned native DNS receipt. Repair compilation if needed, then write actual signed runtime acceptance runbook and update checkpoint with exact results. No live manager operations, signing, install, account/device mutation or release. Stage32 CI7/7 at 66f88fa0. Continue only unfinished gates; avoid repeated tests until final acceptance."
+resume_instruction: "Verify Stage34 exact QA-harness containing unsigned build with APL_COMPILE_NATIVE_RUNTIME_QA_HARNESS=1 and pinned native DNS inputs. Fix compiler errors if present. Prepare concrete signed disposable device acceptance commands and independent witness requirements; update checkpoint. Actual user device/account/signing/manager mutations not authorized. After offline gates, mark blocked on approved exact test environment and explicit scope; do not manufacture further compile-only tasks."
