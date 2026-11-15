@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Owner scope decision 2026-11-15: retain existing RSYA advertising/SDK privacy arrangement; stop repeated related audit, policy/label and monetization work."
   - "Stage17a explicit ad initialization after disclosure and lazy native objects, no monetization change."
   - "Stage17b first-use selected language/Dynamic Type/reopenable disclosure, RU/EN supplemental note."
   - "Stage17c actual unsigned bundle privacy manifest audit and unpublished bilingual policy draft; runtime/legal gates open."
@@ -377,4 +378,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify PR383 exact HEAD CI. Actual remaining blockers: owner-approved SDK privacy/monetization decision and verified data behavior/Apple5.4, review draft privacy policy and translations before adoption; no claim vendor declarations prove runtime. No further repeat synthetic scaffolding. Continue independently actionable targeted UI/legacy fixes only if identified, otherwise consolidate actual device-required gates and request owner availability and explicit signing/network approval. Native exact-domain/related-host parity requires owner decision; no silent scope reduction. Signed physical S1/K1/K2/X1/N1/N2/C1/R1 plus exact new30 tests and independent topology/capture remain. No signing/registration/account/device/runtime activation/main merge/publication. Maintain single watchdog/checkpoint."
+resume_instruction: "Owner decision 2026-11-15: do not reopen or pursue advertising SDK privacy audit, runtime SDK data investigation, alternative ad architecture, privacy-label/policy changes or monetization changes as part of APL development; retain existing RSYA arrangement. Prior findings are archival, not a task or repeated release-planning blocker; this is a scope decision, not a legal certification. Verify PR383 exact HEAD CI. Continue only actionable product UI/legacy/native functionality, domain routing and device acceptance; no repetitive scaffolding. Actual signed S1/K1/K2/X1/N1/N2/C1/R1 and exact30 physical cases still pending; request availability/authorization when required. No unauthorized signing, registration, activation, device or account changes, main merge or publication. Existing single watchdog; checkpoint after stages."
