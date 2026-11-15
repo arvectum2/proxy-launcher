@@ -43,7 +43,18 @@ struct ProfilesScreenView<Header: View>: View {
                         .accessibilityIdentifier("profiles.nativeReviewQA")
                     #endif
                     #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-                    Button(NativePersistentProfilesView.title){showPersistentNativeLibrary=true}.accessibilityIdentifier("profiles.nativeStorageQA")
+                    Button {showPersistentNativeLibrary=true} label:{
+                        HStack(alignment:.center,spacing:12){
+                            Image(systemName:"shield.lefthalf.filled").foregroundStyle(Brand.mintLight).accessibilityHidden(true)
+                            VStack(alignment:.leading,spacing:4){
+                                Text(NativePersistentProfilesView.title).font(.subheadline.weight(.semibold))
+                                Text(model.nativeOverviewText).font(.caption).foregroundStyle(Brand.softGray)
+                                Text(AppL10n.effectiveLanguage=="ru" ? "Подключение пока недоступно":"Connection not yet available").font(.caption2).foregroundStyle(Brand.softGray)
+                            }
+                            Spacer(minLength:0)
+                            Image(systemName:"chevron.right").font(.caption).accessibilityHidden(true)
+                        }.foregroundStyle(Brand.text).padding(14).frame(maxWidth:.infinity,alignment:.leading).background(Brand.surface,in:RoundedRectangle(cornerRadius:12))
+                    }.buttonStyle(.plain).accessibilityIdentifier("profiles.nativeStorageQA")
                     #endif
                     if model.profiles.isEmpty {
                         VStack(spacing: 10) {
@@ -109,7 +120,7 @@ struct ProfilesScreenView<Header: View>: View {
         .sheet(isPresented:$showNativeLibrary){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
         #endif
         #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-        .sheet(isPresented:$showPersistentNativeLibrary){NativePersistentProfilesView(model:model)}
+        .sheet(isPresented:$showPersistentNativeLibrary,onDismiss:{model.refreshNativeLibraryOverview()}){NativePersistentProfilesView(model:model)}
         #endif
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }

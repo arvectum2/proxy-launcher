@@ -277,7 +277,7 @@ import NetworkExtension
             do {guard let session else{throw NativePersistentProfileSession.Failure.unavailable};summary=try session.previewTransfer(initialImport)}catch{initialImport.discard();failed=true}
         }
     }
-    private func reload(){cancelReview();failed=false;do{library=try session?.state()}catch{library=nil;failed=true}}
+    private func reload(){cancelReview();failed=false;do{library=try session?.state()}catch{library=nil;failed=true};model.refreshNativeLibraryOverview()}
     private func prepare(_ action:NativePersistentProfileSession.Action){guard !busy,lifecycle.visible,lifecycle.pending==nil,let session else{return};cancelReview();do{receipt=try session.prepare(action)}catch{failed=true}}
     private func choose(_ action:NativeReviewFileLifecycle.Action){guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil else{return};cancelReview();fileReceipt=lifecycle.begin(action);choosing=fileReceipt != nil}
     private func receive(_ result:Result<[URL],Error>,token:NativeReviewFileLifecycle.Receipt?){
@@ -406,8 +406,9 @@ import NetworkExtension
                     else if let summary {try session.confirmImport(summary,vpnInactive:inactive)}
                     else{throw NativePersistentProfileSession.Failure.stale}
                 }
+                model.refreshNativeLibraryOverview()
                 if generation==token {reload()}
-            } catch {if generation==token {reload();failed=true}}
+            } catch {model.refreshNativeLibraryOverview();if generation==token {reload();failed=true}}
             if generation==token {busy=false}
         }
     }
