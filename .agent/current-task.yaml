@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "15.11 08:52: same WG preview parser reused for in-memory standard WG/AWG1 engine configuration, explicit format and route policy validation, redacted diagnostics, exact pinned native config acceptance on macOS without activation, regenerated production Xcode project; existing native activation deny gate unchanged."
   - "15.11 08:33: Xray native control physical receipt PASS; same NativeLab IDs reused, exact application witness1, all control receipts, cleanup confirmed, production restored and three owner hashes unchanged."
   - "14.11 23:48: existing NativeLab Xray and AWG host wired to shared opt-in real NE control slot, explicit wrong-epoch rejection, strict complete receipt validator, targeted two hardware runners, offline signed both with existing profiles only."
   - "14.11 23:44: common versioned request/receipt identity checks bound at provider startup; native drain via provider message before OS stop, retained synthetic routes; actual NETunnelProviderSession API bridge for existing lab IDs, core slot waits exact native/OS receipts, tests5/5. AWG1 exact lab capability contract updated for measured TCP/UDP IPv4/IPv6, production still denied."
@@ -147,7 +148,7 @@ completed:
 
 
 
-current: "15.11 08:48 MSK: Xray native-control physical acceptance remains PASS. AWG prior prepare receipt false; retried ID 3CABFA04-66A4-4D92-A439-67C6D512EB15, tapped Allow under owner approval but Mirroring required local Mac authentication. Cancelled; new prepare receipt false. Owned lab cleanup confirmed, uninstalled, Netherlands 2 restored, active production extension and three owner hashes unchanged, no lab present. No AWG control traffic test executed."
+current: "15.11 08:52 MSK: offline shared WG/AWG1 runtime compiler completed, existing preview grammar reused, secret-bearing intermediate/runtime debug representations redacted, strict single-peer dual-stack full tunnel literal endpoint only; production backend remains denied. Native pinned Xray testXray and AWG IpcSet acceptance PASS without engine start. Swift296/296, Python50/50, unsigned normal iPhoneOS release build PASS, no experimental engine symbols. AWG native-control physical remains pending due OS consent; owner VPN had been restored and this phase never accessed phone."
 blocked_on:
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
@@ -185,8 +186,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "d59aed467 CI7/7 PASS, Xray signed native-control hardware case exit0; owner restoration PASS"
+last_verified_commit: "c96abe631 plus native config compiler validated locally Swift296/Python50/native parse2/release build PASS"
 test_results:
+  - "Swift296/296 (6 new config tests), Python50/50, pinned Xray config test and AWG IpcSet 2/2 PASS, standalone repeatable validation runner exit0, unsigned iPhoneOS Release app/NE build exit0, no experimental native symbols. No phone or production changes. One larger tool invocation blocked before execution; narrower ordinary test coverage written and verified separately."
   - "Xray targeted case exit0, HTTP200 exact receipt, RSS48480256 bytes, counters TCP/SOCKS/target1 each; XRAY_NATIVE_CONTROL_RECEIPTS_PASS; lab removal and owner restore verified. AWG permission pending."
   - "Swift290/290 PASS, Python50/50 PASS, focused physical receipt5/5 PASS, unsigned Xray device + AWG device/sim builds PASS, artifact checksums and reused-profile signatures/deep verification PASS. Latest previous head CI still running; no actual device control tests or production activation."
   - "Swift290/290 PASS; active production identity/preflight and Python iOS50/50 PASS; direct iPhoneOS NE endpoint typecheck PASS; unsigned AWG host+extension iPhoneOS and Simulator builds exit0, Xray/tun2proxy device unsigned linked build exit0 with pinned hashes and symbols. No newly signed app or actual provider-message/dual-provider hardware test; same existing lab ID variants cannot coexist."
@@ -282,4 +284,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "AWG physical native-control test still blocked on OS authentication; do not repeat Xray or prior AWG data-plane 8/8. For next supervised attempt use already signed native-control-awg-signed-20261114/AWGCompileHost.app and owner direct iPhone OS consent or locally authenticated Mirroring; only one attempt, verify matching prepared receipt true with actual en0 IP, run targeted suite --native-control, cleanup/uninstall/restore and verify fingerprints. If not supervised continue offline production configuration/packaging, avoid repeatedly interrupting phone. No new IDs, production replacement or publishing."
+resume_instruction: "Verify exact head PR383 CI. Next use typed compiler outputs to develop offline route/DNS/underlay plan and profile integration boundary (no production activation or general interoperability claim); preserve HTTPS/SOCKS profile storage and backup format. Extend actual config validation and release provenance/license/security gates. AWG native-control physical remains blocked until supervised consent; reuse signed native-control-awg-signed-20261114/AWGCompileHost.app, do not repeat accepted Xray or earlier AWG8/8. No new IDs, no production replacement/publishing. Native config reproducible runner Tools/validate_native_wg_config.sh; release log /tmp/apl-native-config-release-20261115/run.log."
