@@ -153,6 +153,7 @@
 		89147259BFDEAE36EB6B638B /* NativeWireGuardRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1B61D68FD8E2F7C474674D /* NativeWireGuardRuntimeConfig.swift */; };
 		893B4353972600B380BFA0FE /* NativeCredentialHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4A6EBB1933CAEECB232B22 /* NativeCredentialHandoff.swift */; };
 		8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */; };
+		8B586C5DB8D44F16109974C0 /* NativeFilesReviewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D682428918BF049732235B /* NativeFilesReviewUITests.swift */; };
 		8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */; };
 		8E52655301B360A515C768DC /* ProxyQualitySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */; };
 		8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */; };
@@ -349,6 +350,7 @@
 		26DCC73C34178F19DD7373EB /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/Localizable.strings; sourceTree = "<group>"; };
 		27C63FA84494D774BCE273E5 /* ProfileLibraryLocaleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibraryLocaleUITests.swift; sourceTree = "<group>"; };
 		29B8B4B229C9BB34D06D9CBC /* NativeAWGValidationDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAWGValidationDriver.swift; sourceTree = "<group>"; };
+		29D682428918BF049732235B /* NativeFilesReviewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeFilesReviewUITests.swift; sourceTree = "<group>"; };
 		2A20123BC92431EFCA5FACD6 /* ProxyFilePickerCancellation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyFilePickerCancellation.swift; sourceTree = "<group>"; };
 		2B045D2D35B24DAC87E1ADDE /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowRoutingPolicy.swift; sourceTree = "<group>"; };
@@ -859,6 +861,7 @@
 				130B51C1D493CB1525C5632E /* Localization020ReadOnlyUITests.swift */,
 				BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */,
 				CB05015E437CC3A716B8540F /* NativeBatchReviewUITests.swift */,
+				29D682428918BF049732235B /* NativeFilesReviewUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
 				31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */,
 				23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */,
@@ -1380,6 +1383,7 @@
 				F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */,
 				69D9EE2807AA4D3DE0F2D9A7 /* Localization020ReadOnlyUITests.swift in Sources */,
 				CB8311324C7EA2F5E6BD1C70 /* NativeBatchReviewUITests.swift in Sources */,
+				8B586C5DB8D44F16109974C0 /* NativeFilesReviewUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
 				532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */,
 				8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */,

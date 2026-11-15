@@ -18,6 +18,7 @@ enum NativeReviewQAL10n {
         "Confirm removal": "Подтвердить удаление",
         "Paste synthetic configuration or VLESS links": "Вставьте тестовую конфигурацию или ссылки VLESS",
         "Preview pasted text": "Проверить вставленный текст",
+        "Encrypted backup saved": "Зашифрованная копия сохранена",
         "Protocol": "Протокол",
         "Choose synthetic configuration text file": "Выбрать тестовый файл конфигурации",
         "Encrypted backup": "Зашифрованная резервная копия",
@@ -73,6 +74,8 @@ enum NativeReviewQAL10n {
     var hasExclusions=false
     @State private var library=NativeProfilePresentation.empty
     @State private var failed=false
+    @State private var exportSaved=false
+    @FocusState private var passwordFocus:Bool
 
     init(legacyIDs:Set<UUID> = [],hasExclusions:Bool = false) {self.legacyIDs=legacyIDs;self.hasExclusions=hasExclusions}
 
@@ -112,16 +115,17 @@ enum NativeReviewQAL10n {
                     Button(tr("Choose synthetic configuration text file")) { beginImport(.configuration(kind)) }
                 }
                 Section(tr("Encrypted backup")) {
-                    Button(tr("Choose synthetic backup JSON")) { beginImport(.backup) }
+                    Button(tr("Choose synthetic backup JSON")) { beginImport(.backup) }.accessibilityIdentifier("nativeQA.chooseBackup")
                     if file != nil {
-                        SecureField(tr("Backup password"),text:$password).textContentType(.password)
-                        Button(tr("Review backup"),action:reviewBackup).disabled(password.isEmpty)
+                        SecureField(tr("Backup password"),text:$password).textContentType(.password).focused($passwordFocus).accessibilityIdentifier("nativeQA.restorePassword")
+                        Button(tr("Review backup"),action:reviewBackup).disabled(password.isEmpty).accessibilityIdentifier("nativeQA.reviewBackup")
                     }
-                    Button(tr("Prepare encrypted export")) {resetReview();exporting=true}.disabled(library.rows.isEmpty)
+                    Button(tr("Prepare encrypted export")) {resetReview();exporting=true}.disabled(library.rows.isEmpty).accessibilityIdentifier("nativeQA.prepareExport")
+                    if exportSaved {Text(tr("Encrypted backup saved")).accessibilityIdentifier("nativeQA.exportSaved")}
                     if exporting {
-                        SecureField(tr("New password"),text:$password).textContentType(.newPassword)
-                        SecureField(tr("Repeat password"),text:$repeatedPassword).textContentType(.newPassword)
-                        Button(tr("Encrypt"),action:encrypt).disabled(password.count<12 || password != repeatedPassword)
+                        SecureField(tr("New password"),text:$password).textContentType(.newPassword).accessibilityIdentifier("nativeQA.exportPassword")
+                        SecureField(tr("Repeat password"),text:$repeatedPassword).textContentType(.newPassword).focused($passwordFocus).accessibilityIdentifier("nativeQA.repeatPassword")
+                        Button(tr("Encrypt"),action:encrypt).disabled(password.count<12 || password != repeatedPassword).accessibilityIdentifier("nativeQA.encrypt")
                     }
                 }
                 if let removal {
@@ -145,16 +149,17 @@ enum NativeReviewQAL10n {
                 if lifecycle.pending != nil && !choosing && !showExporter {
                     Button(tr("Discard cancelled file operation"),role:.cancel){cancelPanel()}
                 }
-                if failed { Text(tr("Review failed. No new records added.")).foregroundStyle(.red) }
+                if failed { Text(tr("Review failed. No new records added.")).foregroundStyle(.red).accessibilityIdentifier("nativeQA.failed") }
             }
             .disabled(choosing || showExporter)
             .navigationTitle(tr("Native profiles · QA"))
             .toolbar {ToolbarItem(placement:.cancellationAction){Button(tr("Close")){leave();dismiss()}}}
         }
         .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:importReceipt?.action == .automaticConfigurations, onCompletion:{ [receipt=importReceipt] result in readFile(result,receipt:receipt) })
-        .fileExporter(isPresented:$showExporter,document:document,contentType:.json,defaultFilename:exportFilename){ [receipt=exportReceipt] _ in
+        .fileExporter(isPresented:$showExporter,document:document,contentType:.json,defaultFilename:exportFilename){ [receipt=exportReceipt] result in
             guard lifecycle.consume(receipt) == .export else{return}
             document=nil;exportReceipt=nil
+            switch result {case .success:exportSaved=true;case .failure:fail()}
         }
         .onAppear { if phase == .active { lifecycle.appear() } }
         .onChange(of:phase){value in
@@ -193,7 +198,7 @@ enum NativeReviewQAL10n {
         guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return}
         do{try session.confirmRemoval(receipt);library=try session.presentation(legacyIDs:legacyIDs,hasExclusions:hasExclusions);resetReview()}catch{fail()}
     }
-    private func resetReview(){session.cancelReview();pasteFocused=false;pastedText="";removal=nil;summary=nil;password="";repeatedPassword="";file=nil;exporting=false;failed=false}
+    private func resetReview(){session.cancelReview();exportSaved=false;passwordFocus=false;pasteFocused=false;pastedText="";removal=nil;summary=nil;password="";repeatedPassword="";file=nil;exporting=false;failed=false}
     private func fail(){resetReview();failed=true}
     private func cancelPanel(){lifecycle.invalidate();importReceipt=nil;exportReceipt=nil;document=nil;resetReview()}
     private func leave(){lifecycle.leave();resetReview();session.clear();importReceipt=nil;exportReceipt=nil;choosing=false;showExporter=false;document=nil;library = .empty}

@@ -28,6 +28,7 @@ import NetworkExtension
     @State private var exportName="APL-Native-Encrypted"
     @State private var busy=false
     @State private var failed=false
+    @State private var exportSaved=false
     @State private var generation=UUID()
     #if APL_NATIVE_IP_ROUTE_REVIEW
     @State private var ipRuleText=""
@@ -42,6 +43,7 @@ import NetworkExtension
             Form {
                 Section {
                     Text(tr("Device validation only. Use test profiles. Connection is disabled.","Только проверка на устройстве. Используйте тестовые профили. Подключение отключено."))
+                    if exportSaved {Text(tr("Encrypted backup saved","Зашифрованная копия сохранена"))}
                     if failed {Text(tr("Operation failed. Reload to check saved state and recovery.","Операция не завершена. Обновите список и проверьте восстановление.")).foregroundStyle(.red)}
                     Button(tr("Reload","Обновить"),action:reload)
                 }
@@ -71,9 +73,10 @@ import NetworkExtension
             .toolbar {ToolbarItem(placement:.cancellationAction){Button(tr("Close","Закрыть")){leave();dismiss()}}}
         }
         .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:fileReceipt?.action == .automaticConfigurations,onCompletion:{[token=fileReceipt] result in receive(result,token:token)})
-        .fileExporter(isPresented:$exporting,document:document,contentType:.json,defaultFilename:exportName){[token=exportReceipt] _ in
+        .fileExporter(isPresented:$exporting,document:document,contentType:.json,defaultFilename:exportName){[token=exportReceipt] result in
             guard lifecycle.consume(token) == .export else{return}
             document=nil;exportReceipt=nil
+            switch result {case .success:exportSaved=true;case .failure:failed=true}
         }
         .onAppear {if phase == .active {enter()}}
         .onChange(of:phase){value in if value == .active {enter()} else if value == .background {leave()}}
@@ -194,7 +197,7 @@ import NetworkExtension
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
+    private func cancelReview(){exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
         #if APL_NATIVE_IP_ROUTE_REVIEW
         ipPreview=nil;ipOptIn=false;ipRuleText=""
         #endif

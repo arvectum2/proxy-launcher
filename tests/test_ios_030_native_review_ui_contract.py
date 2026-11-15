@@ -38,7 +38,7 @@ def test_qa_dedicated_ru_en_localization_keys_and_fallback():
     view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
     entry=(IOS/'App/ProfileBackupView.swift').read_text()
     ru=dict((json.loads(k),json.loads(v)) for k,v in re.findall(r'^\s*(".*?"):\s*(".*?"),$',view,re.M))
-    assert len(ru)==35 and all(k!=v for k,v in ru.items())
+    assert len(ru)==36 and all(k!=v for k,v in ru.items())
     assert set(re.findall(r'tr\("([^"]+)"\)',view))|{'Native profiles · Simulator QA'}==set(ru)
     assert 'NativeReviewQAL10n.tr' in entry
     assert ru['Temporary profiles: %d'].count('%d')==1
@@ -58,3 +58,21 @@ def test_native_library_entry_is_gated_and_has_no_connect_action():
     core=(IOS/'SharedCore/NativeProfileReviewSession.swift').read_text()
     assert 'var canConnect:Bool {false}' in core and 'launchBoundary.prepare' in core
     assert 'launchBoundary.issue(' not in core
+
+
+def test_native_file_export_result_and_explicit_simulator_qa_gate():
+    lab=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
+    device=(IOS/'App/NativePersistentProfilesView.swift').read_text()
+    for view in (lab,device):
+        callback=view.split('.fileExporter(',1)[1].split('.onAppear',1)[0]
+        assert 'lifecycle.consume(' in callback
+        assert callback.index('lifecycle.consume(')<callback.index('case .success:exportSaved=true')
+        assert 'case .failure:' in callback
+        assert 'Encrypted backup saved' in view
+    qa=(IOS/'Tests/UITests/NativeFilesReviewUITests.swift').read_text()
+    assert '#if APL_NATIVE_PROFILE_REVIEW && APL_RUN_EXPLICIT_NATIVE_FILES_QA && targetEnvironment(simulator)' in qa
+    assert 'APL-QA-WG' in qa and 'APL-QA-AWG' in qa
+    assert 'nativeQA.exportSaved' in qa and 'nativeQA.restorePassword' in qa
+    assert 'XCUIDevice.shared.press(.home);app.activate();try counts(0)' in qa
+    assert 'APL_RUN_EXPLICIT_NATIVE_FILES_QA' not in (IOS/'project.yml').read_text()
+    assert 'UIFileSharingEnabled' not in (IOS/'Config/App-Info.plist').read_text()
