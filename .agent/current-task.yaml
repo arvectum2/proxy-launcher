@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "15.11: offline native profile revision/selection and single-use validation ticket boundary; legacy ProfileStore read-only collision check, invalidation on edits/deletes/policy failure, bounded 32 in-memory profiles. No persisted native credentials or actual provider startup."
   - "15.11: offline WG/AWG route/DNS plan and real NE settings materialization, explicit underlay requirement, rejected unsupported exclusion settings and invalid/colliding IPs, four NE object scenarios; current blocker/pending lists reconciled, old history retained in git."
   - "15.11 09:00: AWG signed existing NativeLab targeted physical native-control case PASS, independent TCP4 witness1, outer sent/received5/5, stale request rejection and native drain before OS OFF; owned cleanup, uninstall, Netherlands 2 restored and three fingerprints unchanged. Both isolated native-control hardware gates PASS."
   - "15.11 08:52: same WG preview parser reused for in-memory standard WG/AWG1 engine configuration, explicit format and route policy validation, redacted diagnostics, exact pinned native config acceptance on macOS without activation, regenerated production Xcode project; existing native activation deny gate unchanged."
@@ -150,20 +151,21 @@ completed:
 
 
 
-current: "Offline WG/AWG full-tunnel route and DNS plan, explicit provider-owned underlay requirement and real NetworkExtension settings factory completed. No global explicit endpoint bypass or unsupported exclusion policy silently ignored. Swift302/302, Python50/50, macOS NE settings objects4/4, iPhoneOS typecheck and normal unsigned Release build PASS. Both isolated native-control hardware gates remain accepted. Actual route application, DNS behavior and underlay not accepted. No phone change."
+current: "Offline WG/AWG native profile preparation boundary implemented: revision identity, explicit selection, bounded in-memory staging and one-use provider-bound validation ticket for route+engine config. Legacy ProfileStore read-only collision guard, no storage migration, no Keychain writes, no production activation. Swift310/310, Python50/50, unsigned iPhoneOS Release build PASS, experimental link symbols absent. Actual native persistence, secure cross-process credential handoff and production underlay remain pending. No phone changes."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
   - "No physical test or release without appropriate user supervision/approval; previous isolated native data/control permission blockers resolved."
 pending:
-  - "Verify exact-head CI; complete native profile/revision and ephemeral engine/network settings integration, preserve existing proxy storage and backup compatibility."
+  - "Verify exact-head CI; prepare real provider-owned underlay and secure session-bound cross-process handoff; native profile persistence/backup and actual runtime activation remain separate gates."
   - "Develop and prove provider-owned underlay without explicit broad endpoint bypass, route/DNS policy, MTU/QUIC and WAN/fault acceptance."
   - "Broader AWG versions/interoperability and packaging/provenance/license/security, including production native switching."
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "15631ca46 plus new route/DNS working tree verified Swift302/Python50/NE4/iPhoneOS/Release; exact new CI pending"
+last_verified_commit: "8d31be52c plus native profile preparation working tree tested Swift310/Python50/Release; exact new CI pending"
 test_results:
+  - "Swift310/310 (8 new profile boundary tests), Python50/50, normal unsigned iPhoneOS Release exit0, no experimental engine link symbols. Initial generated Swift syntax error fixed then rerun PASS. Previous exact-head CI pending."
   - "Swift302/302, Python50/50, real macOS NE settings objects4/4 and iPhoneOS typecheck, unsigned normal Release build exit0, no native engine link symbols. No settings applied or actual routing/DNS tested."
   - "AWG_NATIVE_CONTROL_RECEIPTS_PASS, AWG_PHYSICAL_CASE tcp4 positive WITNESS (1,0,0,0,5,5,0) PASS, AWG_PHYSICAL_PROFILE_CLEANED, AWG_PHYSICAL_NATIVE_CONTROL_PASS exit0. Production extension active, lab absent, profile/selected/organization hashes all unchanged. External production egress not separately tested."
   - "Swift296/296 (6 new config tests), Python50/50, pinned Xray config test and AWG IpcSet 2/2 PASS, standalone repeatable validation runner exit0, unsigned iPhoneOS Release app/NE build exit0, no experimental native symbols. No phone or production changes. One larger tool invocation blocked before execution; narrower ordinary test coverage written and verified separately."
@@ -262,4 +264,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact PR383 head CI; next integrate typed native profile/revision preparation and ephemeral engine/network configuration handoff, then separate underlay path verification and actual supervised route/DNS acceptance. Keep production activation denied; existing proxy profile storage/backup unchanged. Do not repeat accepted WG/VLESS10/10, AWG8/8 and native-control2/2. Production packaging/license/security, AWG broader versions, Wi-Fi/LTE and CloudKit/backup gates remain. No new IDs, owner app replacement or publish."
+resume_instruction: "Verify exact PR383 head CI. Next design and implement isolated provider-owned underlay path verification and native credential handoff contract; validate DNS and route application in controlled lab, preserve production route/credential storage and deny activation until proven. Extend later to native profile persistence/backup format, VLESS route/DNS parity, production packaging/license/security, broader AWG variants, supervised Wi-Fi/LTE and CloudKit/backup. Do not repeat accepted 20 physical cases. No new IDs, owner app replacement or publish."

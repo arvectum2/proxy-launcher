@@ -135,6 +135,13 @@ final class ProfileStore {
         return entries
     }
 
+    /// Offline native preparation only; reuse the strict legacy read rather
+    /// than the display list which intentionally hides corrupted storage.
+    /// Separate selection, no UserDefaults or Keychain mutations.
+    @MainActor func makeNativeProfilePreparation() -> NativeProfilePreparation {
+        NativeProfilePreparation(legacyIDs: { [self] in Set(try profilesForMutation().map(\.id)) })
+    }
+
     func save(_ profile: ProxyProfile, password: String?, makeActive: Bool = true, preservePasswordIfNil: Bool = false) throws {
         var profiles = try profilesForMutation()
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) { profiles[index] = profile }
