@@ -20,9 +20,6 @@ struct ContentView: View {
     @State private var showNewProfile = false
     @State private var importRequest: ProxyImportRequest?
     @State private var showProfileBackup = false
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-    @State private var showNativeHomeLibrary=false
-#endif
     @State private var showExclusions = false
     @State private var showQuickActions = false
     @State private var showAppExclusions = false
@@ -118,9 +115,6 @@ struct ContentView: View {
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
         }
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-        .sheet(isPresented:$showNativeHomeLibrary,onDismiss:{model.refreshNativeLibraryOverview()}){NativePersistentProfilesView(model:model)}
-#endif
         .sheet(isPresented: $showProfileBackup) {
             ProfileBackupView().environmentObject(model)
         }
@@ -516,15 +510,7 @@ struct ContentView: View {
     private var homeProfileControl: some View {
         Group {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-            Menu {
-                if model.profiles.isEmpty && !qaProfile {
-                    Button {showNewProfile=true} label:{Label(AppL10n.tr("Добавить прокси"),systemImage:"plus")}
-                } else {profileSelectionMenu}
-                Section {
-                    Button {showNativeHomeLibrary=true} label:{Label(NativePersistentProfilesView.title,systemImage:"shield.lefthalf.filled")}
-                }
-            } label:{homeProfileLabel(model.profiles.isEmpty && !qaProfile ? AppL10n.tr("Добавить прокси") : (qaProfile ? "QA Proxy":model.selectedLabel))}
-            .accessibilityLabel(AppL10n.tr("Прокси")+": "+model.selectedLabel+". "+model.nativeOverviewText)
+            HomeNativeLibraryMenu(model:model,canAdd:model.profiles.isEmpty && !qaProfile,onAdd:{showNewProfile=true},proxyMenu:profileSelectionMenu,label:homeProfileLabel(model.profiles.isEmpty && !qaProfile ? AppL10n.tr("Добавить прокси") : (qaProfile ? "QA Proxy":model.selectedLabel)))
 #else
             if model.profiles.isEmpty && !qaProfile {
                 Button { showNewProfile = true } label: {
@@ -547,12 +533,10 @@ struct ContentView: View {
             Image(systemName: "server.rack")
                 .font(.system(size: 19, weight: .medium))
                 .accessibilityHidden(true)
-            VStack(alignment:.leading,spacing:3){
-                Text(name).font(.system(size:17,weight:.semibold)).lineLimit(1).minimumScaleFactor(0.72)
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-                Text(model.nativeOverviewText).font(.caption2).foregroundStyle(Brand.softGray).lineLimit(1).minimumScaleFactor(0.75)
-#endif
-            }
+            Text(name)
+                .font(.system(size: 17, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
             Spacer(minLength: 0)
             Image(systemName: "chevron.down")
                 .font(.system(size: 14, weight: .semibold))

@@ -46,12 +46,9 @@ struct ProfilesScreenView<Header: View>: View {
                     Button {showPersistentNativeLibrary=true} label:{
                         HStack(alignment:.center,spacing:12){
                             Image(systemName:"shield.lefthalf.filled").foregroundStyle(Brand.mintLight).accessibilityHidden(true)
-                            VStack(alignment:.leading,spacing:4){
-                                Text(NativePersistentProfilesView.title).font(.subheadline.weight(.semibold))
-                                Text(model.nativeOverviewText).font(.caption).foregroundStyle(Brand.softGray)
-                                Text(AppL10n.effectiveLanguage=="ru" ? "Подключение пока недоступно":"Connection not yet available").font(.caption2).foregroundStyle(Brand.softGray)
-                            }
+                            Text(NativePersistentProfilesView.title).font(.subheadline.weight(.semibold))
                             Spacer(minLength:0)
+                            if let count=model.nativeProfileCount {Text(String(count)).font(.caption).foregroundStyle(Brand.softGray)}
                             Image(systemName:"chevron.right").font(.caption).accessibilityHidden(true)
                         }.foregroundStyle(Brand.text).padding(14).frame(maxWidth:.infinity,alignment:.leading).background(Brand.surface,in:RoundedRectangle(cornerRadius:12))
                     }.buttonStyle(.plain).accessibilityIdentifier("profiles.nativeStorageQA")
@@ -230,3 +227,23 @@ struct ProfilesScreenView<Header: View>: View {
     }
 
 }
+
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+@MainActor struct HomeNativeLibraryMenu<ProxyMenu:View,Title:View>:View {
+    @ObservedObject var model:AppViewModel
+    let canAdd:Bool
+    let onAdd:()->Void
+    let proxyMenu:ProxyMenu
+    let label:Title
+    @State private var showLibrary=false
+    var body:some View {
+        Menu {
+            if canAdd {Button(action:onAdd){Label(AppL10n.tr("Добавить прокси"),systemImage:"plus")}}
+            else {proxyMenu}
+            Button {showLibrary=true} label:{Label(NativePersistentProfilesView.title,systemImage:"shield.lefthalf.filled")}
+        } label:{label}
+        .accessibilityLabel(AppL10n.tr("Прокси")+": "+model.selectedLabel)
+        .sheet(isPresented:$showLibrary,onDismiss:{model.refreshNativeLibraryOverview()}){NativePersistentProfilesView(model:model)}
+    }
+}
+#endif

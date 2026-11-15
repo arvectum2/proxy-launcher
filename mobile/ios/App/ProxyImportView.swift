@@ -53,7 +53,6 @@ import UIKit
                     Button {openNativeLibrary()} label:{
                         Label(refreshText("Импорт WireGuard, AmneziaWG, VLESS","Import WireGuard, AmneziaWG, VLESS"),systemImage:"shield.lefthalf.filled")
                     }
-                    Text(refreshText("Нативные профили — отдельная библиотека, подключение пока недоступно.","Native profiles use a separate library; connections are not yet available.")).font(.footnote).foregroundStyle(.secondary)
                 }
 #endif
 #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)

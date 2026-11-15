@@ -10,7 +10,11 @@ def test_real_native_library_device_gate_and_explicit_mutations():
     assert 'model.vpn.withNativeLibraryWrite' in view and 'session.confirmImport' in view
     assert 'generation==token,lifecycle.visible' in view and 'lifecycle.consume(token)' in view
     assert 'session?.cancel()' in view and 'session=nil' in view
-    assert 'Review removal' in view and 'Review retired revisions' in view
+    assert 'Button(tr("Delete","Удалить"),role:.destructive){prepare(.remove(row.reference))}' in view and 'Review retired revisions' in view
+    assert 'VPN connection is not available yet.' in view
+    assert 'Selected for review' not in view and 'storage QA' not in view
+    home=(IOS/'App/ContentView.swift').read_text()
+    assert 'HomeNativeLibraryMenu(model:model' in home and 'nativeOverviewText' not in home
     assert 'startVPNTunnel' not in view and 'connect()' not in view and 'SecItem' not in view
     profiles=(IOS/'App/ProfilesScreenView.swift').read_text()
     assert gate in profiles and 'profiles.nativeStorageQA' in profiles

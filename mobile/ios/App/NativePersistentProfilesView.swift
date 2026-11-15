@@ -46,18 +46,18 @@ import NetworkExtension
     @State private var ipOptIn=false
     @State private var ipPreview:[String]?
     #endif
-    static var title:String {label("Native profiles · storage QA","Нативные профили · проверка хранилища")}
+    static var title:String {label("VPN profiles","VPN-профили")}
     private static func label(_ en:String,_ ru:String)->String {AppL10n.effectiveLanguage=="ru" ? ru:en}
     private func tr(_ en:String,_ ru:String)->String {Self.label(en,ru)}
     var body:some View {
         NavigationView {
             Form {
                 Section {
-                    Text(tr("Device validation only. Use test profiles. Connection is disabled.","Только проверка на устройстве. Используйте тестовые профили. Подключение отключено."))
+                    Text(tr("VPN connection is not available yet.","VPN-подключение пока недоступно.")).font(.footnote).foregroundStyle(.secondary)
                     if exportSaved {Text(tr("Encrypted backup saved","Зашифрованная копия сохранена"))}
                     if authenticationFailed {Text(tr("Wrong password or damaged backup. Try again.","Неверный пароль или повреждённая копия. Повторите ввод.")).foregroundStyle(.red)}
                     if failed {Text(tr("Operation failed. Reload to check saved state and recovery.","Операция не завершена. Обновите список и проверьте восстановление.")).foregroundStyle(.red)}
-                    Button(tr("Reload","Обновить"),action:reload)
+                    if failed || library == nil {Button(tr("Reload","Обновить"),action:reload)}
                 }
                 if let library {librarySections(library)}
                 if let receipt {
@@ -150,8 +150,8 @@ import NetworkExtension
         }
         #endif
         if library.selectionNeedsReview {Text(tr("Select again after migration.","После миграции выберите профиль повторно."))}
-        Section(tr("Native library","Библиотека нативных профилей")) {
-            if library.library.rows.isEmpty {Text(tr("No native profiles","Нет нативных профилей"))}
+        Section(tr("Profiles","Профили")) {
+            if library.library.rows.isEmpty {Text(tr("No profiles","Нет профилей"))}
             if !library.library.rows.isEmpty {
                 TextField(tr("Find profile","Найти профиль"),text:$profileSearch).autocorrectionDisabled()
             }
@@ -162,15 +162,23 @@ import NetworkExtension
             if rows.isEmpty && !library.library.rows.isEmpty {Text(tr("No matching profiles","Профили не найдены"))}
             ForEach(rows) {row in
                 VStack(alignment:.leading,spacing:8) {
-                    Text(rowTitle(row)).font(.headline)
-                    Text(protocolTitle(row.reference.kind)+" · "+row.shortID).font(.caption).foregroundStyle(.secondary)
-                    if row.selected {Text(tr("Selected for review","Выбран для проверки"))}
-                    Text(status(row.state)).font(.footnote).foregroundStyle(.secondary)
-                    Button(tr("Review selection","Проверить выбор")){prepare(.select(row.reference))}.buttonStyle(.borderless).disabled(!row.canReview)
-                    Button(tr("Rename","Переименовать")){beginRename(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision)
-                    Button(tr("Edit server","Редактировать сервер")){beginEndpointEdit(row.reference)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
-                    Button(tr("Replace configuration","Заменить конфигурацию")){beginReplacement(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
-                    Button(tr("Review removal","Проверить удаление"),role:.destructive){prepare(.remove(row.reference))}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired)
+                    HStack(alignment:.center,spacing:12) {
+                        VStack(alignment:.leading,spacing:4) {
+                            Text(rowTitle(row)).font(.headline)
+                            if row.displayName != nil {Text(protocolTitle(row.reference.kind)).font(.caption).foregroundStyle(.secondary)}
+                            if row.state == .legacyCollision {Text(status(row.state)).font(.caption).foregroundStyle(.secondary)}
+                        }
+                        Spacer(minLength:0)
+                        if row.selected {Image(systemName:"checkmark.circle.fill").foregroundStyle(.tint).accessibilityLabel(tr("Selected","Выбран"))}
+                        Menu {
+                            Button(tr("Select","Выбрать")){prepare(.select(row.reference))}.disabled(!row.canReview)
+                            Button(tr("Rename","Переименовать")){beginRename(row)}.disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision)
+                            Button(tr("Edit server","Редактировать сервер")){beginEndpointEdit(row.reference)}.disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
+                            Button(tr("Replace configuration","Заменить конфигурацию")){beginReplacement(row)}.disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
+                            Button(tr("Delete","Удалить"),role:.destructive){prepare(.remove(row.reference))}.disabled(library.migrationRequired || library.recoveryRequired)
+                        } label:{Image(systemName:"ellipsis.circle").font(.title3).padding(8)}
+                        .buttonStyle(.borderless).accessibilityLabel(tr("Profile actions","Действия профиля"))
+                    }
                 }
             }
         }
@@ -186,24 +194,25 @@ import NetworkExtension
         }
         #endif
         if !library.migrationRequired && !library.recoveryRequired {
-            Section(tr("Import test profile","Импорт тестового профиля")) {
-                Button(tr("Choose files · detect protocol","Выбрать файлы · автоопределение")){choose(.automaticConfigurations)}.accessibilityIdentifier("nativeImport.autoFiles")
+            Section(tr("Import","Импорт")) {
+                Button(tr("Choose files","Выбрать файлы")){choose(.automaticConfigurations)}.accessibilityIdentifier("nativeImport.autoFiles")
                 Button(tr("Import from clipboard","Импорт из буфера")){previewClipboard()}.accessibilityIdentifier("nativeImport.clipboard")
-                Text(tr("One WG/AWG configuration per file, or VLESS links one per line. Unsupported entries reject the entire batch.","Одна конфигурация WG/AWG на файл или ссылки VLESS по одной в строке. Неподдерживаемая запись отменяет всю проверку пакета.")).font(.footnote)
+                DisclosureGroup(tr("Select protocol manually","Указать протокол")) {
                 Picker(tr("Protocol","Протокол"),selection:$kind) {
                     Text("WireGuard").tag(NativeCredentialRecord.Kind.wireGuard)
                     Text("AmneziaWG 1").tag(NativeCredentialRecord.Kind.amneziaWG1)
                     Text("VLESS Reality").tag(NativeCredentialRecord.Kind.vlessReality)
                 }.onChange(of:kind){_ in cancelReview();lifecycle.invalidate();fileReceipt=nil}
-                Button(tr("Choose single file with selected protocol","Выбрать один файл указанного протокола")){choose(.configuration(kind))}
+                Button(tr("Choose file","Выбрать файл")){choose(.configuration(kind))}
+                }
             }
-            Section(tr("Encrypted native backup","Зашифрованная копия нативных профилей")) {
-                Button(tr("Choose encrypted backup","Выбрать зашифрованную копию")){choose(.backup)}
+            Section(tr("Backup","Резервная копия")) {
+                Button(tr("Restore from file","Восстановить из файла")){choose(.backup)}
                 if backupBytes != nil {
                     SecureField(tr("Backup password","Пароль резервной копии"),text:$password).textContentType(.password)
                     Button(tr("Review backup","Проверить копию")){reviewBackup()}.disabled(password.isEmpty)
                 }
-                Button(tr("Review encrypted export","Проверить зашифрованный экспорт")){prepare(.exportBackup)}.disabled(library.library.rows.isEmpty)
+                Button(tr("Create backup","Создать копию")){prepare(.exportBackup)}.disabled(library.library.rows.isEmpty)
             }
         }
     }
@@ -258,7 +267,7 @@ import NetworkExtension
         case .migrate:return tr("Migrate metadata; require explicit reselection.","Обновить метаданные; потребуется повторный выбор.")
         case .recover:return tr("Roll back only the recorded incomplete operation.","Отменить только записанную незавершённую операцию.")
         case .purgeRetired:return tr("Permanently delete only retired credentials.","Окончательно удалить только выведенные из обращения ключи.")
-        case .select:return tr("Select for review, not connection.","Выбрать для проверки, не для подключения.")
+        case .select:return tr("Select profile. This does not start a connection.","Выбрать профиль без подключения.")
         case .rename:return tr("Rename profile without changing credentials.","Переименовать профиль без изменения ключей.")
         case .replace:return tr("Save new validated configuration, keep the name and ID. If selected, select again before connection. Old credentials remain retired until cleanup.","Сохранить новую проверенную конфигурацию, сохранив имя и ID. Если профиль выбран, потребуется повторный выбор. Старые ключи останутся выведенными из обращения до очистки.")
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")

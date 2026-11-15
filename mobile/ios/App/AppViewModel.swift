@@ -46,18 +46,7 @@ final class AppViewModel: ObservableObject {
         // Metadata-only; failure invalidates the previous display, never a fallback selection.
         nativeLibraryOverview=try? makePersistentNativeLibrary().state()
     }
-    var nativeOverviewText:String {
-        func tr(_ en:String,_ ru:String)->String {AppL10n.effectiveLanguage=="ru" ? ru:en}
-        guard let state=nativeLibraryOverview else{return tr("Native library unavailable","Нативная библиотека недоступна")}
-        if state.recoveryRequired {return tr("Native library: recovery required","Нативная библиотека: требуется восстановление")}
-        if state.migrationRequired {return tr("Native library: migration required","Нативная библиотека: требуется обновление")}
-        guard let selected=state.library.rows.first(where:{$0.selected}) else{return tr("Native profiles: ","Нативные профили: ")+String(state.library.rows.count)}
-        let kind:String
-        switch selected.reference.kind {case .wireGuard:kind="WireGuard";case .amneziaWG1:kind="AmneziaWG 1";case .vlessReality:kind="VLESS Reality"}
-        let title=selected.displayName ?? kind+" · "+selected.shortID
-        if !selected.canReview || state.selectionNeedsReview {return tr("Native review required: ","Нативный: требуется проверка · ")+title}
-        return tr("Native review only: ","Нативный: только проверка · ")+title
-    }
+    var nativeProfileCount:Int? {nativeLibraryOverview?.library.rows.count}
     #if APL_NATIVE_DOMAIN_POLICY_REVIEW
     func nativeDomainPolicyReview() throws -> NativeDomainPolicyReview {try store.nativeDomainPolicyReview()}
     #endif
