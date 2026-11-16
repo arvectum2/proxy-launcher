@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage36 authorized 16.11: adapt containing QA harness for existing NativeLab bundle identifiers, isolated Keychain/defaults, reuse existing device-bound development profiles, sign and install only the lab on paired iPhone. No production app/account/VPN changes. Independent peers required before runtime."
+current: "Stage36 isolated NativeLab containing ARM64 build f9965c19 PASS; signed using existing NativeLab development profiles, exact 523 files verified, installed and launched on paired iPhone 13. Product APL 0.3.0 (49) unchanged. System VPN connected (Settings and product PacketTunnel process); no test manager or runtime started. Independent physical peers still need adapted configs and capture. No production changes or release."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "bf886675d2aba327bb35c48dc85e04d984e1b48e exact gated unsigned ARM64 containing build/link PASS; Stage34 focused Swift2/2, Python3/3 before final actor fix; final build and five artifact hash checks PASS; exact CI mirror SUCCESS, six checks queued at observation."
+last_verified_commit: "f9965c19c331b669c99939b3cc66d82f45ed8517 isolated unsigned containing ARM64 build; 912bdce0714e1e3938efdbd06f7f07bae5f91fe1 signing scope/tests; 93 focused tests passed; signature/bundle 523 files verified; installed and launched NativeLab only."
 test_results:
+  - "Stage36: existing NativeLab profiles valid to Nov 2027, dedicated Keychain VML75VY94V.ru.arvectum.proxylauncher.lab.nativeqa.shared, private per-process defaults, no application-group/iCloud entitlements, QA-only entry. Exact unsigned manifest d3fddd293ff881b8165e92bddba61157d43805bda19fe3f191d258b355e4b7ff; signed manifest b8faa079afbfab2a860f3639a763aa94f291f746178ce1c5f0bc8202acfd9dad, 523 file hashes, codesign strict PASS. Installed NativeLab (metadata 0.2.0 build 48), launched Not armed; existing product 0.3.0 build 49 unchanged; device system VPN connected. All 93 focused tests PASS; actual data-plane peer acceptance NOT performed. GitHub mirror workflow 43819251444 SUCCESS despite local SSH reachability errors."
   - "Stage35: 111 focused pytest PASS; 12 physical-QA wire-format combinations on local TCP/UDP IPv4/IPv6 sockets; command exclusivity, malformed transcript, cross-command replay and exact result checks. No runtime authorization. Physical iPhone paired and existing product installation detected (0.3.0 build 49), no write performed."
   - "16.11.2026 GitVerse SSH recovery completed: PR384 merged main 67df7e20, CI exact-ref main/iOS and manual full-reconcile 43816812349 PASS; both Macs independent SSH push PASS; local launchd backup every 900s. Details in APL-GITVERSE-SSH-20261116.yaml. iOS physical release gate unchanged."
   - "16.11.2026 SSH GitVerse infrastructure recovery: Mac mini repo-scoped key + MacBook existing key, independent local launchd fallback each 900s, verified CI SSH run 43816354952, checkpoint .agent/checkpoints/APL-GITVERSE-SSH-20261116.yaml. No iOS product changes or acceptance gate changes."
@@ -418,4 +419,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Resume Stage36 isolated NativeLab only; user authorized adaptation, signing, installation and physical tests on paired iPhone. Verify namespace and profiles, exact signed bundle, device and VPN off/peer readiness before any manager operation. Stop on unknown existing VPN or unavailable independent peer. Do not touch production app, credentials or publish."
+resume_instruction: "Stage36 user explicitly authorized isolated NativeLab adaptation/signing/install/physical tests; signed NativeLab installed and QA-only UI launched. Preserve installed product APL and existing managers. Before manager or run: prepare independently controlled peers and capture, confirm system VPN off (currently connected) without changing owner profiles, verify exact signed artifact and fresh command/fixture. Use docs/mobile/native-runtime-physical-acceptance.md and Stage35 validator. Do not treat installed/OS setup as runtime acceptance. CloudKit, legal/security and release gate remain separate."

@@ -85,3 +85,29 @@ uses that same product identity, so installing over the current app is not
 an approved disposable-environment test. Stop before signing for installation
 or touching existing app data/managers. Choose a genuinely disposable device
 or separately approve isolated identities/signing before continuing.
+
+## Stage 36: approved isolated NativeLab installation (16.11)
+
+The owner approved adapting, signing, installing and testing the existing
+NativeLab identity on the paired iPhone. The opt-in APL_NATIVE_ISOLATED_LAB
+build-copy stage forces the QA-only entry and isolated defaults and Keychain,
+removes app-group/cloud access and URL types, and uses the existing two
+NativeLab development profiles. Production source configuration is unchanged.
+The host/provider use one explicit lab-only Keychain group; device-side
+cross-process access still needs actual acceptance.
+
+Unsigned containing ARM64 lab source f9965c19, manifest
+d3fddd293ff881b8165e92bddba61157d43805bda19fe3f191d258b355e4b7ff.
+Signed evidence directory
+native-artifacts/isolated-nativeqa-signed-20261116-f9965c19, manifest
+b8faa079afbfab2a860f3639a763aa94f291f746178ce1c5f0bc8202acfd9dad.
+523 signed file hashes and strict code signature verified. Host installed
+and launched via CoreDevice with the existing lab-only identifier; production
+0.3.0 build 49 remained installed. Lab metadata remains the development
+project's 0.2.0 build 48, not a released product version.
+
+Observed Settings VPN connected and production PacketTunnel process on
+the device. No manager action, profile mutation or tunnel start performed.
+Before any manager/run action, independently confirm system VPN off and
+appropriate controlled peer readiness; app-scoped manager census alone
+cannot establish system-wide VPN state. Do not alter owner configuration.
