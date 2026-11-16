@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41: pinned reference wireguard-go peer built from f333402bd9cb, artifact SHA256 09b706a4982d79a04eb3aa80ff4a2476dd64e93b6e21f0c9c655a4da3969f9ef. Bounded LAN relay and local Xray WG TCP4/TCP6/UDP4/UDP6 preflight PASS. Fresh exact VLESS manager removal command staged; then retire/purge only synthetic VLESS fixture and import synthetic WG."
+current: "Stage41: local independent WG TCP4/TCP6/UDP4/UDP6 preflight PASS. VLESS manager removed with verified receipt 33FC0771; one synthetic VLESS profile retired and purged; original narrow WG input correctly rejected by product validation, fixed device-only text with full AllowedIPs and controlled DNS 192.0.2.53 (preflight fixture stays narrow). WireGuard imported, selected, exact reference exported successfully. Fresh prepareManager C32636F3-F9CD-4ABD-962B-04E6D6EBA191 staged, requires OS consent. No WG physical run yet."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "7d0eab38 physical lab app; c4081d01 expanded VLESS witness and UDP preflight tooling; all 3 new physical probe pairs correlated. 94 focused pytest PASS."
+last_verified_commit: "601a1059 Stage40 expanded VLESS physical PASS; e4e19102 independent WG peer tooling and local four-case preflight; actual lab WG import selection and reference export verified."
 test_results:
+  - "Stage41 physical isolated fixture lifecycle: VLESS manager removal receipt verified, old synthetic VLESS retired and purged, corrected WG product-format fixture imported, selected and reference exported. 4 independent WG local preflight probes passed; no physical WG transport claim. Permission pending."
   - "Stage41 pinned WG peer build PASS; independent local reference server via LAN-scoped encrypted UDP relay and Xray local client four transport witnesses PASS; no physical WG result yet."
   - "Stage40 physical VLESS expanded positive: TCP6 A05DA300-F718-4E08-AC47-21954C3EABA3 (2199/2618 bytes), UDP4 BF4FF214-C9E1-447C-A385-C2904B31C5F8 (2168/2489), UDP6 6B0318E6-CAE6-4FD3-B1CF-661C8B34DA1D (2212/2489). Each independent peer matching local preflight, one LAN relay and one witness, exact challenge/response hashes, host terminal drain/OFF, peer exit 0. Retained exact NativeLab owner OFF; 94 pytest PASS. No broad no-leak/release claim."
   - "Stage39 physical VLESS wrong-key PASS: exact readManager 48C47B6B-B14B-4C67-950F-6CD301149433 verified; fresh command 9ECC42B7-4169-4328-BDFB-11840F4F6DB8 correlated to independent rotated-key peer. Local matching-key and wrong-key controls PASS; host terminal drain/osOff and negative response verified; 2 relay attempts, 3994 ingress/4810 egress bytes, witnessCount 0, peer exit 0. Retained exact lab manager OFF; no extension remaining. No leak-capture or release claim."
@@ -425,4 +426,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Resume Stage41 WireGuard from completed Stage40 evidence. Confirm OFF, exact owner, remove only retained NativeLab manager before importing synthetic WG fixture; prepare independently verified finite LAN relay and official wireguard-go peer. Preserve owner app data. Reconcile any iOS permission prompt with fresh readback. WG/AWG and independent packet capture remain pending; do not assert release."
+resume_instruction: "Resume Stage41 after system VPN permission; verify exact manager readback and system OFF using private stage41/readManager command, never replay consumed prepare. Ensure local preflight helper nativeqa_wg_peer.py ready with pinned stage41/reference-peer, Xray stage40/peer, fresh stage41/tcp4 command; scoped TCP4 first then explicit full WG TCP6/UDP4/UDP6 only in isolated QA. Preserve actual user VPN profiles. Packet capture and AWG pending."
