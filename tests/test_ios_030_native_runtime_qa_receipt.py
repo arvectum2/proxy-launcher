@@ -176,3 +176,13 @@ def test_physical_qa_wire_contract_on_loopback(kind, probe):
             assert obs["matches"]==obs["responses"]==1
             assert obs["responseSHA256"]==receipt(c)["responseSHA256"]
             assert not obs["runtime_authorized"]
+
+
+def test_exact_hostname_probe_only_for_positive_awg():
+    c = command("amneziaWG1", "dns4", "positive", None)
+    assert q.verify_host(c, receipt(c))["probe"] == "dns4"
+    for kind,scope,mode in [("amneziaWG1",None,"wrong-key"),("amneziaWG1",None,"wrong-psk"),("wireGuard","wireGuardFull","positive"),("vlessReality","vlessDatagrams","positive")]:
+        with pytest.raises(ValueError):
+            command(kind,"dns4",mode,scope)
+    view=(Path(__file__).resolve().parents[1]/"mobile/ios/App/NativeRuntimeReviewQAView.swift").read_text()
+    assert 'nonce+".apl-nativeqa.test."' in view and 'probe=="dns4" && mode=="positive"' in view

@@ -19,7 +19,7 @@ private struct NativeRuntimeQACommand:Decodable {
     var valid:Bool {
         guard schema==1,requestID != owner else{return false}
         if action != .run {return scope==nil && probe==nil && nonce==nil && mode==nil}
-        guard let probe,let nonce,let mode,["tcp4","tcp6","udp4","udp6"].contains(probe),
+        guard let probe,let nonce,let mode,(["tcp4","tcp6","udp4","udp6"].contains(probe) || (reference.kind == .amneziaWG1 && scope==nil && probe=="dns4" && mode=="positive")),
               nonce.utf8.count==(reference.kind == .amneziaWG1 ? 48:40),
               nonce.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)}) else{return false}
 #if !APL_NATIVE_EXACT_DNS
@@ -210,7 +210,8 @@ private enum NativeRuntimeQAProbe {
     static func exchange(_ command:NativeRuntimeQACommand)async->String? {
         guard command.valid,command.action == .run,let probe=command.probe,let nonce=command.nonce else{return nil}
         let awg=command.reference.kind == .amneziaWG1,udp=probe.hasPrefix("udp"),v4=probe.hasSuffix("4")
-        let host=awg ? (v4 ? "192.0.2.2":"2001:db8::2") : (v4 ? "198.51.100.77":"2001:db8:77::77")
+        // Only one generated reserved-domain name, with no arbitrary hostname.
+        let host=probe=="dns4" ? nonce+".apl-nativeqa.test." : (awg ? (v4 ? "192.0.2.2":"2001:db8::2") : (v4 ? "198.51.100.77":"2001:db8:77::77"))
         let expected=Data(((awg ? "APL:":"APL_RECEIPT:")+nonce).utf8)
         let http = !awg && !udp
         let request:Data
@@ -249,7 +250,7 @@ private enum NativeRuntimeQAProbe {
                 default:break
                 }
             }
-            q.asyncAfter(deadline:.now()+4){once.finish(false);c.cancel()}
+            q.asyncAfter(deadline:.now()+(probe=="dns4" ? 8:4)){once.finish(false);c.cancel()}
             c.start(queue:q)
         }
         c.cancel()
