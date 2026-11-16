@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: previous prepare D3B767E0 failed after consent timeout. Fresh Settings readback confirms VPN OFF and no lab manager. New prepare 0F9D1FE8-41A8-497B-95E6-618F605C11CA staged with same owner and selected AWG fixture; OS authorization pending. No physical AWG run."
+current: "Stage42: renewed consent 0F9D1FE8 completed at OS level after initial prepare receipt failed. Settings confirms exact NativeLab VPN manager present and system VPN OFF. Fresh readManager F9BB7331-D2F9-4C24-A789-D7B09A5AC722 receipt verified for selected amneziaWG1 fixture and owner. Reference binary digest verified; no peer listeners. Legacy AWGPeerLab/run_physical.py uses awg-lab-input/result and legacy launch flag, not current NativeRuntimeReviewQAView command/receipt protocol. Prior required helper invocation rejected, not executed. No physical AWG traffic claim."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "ca43fcc2; 20 focused tests and isolated build/sign/install PASS; WG cleanup, AWG import/selection and exact reference export verified. Prior physical VLESS/WG 10/16 core cases."
+last_verified_commit: "ca43fcc2 signed diagnostic source; eddff969 renewed permission checkpoint; AWG exact manager host readback F9BB7331 PASS; reference SHA256 PASS; physical AWG pending."
 test_results:
+  - "Stage42: OS VPN OFF and NativeLab manager present verified. Exact AWG readManager receipt F9BB7331 correlated, release_authorized false. Reference binary SHA256 PASS. Legacy physical runner incompatible with installed QA protocol; no runtime executed."
   - "Stage42: library write diagnostics isolated build 20 focused checks PASS, signed/installed. Successful explicit synthetic WG deletion and one retired revision purge, AWG profile import, selection and reference export PASS. Exact underlying earlier write failure not established; no guard relaxation. System manager authorization pending."
   - "Stage42: artifact SHA256 verification PASS; AWG LAN separate-process preflight 4 positive transport witnesses, wrong-key and wrong-PSK rejected, UDP bridge IPv4/IPv6 PASS; previous exact WG manager removal PASS. No physical AWG data-plane result yet."
   - "Stage41 full WG positives: TCP4 A55559E5, TCP6 5B4E87CA, UDP4 3028C520, UDP6 01C260A6; 4/4 exact command/host and independent reference peer nonce/response matches, one matching witness, handshake/data each direction, terminal drain/OFF. No broad no-leak claim."
@@ -430,4 +431,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "After owner authenticates Mirroring, reconcile exact AWG manager with fresh readManager F9BB7331 in private stage42/readManager; verify VPN OFF and exact owner/readback, never replay consumed prepare. Use only reviewed supported independent AWG physical test tooling; previous rejected helper not executed. Run physical positives and negatives only with verified matching independent peer. No-leak gate remains pending."
+resume_instruction: "Retain exact NativeLab AWG manager OFF; no renewed consent or profile cleanup needed. Before any physical run, verify exact manager OFF with a fresh readback. Require compatible reviewed independent QA tool for installed native runtime command/receipt protocol; do not invoke incompatible legacy harness or bypass prior tool rejection. Verify independently correlated physical AWG positive and negative results and no-leak gate before acceptance."
