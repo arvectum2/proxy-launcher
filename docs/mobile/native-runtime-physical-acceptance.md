@@ -347,3 +347,28 @@ WireGuard behavior for these exact destinations, not absence of traffic
 to arbitrary DNS servers, other destinations, failure, handoff, or other
 protocols. Established peer-loss testing must first prove a working
 exchange, independently time a peer cut and then observe a fresh probe.
+
+### Stage 43c: established WireGuard peer loss
+
+Signed isolated QA source 3f0dcfde adds an exact two-probe UDP loss case.
+The independent pinned wireguard-go reference emits a marker only after
+the first exact synthetic response. Its owned session and sockets are
+stopped, with cut timestamps recorded. The device requires a valid first
+response, then sends a distinct challenge after the bounded wait without
+restarting or reconfiguring the tunnel. The verifier rejects missing or
+misordered cut evidence, unexpected responses, and physical egress or
+ambiguous/incomplete RVI metadata.
+
+Physical UDP4 2629B769 / 70056527 / C08B4621 and UDP6 B078C89B /
+F22E06B3 / 65A58F52: for each family one physical packet in both OFF
+controls; one tunnel packet before the cut and one after, zero physical
+packets during the ON observation. First response and independent peer
+matched; second response absent after independently confirmed shutdown.
+All six ordered host/capture observations verified, zero capture drops,
+terminal OS OFF. Local reference trigger controls and 321 Python tests
+plus 14 subtests passed; previous 416 Swift Core results remain recorded.
+No RVI interface, lab peer listener or tunnel extension remained.
+No settings/network changes. This is bounded UDP evidence for established
+peer loss, not a general kill-switch guarantee. DNS on peer loss,
+AmneziaWG escape observations, network handoff, migration and production
+release gates remain open.
