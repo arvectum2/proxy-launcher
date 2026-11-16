@@ -9,7 +9,7 @@ from native_runtime_qa_receipt import validate_command
 from nativeqa_vless_tcp4_peer import socks_udp_probe
 from run_xray_vless_peer_qa import wait_for
 from unified_synthetic_fixture import keypair, b64
-import re
+import re, base64, configparser, tempfile
 
 LAN, HOST, PORT, BACKEND = "192.168.1.80", "127.0.0.1", 39881, 39882
 KINDS=("tcp4","tcp6","udp4","udp6")
@@ -98,6 +98,37 @@ def local_probe(root, binary, nonce, probes, fixture=None, expected=True):
     assert p.returncode==0
 
 
+def local_dns_probe(root, binary, cfg, nonce):
+    """Independent two-process control using exactly the fixture keys."""
+    f=configparser.ConfigParser();f.read(root/"fixture.txt")
+    key=lambda section,name:base64.b64decode(f[section][name],validate=True).hex()
+    client_cfg=dict(private=key("Interface","PrivateKey"),peer=key("Peer","PublicKey"),
+                    psk=key("Peer","PresharedKey"),nonce=nonce,dual=True,dns=True)
+    assert client_cfg["psk"]==cfg["psk"]
+    with tempfile.TemporaryDirectory(prefix="apl-wg-dns-control-",dir=root) as tmp:
+        d=Path(tmp);path=d/"server.json";conf=d/"client.json";log=d/"server.log"
+        path.write_text(json.dumps(dict(cfg,nonce=nonce)))
+        conf.write_text(json.dumps(client_cfg))
+        with log.open("w") as stream:
+            p=subprocess.Popen([str(binary),"server",str(path),str(BACKEND)],stdout=stream,stderr=subprocess.STDOUT)
+            try:
+                wait_for(p,log,"PEER_QA_READY_server")
+                result=subprocess.run([str(binary),"positive",str(conf),str(PORT)],capture_output=True,timeout=20)
+                assert result.returncode==0,"WG fixture DNS control failed"
+            finally:
+                Path(str(path)+".stop").touch()
+                try:p.wait(timeout=12)
+                except subprocess.TimeoutExpired:p.terminate();p.wait(timeout=5)
+            assert p.returncode==0
+        w=report(d)
+        assert [w[k] for k in KINDS]==[1,0,0,0] and w["sent"]>0 and w["received"]>0
+        assert dns_count(d)>0
+
+def dns_count(work):
+    matches=re.findall(r"^WG_DNS_A_WITNESS ([0-9]{1,4})$",(work/"server.log").read_text(),re.M)
+    assert len(matches)==1
+    return int(matches[0])
+
 def run(root,binary,client,command,preflight_only):
     assert root.is_dir() and root.stat().st_mode & 0o077 == 0
     source=json.loads((root/"peer.json").read_text())
@@ -110,6 +141,12 @@ def run(root,binary,client,command,preflight_only):
         validate_command(item)
         assert item["action"]=="run" and item["reference"]["kind"]=="wireGuard" and item["mode"] in ("positive","wrong-key")
         probe=item["probe"]
+    dns=probe=="dns4"
+    if dns:
+        assert item.get("scope")=="wireGuardFull" and item["mode"]=="positive"
+        expected=(binary.parent/"SHA256SUMS").read_text().split()
+        assert len(expected)==2 and expected[1]==binary.name and hashlib.sha256(binary.read_bytes()).hexdigest()==expected[0]
+        cfg["dns"]=True
     negative=item is not None and item["mode"]=="wrong-key"
     original=(root/"fixture.txt").read_text()
     matching=original
@@ -121,10 +158,13 @@ def run(root,binary,client,command,preflight_only):
         matching=re.sub(pattern,"PublicKey = "+b64(public),original)
         assert matching!=original
     pre=secrets.token_hex(20);probes=[probe] if probe else KINDS
-    with session(root,binary,dict(cfg,nonce=pre),"local") as (work,counts):
-        local_probe(work,client,pre,probes,matching)
-    local=report(work)
-    assert all(local[p]==(1 if p in probes else 0) for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]>0
+    if dns:
+        local_dns_probe(root,binary,cfg,pre)
+    else:
+        with session(root,binary,dict(cfg,nonce=pre),"local") as (work,counts):
+            local_probe(work,client,pre,probes,matching)
+        local=report(work)
+        assert all(local[p]==(1 if p in probes else 0) for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]>0
     if negative:
         with session(root,binary,dict(cfg,nonce=pre),"local") as (work,failed):
             local_probe(work,client,pre,probes,original,False)
@@ -137,12 +177,15 @@ def run(root,binary,client,command,preflight_only):
         deadline=time.monotonic()+100
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
     witness=report(work)
-    result={"schema":1,"requestID":item["requestID"],"mode":item["mode"],"probe":probe,"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"localPositiveControl":True,"localNegativeControl":negative,"witnessCounts":{p:witness[p] for p in KINDS},"relayCounts":{d+str(k):counts[d,k] for d in ("c2s","s2c") for k in range(1,5)},"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if witness[probe]==1 else None,"release_authorized":False}
+    matched_probe="tcp4" if dns else probe
+    if dns:assert dns_count(work)>0
+    result={"schema":1,"requestID":item["requestID"],"mode":item["mode"],"probe":probe,"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"localPositiveControl":True,"localNegativeControl":negative,"witnessCounts":{p:witness[p] for p in KINDS},"relayCounts":{d+str(k):counts[d,k] for d in ("c2s","s2c") for k in range(1,5)},"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if witness[matched_probe]==1 else None,"release_authorized":False}
+    if dns:result["dnsAResponses"]=dns_count(work)
     (work/"peer-observation.json").write_text(json.dumps(result,sort_keys=True)+"\n")
     print("NATIVELAB_WG_PEER_OBSERVATION",json.dumps(result),flush=True)
     if negative:
         return 0 if all(witness[p]==0 for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]==0 and counts["s2c",4]==0 else 2
-    return 0 if all(witness[p]==(1 if p==probe else 0) for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]>0 and counts["c2s",4]>0 and counts["s2c",4]>0 else 2
+    return 0 if all(witness[p]==(1 if p==matched_probe else 0) for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]>0 and counts["c2s",4]>0 and counts["s2c",4]>0 else 2
 
 
 if __name__=="__main__":
