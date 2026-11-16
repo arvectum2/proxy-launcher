@@ -113,6 +113,9 @@ func serve(c config, stack *netstack.Net, b *scopedBind, path string) int {
 				if e == nil && string(buf) == c.Nonce {
 					if n, e := p.Write(response(c.Nonce)); e == nil && n == 52 {
 						count[idx].Add(1)
+						if idx == 0 {
+							fmt.Println("AWG_EXACT_TCP4_REPLY")
+						}
 					}
 				}
 				p.Close()

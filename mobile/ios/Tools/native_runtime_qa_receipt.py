@@ -52,7 +52,7 @@ def validate_command(command):
     kind = command["reference"]["kind"]
     if mode == "peer-loss":
         full_route = (kind == "wireGuard" and scope == "wireGuardFull") or (kind == "amneziaWG1" and scope is None)
-        need(full_route and probe in ("udp4","udp6") and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40),nonce) is not None,"invalid peer loss command")
+        need(full_route and probe in ("udp4","udp6","dns4") and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40),nonce) is not None,"invalid peer loss command")
         return
     need((probe in PROBES or (probe == "dns4" and mode == "positive" and ((kind == "amneziaWG1" and scope is None) or (kind == "wireGuard" and scope == "wireGuardFull")))) and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40), nonce) is not None, "invalid probe challenge")
     if kind == "amneziaWG1":
@@ -118,7 +118,8 @@ def verify_host(command, receipt):
         times=[loss[k] for k in ("firstStart","firstEnd","secondStart","secondEnd")]
         need(all(type(t) in (int,float) and math.isfinite(t) and t>0 for t in times),"invalid loss timestamps")
         a,b,c,d=times
-        need(a<=b<c<=d and 7.9<=c-b<=15 and b-a<=5 and d-c<=5,"invalid loss timeline")
+        probe_limit=10 if command["probe"]=="dns4" else 5
+        need(a<=b<c<=d and 7.9<=c-b<=15 and b-a<=probe_limit and d-c<=probe_limit,"invalid loss timeline")
         need(loss["secondChallengeSHA256"]==sha(post_loss_nonce(command).encode()) and loss.get("secondResponseSHA256") is None,"unexpected post loss response")
     else:
         need("loss" not in receipt,"unexpected loss transcript")

@@ -331,6 +331,9 @@ func run(path string) int {
 								reply := fmt.Sprintf("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: %d\r\n\r\n%s", len(body), body)
 								if n, e := io.WriteString(c, reply); e == nil && n == len(reply) {
 									counts[idx].Add(1)
+									if idx == 0 {
+										fmt.Println("WG_EXACT_TCP4_REPLY")
+									}
 								}
 								return
 							}

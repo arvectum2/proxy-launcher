@@ -260,3 +260,23 @@ def test_awg_established_loss_uses_distinct_full_length_challenge_and_fixed_targ
     with pytest.raises(AssertionError):verify_observation(c,r,dict(p,localPositiveControl=False),o,h,stats)
     with pytest.raises(ValueError):q.validate_command(dict(c,nonce="a"*40))
     with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondChallengeSHA256=q.sha(next_nonce[:40].encode()))))
+
+@pytest.mark.parametrize("kind,scope,prefix",(("wireGuard","wireGuardFull","APL_RECEIPT:"),("amneziaWG1",None,"APL:")))
+def test_dns_established_loss_requires_exact_peer_a_witness_and_both_capture_windows(kind,scope,prefix):
+    from verify_nativeqa_wg_loss import verify_observation
+    c=command(kind,"dns4","peer-loss",scope)
+    r=receipt(c);r["responseSHA256"]=q.sha((prefix+c["nonce"]).encode())
+    r["loss"]=dict(firstStart=100.,firstEnd=103.,secondStart=111.,secondEnd=119.,secondChallengeSHA256=q.sha(q.post_loss_nonce(c).encode()))
+    p=dict(requestID=c["requestID"],probe="dns4",challengeSHA256=q.sha(c["nonce"].encode()),responseSHA256=r["responseSHA256"],secondChallengeSHA256=r["loss"]["secondChallengeSHA256"],localPositiveControl=True,witnessAt=102.8,cutStart=103.8,cutComplete=104.5,witnessCounts=dict(tcp4=1,tcp6=0,udp4=0,udp6=0),dnsAResponses=1,releaseAuthorized=False)
+    o=dict(requestID=c["requestID"],probe="dns4",started=99.,ended=120.,rviRemoved=True,releaseAuthorized=False,complete=True,physicalOut=0,tunnelOut=2,ambiguous=0)
+    h="".join(f"{t} (utun8, out) IP 192.0.2.1.5555 > 192.0.2.53.53: UDP, length 84\n" for t in (100.4,112.1))
+    stats="listening on rvi0, link-type PKTAP (Apple DLT_PKTAP)\n2 packets captured\n0 packets dropped by kernel\n"
+    assert verify_observation(c,r,p,o,h,stats)["postCutTunnelPackets"]==1
+    for bad in (dict(p,dnsAResponses=0),dict(p,dnsAResponses=True),dict(p,dnsAResponses=4097),dict(p,witnessCounts=dict(tcp4=0,tcp6=0,udp4=0,udp6=0))):
+        with pytest.raises(AssertionError):verify_observation(c,r,bad,o,h,stats)
+    with pytest.raises(AssertionError):verify_observation(c,r,{k:v for k,v in p.items() if k!="dnsAResponses"},o,h,stats)
+    with pytest.raises(AssertionError):verify_observation(c,r,p,o,h.replace("112.1","105.1"),stats)
+    with pytest.raises(AssertionError):verify_observation(c,r,p,o,h.replace("utun8","en0"),stats)
+    with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondEnd=122.)))
+    with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondResponseSHA256="f"*64)))
+    with pytest.raises(ValueError):command(kind,"dns4","wrong-key",scope)

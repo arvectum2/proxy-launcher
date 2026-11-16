@@ -5,6 +5,7 @@ import configparser
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import subprocess
@@ -37,22 +38,31 @@ def run(root, folder, binary):
         return raw.hex()
     local=dict(Private=key("Interface","PrivateKey"),Peer=key("Peer","PublicKey"),PSK=key("Peer","PresharedKey"),ClientIP="192.168.1.80")
     assert cfg["PSK"]==local["PSK"]
+    probe=c["probe"];dns=probe=="dns4"
+    matched_probe="tcp4" if dns else probe
+    marker="AWG_EXACT_TCP4_REPLY" if dns else "AWG_EXACT_UDP_REPLY "+str(int(probe=="udp6"))
+    def dns_count(log):
+        rows=re.findall(r"^AWG_DNS_A_WITNESS ([0-9]{1,4})$",log,re.M)
+        assert len(rows)==1 and int(rows[0])>0
+        return int(rows[0])
     # Require fresh positive control with exact keys and new peer markers.
     pre=secrets.token_hex(24);control=folder/"local-positive"
     with server(binary,control,dict(cfg,ClientIP=local["ClientIP"],Nonce=pre)):
         path=control/"client.json"
         path.write_text(json.dumps(dict(local,Nonce=pre)))
         try:
-            result=subprocess.run([str(binary),"positive",str(path)],capture_output=True,timeout=25)
+            result=subprocess.run([str(binary),"dns-positive" if dns else "positive",str(path)],capture_output=True,timeout=25)
             assert result.returncode==0
         finally:
             path.unlink(missing_ok=True)
     log=(control/"server.log").read_text()
     counts=parse_terminal(log,0)
-    assert counts[:4]==(1,1,1,1) and counts[4]>0 and counts[5]>0
-    assert all(log.splitlines().count("AWG_EXACT_UDP_REPLY "+str(i))==1 for i in (0,1))
-    probe=c["probe"];nonce=c["nonce"];physical=folder/"physical"
-    marker="AWG_EXACT_UDP_REPLY "+str(int(probe=="udp6"))
+    assert counts[:4]==((1,0,0,0) if dns else (1,1,1,1)) and counts[4]>0 and counts[5]>0
+    if dns:
+        assert dns_count(log)>0 and log.splitlines().count(marker)==1
+    else:
+        assert all(log.splitlines().count("AWG_EXACT_UDP_REPLY "+str(i))==1 for i in (0,1))
+    nonce=c["nonce"];physical=folder/"physical"
     with server(binary,physical,dict(cfg,Nonce=nonce)):
         print("AWG_LOSS_PEER_READY",flush=True)
         deadline=time.monotonic()+55
@@ -67,12 +77,14 @@ def run(root, folder, binary):
     log=(physical/"server.log").read_text()
     counts=parse_terminal(log,0)
     assert log.splitlines().count(marker)==1
-    assert counts[:4]==tuple(int(k==probe) for k in KINDS) and counts[4]>0 and counts[5]>0
+    assert counts[:4]==tuple(int(k==matched_probe) for k in KINDS) and counts[4]>0 and counts[5]>0
     observation=dict(schema=1,requestID=c["requestID"],probe=probe,
                      challengeSHA256=sha(nonce.encode()),responseSHA256=sha(("APL:"+nonce).encode()),
                      secondChallengeSHA256=sha(post_loss_nonce(c).encode()),localPositiveControl=True,
                      witnessAt=witness_at,cutStart=cut_start,cutComplete=cut_complete,
                      witnessCounts=dict(zip(KINDS,counts[:4])),releaseAuthorized=False)
+    if dns:
+        observation["dnsAResponses"]=dns_count(log)
     with (folder/"loss-peer-observation.json").open("x") as f:
         json.dump(observation,f,sort_keys=True)
     print("AWG_LOSS_PEER_STOPPED",json.dumps(observation),flush=True)

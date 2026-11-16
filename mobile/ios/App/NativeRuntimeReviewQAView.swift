@@ -28,7 +28,7 @@ private struct NativeRuntimeQACommand:Decodable {
         if mode=="peer-loss" {
 #if APL_NATIVE_EXACT_DNS
             let fullRoute = (reference.kind == .wireGuard && scope == .wireGuardFull) || (reference.kind == .amneziaWG1 && scope == nil)
-            return fullRoute && ["udp4","udp6"].contains(probe ?? "") &&
+            return fullRoute && ["udp4","udp6","dns4"].contains(probe ?? "") &&
                 nonce?.utf8.count == (reference.kind == .amneziaWG1 ? 48 : 40) && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
 #else
             return false

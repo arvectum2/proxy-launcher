@@ -13,7 +13,13 @@ def verify_observation(command,receipt,peer,obs,headers,stats):
     assert peer["requestID"]==command["requestID"]==obs["requestID"]
     assert peer["probe"]==command["probe"]==obs["probe"] and peer["localPositiveControl"] is True and peer["releaseAuthorized"] is False
     assert peer["challengeSHA256"]==b["challengeSHA256"] and peer["responseSHA256"]==receipt["responseSHA256"] and peer["secondChallengeSHA256"]==loss["secondChallengeSHA256"]
-    assert peer["witnessCounts"]=={k:int(k==command["probe"]) for k in ("tcp4","tcp6","udp4","udp6")}
+    dns=command["probe"]=="dns4"
+    matched_probe="tcp4" if dns else command["probe"]
+    assert peer["witnessCounts"]=={k:int(k==matched_probe) for k in ("tcp4","tcp6","udp4","udp6")}
+    if dns:
+        assert type(peer.get("dnsAResponses")) is int and 0<peer["dnsAResponses"]<=4096
+    else:
+        assert "dnsAResponses" not in peer
     w,cs,ce=(peer[k] for k in ("witnessAt","cutStart","cutComplete"))
     assert all(type(t) in (int,float) and math.isfinite(t) for t in (w,cs,ce))
     assert a-.5<=w<=z+.5 and w<=cs<=ce and z<=ce and ce+.5<c

@@ -98,7 +98,7 @@ def local_probe(root, binary, nonce, probes, fixture=None, expected=True):
     assert p.returncode==0
 
 
-def local_dns_probe(root, binary, cfg, nonce):
+def local_dns_probe(root, binary, cfg, nonce, require_exact_tcp4_marker=False):
     """Independent two-process control using exactly the fixture keys."""
     f=configparser.ConfigParser();f.read(root/"fixture.txt")
     key=lambda section,name:base64.b64decode(f[section][name],validate=True).hex()
@@ -123,6 +123,8 @@ def local_dns_probe(root, binary, cfg, nonce):
         w=report(d)
         assert [w[k] for k in KINDS]==[1,0,0,0] and w["sent"]>0 and w["received"]>0
         assert dns_count(d)>0
+        if require_exact_tcp4_marker:
+            assert (d/"server.log").read_text().splitlines().count("WG_EXACT_TCP4_REPLY")==1
 
 def dns_count(work):
     matches=re.findall(r"^WG_DNS_A_WITNESS ([0-9]{1,4})$",(work/"server.log").read_text(),re.M)
