@@ -21,12 +21,20 @@ struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
         guard ticket.validPurpose,ticket.runtimeOwner==owner,ticket.binding.valid,validScope(ticket) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         return [NativeProviderStartRequest.modeKey:mode as NSString,NativeProviderStartRequest.ownerKey:owner.uuidString as NSString,NativeProviderStartRequest.expectedKey:try TransportNativeCodec.encode(ticket.binding) as NSData,NativeProviderStartRequest.ticketKey:try TransportNativeCodec.encode(ticket) as NSData]
     }
+    /// NetworkExtension may attach its own metadata to the transport dictionary.
+    /// Only our exact case-sensitive reserved namespace is parsed; an unknown
+    /// reserved key is rejected, and no external field grants authority.
+    private static func exactNativeOptions(_ options:[String:NSObject])->Bool {
+        typealias K=NativeProviderStartRequest
+        let names=Set(options.keys.filter{K.hasReservedKey([$0])})
+        return options.count<=32 && names==[K.modeKey,K.ownerKey,K.expectedKey,K.ticketKey]
+    }
     static func inspect(configuration:[String:Any]?,options:[String:NSObject]?,enabled:Bool)->Self? {
         typealias K=NativeProviderStartRequest
         guard enabled,let configuration,let options,
               Set(configuration.keys)==[K.modeKey,K.ownerKey],configuration[K.modeKey] as? String==mode,
               let text=configuration[K.ownerKey] as? String,let owner=UUID(uuidString:text),text==owner.uuidString,
-              Set(options.keys)==[K.modeKey,K.ownerKey,K.expectedKey,K.ticketKey],
+              exactNativeOptions(options),
               options[K.modeKey] as? String==mode,options[K.ownerKey] as? String==text,
               let raw=options[K.expectedKey] as? Data,let bytes=options[K.ticketKey] as? Data,
               let binding=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),binding.valid,
@@ -48,7 +56,7 @@ struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
         let expected:Set<String>=[K.modeKey,K.ownerKey,K.expectedKey,K.ticketKey]
         let keys=Set(options.keys)
         guard expected.isSubset(of:keys) else{return 16}
-        guard keys==expected else{return 100+min(49,keys.subtracting(expected).count)}
+        guard exactNativeOptions(options) else{return 100+min(49,keys.subtracting(expected).count)}
         guard options[K.modeKey] as? String==mode,options[K.ownerKey] as? String==text else{return 17}
         guard let raw=options[K.expectedKey] as? Data,let bytes=options[K.ticketKey] as? Data else{return 18}
         guard let binding=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),binding.valid else{return 19}

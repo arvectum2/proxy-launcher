@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage38 precise disconnect rejection diagnostic was compiled only for host; fix isolated build flags with separate APL_NATIVE_RUNTIME_QA_DIAGNOSTICS in both targets, no admission relaxation. Last run B7E7C89B-BD19-4503-8CE9-57FB8E098366 setup failure, readback OFF confirmed. Next verify actual provider binary diagnostic then fresh scoped attempt."
+current: "Stage38 actual provider rejection 103: iOS supplies three extra transport keys in addition to all four required reserved keys. Fix runtime-only namespace projection: require all and only exact aplNative keys, bound total options, ignore unrelated transport metadata; strict persisted configuration and ticket checks unchanged. Regressions added; physical re-test pending."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."

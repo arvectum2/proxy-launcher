@@ -43,6 +43,22 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let config=NativeRuntimeReviewRequest.configuration(owner:owner)
         let options=try NativeRuntimeReviewRequest.options(ticket:ticket,owner:owner)
         XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:options,enabled:false))
+        // Physical iOS supplies additional OS metadata. It must never grant
+        // authorization, hide a missing reserved field or introduce a new one.
+        var transport=options
+        transport["systemMetadataA"]=NSNumber(value:true)
+        transport["systemMetadataB"]="opaque" as NSString
+        transport["systemMetadataC"]=Data([1,2,3]) as NSData
+        XCTAssertNotNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:transport,enabled:true))
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:transport,enabled:false))
+        var unknown=transport;unknown["APLNativeUnexpected"]=NSNumber(value:1)
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:unknown,enabled:true))
+        var missing=transport;missing.removeValue(forKey:NativeProviderStartRequest.ticketKey)
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:missing,enabled:true))
+        var forged=transport;forged[NativeProviderStartRequest.ownerKey]=UUID().uuidString as NSString
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:forged,enabled:true))
+        var oversized=transport;for i in 0..<32 {oversized["extra"+String(i)]=NSNumber(value:i)}
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:oversized,enabled:true))
         let request=try XCTUnwrap(NativeRuntimeReviewRequest.inspect(configuration:config,options:options,enabled:true))
         XCTAssertThrowsError(try request.consume(via:h,admission:.siteExclusions))
         let plan=try request.consume(via:h,admission:.tunnelOnly)
