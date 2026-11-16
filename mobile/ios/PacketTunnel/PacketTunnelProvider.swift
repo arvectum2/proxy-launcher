@@ -20,6 +20,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private let engineQueue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tun2proxy")
+    private let engineExitGate = TunnelEngineExitGate()
     private let policy = FailoverPolicy()
     private let probe = ProxyProbe()
     private let telemetry = TelemetryStore()
@@ -148,6 +149,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         completionHandler: @escaping () -> Void
     ) {
         stopping = true
+        // Planned stop invalidates the runner before its native return.
+        engineExitGate.invalidate()
         startTask?.cancel()
         startTask = nil
         lastPrimaryRecoveryProbeAt = nil
@@ -300,23 +303,35 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 qaDirectTTLSeconds: directTTL,
                 qaTracePublicIPv4Only: qaFlowTrace)
         }
+        let runGeneration = engineExitGate.begin()
         engineQueue.async { [weak self] in
-            guard let self, !self.stopping else { return }
+            guard let self, self.engineExitGate.isRunning(runGeneration) else { return }
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)
             }
-            guard !self.stopping else { return }
-            if result != 0 {
+            guard self.engineExitGate.markUnexpectedExit(runGeneration) else { return }
+            // Even native exit code zero is unexpected while VPN is active.
+            // A queued cancellation must not affect an intentional replacement.
+            DispatchQueue.main.async { [weak self] in
+                guard let self,
+                      self.engineExitGate.shouldCancelTunnel(runGeneration) else { return }
                 self.telemetry.append(TunnelEvent(
                     type: "engine stopped",
                     profileName: prepared.storedProfile.name,
                     detail: "tun2proxy code \(result)"
+                ))
+                self.cancelTunnelWithError(NSError(
+                    domain: "APL.PacketTunnelEngine", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Packet engine stopped unexpectedly"]
                 ))
             }
         }
         try await Task.sleep(nanoseconds: 350_000_000)
         try Task.checkCancellation()
         guard !stopping else { throw CancellationError() }
+        guard engineExitGate.isRunning(runGeneration) else {
+            throw tunnelError("Пакетный движок завершился до подключения")
+        }
     }
 
     private func resetConnectionPressurePolicy() {
@@ -440,6 +455,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             // A blocking tun2proxy runner owns engineQueue until it exits.
             // Waiting for the queue barrier prevents starting a replacement
             // while the old runner is still draining its virtual DNS sockets.
+            engineExitGate.invalidate()
             try await TunnelEngineHandoff.stopAndDrain(engineQueue: engineQueue) {
                 _ = tun2proxy_stop()
             }
