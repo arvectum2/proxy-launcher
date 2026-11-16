@@ -282,3 +282,36 @@ Command/host/peer challenge and response hashes correlated. Terminal
 drain and OS OFF verified, no peer listener or extension remaining.
 Both full-route protocols now have positive system DNS evidence;
 this does not establish absence of DNS/IP escape.
+
+### Stage 43c: independent escape acceptance gate
+
+Pending physical observation, not a passed test. Test only disposable
+NativeLab credentials and synthetic destinations under operator control.
+Do not collect normal application traffic or user DNS names. Do not
+infer lack of escape from a failed request or tunnel-side counters.
+
+| Condition | Required independent evidence |
+|---|---|
+| VPN OFF before | Exact synthetic DNS, IPv4 and IPv6 canaries observed outside the tunnel; unavailable family is inconclusive |
+| VPN ON, healthy | Exact tunnel witness and no matching external cleartext/escape witness during bounded observation |
+| VPN ON, peer lost | Independently timed test-peer shutdown; no matching escape canary while failed closed |
+| VPN OFF after | Same external observation path verified with fresh positive controls |
+| Split route (if enabled) | Included and excluded synthetic destinations each observed only on their intended path |
+| Handoff | Repeat appropriate controls across each supported Wi-Fi/cellular transition |
+
+The external observer must have visibility of the actual underlay,
+including non-LAN destinations and both address families. A peer's
+LAN interface alone cannot see all phone traffic. A silent, dropped,
+unreachable, or ambiguous capture is inconclusive. Correlate exact
+candidate identity, command IDs, fresh challenges, observation windows,
+and terminal VPN state. Record only bounded synthetic evidence, with
+private permissions and no credentials in Git. No release claim until
+all required gates and signed migration/production QA are satisfied.
+
+Operator approval is required before changing Wi-Fi/cellular settings,
+gateway/SSID, or capture scope. Preferred next step is wired USB RVI
+with a strictly filtered, synthetic-only capture and separately
+supervised device control; however, prior RVI interrupted Mirroring.
+If that limitation persists, use an approved independent test gateway
+or observation network instead. Do not weaken device authorization or
+silently switch the user's network.
