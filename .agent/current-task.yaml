@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage39 renewed permission: 10:44 Mirroring accessible again, original prepare failed and Settings confirms no lab manager and system VPN OFF. Fresh prepare retry 39E3E18C-575D-46B0-86B6-7AC2E6D2CBE2 staged with original stage39 owner; authorize OS dialog, reconcile exact manager before run. GitHub checkpoint 1e4b85b0 confirmed."
+current: "Stage39 scoped VLESS wrong-key physical PASS. Exact manager owner readback PASS, paired iPhone run 9ECC42B7-4169-4328-BDFB-11840F4F6DB8: host expected no response and terminal drain/OFF, independent rotated-key witness local positive/negative controls PASS, 2 LAN attempts, 3994 ingress/4810 egress bytes, zero witnesses; exact challenge hash matched. Retain owned lab manager OFF for compatible expanded VLESS tests. Next expanded VLESS, WG/AWG, independent packet capture."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "7d0eab38 physical VLESS TCP4 positive; 5bffc3c1 evidence/cleanup; a734acf4 negative peer controls with follow-up preflight-only mode verified locally. 94 focused Python tests PASS."
+last_verified_commit: "7d0eab38 physical NativeLab build; 1e4b85b0 negative witness preflight; b6eb1617 permission checkpoint; actual scoped VLESS positive and wrong-key negative correlated, 94 Python + 18 Swift prior targeted tests."
 test_results:
+  - "Stage39 physical VLESS wrong-key PASS: exact readManager 48C47B6B-B14B-4C67-950F-6CD301149433 verified; fresh command 9ECC42B7-4169-4328-BDFB-11840F4F6DB8 correlated to independent rotated-key peer. Local matching-key and wrong-key controls PASS; host terminal drain/osOff and negative response verified; 2 relay attempts, 3994 ingress/4810 egress bytes, witnessCount 0, peer exit 0. Retained exact lab manager OFF; no extension remaining. No leak-capture or release claim."
   - "Stage39: negative Reality key case prepared without modifying device credential. Matching rotated-key Mac client succeeds; original key Mac client fails with no additional witness. Preflight-only exits 0, 94 Python tests pass. No physical negative run, pending renewed iOS permission authentication; exact prepare failure receipt collected, no test listener or extension remained."
   - "Stage38: exact manager readback after system permission interruption PASS. First four attempts refused setup; actual NE disconnect diagnostic APLNativeRuntimeReview:103 proves three extra keys, all four required present. Reserved namespace fix 7d0eab38 preserves mandatory owner, binding, ticket and exact persisted config, rejects unknown reserved keys and bounds total options. Final scoped VLESS TCP4 positive request 8D1F981F-8B0E-4C98-8852-C58F5899F979 PASS; host and peer response hash correlated, 1 witness, 1 relay, ingress 2151, egress 2618. Terminal drain and OS OFF verified; removeManager receipt 22192398-CD26-4F86-8FEA-601E0931919A verified; no tunnel or peer listeners remain. 94 pytest and 18 NativeCredentialHandoffTests PASS. Packet capture privilege unavailable; no no-leak or release claim."
   - "Stage37: user turned VPN OFF, system Settings disconnected confirmed; bounded lab staged import fixed unreliable clipboard. NativeLab exact build 91ba63e7 unsigned manifest 0d2e17ec74f028d8c2c64b5cb6fefc60619141a1f97403e236ecd315de331066 and signed manifest e1acd0ae5d6b87b05053ac947caf674f8d1190523cc3a95f1f1506e6fcb04a83; installed only lab. Device fixture import/preview/save/select/ref export PASS, Mac peer standalone compile/preflight PASS (restricted target). After permission request Allow, Mac login authentication dialog blocks Mirroring, prepareManager receipt absent. No extension process, no test listeners, no data-plane claim."
@@ -422,4 +423,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "After owner authenticates Mirroring, reconcile exact stage39 manager using newly generated private readManager command in ~/ArvectumSafe/apl-nativeqa-stage37/stage39/readManager; inspect system VPN OFF and verify owner/readback before starting. Never replay consumed prepare. Run bounded wrong-key witness with --command stage39/run/apl-native-runtime-qa-command.json; require host negative receipt, peer zero witness with actual ingress/egress and both local controls, terminal drain/OFF. Keep lab manager between compatible probe cases where safe to avoid repeated permission prompts; remove only exact owned manager when no longer required. WG/AWG and capture remain pending."
+resume_instruction: "Resume Stage40 expanded VLESS compatible with retained exact owner and selected fixture in ~/ArvectumSafe/apl-nativeqa-stage37/stage39; verify system VPN OFF and fresh readManager, never replay. Prepare independent bounded IPv6/UDP peer and positive/negative control preflight before runtime. After VLESS coverage remove exact owned lab manager only then import WG/AWG fixtures. No release or broad no-leak claim; packet capture privilege remains unavailable."

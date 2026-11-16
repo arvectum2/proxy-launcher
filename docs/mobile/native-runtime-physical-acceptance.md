@@ -157,3 +157,16 @@ Exact owned manager removal verified, no extension process or test listeners.
 No packet capture privilege (BPF), no negative transport or expanded
 protocol acceptance yet, no broad no-leak or release claim. Production
 APL untouched. Private evidence under ~/ArvectumSafe/apl-nativeqa-stage37.
+
+## Stage 39: scoped physical VLESS Reality wrong-key rejection
+
+On the paired iPhone, exact owner readback succeeded after the permission
+prompt. Test 9ECC42B7-4169-4328-BDFB-11840F4F6DB8 used the unchanged
+device fixture against an independently rotated server Reality key.
+The server preflight proved the matching key succeeds and the original
+key fails. The device host receipt and independent peer challenge digest
+matched: no expected response, 2 LAN attempts, 3994 ingress bytes,
+4810 egress bytes, zero successful witnesses, peer exit 0. Host terminal
+drain and OS OFF verified; no tunnel extension remains. Retain this
+owned lab manager OFF for compatible expanded VLESS cases. No broad
+no-leak or release assertion; WG/AWG and packet capture remain pending.
