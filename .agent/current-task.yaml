@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: renewed consent 0F9D1FE8 completed at OS level after initial prepare receipt failed. Settings confirms exact NativeLab VPN manager present and system VPN OFF. Fresh readManager F9BB7331-D2F9-4C24-A789-D7B09A5AC722 receipt verified for selected amneziaWG1 fixture and owner. Reference binary digest verified; no peer listeners. Legacy AWGPeerLab/run_physical.py uses awg-lab-input/result and legacy launch flag, not current NativeRuntimeReviewQAView command/receipt protocol. Prior required helper invocation rejected, not executed. No physical AWG traffic claim."
+current: "Stage42: exact AWG manager consent/readback verified. Legacy runner incompatible; develop direct, single-device independent reference witness (no additional relay). Keep production source and manager unchanged. Validate reference provenance, local controls and exact source admission before physical test."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -431,4 +431,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Retain exact NativeLab AWG manager OFF; no renewed consent or profile cleanup needed. Before any physical run, verify exact manager OFF with a fresh readback. Require compatible reviewed independent QA tool for installed native runtime command/receipt protocol; do not invoke incompatible legacy harness or bypass prior tool rejection. Verify independently correlated physical AWG positive and negative results and no-leak gate before acceptance."
+resume_instruction: "Review and test the isolated direct reference server; current NativeLab AWG manager remains OFF. Refresh owner readback before any physical run, then run only bounded synthetic exchanges and correlate current host protocol receipts."
