@@ -2,7 +2,9 @@
 # Build a loopback-only reference peer for the isolated, finite LAN relay.
 set -euo pipefail
 umask 077
-[[ $# == 3 && "$(uname -m)" == arm64 ]]
+[[ ( $# == 3 || $# == 4 ) && "$(uname -m)" == arm64 ]]
+mode="${4:-loopback}"
+[[ "$mode" == loopback || "$mode" == direct ]]
 source_dir="$(cd "$1" && pwd)"
 archive="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 output="$(cd "$3" && pwd)"
@@ -16,6 +18,14 @@ trap 'rm -rf -- "$work"' EXIT
 mkdir "$work/peer"
 ln -s "$source_dir" "$work/awg"
 cp "$root"/main.go "$root"/go.mod "$root"/go.sum "$work/peer/"
+if [[ "$mode" == direct ]]; then
+ python3 "$root/prepare_direct_reference.py" "$root/../AWGNativeLab/scoped_bind.go" "$work/peer"
+ python3 - "$work/peer/main.go" <<'PY'
+import sys
+from pathlib import Path
+p=Path(sys.argv[1]);s=p.read_text();assert s.count("45 * time.Second")==1;p.write_text(s.replace("45 * time.Second","120 * time.Second"))
+PY
+else
 python3 - "$root/../AWGNativeLab/scoped_bind.go" "$work/peer" <<'PY'
 import sys
 from pathlib import Path
@@ -28,10 +38,15 @@ for old,new in [('192.168.1.80','127.0.0.1'),('192.168.1.0/24','127.0.0.0/24'),(
 p=d/'main.go';s=p.read_text();assert s.count('45 * time.Second')==1
 p.write_text(s.replace('45 * time.Second','120 * time.Second'))
 PY
+fi
 tar -xzf "$archive" -C "$work"
 export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off GOPROXY=off
-(cd "$work/peer" && go mod verify && go build -mod=readonly -trimpath -o "$work/awg-reference" .)
+(cd "$work/peer" && go mod verify && go test -mod=readonly ./... && go build -mod=readonly -trimpath -o "$work/awg-reference" .)
 digest="$(shasum -a256 "$work/awg-reference" | awk '{print $1}')"
-python3 "$root/../run_awg_reference_loopback.py" "$work/awg-reference" "$digest"
+if [[ "$mode" == direct ]]; then
+ python3 "$root/run_preflight.py" --peer "$work/awg-reference"
+else
+ python3 "$root/../run_awg_reference_loopback.py" "$work/awg-reference" "$digest"
+fi
 cp "$work/awg-reference" "$output/"
 (cd "$output" && shasum -a256 awg-reference > SHA256SUMS)
