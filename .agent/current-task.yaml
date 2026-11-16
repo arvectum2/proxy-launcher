@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -249,7 +249,7 @@ completed:
 
 
 
-current: "Stage43c fixed-target WG and AWG physical healthy and established-loss matrices complete. WG prepare 6EAD4AFE returned failure due foreground continuity during permission but owner approval saved exact manager, Settings OFF and readback 26DA5E6A verified. WG DNS loss bracket AE9D0F1E/315AA993/0EF422E0 PASS, no direct fixed-target packets, 80 tunnel packets, terminal OFF. Next supervised actual network handoff and production acceptance."
+current: "Stage43c WG/AWG fixed-target healthy/established loss matrix complete; 36 ordered records total. Last device state isolated WG OFF, no PacketTunnel, RVI or lab peer listener. PR377-380 source/patch comparison and focused regressions completed (22 Swift and 331 Python +14 subtests), PR381/382 ancestors, mirror workflow identical to main. Active Wi-Fi/LTE handoff requires authorized isolated WAN-reachable UDP peer and direct phone operator to restore Wi-Fi if Mirroring drops. No such endpoint established; no network change. Native production scope, final notice/source and privacy approval, CloudKit and final signed integration still pending."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -262,8 +262,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "e41748eade4d6ac79f28d67c51c987129a34a687; signed isolated source 2576a82d; WG DNS loss three correlated physical receipts PASS; prior 331 Python +14 subtests PASS and 0cf4e322 CI 7/7, mirror matched. New e41748ea device/release CI pending at read."
+last_verified_commit: "86c4207c1fa89af07780070ec72a24383646dc80; signed NativeLab source 2576a82d physical WG DNS loss bracket PASS, 36 WG/AWG fixed-target records total; 331 Python +14 subtests and focused 22 Swift PASS; PR377-380 reviewed, mirror workflow equal main. Exact prior 0cf4e322 CI 7/7 PASS, mirror matched."
 test_results:
+  - "16.11 release integration review: compared PR377-380 actual relevant paths with HEAD; safety helper/test source identical, evolved provider, backup, physical tests and project file changes reviewed; PR381/382 ancestors, mirror workflow identical to main. 22 focused Swift +331 Python +14 subtests PASS. Actual active Wi-Fi/LTE not executed: controlled peer LAN-only, direct operator and WAN endpoint required. No new release-authorized features."
   - "16.11 19:48 WG DNS loss: Settings OFF and exact readManager 26DA5E6A after approved system prompt (prepare failure excluded). AE9D0F1E/315AA993/0EF422E0 chronological bracket physical 1/0/1, tunnel 0/80/0, 20 first/35 intermediate/25 post-cut. Independent exact response and peer shutdown, distinct second challenge no response, zero direct fixed-target packets, capture complete and removed, host terminal OFF. No broad leak-proof claim."
   - "16.11 WG transition: exact AWG read/remove C005AA9F/C7B7C7F8 PASS; removed only lab fixture and one retired synthetic revision, empty library then full-route WG DNS import/select/export profile 40BCE850 revision 80098756. Prepare 6EAD4AFE pending physical iOS permission. Exact PR383 0cf4e322 CI 7/7 PASS and GitVerse matched. No new physical WG DNS loss receipt."
   - "16.11 19:29: AWG healthy UDP4 E5239B92/5A5CC782/13B667D2, UDP6 10B357BB/8387192D/C0AD760F, DNS CD8727AB/CE7A0A3A/8E693588; physical 1/0/1, tunnel 0/1/0, 0/1/0, 0/12/0. AWG established loss UDP4 FBFD5A2F/A16930CA/254ABC1F, UDP6 A1E5DF0F/0BE0B3C3/36F5271A, DNS 59604239/A2F18A30/BC531069; physical 1/0/1, tunnel 0/2/0 each UDP, 0/57/0 DNS (6 first/30 intermediate/21 post-cut-window). All 18 exact and chronological records reverified, terminal OFF. Abandoned UI trials and 30-packet truncated DNS trial excluded. Scoped capture cap 256 and DNS intermediate-window verifier regression tests 331 +14 PASS. Fixed target only, not general leak proof."
@@ -453,4 +454,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Do not repeat completed WG/AWG healthy and loss physical matrices. Evidence WG DNS loss ~/ArvectumSafe/apl-nativeqa-stage37/stage41/wgdns-loss43c; selected lab WG manager terminal OFF and exact owner/reference in that folder. Next examine handoff acceptance gate and implement/verify a bounded actual interface transition probe with independent reachable peer, preserve native safety and foreground one-shot guard; coordinate owner temporary network changes, restore original network. Then production packaging, notices, route/security, integration gates. No production mutation, CloudKit/owner backup, main merge or release without appropriate explicit approval."
+resume_instruction: "Stop repeating completed healthy/loss matrices. For actual handoff, obtain explicitly authorized isolated WAN-capable UDP test peer and confirm owner physically available for Wi-Fi restoration; do not blindly toggle radios, expose router port, deploy paid server or use third-party VPN. Implement bounded same-session underlay transition evidence using that controlled endpoint, verify on device and restore original network. Lab WG is OFF, fixture/owner in ~/ArvectumSafe/apl-nativeqa-stage37/stage41/wgdns-loss43c. PR377-382 changes accounted for, no duplicate cherry-pick; current mirror workflow equals main. Verify latest CI and GitVerse, then complete exact production packaging/source/notices/privacy, release scope, CloudKit and owner backup approvals and signed final QA. Main merge/release require explicit authorization."

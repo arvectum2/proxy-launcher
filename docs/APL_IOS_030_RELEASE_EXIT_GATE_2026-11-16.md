@@ -24,22 +24,41 @@ signing/upload, or establish a release date.
   selected UUID preserved; Keychain 3/3 accessible; existing proxy HTTPS
   receipt 3/3 and real PacketTunnel HTTPS egress 2/2. Do not repeat initial
   migration from scratch; check preserved data on final approved candidate.
-* Native isolated lab: 16/16 transport/auth cases, both exact system DNS
-  cases, three healthy WG fixed-target before/ON/after cases and two
-  established WG UDP peer-loss cycles succeeded. See physical acceptance
-  document for scope and receipts. AWG escape-control preparation at
-  68417a37: 326 Python tests plus 14 subtests and Swift parser passed;
-  no corresponding AWG physical observations yet.
-* PRs #381/#382 are ancestors of current branch; do not merge them merely
-  to duplicate their content. PRs #377–380 not proven by ancestry:
-  compare actual patches and regression coverage before final consolidation.
-  Main has three newer commits for SSH mirror CI; preserve them.
+* Native isolated lab on signed source 2576a82d: prior sixteen
+  transport/authentication cases and exact DNS witnesses retained. WG and AWG
+  fixed-target healthy and established-loss UDP4/UDP6/DNS matrices now complete:
+  36 ordered OFF/active/OFF records in total (18 per protocol). No direct
+  fixed-target packets in active runs; no broad no-leak or kill-switch claim.
+  See physical acceptance document for exact IDs and independent correlations.
+* PRs #381/#382 are ancestors. PRs #377–380 are not ancestors, but their
+  relevant source changes were compared by Git object/path against current
+  86c4207c. Helper source and corresponding tests are identical; evolved
+  provider source retains generation-bound timers and fail-closed engine
+  termination (including exit code zero). Backup view evolution adds only
+  simulator QA; codec retains legacy format and introduces distinct
+  authenticated native envelope with stricter size validation. Physical UDP
+  test retains prior case and extends interface/probe coverage. Project
+  file adds references without removals. Focused 22 Swift tests and 331
+  Python tests +14 subtests passed. Current mirror workflow is byte-identical
+  to origin/main. No duplicate cherry-pick, merge, or publication performed.
+* Active handoff remains a real prerequisite: current controlled native
+  peer is a LAN address, not reachable over arbitrary cellular WAN. The
+  prior interface-bound VPN-OFF TLS evidence is not active native handoff.
+  Use an explicitly authorized isolated WAN-reachable UDP peer, validate
+  reachability through both underlays and exact synthetic challenge; owner
+  must be present to restore Wi-Fi if Mirroring disconnects. Require same
+  owned session ID/generation, timed Wi-Fi/cellular/Wi-Fi observations,
+  independent external first/after witnesses, no direct escape in a
+  complete bounded filtered capture, explicit terminal OFF/rollback.
+  Do not expose a router port, deploy a paid server, change the owner VPN
+  or use a third-party VPN endpoint without appropriate authorization.
 
 ## Fixed exit sequence
 
 1. Finish finite native safety acceptance for **declared** release
-   capabilities: AWG and DNS fault/escape observations, reachable independent
-   endpoint for Wi-Fi/LTE and route policy, without repeating verified cases.
+   capabilities: fixed-target WG/AWG healthy and fault/escape matrix done;
+   reachable independent endpoint for actual Wi-Fi/LTE and route policy
+   remain, without repeating verified cases.
 2. Resolve selected dependency source/notice/publication and privacy gates.
    CloudKit remains disabled absent separately approved private entitlement
    and multi-device acceptance. No unverified Smart4 DIRECT or native FIN
