@@ -491,3 +491,15 @@ the interrupted IPv6 loss attempt. 331 Python tests +14 subtests PASS.
 No production configuration changed. Lab OFF, no remaining RVI,
 PacketTunnel process or controlled UDP listeners. WG DNS loss,
 handoff and remaining release gates open.
+
+### Stage 43c: WG established DNS loss transition
+
+Exact AWG manager OFF read C005AA9F and removal C7B7C7F8
+verified. Only isolated AWG fixture and its single retired credential
+revision removed, empty library confirmed. Imported synthetic full-route
+WG fixture with fixed DNS resolver, selected and exported 40BCE850 /
+80098756. New prepare request 6EAD4AFE pending the iOS add-VPN permission
+prompt on device; no tunnel started. Do not restart pending app.
+Previous PR383 exact 0cf4e322 CI 7/7 completed SUCCESS and GitVerse
+head matched. New DNS loss private run helpers prepared with pinned
+WG reference; physical DNS loss remains open.
