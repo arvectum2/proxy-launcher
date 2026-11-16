@@ -32,7 +32,16 @@ import Network
     private func error(_ code:Int)->NSError{NSError(domain:"APLNativeRuntimeReview",code:code)}
     private func finish(_ failure:Error?){let reply=completion;completion=nil;reply?(failure)}
     func start(provider:NEPacketTunnelProvider,options:[String:NSObject]?,completionHandler:@escaping(Error?)->Void)async{
-        guard !used,!retired,let request=NativeRuntimeReviewRequest.inspect(configuration:(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration,options:options,enabled:true) else{completionHandler(error(1));return}
+        guard !used,!retired else{completionHandler(error(10));return}
+        let configuration=(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
+        guard let request=NativeRuntimeReviewRequest.inspect(configuration:configuration,options:options,enabled:true) else{
+#if APL_NATIVE_RUNTIME_QA_HARNESS
+            completionHandler(error(NativeRuntimeReviewRequest.rejectionCode(configuration:configuration,options:options)))
+#else
+            completionHandler(error(1))
+#endif
+            return
+        }
         used=true;starting=true;completion=completionHandler
         do {
             try control.bind(request.binding.session,provider:request.binding.reference.kind.providerName)

@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage38 physical second scoped VLESS attempt failed at setup (Failure code 1, drain false), no peer connections or bytes, no extension. Add read-only last disconnect diagnostic of exact OFF manager, no new runtime until reason known."
+current: "Stage38 read-only exact manager disconnect diagnostic confirmed APLNativeRuntimeReview:1 (initial admission rejected, no Xray start). Add numeric structured rejection diagnostic without relaxing original inspector, then repeat one isolated start to identify condition."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."

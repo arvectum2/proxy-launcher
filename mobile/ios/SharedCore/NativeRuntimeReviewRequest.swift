@@ -35,6 +35,29 @@ struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
               validScope(ticket) else{return nil}
         return .init(owner:owner,binding:binding,ticket:ticket)
     }
+#if APL_NATIVE_RUNTIME_QA_HARNESS
+    // Numeric diagnostic only, no option contents, keys or bearer material.
+    // This never authorizes a request; the original inspector stays strict.
+    static func rejectionCode(configuration:[String:Any]?,options:[String:NSObject]?)->Int {
+        typealias K=NativeProviderStartRequest
+        guard let configuration else{return 11}
+        guard Set(configuration.keys)==[K.modeKey,K.ownerKey] else{return 12}
+        guard configuration[K.modeKey] as? String==mode else{return 13}
+        guard let text=configuration[K.ownerKey] as? String,let owner=UUID(uuidString:text),text==owner.uuidString else{return 14}
+        guard let options else{return 15}
+        let expected:Set<String>=[K.modeKey,K.ownerKey,K.expectedKey,K.ticketKey]
+        let keys=Set(options.keys)
+        guard expected.isSubset(of:keys) else{return 16}
+        guard keys==expected else{return 100+min(49,keys.subtracting(expected).count)}
+        guard options[K.modeKey] as? String==mode,options[K.ownerKey] as? String==text else{return 17}
+        guard let raw=options[K.expectedKey] as? Data,let bytes=options[K.ticketKey] as? Data else{return 18}
+        guard let binding=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),binding.valid else{return 19}
+        guard let ticket=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,bytes) else{return 20}
+        guard ticket.binding==binding,ticket.validPurpose,ticket.runtimeOwner==owner else{return 21}
+        guard validScope(ticket) else{return 22}
+        return 23
+    }
+#endif
     static func validScope(_ ticket:NativeCredentialHandoff.Ticket)->Bool {
         guard ticket.validPurpose,ticket.runtimeOwner != nil else{return false}
         let v4=ticket.runtimeProbeIPv4.flatMap(canonicalIPv4)
