@@ -298,5 +298,144 @@ final class PhysicalDisposableIPv6UpstreamTests: XCTestCase {
 #endif
     }
 
+
+    /// A positive direct UDP echo followed by NO echo through the temporary
+    /// HTTP CONNECT-only upstream is a bounded leak sentinel, NOT a claim of
+    /// a system-wide DNS/UDP/QUIC kill switch.
+    private func udpEcho(_ address: IPv6Address, port: Network.NWEndpoint.Port) async -> Bool {
+        let connection = NWConnection(
+            host: .ipv6(address), port: port, using: .udp)
+        let token = Data(
+            ("APL030-" + UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()).utf8)
+        let once = Once()
+        return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            let finish: (Bool) -> Void = { success in
+                once.run {
+                    connection.cancel()
+                    cont.resume(returning: success)
+                }
+            }
+            connection.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    connection.send(content: token, completion: .contentProcessed { error in
+                        guard error == nil else { finish(false); return }
+                        connection.receiveMessage { response, _, _, error in
+                            finish(error == nil && response == token)
+                        }
+                    })
+                case .failed, .cancelled:
+                    finish(false)
+                default:
+                    break
+                }
+            }
+            connection.start(queue: DispatchQueue(label: "ru.arvectum.apl.udp-echo-qa"))
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(
+                deadline: .now() + 2.5) { finish(false) }
+        }
+    }
+
+    /// Explicit opt-in physical QA. Requires a separate short-lived public
+    /// IPv6 UDP echo server and the known disposable HTTP CONNECT proxy.
+    /// Never tests unknown owner profiles, Keychain or a production VPN path.
+    func testBoundedUDPDirectWitnessBlockedInPacketTunnelAndRestored() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real iPhone and explicit disposable UDP witness required")
+#else
+        guard #available(iOS 17.0, *) else { throw XCTSkip("iOS 17+ QA") }
+        let env = ProcessInfo.processInfo.environment
+        guard env["APL_QA_UDP_ENABLE"] == "YES",
+              let host = env["APL_QA_UDP_WITNESS_IPV6"],
+              let rawPort = env["APL_QA_UDP_WITNESS_PORT"],
+              let portNumber = UInt16(rawPort), portNumber >= 1024,
+              let port = Network.NWEndpoint.Port(rawValue: portNumber),
+              let witness = IPv6Address(host) else {
+            throw XCTSkip("UDP witness opt-in and public IPv6 endpoint not configured")
+        }
+        var numeric = in6_addr()
+        guard host.withCString({ inet_pton(AF_INET6, $0, &numeric) == 1 }),
+              withUnsafeBytes(of: numeric, { bytes in
+                  bytes.count == 16 && (bytes[0] & 0xe0) == 0x20 &&
+                  !(bytes[0] == 0x20 && bytes[1] == 0x01 &&
+                    bytes[2] == 0x0d && bytes[3] == 0xb8)
+              }) else {
+            throw XCTSkip("Witness must be real global unicast IPv6, not LAN/documentation")
+        }
+        let tunnel = try await existingOffTunnel()
+        guard await udpEcho(witness, port: port),
+              await udpEcho(witness, port: port) else {
+            throw XCTSkip("Direct UDP echo control did not succeed twice; VPN untouched")
+        }
+        print("APL_UDP_QA_DIRECT_ECHO_2_OF_2_PASS_OFF")
+
+        let upstream = Network.NWEndpoint.hostPort(
+            host: .init("192.168.1.80"), port: Network.NWEndpoint.Port(rawValue: 18081)!)
+        var labProxy = ProxyConfiguration(httpCONNECTProxy: upstream)
+        labProxy.allowFailover = false
+        let labOrigin: String
+        do {
+            labOrigin = try await ipv6Witness(labProxy)
+        } catch {
+            throw XCTSkip("Disposable HTTP CONNECT upstream not available; VPN untouched")
+        }
+        print("APL_UDP_QA_DISPOSABLE_PROXY_PREFLIGHT_PASS")
+
+        var started = false
+        var stopItem: DispatchWorkItem?
+        defer {
+            stopItem?.cancel()
+            if started { tunnel.stopVPNTunnel() }
+        }
+        started = true
+        try tunnel.startTunnel(options: [
+            "requestedByUser": NSNumber(value: true),
+            "qaStopAfterSeconds": NSNumber(value: 25),
+            "qaSmart3ProxyHost": "192.168.1.80" as NSString,
+            "qaSmart3ProxyPort": NSNumber(value: 18081)
+        ])
+        let stopper = DispatchWorkItem { tunnel.stopVPNTunnel() }
+        stopItem = stopper
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(
+            deadline: .now() + 20, execute: stopper
+        )
+        var connected = false
+        for attempt in 0..<48 {
+            let status = tunnel.status
+            if status == .connected { connected = true; break }
+            if status == .invalid || (status == .disconnected && attempt >= 16) { break }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        guard connected else {
+            XCTFail("PacketTunnel did not connect; independent stop guards armed")
+            return
+        }
+        let viaLab = (try? await ipv6Witness(nil)) == labOrigin
+        guard viaLab else {
+            XCTFail("Real PacketTunnel disposable upstream not confirmed, no UDP claim")
+            return
+        }
+        print("APL_UDP_QA_PACKETTUNNEL_LAB_IPV6_RECEIPT_CONFIRMED")
+        let escaped = await udpEcho(witness, port: port)
+        print("APL_UDP_QA_TUNNEL_UDP_ECHO_RECEIVED_\(escaped)")
+
+        stopItem?.cancel()
+        tunnel.stopVPNTunnel()
+        var off = false
+        for _ in 0..<40 {
+            if tunnel.status == .disconnected { off = true; break }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard off else {
+            XCTFail("VPN did not return to OFF; PacketTunnel kill timer armed")
+            return
+        }
+        print("APL_UDP_QA_PACKETTUNNEL_OFF_CONFIRMED")
+        let restored = await udpEcho(witness, port: port)
+        print("APL_UDP_QA_DIRECT_UDP_RESTORED_\(restored)")
+        XCTAssertFalse(escaped, "Potential original IPv6 UDP bypass: echoed despite HTTP-only PacketTunnel")
+        XCTAssertTrue(restored, "Direct echo must work again after VPN OFF, otherwise inconclusive")
+#endif
+    }
 #endif
 }
