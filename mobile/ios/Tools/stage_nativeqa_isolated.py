@@ -51,6 +51,23 @@ struct ArvectumProxyLauncherApp: App {
 """)
     harness = root / "App/NativeRuntimeReviewQAView.swift"
     replace_once(harness, 'ProcessInfo.processInfo.arguments.contains("-aplNativeRuntimeReviewQA")', "true")
+    # Bounded, one-shot synthetic fixture preview from the lab's own container.
+    # Mirroring's universal clipboard is not a reliable device input channel.
+    library = root / "App/NativePersistentProfilesView.swift"
+    replace_once(library, 'Button(tr("Import from clipboard","Импорт из буфера")){previewClipboard()}',
+                 'Button(tr("Review staged lab fixture","Проверить тестовый файл")){previewClipboard()}')
+    replace_once(library, 'guard let text=UIPasteboard.general.string else{throw NativeAutomaticImport.Failure.empty}\n            summary=try session.previewAutomatic([text])',
+                 """let url=FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0].appendingPathComponent("apl-nativeqa-fixture.txt")
+            let attrs=try url.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey,.fileSizeKey])
+            guard attrs.isRegularFile==true,attrs.isSymbolicLink != true,let size=attrs.fileSize,(1...4096).contains(size) else{throw NativeAutomaticImport.Failure.unsupported}
+            let text=try NativeAutomaticImport.readSource(url,limit:4096)
+            let records=try NativeAutomaticImport.prepare([text])
+            guard records.count==1,let record=records.first else{throw NativeAutomaticImport.Failure.unsupported}
+            let endpoint=try record.endpointForEdit()
+            let port:UInt16=record.reference.kind == .vlessReality ? 39882 : (record.reference.kind == .wireGuard ? 39881 : 39891)
+            guard endpoint.host == "192.168.1.80",endpoint.port == port else{throw NativeAutomaticImport.Failure.unsupported}
+            try FileManager.default.removeItem(at:url)
+            summary=try session.previewTransfer(NativeImportTransfer(records))""")
     # Do not identify a production manager by its display name.
     manager = root / "App/VPNController.swift"
     replace_once(manager, 'private static let configurationName = "Arvectum Proxy Launcher"', 'private static let configurationName = "APL NativeLab (isolated)"')

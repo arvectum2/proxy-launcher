@@ -34,6 +34,11 @@ def test_isolated_stage(tmp_path):
     assert "NativeRuntimeReviewQAView()" in entry and "ordinaryRoot" not in entry and "YandexAds" not in entry
     assert "Optional(UserDefaults.standard)" in (root/"Shared/ProfileStore.swift").read_text()
     assert "APL NativeLab (isolated)" in (root/"App/VPNController.swift").read_text()
+    lib=(root/"App/NativePersistentProfilesView.swift").read_text()
+    assert "apl-nativeqa-fixture.txt" in lib and "attrs.isSymbolicLink != true" in lib
+    assert 'endpoint.host == "192.168.1.80"' in lib and "records.count==1" in lib
+    assert "FileManager.default.removeItem(at:url)" in lib and "session.previewTransfer(NativeImportTransfer(records))" in lib
+
 
 
 def profile(ident):
