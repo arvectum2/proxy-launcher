@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: pinned AWG peer and bridge artifact hashes verified; stock local LAN preflight PASS for all four transport probes, wrong key, wrong PSK and bridge UDP4/UDP6. Generated private synthetic AWG fixture and staged it in NativeLab Documents. Exact previous WG manager removed with verified receipt 39B58D83. Old synthetic WG library row remains; Mirroring scrolling/confirmation unreliable, no new manager or AWG runtime started."
+current: "Stage42: pinned AWG LAN preflight already passed; new loopback-only pinned reference build and positive/wrong-key/wrong-PSK local controls PASS with 120-second server lifetime. Previous WG system manager removed. Separate macOS ARC screen/audio permission dialog persists; no permission changed. AWG fixture staged; old isolated WG record cleanup and AWG physical tests remain pending. Additional test component not executed because tool rejected invocation."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,7 +255,7 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "dcdbafee confirms WireGuard physical acceptance and negative correlation; AWG pinned reference local preflight PASS; exact old lab manager removal verified."
+last_verified_commit: "5f9aefbf; pinned loopback AWG reference build and all local controls PASS; no physical AWG traffic tested."
 test_results:
   - "Stage42: artifact SHA256 verification PASS; AWG LAN separate-process preflight 4 positive transport witnesses, wrong-key and wrong-PSK rejected, UDP bridge IPv4/IPv6 PASS; previous exact WG manager removal PASS. No physical AWG data-plane result yet."
   - "Stage41 full WG positives: TCP4 A55559E5, TCP6 5B4E87CA, UDP4 3028C520, UDP6 01C260A6; 4/4 exact command/host and independent reference peer nonce/response matches, one matching witness, handshake/data each direction, terminal drain/OFF. No broad no-leak claim."
@@ -429,4 +429,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Resume Stage42: verify iPhone OFF and only synthetic WG row 9FEAF143 in NativeLab library. Complete explicit remove confirmation and retired-record cleanup through existing UI; confirm empty library, review staged AWG fixture, save/select/export exact reference. Fresh owner and system permission only after that. Do not change production profiles. Then independent AWG physical tests; no-leak acceptance remains pending."
+resume_instruction: "Resume after ARC permission dialog is resolved by owner without changing unrelated permissions yourself. Inspect exact isolated lab library; finish prior synthetic WG remove confirmation and retired cleanup; import staged AWG fixture and verify selected reference. Use reviewed independent test tooling only; physical results and no-leak gate remain pending."
