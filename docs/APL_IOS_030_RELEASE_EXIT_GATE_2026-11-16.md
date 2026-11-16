@@ -111,3 +111,17 @@ PacketTunnel process, Wi-Fi restored. No profile edit or installation.
 This is the approved functional smoke, not transport-specific native
 handoff, continuous socket/zero interruption, or universal leak proof.
 Deferred extended native WAN handoff remains in roadmap.
+
+### Exact source review and remaining release identity
+
+The exact physically exercised NativeLab source/notice kit is staged and
+verified (409 files; see source delivery draft). No public delivery.
+All 26 privacy manifests in isolated unsigned candidate match historical
+ordinary bundle byte-for-byte, including the AppMetrica AdSupport tracking
+declaration. This is not evidence of actual data transfers or review
+compliance. Do not silently change monetization or publish inaccurate
+privacy statements. Production native owner and descriptor remain
+DEBUG-gated; ordinary unsigned Release does not implement the reviewed
+native path. Build a separately staged unsigned production candidate
+with explicit final scope, proven no-QA linkage and dependency receipts,
+then signed acceptance only with authorization. No automatic promotion.
