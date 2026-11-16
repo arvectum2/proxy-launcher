@@ -246,7 +246,7 @@ completed:
 
 
 
-current: "Stage43c established peer loss: implement isolated WG full-route two-probe UDP witness with independently timed server shutdown between successful and fresh failed exchange. No product runtime change."
+current: "Stage43c: established WireGuard UDP4 peer-loss test complete, first positive and second fresh post-cut probe correlated; physical-out 0, first/post-cut tunnel-out 1/1, OFF controls physical 1 before and after. Signed isolated 3f0dcfde installed; 321 Python +14 subtests passed. IPv6 loss next."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -259,7 +259,7 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "085808ea checkpoint with IPv6 positive; isolated source e5108c7f signed manifest 9c5ebcdd42006eb1953d24bd90779fc84c92d53cdc2fda344e0e17e590578f86. Nine fixed-target observations all correlated PASS; prior Python320/320 +14 subtests and Swift416/416."
+last_verified_commit: "3f0dcfde; signed manifest de6e07357b71f459805ff4172cef7466d76ac822027e60b5889325c3a780422d; pinned reference SHA256 70642eeb34ae9a68bb00ad3fed8369b354dfca6155c018245512dbaa1999f201. UDP4 established-loss physical cycle 2629B769/70056527/C08B4621 PASS."
 test_results:
   - "Stage43c healthy WG final: UDP6 DCC4C2E4/1095D8EF/77BFEAE2 physical 1/0/1, tunnel 0/1/0; DNS 35670F8B/7D812ADF/9E3B9B9A physical 1/0/1, tunnel 0/12/0, independent A witness 1. All nine ordered receipts and peer challenge/response correlations verified, no capture drops/ambiguity, terminal OFF, RVI removed, no remaining peer listeners/extension. Network unchanged. Established peer loss and general leak gates pending."
   - "Stage43c partial: 320 Python +14 subtests PASS. Signed isolated OFF-control candidate installed. PKTAP RVI exact UDP4 physical/tunnel counts 1/0 before, 0/1 ON, 1/0 after; peer and host correlated, no drops, terminal OFF. IPv6 and DNS exact OFF before controls each physical1/tunnel0. Initial DNS attempt unconsumed due Mirroring foreground; retry passed. Capture removed, network unchanged. No broad no-leak or release claim."
@@ -442,4 +442,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Validate QA command/host receipt, independent peer timed cut, RVI window correlation and local controls. Build/sign isolated candidate; preserve exact owned WG manager OFF and verified healthy nine observations. Run UDP4 loss then UDP6 loss as visibility allows."
+resume_instruction: "Stage43c continue with staged private peer-loss-before-udp6, peer-loss-loss-udp6, peer-loss-after-udp6 in stage41/wgdns/rvi43c. Use signed isolated 3f0dcfde, nativeqa_wg_loss_peer.py, loss-reference/wg-reference and capture_nativeqa_rvi.py. Verify before/after controls and verify_nativeqa_wg_loss.py. No repeat of WG healthy or UDP4 loss tests. Then AWG leak gates, handoff and signed migration/release gates. Preserve lab manager OFF, original network. No general no-leak claim."
