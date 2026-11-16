@@ -170,3 +170,16 @@ matched: no expected response, 2 LAN attempts, 3994 ingress bytes,
 drain and OS OFF verified; no tunnel extension remains. Retain this
 owned lab manager OFF for compatible expanded VLESS cases. No broad
 no-leak or release assertion; WG/AWG and packet capture remain pending.
+
+## Stage 40: physical expanded VLESS transport positives
+
+Using the same exact owned manager and signed isolated NativeLab candidate,
+the independent server allowed exactly one synthetic address and transport
+per run. All three matching local controls passed, including real SOCKS5 UDP
+association for the two datagram probes. Physical TCP6, UDP4 and UDP6 host
+receipts matched independent challenge and response hashes; one LAN relay
+and one witness each, terminal drain and OS OFF. Peer exits 0. See checkpoint
+for request IDs and encrypted relay byte counts. 94 focused Python tests
+passed. The VLESS TCP4 positive and wrong-key negative are in stages 38–39.
+This does not establish independent packet-capture/no-leak coverage,
+LTE underlay, or product release authorization. WG and AWG remain pending.
