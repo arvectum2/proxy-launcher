@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41: previous signed base restored, RVI created then removed after Mirroring interruption, exact lab manager readback PASS. Initial short-window scoped control reached server after witness expired; extended physical witness window 100s. Fresh scoped2 66F1D243 and full2 A55559E5 independently correlated positive with en0 filtered header capture handshake 148/92 and encrypted data. No runtime source change. Prior failure cause not proven for all runs; timing confound demonstrated. Next fresh full TCP6/UDP4/UDP6 and negatives; RVI direct capture/no-leak still pending."
+current: "Stage41: base signed lab full WG TCP4 and TCP6 positive verified; TCP6 5B4E87CA correlated independent handshake/data and nonce, drain/OFF. Next fresh UDP4 and UDP6."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
