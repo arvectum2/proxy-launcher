@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42 all four physical AWG positives TCP4/TCP6/UDP4/UDP6 correlated, drain/OFF; next wrong-key and wrong-PSK."
+current: "Stage42 four physical AWG positives plus wrong-key negative correlated, drain/OFF. Next wrong-PSK."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
