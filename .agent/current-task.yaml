@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage38 Mirroring authorized; system Settings shows exact NativeLab review profile present OFF, prior prepare receipt missing after permission backgrounding. Add explicit nonmutating readManager reconciliation; rebuild lab only and verify original owner before runtime."
+current: "Stage38: exact original NativeLab manager readback PASS after permission interruption, OFF. Signed rebuild 3dc93cf1; first VLESS physical attempt 1696C417-E147-4D5E-81CC-E8824247A246 produced no host receipt and zero peer connections/bytes; no extension or remaining listeners. Add nonsecret failure diagnostics, then read back original owner again and fresh controlled retry only when OFF. Do not replay commands."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."

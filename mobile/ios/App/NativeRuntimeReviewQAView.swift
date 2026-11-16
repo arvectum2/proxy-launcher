@@ -70,6 +70,17 @@ private struct NativeRuntimeQAReceipt:Encodable {
     let releaseAuthorized=false
 }
 
+/// Failed operations are diagnostic evidence only, never a successful receipt.
+private struct NativeRuntimeQAFailureReceipt:Encodable {
+    let schema=1
+    let requestID:UUID
+    let action:NativeRuntimeQACommand.Action
+    let stage:String
+    let errorType:String
+    let errorCode:Int
+    let drainConfirmed:Bool
+    let releaseAuthorized=false
+}
 @MainActor struct NativeRuntimeReviewQAView:View {
     static var enabled:Bool {ProcessInfo.processInfo.arguments.contains("-aplNativeRuntimeReviewQA")}
     @StateObject private var vpn=VPNController()
@@ -138,9 +149,11 @@ private struct NativeRuntimeQAReceipt:Encodable {
         defer{busy=false}
         func authorized()->Bool {generation==token && !Task.isCancelled}
         var drain:NativeReviewControlExchange?
+        var stage="authorization"
         do {
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
             if command.action != .run {
+                stage="manager"
                 if command.action == .readManager {
                     try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
                 } else {
@@ -151,13 +164,18 @@ private struct NativeRuntimeQAReceipt:Encodable {
                 status="Manager operation read back. No tunnel started."
                 return
             }
+            stage="submission"
             try await vpn.submitNativeRuntimeReview(reference:command.reference,owner:command.owner,probeIPv4:command.probeIPv4,scope:command.scope,probeIPv6:command.probeIPv6,stillAuthorized:authorized)
+            stage="setup"
             let setup=try await vpn.observeNativeRuntimeReviewSetup(owner:command.owner)
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+            stage="probe"
             let hash=await NativeRuntimeQAProbe.exchange(command)
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+            stage="drain"
             drain=try await vpn.reconcileNativeRuntimeReview(owner:command.owner)
             guard authorized(),let drain else{throw NativeValidationDispatch.Failure.invalidState}
+            stage="receipt"
             try save(.init(requestID:command.requestID,owner:command.owner,reference:command.reference,action:.run,scope:command.scope,probe:command.probe,mode:command.mode,setup:setup,drain:drain,probeAttempted:true,responseSHA256:hash,managerReadback:true,osOff:true))
             status="Host observation saved. Independent peer and capture verification required."
         }catch {
@@ -166,6 +184,10 @@ private struct NativeRuntimeQAReceipt:Encodable {
             if command.action == .run && drain==nil {
                 drain=try? await vpn.reconcileNativeRuntimeReview(owner:command.owner)
             }
+            // Never persist localized descriptions or error userInfo (may contain secrets).
+            let failure=NativeRuntimeQAFailureReceipt(requestID:command.requestID,action:command.action,stage:stage,errorType:String(describing:type(of:error)),errorCode:(error as NSError).code,drainConfirmed:drain != nil)
+            let file=directory.appendingPathComponent("apl-native-runtime-qa-failure-"+command.requestID.uuidString+".json")
+            try? JSONEncoder().encode(failure).write(to:file,options:[.withoutOverwriting,.completeFileProtection])
             status=drain != nil ? "Test incomplete; owned drain and OS-off reconciled." : "State unconfirmed. No automatic retry or manager removal."
         }
     }
