@@ -418,3 +418,42 @@ No install, manager removal, capture, VPN or owner data modification
 was performed. Resume only after safe OFF confirmation; preserve
 previous physical WG evidence. Physical AWG/DNS fault/escape and
 network handoff remain open.
+
+### Stage 43c: physical AWG transition and established DNS loss preparation
+
+The owner authorized disabling the working VPN. System Settings confirmed
+OFF; the exact scoped WG manager read and remove were correlated
+(F785BD0A and 68A5ABAB). Selection of the isolated manager while OFF was
+necessary for ownership readback after the working VPN had been selected.
+No production configuration removed. Empty isolated library observed,
+synthetic AWG fixture imported and selected; reference exported
+343A0B7F / 9910D496. Existing lab-only identity b1dd829f installed.
+The initial AWG prepare A46DD542 failed with NSError code 5 after the
+iPhone Mirroring authentication prompt; no lab manager appeared in
+Settings and system VPN remained OFF. Explicitly authorized new prepare
+0D029666 awaits iOS permission, no result yet. Do not restart or reinstall
+while pending; owner must approve on the physical device and authenticate
+if requested. Exact readback must reconcile any created manager.
+
+Source 2576a82d extends the DEBUG-only peer-loss probe to full-route
+system DNS for both WG and AWG. The independent reference peer cuts
+only after an exact authenticated TCP4 witness to the generated DNS
+name, requires a positive exact A witness and verified fresh local
+control; verifier requires distinct post-cut challenge, no returned
+receipt, timed DNS packet windows, zero fixed-target physical escape,
+PKTAP metadata, terminal drain and OFF. Bounded DNS timeout differs
+from UDP. This is fixed-target evidence only, not a general DNS leak
+or kill-switch proof.
+
+330 Python / 14 subtests, active iPhoneOS Swift parse, pinned Go
+reference builds and local exact DNS+A/TCP4 marker controls passed.
+Isolated ARM64 unsigned containing build and strict existing
+lab-only development signature passed, signed manifest
+6a6182626b749ec6948f577974b5701460355308e98a2bfa9d95ebaf507558ac.
+Reference peer hashes AWG
+c1a6079eb5ef588190a4e0ca11c0a60f8d682675b4c2e140a3ce8e5c16dcc2a7
+and WG
+f209c8a8b1b0125ee4c2845d77f13353518b5601a2ad65223f580dcf543c5e1b.
+No lab UDP listeners remain; no new physical DNS or AWG escape
+acceptance. Next action is the pending permission and exact readback,
+then update the isolated candidate (not production).
