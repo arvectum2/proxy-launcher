@@ -118,7 +118,7 @@ def run(root,binary,client,command,preflight_only):
     nonce=item["nonce"]
     with session(root,binary,dict(cfg,nonce=nonce),"physical") as (work,counts):
         print("NATIVELAB_WG_PEER_READY",flush=True)
-        deadline=time.monotonic()+40
+        deadline=time.monotonic()+100
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
     witness=report(work)
     result={"schema":1,"requestID":item["requestID"],"mode":"positive","probe":probe,"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"localPositiveControl":True,"witnessCounts":{p:witness[p] for p in KINDS},"relayCounts":{d+str(k):counts[d,k] for d in ("c2s","s2c") for k in range(1,5)},"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if witness[probe]==1 else None,"release_authorized":False}
