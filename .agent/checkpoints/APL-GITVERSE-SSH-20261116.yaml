@@ -19,4 +19,5 @@ last_verified_commit: "58ed3399f6ca90478a7eb0c307c71097f0c3083e"
 test_results:
   - "Direct SSH read and write handshake from both devices, real GitHub Actions SSH push + hash verification PASS."
   - "Both local launchd agents first run PASS; 591/591 refs."
+  - "MacBook independent fallback fetched and pushed new checkpoint commit 03d88dcc, attempted=1, exact GitHub/GitVerse parity 591/591."
 resume_instruction: "Complete infrastructure-only PR384 and active iOS branch workflow sync; do not change iOS runtime or release gate. Local fallback only fast-forward/new refs; CI handles authoritative prune."
