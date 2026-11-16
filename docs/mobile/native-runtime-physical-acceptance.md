@@ -272,3 +272,13 @@ cleanup were verified, and the new WireGuard fixture selected/exported.
 Physical WireGuard system DNS and independently witnessed leak absence
 are still pending. The existing older RVI off-link probes are not
 evidence of this native candidate. No production release authorization.
+
+Stage 43b physical completion: fresh manager readback F82C9AD1 confirmed
+the exact WireGuard owner and OFF. Request 6DF744B3 used the signed
+isolated eede081d candidate, positive full-route scope. Independent
+fixture-key control passed, one exact A response and one TCP4 witness
+were observed. Relay counts c2s1=1, c2s4=15, s2c2=1, s2c4=7.
+Command/host/peer challenge and response hashes correlated. Terminal
+drain and OS OFF verified, no peer listener or extension remaining.
+Both full-route protocols now have positive system DNS evidence;
+this does not establish absence of DNS/IP escape.
