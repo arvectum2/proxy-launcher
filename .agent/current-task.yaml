@@ -244,7 +244,7 @@ completed:
 
 
 
-current: "Stage43b: extend exact-name independent DNS witness to full-scope WG; preserve prior physical evidence. Audit migration, route and release regression contracts."
+current: "Stage43b: WG exact-name DNS reference pinned build/Go tests and local two-process DNS+TCP, exact original fixture key control PASS. Full iOS 030 Python314 +14 subtests, selected Swift92 PASS; stale clipboard count contract corrected (explicit import and same-protocol replacement only). Signed isolated candidate eede081d installed. Verified AWG manager OFF CF9DC6F0 and removed exact manager 8E09EA37, old synthetic row deleted and retired revision purged. WG fixture imported/selected 9CDD0F41 and fresh exact reference exported 109BA6CC. Preparing new owned manager; physical WG system DNS not run."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -257,8 +257,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "342f77b9 isolated DNS command + reference source; unsigned manifest 382aece373a6aa845c6d649c1c364361abb13ebe961c36de9f8757942515c976; signed manifest 29312035cad9e1d30ee2a6a36db89fa96f926decbe17de6af89189d7d58dfadc; physical F20DEBD4 PASS; 105 targeted Python tests and Go exact-name/reference local DNS controls PASS."
+last_verified_commit: "eede081d; unsigned manifest ff82cbd3da6736999ca2293b8b44eebcac947e491c9a0c0273325261d206be22; signed manifest 82fb312964867b99f1580ba5bb975252df22978f8d182e3620864e4103637139; WG reference SHA256 30e863856b954f511d8eac55a9c190c33cfd85ab2eca4dc985497a9595c39570; all 314 Python, 92 Swift, WG local DNS control PASS."
 test_results:
+  - "Stage43b: 314 Python checks (14 additional subtests) and 92 Swift focused checks PASS. WG pinned DNS reference Go unit and separate-process DNS/TCP, exact fixture key control PASS. Isolated signed build installed; AWG exact manager read/removal and synthetic library cleanup verified, WG selection/export PASS. No physical WG system DNS yet. No no-leak claim."
   - "Stage43a: Go exact-name DNS unit tests, separate-process 4 positives and 2 negatives, local tunneled DNS A + TCP witness PASS; Python105/105; unsigned/sign/install PASS. Physical AWG DNS F20DEBD4: 3 exact A responses, one TCP4 witness, reference sent13/received40, exact challenge and host/peer response hash, terminal drain/OFF. No peer listener or extension remaining. Production and independent DNS/IP leak gates pending."
   - "Stage42 AWG TCP4 9504B963 (7/11 sent/received), TCP6 9415666A (6/19), UDP4 D8025EC5 (2/15), UDP6 0B60FAF9 (2/19), wrong-key D15966FC (0/1), wrong-PSK 27577665 (1/1). Exact host command/receipt and independent peer challenge/response matched; positives one witness, negatives zero witnesses, local controls PASS; terminal drain/OFF. Reference direct source pin tests and local 4 positives + 2 negatives PASS; final 104 pytest PASS. Broad independent leak and release gates pending."
   - "Stage42: OS VPN OFF and NativeLab manager present verified. Exact AWG readManager receipt F9BB7331 correlated, release_authorized false. Reference binary SHA256 PASS. Legacy physical runner incompatible with installed QA protocol; no runtime executed."
@@ -435,4 +436,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Validate pinned WG DNS reference build/local controls and QA command regression, then signed isolated candidate. Before changing fixture reconcile AWG OFF and exact manager ownership. Separate physical no-leak claim requires outside positive controls and trusted capture; no production activation."
+resume_instruction: "Stage43b: fresh WG reference and owner in private stage41/wgdns, use prepareManager once; if OS consent needed obtain it, then fresh exact readManager OFF. Run DNS4 via nativeqa_wg_peer.py with pinned stage41/dns-reference/wg-reference and stage41/wgdns/dns4 command; correlate DNS responses, positive witness, control nonce and terminal drain. Do not replay consumed commands. Afterward Stage43c independent external capture with before/after positive controls; existing legacy RVI harness does not match native candidate and RVI interrupted Mirroring. Obtain specific user approval before changing gateway/SSID or capture scope; no production activation."

@@ -255,3 +255,20 @@ and a tunnel-side witness. A missing response alone is not evidence of
 no escape. Prior RVI interference and the need for specific approval
 before changing gateway/device network remain constraints. No production
 activation or release authorization.
+
+### Stage 43b: WireGuard system DNS preparation and regression
+
+The pinned independent wireguard-go reference now has a DNS-only QA
+variant with exact generated name, controlled A answer, and AAAA NODATA.
+Its Go unit tests, separate-process DNS + TCP and matching fixture-key
+positive controls passed. The isolated native QA command accepts DNS4
+only for full-scope WireGuard or AWG, positive mode. 314 iOS 030 Python
+tests plus 14 subtests passed after correcting a stale clipboard count
+test to enforce both user-initiated guarded preview paths. 92 targeted
+Swift tests of catalog/migration/backup, credential handoff and route
+plans passed. Source eede081d compiled, signed and installed as
+NativeLab only. Exact AWG manager removal and retired lab revision
+cleanup were verified, and the new WireGuard fixture selected/exported.
+Physical WireGuard system DNS and independently witnessed leak absence
+are still pending. The existing older RVI off-link probes are not
+evidence of this native candidate. No production release authorization.
