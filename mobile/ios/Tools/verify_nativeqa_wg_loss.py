@@ -2,7 +2,7 @@
 import hashlib,json,math,sys
 from pathlib import Path
 from native_runtime_qa_receipt import verify_host
-from capture_nativeqa_rvi import target_for,summarize
+from capture_nativeqa_rvi import target_for,summarize,limit_for
 
 def read(p):return json.loads(p.read_text())
 
@@ -24,7 +24,7 @@ def verify_observation(command,receipt,peer,obs,headers,stats):
     assert all(type(t) in (int,float) and math.isfinite(t) for t in (w,cs,ce))
     assert a-.5<=w<=z+.5 and w<=cs<=ce and z<=ce and ce+.5<c
     assert obs["started"]<a and d<obs["ended"] and obs["rviRemoved"] is True and obs["releaseAuthorized"] is False
-    counts=summarize(headers,stats,target_for(command),obs["started"],obs["ended"])
+    counts=summarize(headers,stats,target_for(command),obs["started"],obs["ended"],limit=limit_for(command))
     assert counts["complete"] and counts["physicalOut"]==0 and counts["tunnelOut"]>=2
     assert all(obs[k]==v for k,v in counts.items())
     stamps=[float(row.split()[0]) for row in headers.splitlines() if row.strip()]

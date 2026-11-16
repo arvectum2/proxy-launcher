@@ -21,6 +21,11 @@ TARGETS = {
 RVI = "/Library/Apple/usr/bin/rvictl"
 TCPDUMP = "/usr/sbin/tcpdump"
 LIMIT = 30
+DNS_LOSS_LIMIT = 256
+
+def limit_for(command):
+    target_for(command)
+    return DNS_LOSS_LIMIT if command["probe"] == "dns4" and command["mode"] == "peer-loss" else LIMIT
 
 def target_for(command):
     validate_command(command)
@@ -35,7 +40,7 @@ def target_for(command):
         return {"udp4": ("192.0.2.2", 39892), "udp6": ("2001:db8::2", 39892)}.get(command["probe"], TARGETS[command["probe"]])
     raise ValueError("unsupported RVI observation")
 
-def summarize(headers, stats, target, started, ended):
+def summarize(headers, stats, target, started, ended, *, limit=LIMIT):
     # PKTAP exposes the device interface and direction. Ambiguous rows or
     # missing metadata never become proof of non-escape.
     counts = {"physicalOut":0,"tunnelOut":0,"ambiguous":0}
@@ -59,7 +64,7 @@ def summarize(headers, stats, target, started, ended):
     captured=re.findall(r"(?m)^(\d+) packets? captured$",stats)
     dropped=re.findall(r"(?m)^(\d+) packets? dropped by kernel$",stats)
     complete=(len(captured)==len(dropped)==1 and int(dropped[0])==0
-              and int(captured[0])==sum(counts.values())<LIMIT and counts["ambiguous"]==0
+              and int(captured[0])==sum(counts.values())<limit and counts["ambiguous"]==0
               and "link-type PKTAP" in stats)
     return dict(counts,complete=complete)
 
@@ -71,6 +76,7 @@ def capture(folder,device):
     command_path=folder/"apl-native-runtime-qa-command.json"
     command=json.loads(command_path.read_text())
     address,port=target_for(command)
+    limit=limit_for(command)
     if any((folder/name).exists() for name in ("headers.txt","capture-stats.txt","capture-stop","rvi-observation.json")):
         raise ValueError("capture must use fresh evidence directory")
     def interfaces():
@@ -87,7 +93,7 @@ def capture(folder,device):
         interface=next(iter(names))
         with (folder/"headers.txt").open("x") as out,(folder/"capture-stats.txt").open("x") as err:
             started=time.time()
-            p=subprocess.Popen(["sudo","-n",TCPDUMP,"-i",interface,"-y","PKTAP","-p","-k","ID","-nn","-q","-tt","-l","-s","256","-c",str(LIMIT),f"udp and dst host {address} and dst port {port}"],stdout=out,stderr=err)
+            p=subprocess.Popen(["sudo","-n",TCPDUMP,"-i",interface,"-y","PKTAP","-p","-k","ID","-nn","-q","-tt","-l","-s","256","-c",str(limit),f"udp and dst host {address} and dst port {port}"],stdout=out,stderr=err)
             deadline=time.monotonic()+8
             while "listening on" not in (folder/"capture-stats.txt").read_text():
                 if p.poll() is not None or time.monotonic()>=deadline:raise RuntimeError("capture not ready")
@@ -107,7 +113,7 @@ def capture(folder,device):
         finally:
             subprocess.run(["sudo","-n",RVI,"-x",device],check=True,timeout=12)
             if any(x.startswith("rvi") for x in interfaces()):raise RuntimeError("RVI cleanup incomplete")
-    summary=summarize((folder/"headers.txt").read_text(),(folder/"capture-stats.txt").read_text(),(address,port),started,ended)
+    summary=summarize((folder/"headers.txt").read_text(),(folder/"capture-stats.txt").read_text(),(address,port),started,ended,limit=limit)
     summary.update(requestID=command["requestID"],commandSHA256=hashlib.sha256(command_path.read_bytes()).hexdigest(),probe=command["probe"],started=started,ended=ended,rviRemoved=True,releaseAuthorized=False)
     with (folder/"rvi-observation.json").open("x") as f:json.dump(summary,f,sort_keys=True)
     print("RVI_OBSERVATION",json.dumps(summary,sort_keys=True),flush=True)

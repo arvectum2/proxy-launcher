@@ -41,3 +41,19 @@ def test_awg_exact_target_selection_and_off_control():
     assert target_for(make("wireGuard","run","wireGuardFull","udp4","positive"))==TARGET
     for c in (make("amneziaWG1","run",None,"udp4","wrong-key"),make("amneziaWG1","run",None,"tcp4","positive"),make("vlessReality","run","vlessDatagrams","udp4","positive")):
         with pytest.raises(ValueError): target_for(c)
+
+
+def test_dns_loss_capture_has_scoped_larger_finite_limit():
+    import native_runtime_qa_receipt as q
+    from capture_nativeqa_rvi import limit_for, LIMIT, DNS_LOSS_LIMIT
+    fixture=dict(schema=1,reference=dict(kind="amneziaWG1",profileID=q.new_id(),revision=q.new_id()))
+    cmd=lambda probe,mode:q.make_command(fixture,q.new_id(),"run",None,probe,mode)
+    assert limit_for(cmd("dns4","peer-loss"))==DNS_LOSS_LIMIT==256
+    assert limit_for(cmd("dns4","positive"))==limit_for(cmd("udp4","peer-loss"))==LIMIT==30
+    row=ROW.replace("198.51.100.77.39883","192.0.2.53.53").replace("en0","utun8")
+    target=("192.0.2.53",53)
+    stats=lambda n:STATS.replace("1 packet captured",f"{n} packets captured")
+    assert not summarize(row*30,stats(30),target,1234,1235)["complete"]
+    assert summarize(row*60,stats(60),target,1234,1235,limit=DNS_LOSS_LIMIT)["complete"]
+    assert not summarize(row*256,stats(256),target,1234,1235,limit=DNS_LOSS_LIMIT)["complete"]
+    assert not summarize(row*60,stats(60).replace("0 packets dropped","1 packet dropped"),target,1234,1235,limit=DNS_LOSS_LIMIT)["complete"]
