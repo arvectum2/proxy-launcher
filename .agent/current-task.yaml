@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41 WG scoped TCP4 PASS. Full TCP6 41E6DE25 failed with no host response and zero independent WG handshake/data packets, host drained/OFF. Compare fresh full TCP4 to isolate scope versus family; no route bypass changes."
+current: "Stage41: scoped WG TCP4 physical PASS; full TCP6 41E6DE25 and full TCP4 B929E055 fail with zero independent handshake/data, drain/OFF. QA-only experiment binds sole encrypted synthetic WG socket to unique active en interface on lab subnet before installing default routes. No exclusions added."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -426,4 +426,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Resume Stage41 after system VPN permission; verify exact manager readback and system OFF using private stage41/readManager command, never replay consumed prepare. Ensure local preflight helper nativeqa_wg_peer.py ready with pinned stage41/reference-peer, Xray stage40/peer, fresh stage41/tcp4 command; scoped TCP4 first then explicit full WG TCP6/UDP4/UDP6 only in isolated QA. Preserve actual user VPN profiles. Packet capture and AWG pending."
+resume_instruction: "Validate focused tests and signed isolated QA build for WG underlay candidate; preserve exact manager/fixture OFF; fresh full TCP4 positive first, then TCP6/UDP4/UDP6 if accepted. If no peer handshake, instrument local socket/packet path; never add broad route bypass. Independent capture remains privilege-gated."
