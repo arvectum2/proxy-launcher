@@ -457,3 +457,37 @@ f209c8a8b1b0125ee4c2845d77f13353518b5601a2ad65223f580dcf543c5e1b.
 No lab UDP listeners remain; no new physical DNS or AWG escape
 acceptance. Next action is the pending permission and exact readback,
 then update the isolated candidate (not production).
+
+### Stage 43c: AWG fixed-target physical healthy and established-loss closure
+
+Owner permission succeeded; exact AWG manager read 6B31DCF0 and
+system OFF were confirmed. Isolated signed NativeLab source 2576a82d
+installed. All 18 ordered OFF / ON / OFF receipts independently
+reverified on the physical iPhone on 16 November 2026:
+
+| Case | Request prefixes before / active / after | Physical out | Tunnel out |
+|---|---|---|---|
+| Healthy UDP4 | E5239B92 / 5A5CC782 / 13B667D2 | 1/0/1 | 0/1/0 |
+| Healthy UDP6 | 10B357BB / 8387192D / C0AD760F | 1/0/1 | 0/1/0 |
+| Healthy DNS | CD8727AB / CE7A0A3A / 8E693588 | 1/0/1 | 0/12/0 |
+| UDP4 peer loss | FBFD5A2F / A16930CA / 254ABC1F | 1/0/1 | 0/2/0 |
+| UDP6 peer loss | A1E5DF0F / 0BE0B3C3 / 36F5271A | 1/0/1 | 0/2/0 |
+| DNS peer loss | 59604239 / A2F18A30 / BC531069 | 1/0/1 | 0/57/0 |
+
+Healthy peers independently matched the exact challenge and receipt;
+loss peers confirmed valid first response and complete independent
+peer shutdown before the distinct second challenge, which produced
+no receipt. UDP captures contain one packet in each probe window.
+DNS capture contains six first-window, 30 intermediate and 21
+second-window packets. Header-only metadata cannot identify which
+DNS name each packet carries. Zero physical fixed-target packets,
+zero ambiguity, zero drops, terminal host OFF and RVI removal required.
+An earlier DNS loss capture hit the 30-packet cap and was excluded.
+Host-only verifier changes 42410310 and d5f313ed enlarge only DNS
+loss cap to 256, retain all conservative checks, and allow intervening
+resolver retries within the measured trial only. No general DNS leak
+or kill switch claim. UI attempts without receipts excluded, including
+the interrupted IPv6 loss attempt. 331 Python tests +14 subtests PASS.
+No production configuration changed. Lab OFF, no remaining RVI,
+PacketTunnel process or controlled UDP listeners. WG DNS loss,
+handoff and remaining release gates open.
