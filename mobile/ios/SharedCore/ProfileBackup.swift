@@ -48,6 +48,37 @@ enum ProfileBackupCodec {
     private static let saltSize = 16
     private static let keySize = 32
 
+    /// Each export gets an independent, non-sensitive name. Avoid the Files
+    /// Replace Existing Item prompt that can discard an earlier backup.
+    static func exportFilename(date: Date = Date(), identifier: UUID = UUID()) -> String {
+        let format = DateFormatter()
+        format.locale = Locale(identifier: "en_US_POSIX")
+        format.calendar = Calendar(identifier: .gregorian)
+        format.timeZone = TimeZone(secondsFromGMT: 0)!
+        format.dateFormat = "yyyyMMdd-HHmmss"
+        return "APL-Profiles-Encrypted-\(format.string(from: date))-\(identifier.uuidString.lowercased())"
+    }
+
+    /// A File Provider URL may report an unknown size. Never allocate its
+    /// entire contents before checking the limit; read at most max + 1 bytes.
+    /// Caller owns any security-scoped access to this URL.
+    static func readEncryptedFile(at url: URL) throws -> Data {
+        guard url.isFileURL else { throw ProfileBackupError.invalidFile }
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+        var result = Data()
+        while result.count <= maxFileBytes {
+            let budget = min(65_536, maxFileBytes + 1 - result.count)
+            let part = try handle.read(upToCount: budget) ?? Data()
+            if part.isEmpty { break }
+            result.append(part)
+        }
+        guard (64...maxFileBytes).contains(result.count) else {
+            throw ProfileBackupError.invalidFile
+        }
+        return result
+    }
+
     static func seal(_ payload: ProfileBackupPayload, password: String) throws -> Data {
         try validatePassword(password)
         try validatePayload(payload)

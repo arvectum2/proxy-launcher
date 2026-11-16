@@ -22,6 +22,10 @@ def test_cloudkit_upload_requires_explicit_preview_and_optimistic_lock():
     assert ".ifServerRecordUnchanged" in service
     assert "requiresRemotePreview" in service
     assert "observedRemoteWasAbsent" in service
+    assert 'let reviewedBytes = expectedRemote["payload"] as? Data' in service
+    assert "let reviewedSnapshot = try? ExclusionSyncContract.decode(reviewedBytes)" in service
+    assert "ExclusionSyncContract.remoteUnchanged(" in service
+    assert "expectedRemote.recordType == Self.recordType" in service
     assert "ExclusionSyncContract.encode(localDomains:" in service
     assert 'record["payload"] = data as NSData' in service
 
@@ -31,7 +35,11 @@ def test_cloudkit_user_consent_and_local_vpn_rollback():
     exclusions = (APP / "ExclusionsView.swift").read_text()
     assert "confirmUpload = true" in view
     assert "confirmationDialog(" in view
-    assert "await model.saveExclusions(remote.manualDomains, graph: model.smartGraph)" in view
+    assert "await model.saveExclusions(" in view
+    assert "currentRemote.manualDomains, graph: model.smartGraph)" in view
+    assert "ExclusionSyncContract.remoteUnchanged(" in view
+    assert "cloud.previewRemote()" in view
+    assert "ExclusionSyncContract.localUnchanged(" in view
     assert "localAtPreview" in view
     assert "onApplied()" in view
     assert "entries != model.manualExclusions" in exclusions

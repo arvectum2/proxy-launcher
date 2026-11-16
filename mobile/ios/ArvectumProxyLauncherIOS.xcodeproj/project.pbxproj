@@ -30,6 +30,7 @@
 		1963C3C126A975C10D01059D /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
 		1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		1B739A721964FF8EBD71E441 /* VLESSRealityShareLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */; };
+		1E23FF60E2DF996751E3EE47 /* TunnelEngineExitGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */; };
 		1EA289B35370B82540C513DA /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
 		1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
@@ -63,6 +64,7 @@
 		435B39EADC4263B15EFE3903 /* SmartFlowRoutingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */; };
 		4387BC89B122642644FF111E /* ProfileBackupUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E65F6FC66967039D32722A9 /* ProfileBackupUX.swift */; };
 		43AA5F682830BDF4F00C9DEB /* tun2proxy.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 597A65F5E6A0C37BF25EF4B0 /* tun2proxy.xcframework */; };
+		46D42F2D3CA05A605BDCD41D /* TunnelQACallbackGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518B683BAA7929D82293297E /* TunnelQACallbackGate.swift */; };
 		477FAF94B39F2236B6EFCFDF /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */; };
 		48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */; };
 		48F6083DA95FCE941DEACEB7 /* CompactSettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */; };
@@ -102,6 +104,7 @@
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
 		836F98A2A2EF4976A83BE81A /* ExclusionCloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
+		84F7F7F84785E03AF2254A9E /* TunnelEngineExitGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */; };
 		851706D3307B653CC5F96F6B /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
 		86047547E3BE97C89D5581ED /* ProfileLibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20270F814629DD91B0099C14 /* ProfileLibraryUITests.swift */; };
 		86ACC1EA0C3824246A6E1FE2 /* ApplicationExclusionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB42E08381B2F76A208511BC /* ApplicationExclusionsView.swift */; };
@@ -142,6 +145,7 @@
 		B5B224D7711928993E922EC2 /* XraySocksHandoffContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */; };
 		B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */; };
 		B793CF633E29DAB897F62F8F /* ConnectionPressurePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */; };
+		B7A299FB3C35106002B97EAB /* TunnelQACallbackGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 518B683BAA7929D82293297E /* TunnelQACallbackGate.swift */; };
 		B8B109ED98EC4BE9BE9100D4 /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
 		BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		BCFAB992B54C9384E430D856 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
@@ -353,6 +357,7 @@
 		4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConnectionPolicy.swift; sourceTree = "<group>"; };
 		50DE6305A52E1B9FFAE8C097 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5143B657AD60DB3394C6D51C /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		518B683BAA7929D82293297E /* TunnelQACallbackGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelQACallbackGate.swift; sourceTree = "<group>"; };
 		5263191B80D300B59B3963A8 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		5314D91527110A598FA20BF4 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		534D7F82A2B4B5310AF3B0E3 /* tk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tk; path = tk.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -573,6 +578,7 @@
 		C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackup.swift; sourceTree = "<group>"; };
 		C4D70204A533CB416ED90C15 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		C58269ED59FDD9B860F01E7D /* or */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = or; path = or.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
+		C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngineExitGate.swift; sourceTree = "<group>"; };
 		C6ACBE2041DD99E028FBF668 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		C6C7A290F3F8F74D0A850E51 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		C77D7710A04B51E1225D22F2 /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -855,7 +861,9 @@
 				C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */,
 				2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */,
 				6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */,
+				C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */,
 				763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */,
+				518B683BAA7929D82293297E /* TunnelQACallbackGate.swift */,
 				BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */,
 				7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */,
 				7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */,
@@ -1190,7 +1198,9 @@
 				265A8F49C43D1A01B9268895 /* SmartRouteDryRunAudit.swift in Sources */,
 				48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */,
 				60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */,
+				1E23FF60E2DF996751E3EE47 /* TunnelEngineExitGate.swift in Sources */,
 				B1D7B44615D3AB41BE224713 /* TunnelEngineHandoff.swift in Sources */,
+				B7A299FB3C35106002B97EAB /* TunnelQACallbackGate.swift in Sources */,
 				26C09B6D8411877AB0EC8994 /* UpstreamSocketDiagnostics.swift in Sources */,
 				1B739A721964FF8EBD71E441 /* VLESSRealityShareLink.swift in Sources */,
 				E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */,
@@ -1333,7 +1343,9 @@
 				435B39EADC4263B15EFE3903 /* SmartFlowRoutingPolicy.swift in Sources */,
 				D123F01AF8D1CE9160A904B2 /* SmartRouteDryRunAudit.swift in Sources */,
 				ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */,
+				84F7F7F84785E03AF2254A9E /* TunnelEngineExitGate.swift in Sources */,
 				EEE20757BFB04653A5E9E336 /* TunnelEngineHandoff.swift in Sources */,
+				46D42F2D3CA05A605BDCD41D /* TunnelQACallbackGate.swift in Sources */,
 				3565F9251CA434B41A5CD3B3 /* VLESSRealityShareLink.swift in Sources */,
 				FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */,
 				41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */,

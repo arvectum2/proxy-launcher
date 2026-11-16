@@ -20,6 +20,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private let engineQueue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tun2proxy")
+    private let engineExitGate = TunnelEngineExitGate()
     private let policy = FailoverPolicy()
     private let probe = ProxyProbe()
     private let telemetry = TelemetryStore()
@@ -35,6 +36,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var switching = false
     private var stopping = false
 #if DEBUG
+    private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
     private var qaTracePublicIPv4Only = false
     private var qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime
@@ -47,6 +49,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
+        let qaSession = qaCallbackGate.begin()
         let stopAfter = (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue ?? 0
         // Only a bounded signed Debug hardware test may observe anonymous
         // per-flow CONNECT results. This flag never changes routing.
@@ -68,8 +71,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         if qaScopedDirect,
            (options?["qaResetDirectAfterSeconds"] as? NSNumber)?.intValue == 17 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 17) { [weak self] in
-                guard let self, !self.stopping else { return }
-                SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+                guard let self else { return }
+                self.qaCallbackGate.performIfCurrent(qaSession) {
+                    guard !self.stopping else { return }
+                    SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+                }
             }
         }
 #endif
@@ -79,12 +85,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             (value.intValue == 95 && qaScopedDirect &&
              (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + value.doubleValue) { [weak self] in
-                guard let self, !self.stopping else { return }
-                // Last-resort safety net if the UI test / wireless debug link
-                // is interrupted by the VPN network route. Cancellation
-                // returns the device to its previous disconnected state.
-                self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
-                    userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+                guard let self else { return }
+                self.qaCallbackGate.performIfCurrent(qaSession) {
+                    guard !self.stopping else { return }
+                    // Generation check and cancellation are serialized with
+                    // stop/start: a stale test timer cannot cancel a new VPN.
+                    self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
+                        userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+                }
             }
         }
 #endif
@@ -147,7 +155,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+#if DEBUG
+        // A queued callback from this test must not fire after a new start.
+        qaCallbackGate.invalidate()
+#endif
         stopping = true
+        // Planned stop invalidates the runner before its native return.
+        engineExitGate.invalidate()
         startTask?.cancel()
         startTask = nil
         lastPrimaryRecoveryProbeAt = nil
@@ -300,23 +314,35 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 qaDirectTTLSeconds: directTTL,
                 qaTracePublicIPv4Only: qaFlowTrace)
         }
+        let runGeneration = engineExitGate.begin()
         engineQueue.async { [weak self] in
-            guard let self, !self.stopping else { return }
+            guard let self, self.engineExitGate.isRunning(runGeneration) else { return }
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)
             }
-            guard !self.stopping else { return }
-            if result != 0 {
+            guard self.engineExitGate.markUnexpectedExit(runGeneration) else { return }
+            // Even native exit code zero is unexpected while VPN is active.
+            // A queued cancellation must not affect an intentional replacement.
+            DispatchQueue.main.async { [weak self] in
+                guard let self,
+                      self.engineExitGate.shouldCancelTunnel(runGeneration) else { return }
                 self.telemetry.append(TunnelEvent(
                     type: "engine stopped",
                     profileName: prepared.storedProfile.name,
                     detail: "tun2proxy code \(result)"
+                ))
+                self.cancelTunnelWithError(NSError(
+                    domain: "APL.PacketTunnelEngine", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Packet engine stopped unexpectedly"]
                 ))
             }
         }
         try await Task.sleep(nanoseconds: 350_000_000)
         try Task.checkCancellation()
         guard !stopping else { throw CancellationError() }
+        guard engineExitGate.isRunning(runGeneration) else {
+            throw tunnelError("Пакетный движок завершился до подключения")
+        }
     }
 
     private func resetConnectionPressurePolicy() {
@@ -440,6 +466,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             // A blocking tun2proxy runner owns engineQueue until it exits.
             // Waiting for the queue barrier prevents starting a replacement
             // while the old runner is still draining its virtual DNS sockets.
+            engineExitGate.invalidate()
             try await TunnelEngineHandoff.stopAndDrain(engineQueue: engineQueue) {
                 _ = tun2proxy_stop()
             }
