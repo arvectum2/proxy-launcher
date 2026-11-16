@@ -41,7 +41,7 @@ signing/upload, or establish a release date.
   file adds references without removals. Focused 22 Swift tests and 331
   Python tests +14 subtests passed. Current mirror workflow is byte-identical
   to origin/main. No duplicate cherry-pick, merge, or publication performed.
-* Active handoff remains a real prerequisite: current controlled native
+* Extended native handoff (deferred by owner below): current controlled native
   peer is a LAN address, not reachable over arbitrary cellular WAN. The
   prior interface-bound VPN-OFF TLS evidence is not active native handoff.
   Use an explicitly authorized isolated WAN-reachable UDP peer, validate
@@ -57,8 +57,9 @@ signing/upload, or establish a release date.
 
 1. Finish finite native safety acceptance for **declared** release
    capabilities: fixed-target WG/AWG healthy and fault/escape matrix done;
-   reachable independent endpoint for actual Wi-Fi/LTE and route policy
-   remain, without repeating verified cases.
+   functional proxy Wi-Fi/LTE/Wi-Fi smoke and route policy remain.
+   Extended instrumented native handoff deferred by explicit owner scope
+   decision below; do not claim it passed.
 2. Resolve selected dependency source/notice/publication and privacy gates.
    CloudKit remains disabled absent separately approved private entitlement
    and multi-device acceptance. No unverified Smart4 DIRECT or native FIN
@@ -77,3 +78,16 @@ an explicit product-owner scope decision; do not silently substitute it.
 Current public milestone remains 0.2.0 (48) in project records. No upload,
 review or publication is asserted. No production state was changed by this
 read-only artifact audit.
+
+
+## Owner-approved handoff scope adjustment (16 November)
+
+No VPS available; owner approved functional smoke on existing proxy:
+active VPN over Wi-Fi, LTE and back, HTTPS reachability and recovery,
+restore original Wi-Fi and terminal VPN OFF, preserve profile data.
+This is not independent escape testing nor WG/AWG active handoff.
+Extended native handoff with controlled WAN UDP peer and filtered
+underlay observation is a deferred backlog item, not a PASS. No other
+release or publication gate is waived; no server purchase, public port
+or account change authorized. Final release must state the tested
+capabilities accurately.

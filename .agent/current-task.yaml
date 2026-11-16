@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -249,7 +249,7 @@ completed:
 
 
 
-current: "Stage43c WG/AWG fixed-target healthy/established loss matrix complete; 36 ordered records total. Last device state isolated WG OFF, no PacketTunnel, RVI or lab peer listener. PR377-380 source/patch comparison and focused regressions completed (22 Swift and 331 Python +14 subtests), PR381/382 ancestors, mirror workflow identical to main. Active Wi-Fi/LTE handoff requires authorized isolated WAN-reachable UDP peer and direct phone operator to restore Wi-Fi if Mirroring drops. No such endpoint established; no network change. Native production scope, final notice/source and privacy approval, CloudKit and final signed integration still pending."
+current: "Owner approved simplified release handoff acceptance without VPS: functional active Wi-Fi/LTE/Wi-Fi using existing working HTTP/SOCKS proxy, advanced instrumented native WG/AWG handoff deferred to backlog, not accepted. Physical paired iPhone 13, previously selected lab OFF, existing APL 0.3.0 visible, selected working Netherlands 2 profile, no active PacketTunnel at preflight. Preserve profiles; restore initial Wi-Fi and VPN OFF."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -454,4 +454,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stop repeating completed healthy/loss matrices. For actual handoff, obtain explicitly authorized isolated WAN-capable UDP test peer and confirm owner physically available for Wi-Fi restoration; do not blindly toggle radios, expose router port, deploy paid server or use third-party VPN. Implement bounded same-session underlay transition evidence using that controlled endpoint, verify on device and restore original network. Lab WG is OFF, fixture/owner in ~/ArvectumSafe/apl-nativeqa-stage37/stage41/wgdns-loss43c. PR377-382 changes accounted for, no duplicate cherry-pick; current mirror workflow equals main. Verify latest CI and GitVerse, then complete exact production packaging/source/notices/privacy, release scope, CloudKit and owner backup approvals and signed final QA. Main merge/release require explicit authorization."
+resume_instruction: "Complete functional Wi-Fi/LTE/Wi-Fi smoke on installed APL with existing selected working proxy and direct phone operator available for restoring Wi-Fi if Mirroring drops. Record fresh HTTPS egress checks and same proxy selection, recovery and terminal OFF; do not infer native handoff/security from functional proxy smoke. Extended native handoff independent WAN peer deferred by product owner. Then remaining packaging/privacy/notice and signed release gates; no main merge/upload without authorization."
