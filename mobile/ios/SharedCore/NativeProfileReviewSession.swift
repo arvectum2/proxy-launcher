@@ -66,7 +66,7 @@ struct NativeProfilePresentation: Equatable {
         let c=NativeCredentialCatalog(storage:store,repository:repo,legacyIDs:{[]})
         catalog=c;review=NativeRestoreReview(catalog:c,elapsed:elapsed)
         management=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly},elapsed:elapsed)
-        launchBoundary=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:MemoryItems(),legacyIDs:{[]})
+        launchBoundary=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:MemoryItems(),legacyIDs:{[]},routingAdmission:{.tunnelOnly})
     }
     func counts() throws -> Counts {
         let refs=try catalog.reader.snapshot().current

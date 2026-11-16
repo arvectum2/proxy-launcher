@@ -187,7 +187,7 @@ final class ProfileStore {
     @MainActor func makeNativeValidationLaunchBoundary() -> NativeSessionLaunchBoundary {
         NativeSessionLaunchBoundary(reader:NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain()),
             repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
-            ticketItems:NativeCredentialKeychain(purpose:.handoff),legacyIDs:{[self] in Set(try profilesForMutation().map(\.id))})
+            ticketItems:NativeCredentialKeychain(purpose:.handoff),legacyIDs:{[self] in Set(try profilesForMutation().map(\.id))},routingAdmission:{[self] in nativeRoutingAdmission()})
     }
 
     func makeNativeProviderValidationHandoff() -> NativeCredentialHandoff {

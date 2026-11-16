@@ -31,14 +31,21 @@ import Foundation
     private let repository: NativeCredentialRepository
     private let handoff: NativeCredentialHandoff
     private let legacyIDs: () throws -> Set<UUID>
-    private var pending: Intent?
+    private let routingAdmission: () -> NativeRoutingAdmission
+    private struct Prepared {
+        let intent: Intent
+        let snapshot: NativeCredentialCatalogReader.Snapshot
+        let legacyIDs: Set<UUID>
+    }
+    private var pending: Prepared?
     private var issued: (intent:Intent,ticket:NativeCredentialHandoff.Ticket)?
 
     init(reader:NativeCredentialCatalogReader,repository:NativeCredentialRepository,
-         ticketItems:NativeCredentialItems,legacyIDs:@escaping () throws -> Set<UUID>) {
-        self.reader=reader;self.repository=repository;self.legacyIDs=legacyIDs
+         ticketItems:NativeCredentialItems,legacyIDs:@escaping () throws -> Set<UUID>,
+         routingAdmission:@escaping () -> NativeRoutingAdmission) {
+        self.reader=reader;self.repository=repository;self.legacyIDs=legacyIDs;self.routingAdmission=routingAdmission
         handoff = .init(items:ticketItems,repository:repository,authorizes:{ binding in
-            guard !(try legacyIDs()).contains(binding.reference.profileID) else {return false}
+            guard routingAdmission().permitsSelection, !(try legacyIDs()).contains(binding.reference.profileID) else {return false}
             return try reader.authorizes(binding)
         })
     }
@@ -49,15 +56,22 @@ import Foundation
         guard issued==nil else {throw Failure.busy}
         pending=nil
         let plan=try TransportBackendPlan.prepare(profileID:reference.profileID,revision:reference.revision,protocol:reference.kind.transport,scope:scope,routes:routes,required:required)
-        guard siteExclusions.isEmpty,applicationExclusions.isEmpty else {throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
-        guard !(try legacyIDs()).contains(reference.profileID),let nonce=try reader.selectionAuthority(reference),
-              let record=try repository.read(reference),try reader.selectionAuthority(reference)==nonce,
-              !(try legacyIDs()).contains(reference.profileID) else {throw Failure.staleSelection}
+        guard siteExclusions.isEmpty,applicationExclusions.isEmpty,routingAdmission().permitsSelection else {throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        let snapshot=try reader.snapshot(),ids=try legacyIDs()
+        guard snapshot.version==2,!snapshot.hasPendingWrite,snapshot.selected==reference,
+              let nonce=snapshot.selectionNonce,!ids.contains(reference.profileID),
+              Set(snapshot.current.map(\.profileID)).isDisjoint(with:ids),
+              let record=try repository.read(reference) else {throw Failure.staleSelection}
         let (config,route)=try record.compile()
         guard config.provider==plan.provider,route.provider==plan.provider else {throw TransportContractError.providerMismatch}
-        guard try reader.selectionAuthority(reference)==nonce else {throw Failure.staleSelection}
+        guard routingAdmission().permitsSelection,try reader.snapshot()==snapshot,try legacyIDs()==ids else {throw Failure.staleSelection}
         let intent=Intent(plan:plan,reference:reference,selectionNonce:nonce,id:UUID())
-        pending=intent;return intent
+        pending=Prepared(intent:intent,snapshot:snapshot,legacyIDs:ids);return intent
+    }
+
+    private func stillCurrent(_ prepared:Prepared)throws->Bool {
+        guard routingAdmission().permitsSelection, try reader.snapshot()==prepared.snapshot, try legacyIDs()==prepared.legacyIDs else { return false }
+        return routingAdmission().permitsSelection
     }
 
     /// Call only with the actual coordinator-owned .start session, after
@@ -83,15 +97,18 @@ import Foundation
     }
 #endif
     private func issueOwned(_ intent:Intent,for session:TransportBackendCoordinator.Session,runtimeOwner:UUID?,probeIPv4:String?,scope:NativeCredentialHandoff.RuntimeScope?,probeIPv6:String?)throws->Launch {
-        guard issued==nil,pending==intent else {throw Failure.invalidIntent}
+        guard issued==nil,let prepared=pending,prepared.intent==intent else {throw Failure.invalidIntent}
         pending=nil
         let binding=try intent.expectedBinding(for:session)
-        guard !(try legacyIDs()).contains(intent.reference.profileID),try reader.authorizes(binding),
-              let record=try repository.read(intent.reference),!(try legacyIDs()).contains(intent.reference.profileID) else {throw Failure.staleSelection}
+        guard try stillCurrent(prepared),try reader.authorizes(binding),
+              let record=try repository.read(intent.reference),try stillCurrent(prepared) else {throw Failure.staleSelection}
         let ticket=try handoff.issue(record,binding:binding,runtimeOwner:runtimeOwner,runtimeProbeIPv4:probeIPv4,runtimeScope:scope,runtimeProbeIPv6:probeIPv6)
         // Keep exact cleanup ownership even if encoding or subsequent dispatch fails.
         issued=(intent,ticket)
-        do {return Launch(ticketBytes:try TransportNativeCodec.encode(ticket),expectedBytes:try TransportNativeCodec.encode(binding))}
+        do {
+            guard try stillCurrent(prepared) else {throw Failure.staleSelection}
+            return Launch(ticketBytes:try TransportNativeCodec.encode(ticket),expectedBytes:try TransportNativeCodec.encode(binding))
+        }
         catch {try finish(intent);throw error}
     }
 
@@ -101,13 +118,13 @@ import Foundation
             guard active.intent==intent else{throw Failure.busy}
             try finish(intent);return
         }
-        if pending==intent {pending=nil}
+        if pending?.intent==intent {pending=nil}
     }
 
     /// Explicitly retire the exact ticket on dispatch rejection, stop or
     /// confirmed consumption. A failed delete retains ownership for retry.
     func finish(_ intent:Intent) throws {
-        if pending==intent {pending=nil;return}
+        if pending?.intent==intent {pending=nil;return}
         guard let active=issued,active.intent==intent else {throw Failure.invalidIntent}
         _=try handoff.revoke(active.ticket);issued=nil
     }
