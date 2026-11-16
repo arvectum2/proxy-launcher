@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage43c healthy WG: UDP4, UDP6 and fixed resolver before/ON/after cycles PASS (9 ordered independent capture and host receipts, ON peer correlation); no broad leak claim."
   - "Stage43b: independent full-route WireGuard system DNS physical 6DF744B3 PASS, exact command/host/peer correlation and terminal OFF. All core 16 cases + 2 positive DNS cases. No no-leak claim."
   - "Stage43a: independent AWG exact-name DNS reference and isolated system resolver command; local DNS/TCP control and actual physical positive DNS F20DEBD4 correlated PASS. No broad no-leak claim."
   - "Stage42 six AWG physical positives/negatives independently correlated; all 16 core native transport/authentication cases PASS. Direct reference exact-device source pinning and local controls verified; no production changes."
@@ -245,7 +246,7 @@ completed:
 
 
 
-current: "Stage43c: WG bounded healthy UDP4 and UDP6 physical no-escape cycles PASS with before/on/after physical counts 1/0/1, tunnel counts 0/1/0, independent host and peer correlation, no capture drops, terminal OFF. DNS direct OFF before PASS. Next ON DNS and after DNS; peer loss and handoff pending."
+current: "Stage43c healthy WG fixed-target observation COMPLETE: all three before/ON/after cycles verified. UDP4 physical 1/0/1 and tunnel 0/1/0, UDP6 physical 1/0/1 and tunnel 0/1/0, DNS at fixed 192.0.2.53:53 physical 1/0/1 and tunnel 0/12/0. Nine ordered capture/host receipts, independent ON peer challenges and responses correlated, DNS A witness 1. No capture ambiguity or drops and terminal OFF. This is bounded healthy WireGuard evidence, not general DNS/IP no-leak or other protocol acceptance. Peer-loss and handoff remain; no network changes."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -258,8 +259,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "8cd202b1; signed isolated source e5108c7f manifest 9c5ebcdd42006eb1953d24bd90779fc84c92d53cdc2fda344e0e17e590578f86; final Python320/320 +14 subtests PASS, previous Swift416/416 PASS. Physical WG UDP4 bounded healthy before/on/after PASS."
+last_verified_commit: "085808ea checkpoint with IPv6 positive; isolated source e5108c7f signed manifest 9c5ebcdd42006eb1953d24bd90779fc84c92d53cdc2fda344e0e17e590578f86. Nine fixed-target observations all correlated PASS; prior Python320/320 +14 subtests and Swift416/416."
 test_results:
+  - "Stage43c healthy WG final: UDP6 DCC4C2E4/1095D8EF/77BFEAE2 physical 1/0/1, tunnel 0/1/0; DNS 35670F8B/7D812ADF/9E3B9B9A physical 1/0/1, tunnel 0/12/0, independent A witness 1. All nine ordered receipts and peer challenge/response correlations verified, no capture drops/ambiguity, terminal OFF, RVI removed, no remaining peer listeners/extension. Network unchanged. Established peer loss and general leak gates pending."
   - "Stage43c partial: 320 Python +14 subtests PASS. Signed isolated OFF-control candidate installed. PKTAP RVI exact UDP4 physical/tunnel counts 1/0 before, 0/1 ON, 1/0 after; peer and host correlated, no drops, terminal OFF. IPv6 and DNS exact OFF before controls each physical1/tunnel0. Initial DNS attempt unconsumed due Mirroring foreground; retry passed. Capture removed, network unchanged. No broad no-leak or release claim."
   - "Stage43c preparation: full Swift Core suite 416/416 PASS (includes previous selected92), zero failures; independent escape gate runbook documented; no physical capture performed or release authorized."
   - "Stage43b final: F82C9AD1 manager readback OFF and 6DF744B3 physical WG DNS exact A response 1, TCP4 witness 1, relay c2s handshake1/data15 and s2c reply1/data7; challenge and response matched, local positive control PASS, OS OFF, no remaining listener or tunnel extension. Previous 314 Python/92 Swift and Go checks PASS."
@@ -440,4 +442,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43c continue ON DNS staged private on-dns4 with pinned DNS reference and capture_nativeqa_rvi.py, then after-dnsWire4 OFF. Confirm exact command, host, peer, and capture receipts; no general no-leak claim. Owner approved bounded USB capture and Wi-Fi/LTE transitions. Verify Mirroring foreground before clicks, restore original network and VPN OFF. Do not repeat verified UDP4/UDP6 cycles."
+resume_instruction: "Stage43c failure injection next: do not repeat healthy fixed-target cycles. Design bounded QA-only established-positive then independently timed peer-loss test, with fresh challenge after measured cut, physical/tunnel observation restricted to synthetic destinations, before/after OFF positive controls, exact owner and OFF on exit. Wrong-key from startup is not established peer loss. Owner consent for bounded USB capture and temporary Wi-Fi/LTE exists. Follow with corresponding full-route AWG leak tests and scoped-route tests as applicable, handoff and signed migration/production gates. Do not alter route guards or claim broad no-leak/release authorization."

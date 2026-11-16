@@ -332,3 +332,18 @@ because Mirroring lost foreground; discarded rather than counted.
 unchanged. This is bounded healthy UDP4 evidence only, not a general
 no-leak result. IPv6/DNS ON and AFTER, peer loss, handoff and production
 acceptance remain pending.
+
+Stage 43c healthy WG completion: the remaining independent before/ON/after
+cycles were verified with exact command/host/peer identities and ordered
+capture windows. UDP6 DCC4C2E4 / 1095D8EF / 77BFEAE2 had physical-out
+1/0/1 and tunnel-out 0/1/0. DNS 35670F8B / 7D812ADF / 9E3B9B9A
+had physical-out 1/0/1 and tunnel-out 0/12/0; independent A witness 1
+and exact subsequent TCP response. DNS OFF controls were direct synthetic
+UDP queries to the fixed resolver, not system resolver tests.
+All nine observations (including UDP4) correlated successfully, with no
+capture drops or ambiguous metadata; terminal OS OFF and RVI cleanup
+verified. Networks unchanged. This establishes bounded healthy full-route
+WireGuard behavior for these exact destinations, not absence of traffic
+to arbitrary DNS servers, other destinations, failure, handoff, or other
+protocols. Established peer-loss testing must first prove a working
+exchange, independently time a peer cut and then observe a fresh probe.
