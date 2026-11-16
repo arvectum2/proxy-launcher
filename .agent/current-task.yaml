@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: Stage41 WireGuard four full-route positive probes and wrong-key negative independently correlated PASS. Prepare AmneziaWG reference preflight; retained WireGuard laboratory manager OFF."
+current: "Stage42: pinned AWG peer and bridge artifact hashes verified; stock local LAN preflight PASS for all four transport probes, wrong key, wrong PSK and bridge UDP4/UDP6. Generated private synthetic AWG fixture and staged it in NativeLab Documents. Exact previous WG manager removed with verified receipt 39B58D83. Old synthetic WG library row remains; Mirroring scrolling/confirmation unreliable, no new manager or AWG runtime started."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "a116cb07; signed base 7d0eab38; four WireGuard full-route positives and wrong-key negative verified from stored independent receipts."
+last_verified_commit: "dcdbafee confirms WireGuard physical acceptance and negative correlation; AWG pinned reference local preflight PASS; exact old lab manager removal verified."
 test_results:
+  - "Stage42: artifact SHA256 verification PASS; AWG LAN separate-process preflight 4 positive transport witnesses, wrong-key and wrong-PSK rejected, UDP bridge IPv4/IPv6 PASS; previous exact WG manager removal PASS. No physical AWG data-plane result yet."
   - "Stage41 full WG positives: TCP4 A55559E5, TCP6 5B4E87CA, UDP4 3028C520, UDP6 01C260A6; 4/4 exact command/host and independent reference peer nonce/response matches, one matching witness, handshake/data each direction, terminal drain/OFF. No broad no-leak claim."
   - "Stage41 physical WG scoped TCP4 PASS after exact manager readback 13BB92C0; request BE5B437D independent upstream WG handshake 1/1, encrypted transport 5/5, witness1, exact digests, clean drain/OFF. Full-scope TCP6 41E6DE25, full TCP4 B929E055, QA-interface-binding full TCP4 02EA460E all FAILED expected response, zero accepted relay traffic; all host drain/OFF. Experiment Swift7/7 and Python101/101 passed; unsigned/signed build and install passed, not a physical fix. Source reverted. BPF root-only; no independent capture. No physical extended WG/AWG acceptance yet."
   - "Stage41 physical isolated fixture lifecycle: VLESS manager removal receipt verified, old synthetic VLESS retired and purged, corrected WG product-format fixture imported, selected and reference exported. 4 independent WG local preflight probes passed; no physical WG transport claim. Permission pending."
@@ -428,4 +429,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify independent AWG reference controls; then switch isolated lab fixture only, with exact manager removal and renewed OS consent. Physical TCP4/TCP6/UDP4/UDP6 and negative cases remain pending."
+resume_instruction: "Resume Stage42: verify iPhone OFF and only synthetic WG row 9FEAF143 in NativeLab library. Complete explicit remove confirmation and retired-record cleanup through existing UI; confirm empty library, review staged AWG fixture, save/select/export exact reference. Fresh owner and system permission only after that. Do not change production profiles. Then independent AWG physical tests; no-leak acceptance remains pending."

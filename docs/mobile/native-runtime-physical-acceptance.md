@@ -199,3 +199,14 @@ reverted. A zero accepted relay count is not independent wire capture.
 Need bounded header-only physical packet capture to distinguish path loss,
 and then repair/retest. No endpoint-wide exclusions, production activation,
 extended WG, AWG, no-leak, or release acceptance.
+
+### Stage 42 preparation
+
+All four full-route WireGuard positives and the wrong-key negative were
+reconciled with independent reference receipts. The original reference
+AWG archive hashes match. Its LAN-scoped local preflight passed TCP4,
+TCP6, UDP4, UDP6, wrong-key, wrong-PSK and both bridge UDP controls.
+The AWG fixture is staged in the isolated lab container, and the prior
+exact WireGuard manager removal receipt was verified. The previous
+synthetic library record still requires explicit confirmed removal and
+retired revision cleanup. No AWG physical data-plane result yet.
