@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage39: system VPN OFF and prior lab manager absent confirmed. Negative VLESS witness now rotates server Reality key, independently verifies matching local client succeeds and original client fails, retains original device fixture. Local negative/positive preflight PASS and 94 Python tests PASS. Fresh prepareManager 16518EAF-7A68-47D8-829D-9D761BE18F4E consumed; Allow clicked, system demands Mac login via Mirroring, failure receipt present. No runtime started or peer listeners retained. Direct Mac transport unavailable, SSH via MacBook works."
+current: "Stage39 renewed permission: 10:44 Mirroring accessible again, original prepare failed and Settings confirms no lab manager and system VPN OFF. Fresh prepare retry 39E3E18C-575D-46B0-86B6-7AC2E6D2CBE2 staged with original stage39 owner; authorize OS dialog, reconcile exact manager before run. GitHub checkpoint 1e4b85b0 confirmed."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
