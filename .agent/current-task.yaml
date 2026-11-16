@@ -246,7 +246,7 @@ completed:
 
 
 
-current: "Stage43c healthy WG fixed-target observation COMPLETE: all three before/ON/after cycles verified. UDP4 physical 1/0/1 and tunnel 0/1/0, UDP6 physical 1/0/1 and tunnel 0/1/0, DNS at fixed 192.0.2.53:53 physical 1/0/1 and tunnel 0/12/0. Nine ordered capture/host receipts, independent ON peer challenges and responses correlated, DNS A witness 1. No capture ambiguity or drops and terminal OFF. This is bounded healthy WireGuard evidence, not general DNS/IP no-leak or other protocol acceptance. Peer-loss and handoff remain; no network changes."
+current: "Stage43c established peer loss: implement isolated WG full-route two-probe UDP witness with independently timed server shutdown between successful and fresh failed exchange. No product runtime change."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -442,4 +442,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43c failure injection next: do not repeat healthy fixed-target cycles. Design bounded QA-only established-positive then independently timed peer-loss test, with fresh challenge after measured cut, physical/tunnel observation restricted to synthetic destinations, before/after OFF positive controls, exact owner and OFF on exit. Wrong-key from startup is not established peer loss. Owner consent for bounded USB capture and temporary Wi-Fi/LTE exists. Follow with corresponding full-route AWG leak tests and scoped-route tests as applicable, handoff and signed migration/production gates. Do not alter route guards or claim broad no-leak/release authorization."
+resume_instruction: "Validate QA command/host receipt, independent peer timed cut, RVI window correlation and local controls. Build/sign isolated candidate; preserve exact owned WG manager OFF and verified healthy nine observations. Run UDP4 loss then UDP6 loss as visibility allows."
