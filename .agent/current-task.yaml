@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: isolated library diagnostic ca43fcc2 built, 20 focused tests PASS, signed 451d7cd2 and installed. Fresh explicit remove WG 9FEAF143 succeeded, empty library confirmed, exactly one retired revision purged; AWG fixture imported and selected 9A257C03. Exact reference export C4EA124F verified. Fresh prepareManager D3B767E0 consumed; Allow clicked and Mirroring now requests Mac login authentication. No physical AWG traffic yet. Prior helper invocation rejection remains unresolved; no attempt to bypass."
+current: "Stage42: previous prepare D3B767E0 failed after consent timeout. Fresh Settings readback confirms VPN OFF and no lab manager. New prepare 0F9D1FE8-41A8-497B-95E6-618F605C11CA staged with same owner and selected AWG fixture; OS authorization pending. No physical AWG run."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
