@@ -1,0 +1,37 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-WIN-APP-ROUTING-20261002
+status: completed
+goal: "Finish production per-application routing on Windows using official signed WinDivert 2.2.2 and validate it on a physical Windows VM."
+definition_of_done:
+  - "Production WinDivert implementation is integrated to main."
+  - "Exact-head Windows CI passes."
+  - "Physical Windows VM acceptance proves IPv4 and IPv6 selected-app routing and restore."
+  - "Post-test cleanup leaves no Arvectum routing service, WinDivert driver service, marker, or install-root."
+completed:
+  - "PR #241 exact implementation head 48e4f4836c86f1a60443df27b60ec8b366a52dd8 verified mergeable and CI-green."
+  - "Physical VM acceptance PASS for IPv4 and IPv6 apply/route/restore."
+  - "Physical VM cleanup PASS: service=absent driver=absent files=absent marker=absent."
+  - "Driver Verifier confirmed disabled and not part of the acceptance path."
+  - "PR #241 evidence comment recorded as 5960934005."
+  - "Owner explicitly authorized continuation/merge in chat on 2026-10-02."
+  - "PR #241 merged to main as 61fcf2c0fae1e1b0ca93b2271eb3b907f49db352."
+current: "COMPLETED: production Windows per-application routing is merged to main."
+pending: []
+last_verified_commit: "61fcf2c0fae1e1b0ca93b2271eb3b907f49db352"
+test_results:
+  - "Windows per-app WinDivert production CI run 37054828510: PASS."
+  - "Windows installer CI run 37054828413: PASS."
+  - "APL-REL-016 Windows public trust CI run 37054828453: PASS."
+  - "Windows P0 portable CI run 37054828463: PASS."
+  - "Physical Windows VM: ARVECTUM_WINDIVERT_SERVICE_ACCEPTANCE PASS families=ipv4,ipv6."
+  - "Physical Windows VM cleanup: PASS service=absent driver=absent files=absent marker=absent."
+blocker: null
+resume_instruction: "Task complete. For any future Windows per-app routing regression, start from main after merge commit 61fcf2c and reproduce against a fresh artifact before changing the WinDivert stack."
+updated_at: "2026-10-02T23:31:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-WIN-APP-ROUTING-20261002"
+  branch: "agent/apl-windows-windivert-clean-20261002"
+  tested_head: "48e4f4836c86f1a60443df27b60ec8b366a52dd8"
+  merge_commit: "61fcf2c0fae1e1b0ca93b2271eb3b907f49db352"
