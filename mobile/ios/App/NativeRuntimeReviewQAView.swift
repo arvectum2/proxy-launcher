@@ -155,7 +155,9 @@ private struct NativeRuntimeQAFailureReceipt:Encodable {
             if command.action != .run {
                 stage="manager"
                 if command.action == .readManager {
-                    try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
+                    let disconnect=try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
+                    let name="apl-native-runtime-qa-disconnect-"+command.requestID.uuidString+".txt"
+                    try Data(disconnect.utf8).write(to:directory.appendingPathComponent(name),options:[.withoutOverwriting,.completeFileProtection])
                 } else {
                 try await vpn.performNativeRuntimeQAManager(owner:command.owner,reference:command.reference,remove:command.action == .removeManager,authorized:authorized)
                 }
