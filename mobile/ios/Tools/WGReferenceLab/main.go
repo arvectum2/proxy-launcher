@@ -276,6 +276,7 @@ func run(path string) int {
 							reply := []byte("APL_RECEIPT:" + cfg.Nonce)
 							if sent, e := u.WriteTo(reply, from); e == nil && sent == len(reply) {
 								counts[2+idx].Add(1)
+                                fmt.Printf("WG_EXACT_UDP_REPLY %d\n", idx)
 							}
 						}
 						continue

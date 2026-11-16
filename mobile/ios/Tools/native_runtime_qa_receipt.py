@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -47,12 +48,21 @@ def validate_command(command):
         need(all(v is None for v in (scope, probe, mode, nonce)), "manager command has probe options")
         return
     kind = command["reference"]["kind"]
+    if mode == "peer-loss":
+        need(kind=="wireGuard" and scope=="wireGuardFull" and probe in ("udp4","udp6") and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid peer loss command")
+        return
     need((probe in PROBES or (probe == "dns4" and mode == "positive" and ((kind == "amneziaWG1" and scope is None) or (kind == "wireGuard" and scope == "wireGuardFull")))) and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40), nonce) is not None, "invalid probe challenge")
     if kind == "amneziaWG1":
         need(scope is None and mode in ("positive", "wrong-key", "wrong-psk"), "invalid AWG scope or mode")
     else:
         expanded = "wireGuardFull" if kind == "wireGuard" else "vlessDatagrams"
         need((scope == expanded or (scope is None and probe == "tcp4")) and mode in ("positive", "wrong-key"), "invalid Xray scope or mode")
+
+
+def post_loss_nonce(command):
+    validate_command(command)
+    need(command.get("mode")=="peer-loss","not a peer loss command")
+    return sha(("APL-QA-POST-LOSS:"+command["nonce"]).encode())[:40]
 
 
 def make_command(fixture, owner, action, scope=None, probe=None, mode=None):
@@ -88,7 +98,7 @@ def validate_identity(value, provider):
 def verify_host(command, receipt):
     validate_command(command)
     required = {"schema", *BINDING, "setup", "probeAttempted", "managerReadback", "osOff", "independentWitnessRequired", "releaseAuthorized"}
-    allowed = required | set(OPTIONAL) | {"responseSHA256", "drain"}
+    allowed = required | set(OPTIONAL) | {"responseSHA256", "drain", "loss"}
     need(type(receipt) is dict and required <= set(receipt) <= allowed, "invalid host receipt schema")
     need(type(receipt["schema"]) is int and receipt["schema"] == 1, "invalid host schema")
     for key in BINDING:
@@ -98,6 +108,17 @@ def verify_host(command, receipt):
     need(receipt["managerReadback"] is True and receipt["osOff"] is True and receipt["independentWitnessRequired"] is True and receipt["releaseAuthorized"] is False, "incomplete safety boundary")
     result = dict(status="host_receipt_correlated_only", action=command["action"], kind=command["reference"]["kind"], requestID=command["requestID"], independent_witness_required=True, runtime_authorized=False, release_authorized=False)
     setup, drain = receipt["setup"], receipt.get("drain")
+    if command.get("mode")=="peer-loss":
+        allowed_loss={"firstStart","firstEnd","secondStart","secondEnd","secondChallengeSHA256"}
+        loss=receipt.get("loss")
+        need(type(loss) is dict and allowed_loss <= set(loss) <= allowed_loss | {"secondResponseSHA256"}, "missing loss transcript")
+        times=[loss[k] for k in ("firstStart","firstEnd","secondStart","secondEnd")]
+        need(all(type(t) in (int,float) and math.isfinite(t) and t>0 for t in times),"invalid loss timestamps")
+        a,b,c,d=times
+        need(a<=b<c<=d and 7.9<=c-b<=15 and b-a<=5 and d-c<=5,"invalid loss timeline")
+        need(loss["secondChallengeSHA256"]==sha(post_loss_nonce(command).encode()) and loss.get("secondResponseSHA256") is None,"unexpected post loss response")
+    else:
+        need("loss" not in receipt,"unexpected loss transcript")
     need(type(setup) is list, "invalid setup transcript")
     if command["action"] == "offControl":
         need(setup == [] and drain is None and receipt["probeAttempted"] is True and receipt.get("responseSHA256") is None, "invalid OFF control evidence")
@@ -128,7 +149,7 @@ def verify_host(command, receipt):
             need(q["identity"] == live, "drain does not match live identity")
     nonce = command["nonce"]
     expected = sha((("APL:" if kind == "amneziaWG1" else "APL_RECEIPT:") + nonce).encode())
-    need(receipt.get("responseSHA256") == (expected if command["mode"] == "positive" else None), "unexpected host probe result")
+    need(receipt.get("responseSHA256") == (expected if command["mode"] in ("positive","peer-loss") else None), "unexpected host probe result")
     return dict(result, probe=command["probe"], mode=command["mode"], challengeSHA256=sha(nonce.encode()))
 
 
@@ -142,7 +163,7 @@ def main():
     m.add_argument("--action", choices=ACTIONS, required=True)
     m.add_argument("--scope", choices=("wireGuardFull", "vlessDatagrams"))
     m.add_argument("--probe", choices=(*PROBES, "dns4", "dnsWire4"))
-    m.add_argument("--mode", choices=("positive", "wrong-key", "wrong-psk", "observe-off"))
+    m.add_argument("--mode", choices=("positive", "wrong-key", "wrong-psk", "observe-off", "peer-loss"))
     v = sub.add_parser("verify-host")
     v.add_argument("command", type=Path)
     v.add_argument("receipt", type=Path)

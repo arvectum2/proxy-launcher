@@ -203,3 +203,23 @@ def test_off_control_is_not_runtime_or_release_evidence(probe):
     with pytest.raises(ValueError):q.validate_command(dict(c,mode="positive"))
     wrong=dict(c,reference=fixture("amneziaWG1")["reference"])
     with pytest.raises(ValueError):q.validate_command(wrong)
+
+
+def test_peer_loss_requires_exact_positive_then_fresh_negative():
+    from verify_nativeqa_wg_loss import verify_observation
+    c=command("wireGuard","udp4","peer-loss","wireGuardFull")
+    r=receipt(c);r["responseSHA256"]=q.sha(("APL_RECEIPT:"+c["nonce"]).encode())
+    r["loss"]=dict(firstStart=100.,firstEnd=101.,secondStart=109.,secondEnd=113.,secondChallengeSHA256=q.sha(q.post_loss_nonce(c).encode()))
+    p=dict(requestID=c["requestID"],probe="udp4",challengeSHA256=q.sha(c["nonce"].encode()),responseSHA256=r["responseSHA256"],secondChallengeSHA256=r["loss"]["secondChallengeSHA256"],localPositiveControl=True,witnessAt=100.8,cutStart=101.8,cutComplete=102.5,witnessCounts=dict(tcp4=0,tcp6=0,udp4=1,udp6=0),releaseAuthorized=False)
+    o=dict(requestID=c["requestID"],probe="udp4",started=99.,ended=114.,rviRemoved=True,releaseAuthorized=False,complete=True,physicalOut=0,tunnelOut=2,ambiguous=0)
+    h="100.4 (utun8, out) IP 192.0.2.1.5555 > 198.51.100.77.39883: UDP, length 48\n109.1 (utun8, out) IP 192.0.2.1.5556 > 198.51.100.77.39883: UDP, length 48\n"
+    s="listening on rvi0, link-type PKTAP (Apple DLT_PKTAP)\n2 packets captured\n0 packets dropped by kernel\n"
+    assert verify_observation(c,r,p,o,h,s)["postCutTunnelPackets"]==1
+    for bad in (dict(p,cutComplete=110.),dict(p,witnessAt=90.),dict(p,requestID=q.new_id())):
+        with pytest.raises(AssertionError):verify_observation(c,r,bad,o,h,s)
+    with pytest.raises(AssertionError):verify_observation(c,r,p,o,h.replace("utun8","en0"),s)
+    with pytest.raises(AssertionError):verify_observation(c,r,p,o,h.replace("109.1","105.1"),s)
+    with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondResponseSHA256="a"*64)))
+    with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondChallengeSHA256=q.sha(c["nonce"].encode()))))
+    for kind,scope,probe in (("wireGuard",None,"udp4"),("wireGuard","wireGuardFull","tcp4"),("amneziaWG1",None,"udp4"),("vlessReality","vlessDatagrams","udp4")):
+        with pytest.raises(ValueError):command(kind,probe,"peer-loss",scope)

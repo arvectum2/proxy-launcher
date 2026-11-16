@@ -24,6 +24,15 @@ private struct NativeRuntimeQACommand:Decodable {
                 nonce?.utf8.count==40 && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
         }
         if action != .run {return scope==nil && probe==nil && nonce==nil && mode==nil}
+        if mode=="peer-loss" {
+#if APL_NATIVE_EXACT_DNS
+            return reference.kind == .wireGuard && scope == .wireGuardFull &&
+                ["udp4","udp6"].contains(probe ?? "") &&
+                nonce?.utf8.count==40 && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
+#else
+            return false
+#endif
+        }
         guard let probe,let nonce,let mode,(["tcp4","tcp6","udp4","udp6"].contains(probe) || (probe=="dns4" && mode=="positive" && ((reference.kind == .amneziaWG1 && scope==nil) || (reference.kind == .wireGuard && scope == .wireGuardFull)))),
               nonce.utf8.count==(reference.kind == .amneziaWG1 ? 48:40),
               nonce.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)}) else{return false}
@@ -35,6 +44,10 @@ private struct NativeRuntimeQACommand:Decodable {
         case .vlessReality:return (scope == .vlessDatagrams || (scope==nil && probe=="tcp4")) && ["positive","wrong-key"].contains(mode)
         case .amneziaWG1:return scope==nil && ["positive","wrong-key","wrong-psk"].contains(mode)
         }
+    }
+    var postLossNonce:String? {
+        guard mode=="peer-loss",let nonce else{return nil}
+        return String(SHA256.hash(data:Data(("APL-QA-POST-LOSS:"+nonce).utf8)).map{String(format:"%02x",$0)}.joined().prefix(40))
     }
     var probeIPv4:String? {reference.kind == .amneziaWG1 || scope == .wireGuardFull ? nil:"198.51.100.77"}
     var probeIPv6:String? {scope == .vlessDatagrams ? "2001:db8:77::77":nil}
@@ -56,6 +69,14 @@ private struct NativeRuntimeQAReferenceReceipt:Encodable {
     let schema=1
     let reference:NativeCredentialRecord.Reference
 }
+private struct NativeRuntimeQALossObservation:Encodable {
+    let firstStart:Double
+    let firstEnd:Double
+    let secondStart:Double
+    let secondEnd:Double
+    let secondChallengeSHA256:String
+    let secondResponseSHA256:String?
+}
 private struct NativeRuntimeQAReceipt:Encodable {
     let schema=1
     let requestID:UUID
@@ -71,6 +92,7 @@ private struct NativeRuntimeQAReceipt:Encodable {
     let responseSHA256:String?
     let managerReadback:Bool
     let osOff:Bool
+    var loss:NativeRuntimeQALossObservation?=nil
     let independentWitnessRequired=true
     let releaseAuthorized=false
 }
@@ -191,13 +213,30 @@ private struct NativeRuntimeQAFailureReceipt:Encodable {
             let setup=try await vpn.observeNativeRuntimeReviewSetup(owner:command.owner)
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
             stage="probe"
+            let firstStart=Date().timeIntervalSince1970
             let hash=await NativeRuntimeQAProbe.exchange(command)
+            let firstEnd=Date().timeIntervalSince1970
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+            var loss:NativeRuntimeQALossObservation?
+            if let next=command.postLossNonce {
+                guard hash != nil else{throw NativeValidationDispatch.Failure.invalidState}
+                stage="peer-loss-wait"
+                // The independent peer stops after its exact first witness.
+                // A timer alone is never evidence of loss; host verifies cut time.
+                try await Task.sleep(nanoseconds:8_000_000_000)
+                guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+                stage="peer-loss-probe"
+                let secondStart=Date().timeIntervalSince1970
+                let second=await NativeRuntimeQAProbe.exchange(command,postLoss:true)
+                let secondEnd=Date().timeIntervalSince1970
+                loss=NativeRuntimeQALossObservation(firstStart:firstStart,firstEnd:firstEnd,secondStart:secondStart,secondEnd:secondEnd,secondChallengeSHA256:SHA256.hash(data:Data(next.utf8)).map{String(format:"%02x",$0)}.joined(),secondResponseSHA256:second)
+                guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+            }
             stage="drain"
             drain=try await vpn.reconcileNativeRuntimeReview(owner:command.owner)
             guard authorized(),let drain else{throw NativeValidationDispatch.Failure.invalidState}
             stage="receipt"
-            try save(.init(requestID:command.requestID,owner:command.owner,reference:command.reference,action:.run,scope:command.scope,probe:command.probe,mode:command.mode,setup:setup,drain:drain,probeAttempted:true,responseSHA256:hash,managerReadback:true,osOff:true))
+            try save(.init(requestID:command.requestID,owner:command.owner,reference:command.reference,action:.run,scope:command.scope,probe:command.probe,mode:command.mode,setup:setup,drain:drain,probeAttempted:true,responseSHA256:hash,managerReadback:true,osOff:true,loss:loss))
             status="Host observation saved. Independent peer and capture verification required."
         }catch {
             // Only the exact submitted owner can be drained. A missing receipt
@@ -226,8 +265,8 @@ private final class NativeRuntimeQAProbeReply: @unchecked Sendable {
 private enum NativeRuntimeQAProbe {
     /// Fixed documentation-address witnesses, one bounded exchange, no DNS,
     /// redirects, arbitrary destinations, fallback, or owner data.
-    static func exchange(_ command:NativeRuntimeQACommand)async->String? {
-        guard command.valid,(command.action == .run || command.action == .offControl),let probe=command.probe,let nonce=command.nonce else{return nil}
+    static func exchange(_ command:NativeRuntimeQACommand,postLoss:Bool=false)async->String? {
+        guard command.valid,(command.action == .run || command.action == .offControl),let probe=command.probe,let nonce=(postLoss ? command.postLossNonce : command.nonce) else{return nil}
         let awg=command.reference.kind == .amneziaWG1,udp=probe.hasPrefix("udp") || probe=="dnsWire4",v4=probe.hasSuffix("4")
         // Only one generated reserved-domain name, with no arbitrary hostname.
         let host=probe=="dnsWire4" ? "192.0.2.53" : probe=="dns4" ? nonce+".apl-nativeqa.test." : (awg ? (v4 ? "192.0.2.2":"2001:db8::2") : (v4 ? "198.51.100.77":"2001:db8:77::77"))
