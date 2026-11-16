@@ -4,7 +4,7 @@ IOS=Path(__file__).resolve().parents[1]/'mobile/ios'
 
 def test_concrete_xray_abi_only_under_explicit_candidate_gate():
     driver=(IOS/'PacketTunnel/NativeXrayRuntimeDriver.swift').read_text()
-    assert driver.startswith('#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE\n')
+    assert driver.startswith('#if (DEBUG || APL_NATIVE_RELEASE_LINK_PREPARATION) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE\n')
     assert 'CGoInvoke(input)' in driver and 'defer{CGoFree(reply)}' in driver
     assert 'CFBooleanGetTypeID()' in driver and 'maxResponseBytes' in driver
     assert 'static let shared=NativeXrayRuntimeDriver()' in driver
