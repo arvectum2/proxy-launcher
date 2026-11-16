@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage37 supervised isolated device acceptance: user confirmed VPN off; system Settings independently shows disconnected and product extension absent. Start NativeLab fixture and manager K1/K2; adapt bounded independent peer before scoped runtime."
+current: "Stage37: system VPN OFF verified, NativeLab rebuilt and signed from 91ba63e7, installed lab only. Bounded synthetic VLESS file import, preview, save, select and fixture reference export PASS on iPhone. Independent Mac VLESS peer preflight PASS, stopped and no listeners. prepareManager command 42C56D8C-A9A7-4F44-80E6-8F20E34B75AC consumed, iOS permission Allow clicked; Mirroring requires Mac login authentication. No manager receipt yet, no tunnel started. Do not retry until reconcile exact owned state."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "f9965c19c331b669c99939b3cc66d82f45ed8517 isolated unsigned containing ARM64 build; 912bdce0714e1e3938efdbd06f7f07bae5f91fe1 signing scope/tests; 93 focused tests passed; signature/bundle 523 files verified; installed and launched NativeLab only."
+last_verified_commit: "91ba63e7d93c72db2124e01dc4af846593d0d450 isolated lab build and signed manifest e1acd0ae5d6b87b05053ac947caf674f8d1190523cc3a95f1f1506e6fcb04a83. 93 focused tests; physical import selection and export, independent local VLESS peer preflight PASS."
 test_results:
+  - "Stage37: user turned VPN OFF, system Settings disconnected confirmed; bounded lab staged import fixed unreliable clipboard. NativeLab exact build 91ba63e7 unsigned manifest 0d2e17ec74f028d8c2c64b5cb6fefc60619141a1f97403e236ecd315de331066 and signed manifest e1acd0ae5d6b87b05053ac947caf674f8d1190523cc3a95f1f1506e6fcb04a83; installed only lab. Device fixture import/preview/save/select/ref export PASS, Mac peer standalone compile/preflight PASS (restricted target). After permission request Allow, Mac login authentication dialog blocks Mirroring, prepareManager receipt absent. No extension process, no test listeners, no data-plane claim."
   - "Stage36: existing NativeLab profiles valid to Nov 2027, dedicated Keychain VML75VY94V.ru.arvectum.proxylauncher.lab.nativeqa.shared, private per-process defaults, no application-group/iCloud entitlements, QA-only entry. Exact unsigned manifest d3fddd293ff881b8165e92bddba61157d43805bda19fe3f191d258b355e4b7ff; signed manifest b8faa079afbfab2a860f3639a763aa94f291f746178ce1c5f0bc8202acfd9dad, 523 file hashes, codesign strict PASS. Installed NativeLab (metadata 0.2.0 build 48), launched Not armed; existing product 0.3.0 build 49 unchanged; device system VPN connected. All 93 focused tests PASS; actual data-plane peer acceptance NOT performed. GitHub mirror workflow 43819251444 SUCCESS despite local SSH reachability errors."
   - "Stage35: 111 focused pytest PASS; 12 physical-QA wire-format combinations on local TCP/UDP IPv4/IPv6 sockets; command exclusivity, malformed transcript, cross-command replay and exact result checks. No runtime authorization. Physical iPhone paired and existing product installation detected (0.3.0 build 49), no write performed."
   - "16.11.2026 GitVerse SSH recovery completed: PR384 merged main 67df7e20, CI exact-ref main/iOS and manual full-reconcile 43816812349 PASS; both Macs independent SSH push PASS; local launchd backup every 900s. Details in APL-GITVERSE-SSH-20261116.yaml. iOS physical release gate unchanged."
@@ -419,4 +420,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage36 user explicitly authorized isolated NativeLab adaptation/signing/install/physical tests; signed NativeLab installed and QA-only UI launched. Preserve installed product APL and existing managers. Before manager or run: prepare independently controlled peers and capture, confirm system VPN off (currently connected) without changing owner profiles, verify exact signed artifact and fresh command/fixture. Use docs/mobile/native-runtime-physical-acceptance.md and Stage35 validator. Do not treat installed/OS setup as runtime acceptance. CloudKit, legal/security and release gate remain separate."
+resume_instruction: "After owner authenticates iPhone Mirroring, inspect current screen and NativeLab Documents for exact prepareManager receipt 42C56D8C-A9A7-4F44-80E6-8F20E34B75AC. Verify using native_runtime_qa_receipt.py and private command in ~/ArvectumSafe/apl-nativeqa-stage37/prepare; do not replay consumed command or overwrite unknown manager. If exact manager and OFF verified, make fresh VLESS tcp4 run command and start finite independent nativeqa_vless_tcp4_peer.py with --command; match nonce digest/host and peer receipts, drain and remove exact manager only. No owner profile changes. WG/AWG, expanded VLESS and no-leak capture remain unproven."

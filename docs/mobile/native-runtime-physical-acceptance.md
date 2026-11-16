@@ -111,3 +111,24 @@ the device. No manager action, profile mutation or tunnel start performed.
 Before any manager/run action, independently confirm system VPN off and
 appropriate controlled peer readiness; app-scoped manager census alone
 cannot establish system-wide VPN state. Do not alter owner configuration.
+
+## Stage 37: physical fixture import and VLESS TCP4 peer preflight
+
+NativeLab build 91ba63e7 stages one local document fixture, validates
+the fixed LAN endpoint and protocol port, consumes the file and opens the
+existing review/import flow. The physical iPhone imported, saved and selected
+one synthetic VLESS profile, then exported the profile and revision IDs.
+NativeLab's independent VLESS TCP4 peer was built from the locally verified
+macOS Xray archive and passed a real authenticated local witness preflight.
+The bounded helper reconstructs fixed routing (only the documentation-address
+TCP4 witness), accepts LAN relay traffic only, binds the witness and decoy to
+loopback, and shuts down after the finite test. No real iPhone tunnel test yet.
+Private synthetic artifacts: ~/ArvectumSafe/apl-nativeqa-stage37 on Mac mini.
+
+The prepareManager command was consumed and the iOS VPN configuration
+permission was requested. After Allow, Mirroring required Mac login
+authentication. No exact manager receipt was produced when checked. Device
+VPN had been independently observed OFF; no tunnel extension process or
+test listeners were present at the final check. Reconcile the exact pending
+manager before any fresh command; do not automatically replay permission
+or remove an unknown manager.
