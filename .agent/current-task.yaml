@@ -245,7 +245,7 @@ completed:
 
 
 
-current: "Stage43c: bounded physical WG UDP4 healthy no-escape cycle PASS for exact synthetic destination: OFF before 7D1F67FA physical1/tunnel0, ON 14749DDA physical0/tunnel1 and exact independent peer challenge/response, OFF after 8CA3DB1D physical1/tunnel0. All captures complete, zero drops, exact host receipts and OFF. IPv6 OFF before DCC4C2E4 and fixed DNS OFF before 35670F8B also PASS. RVI removed, no peer listener or tunnel extension. ON IPv6/DNS, after controls, peer loss and handoff remain pending."
+current: "Stage43c: WG bounded healthy UDP4 and UDP6 physical no-escape cycles PASS with before/on/after physical counts 1/0/1, tunnel counts 0/1/0, independent host and peer correlation, no capture drops, terminal OFF. DNS direct OFF before PASS. Next ON DNS and after DNS; peer loss and handoff pending."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -440,4 +440,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Continue Stage43c with fresh already-staged-in-private-folder commands on-udp6 and on-dns4 (not yet copied to phone); independent pinned WG reference plus capture_nativeqa_rvi.py, then after-udp6 and after-dnsWire4 OFF controls. Verify exact host/peer/capture command identity, complete visibility, metadata and no physical egress for fixed targets. Add failed-peer and Wi-Fi/LTE handoff cases under owner permission already granted. Use verified Mirroring foreground and current window coordinates before each click. Restore original network and exact owned manager OFF. Do not repeat verified UDP4 cycle or claim general leak/release acceptance."
+resume_instruction: "Stage43c continue ON DNS staged private on-dns4 with pinned DNS reference and capture_nativeqa_rvi.py, then after-dnsWire4 OFF. Confirm exact command, host, peer, and capture receipts; no general no-leak claim. Owner approved bounded USB capture and Wi-Fi/LTE transitions. Verify Mirroring foreground before clicks, restore original network and VPN OFF. Do not repeat verified UDP4/UDP6 cycles."
