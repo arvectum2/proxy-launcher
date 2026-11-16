@@ -204,8 +204,13 @@ struct XrayVLESSPeerSimulatorQA {
                       let converted = invokeJSON(try candidate.conversionRequest()) else {
                     fail("CLIENT_CONVERSION")
                 }
-                let bytes = try XrayVLESSRuntimeConfig.prepare(candidate: candidate,
+                var bytes = try XrayVLESSRuntimeConfig.prepare(candidate: candidate,
                     converterResponse: converted, socksPort: Int(port))
+#if APL_PHYSICAL_PEER_PREFLIGHT && os(macOS)
+                if ProcessInfo.processInfo.environment["APL_PHYSICAL_PEER_DATAGRAMS"]=="1" {
+                    bytes=try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate,socksPort:Int(port),datagramReview:true)
+                }
+#endif
                 guard let text = String(data: bytes, encoding: .utf8) else { fail("CLIENT_CONFIG") }
                 config = text
             }

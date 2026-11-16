@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage39 scoped VLESS wrong-key physical PASS. Exact manager owner readback PASS, paired iPhone run 9ECC42B7-4169-4328-BDFB-11840F4F6DB8: host expected no response and terminal drain/OFF, independent rotated-key witness local positive/negative controls PASS, 2 LAN attempts, 3994 ingress/4810 egress bytes, zero witnesses; exact challenge hash matched. Retain owned lab manager OFF for compatible expanded VLESS tests. Next expanded VLESS, WG/AWG, independent packet capture."
+current: "Stage40 active. System VPN OFF and retained lab profile present. Extend independent VLESS witness to single exact TCP6/UDP4/UDP6 target, bounded LAN relay and local SOCKS UDP controls. Verify exact owner before physical sessions."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
