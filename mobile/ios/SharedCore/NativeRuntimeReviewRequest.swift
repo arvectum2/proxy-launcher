@@ -35,7 +35,7 @@ struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
               validScope(ticket) else{return nil}
         return .init(owner:owner,binding:binding,ticket:ticket)
     }
-#if APL_NATIVE_RUNTIME_QA_HARNESS
+#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
     // Numeric diagnostic only, no option contents, keys or bearer material.
     // This never authorizes a request; the original inspector stays strict.
     static func rejectionCode(configuration:[String:Any]?,options:[String:NSObject]?)->Int {

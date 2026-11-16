@@ -35,7 +35,7 @@ import Network
         guard !used,!retired else{completionHandler(error(10));return}
         let configuration=(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
         guard let request=NativeRuntimeReviewRequest.inspect(configuration:configuration,options:options,enabled:true) else{
-#if APL_NATIVE_RUNTIME_QA_HARNESS
+#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
             completionHandler(error(NativeRuntimeReviewRequest.rejectionCode(configuration:configuration,options:options)))
 #else
             completionHandler(error(1))

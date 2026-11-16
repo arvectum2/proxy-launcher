@@ -75,6 +75,7 @@ for target,flags in [
     if sys.argv[3]=='1':flags+=' APL_NATIVE_PRODUCT_RUNTIME_REVIEW'
     if sys.argv[4]=='1':flags+=' APL_NATIVE_EXACT_DNS'
     if sys.argv[5]=='1' and target=='ArvectumProxyLauncher':flags+=' APL_NATIVE_RUNTIME_QA_HARNESS'
+    if sys.argv[6]=='1':flags+=' APL_NATIVE_RUNTIME_QA_DIAGNOSTICS'
     extra+='        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "'+flags+'"\n'
     if target=='PacketTunnel':
         extra+='        SWIFT_INCLUDE_PATHS: "$(PROJECT_DIR)/Lib/Unified/Headers"\n        LIBRARY_SEARCH_PATHS: "$(PROJECT_DIR)/Lib/Unified"\n        OTHER_LDFLAGS: "$(inherited) -lAPLUnified -lresolv"\n'
