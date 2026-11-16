@@ -3,16 +3,22 @@
 import hashlib,socket,time
 
 class LoopbackWitness:
-    def __init__(self,kind,probe,nonce):
-        if kind not in ('wireGuard','amneziaWG1','vlessReality') or probe not in ('tcp4','tcp6','udp4','udp6') or (kind=='vlessReality' and probe!='tcp4'):raise ValueError('unsupported witness')
+    def __init__(self,kind,probe,nonce,*,physical_qa_contract=False):
+        if kind not in ('wireGuard','amneziaWG1','vlessReality') or probe not in ('tcp4','tcp6','udp4','udp6') or (kind=='vlessReality' and probe!='tcp4' and not physical_qa_contract):raise ValueError('unsupported witness')
         if len(nonce)!=(48 if kind=='amneziaWG1' else 40) or any(c not in '0123456789abcdef' for c in nonce):raise ValueError('invalid nonce')
+        self.physical_qa_contract=physical_qa_contract
         self.probe=probe;self.awg=kind=='amneziaWG1';self.udp=probe.startswith('udp');self.nonce=nonce
         self.count=0;self.replies=0;self.closed=False
     @property
     def request(self):
         if self.awg:return self.nonce.encode()
         if self.udp:return ('APL_UDP:'+self.nonce).encode()
-        return ('GET /'+self.nonce+' HTTP/1.1\r\nHost: witness.invalid\r\nConnection: close\r\n\r\n').encode()
+        # Matches the physical QA harness's literal HTTP authority, without
+        # ever opening a non-loopback socket or asserting real peer reachability.
+        authority='witness.invalid'
+        if self.physical_qa_contract:
+            authority='198.51.100.77:39883' if self.probe.endswith('4') else '[2001:db8:77::77]:39883'
+        return ('GET /'+self.nonce+' HTTP/1.1\r\nHost: '+authority+'\r\nConnection: close\r\n\r\n').encode()
     @property
     def body(self):return (('APL:' if self.awg else 'APL_RECEIPT:')+self.nonce).encode()
     def payload(self,raw):

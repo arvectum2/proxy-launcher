@@ -47,3 +47,41 @@ For `run`, same owner/reference and fresh request, action `run`, `probe` tcp4/tc
 Correlate command and receipt schema/request/owner/reference/action/scope/probe/mode; exact setup starting and stale rejected exchanges, drain drained, manager readback and OS-off. Positive response digest equals SHA256 of `APL_RECEIPT:` + nonce (Xray) or `APL:` + nonce (AWG). Negative missing digest is NOT no-leak proof. Xray TCP HTTP 200 exact body; UDP sends `APL_UDP:` + nonce; AWG sends nonce. Independently capture peer/test destination, match nonce and exact signed build. Manager-only receipts have no probe/drain. Host receipt alone cannot authorize runtime/release. `independentWitnessRequired=true`, `releaseAuthorized=false`.
 
 Open: signed K1/K2, expanded route/DNS/peer fixtures and evidence, Wi-Fi/LTE, faults/MTU/QUIC, native notice/security acceptance, full-device VLESS DNS/domain exclusion policy, CloudKit two-device and final release approval. Earlier isolated receipts do not demonstrate this exact candidate.
+
+## Stage 35: offline command and host receipt tooling
+
+Use Tools/native_runtime_qa_receipt.py from the mobile/ios directory. Store
+the exported fixture metadata and command record in a fresh private (0700)
+operator directory; retain an immutable copy of each command before the app
+consumes its device-side copy. The helper writes new files only (0600).
+
+Example for the explicitly authorized full WireGuard test case:
+
+```sh
+python3 Tools/native_runtime_qa_receipt.py make "$PRIVATE/fixture-ref.json" \
+  "$PRIVATE/apl-native-runtime-qa-command.json" --owner "$OWNER" \
+  --action run --scope wireGuardFull --probe udp6 --mode positive
+python3 Tools/native_runtime_qa_receipt.py verify-host \
+  "$PRIVATE/apl-native-runtime-qa-command.json" "$PRIVATE/host-receipt.json"
+```
+
+For VLESS expanded tests use vlessDatagrams; AWG1 has no scope.
+prepareManager/removeManager commands omit scope, probe and mode. Use a fresh
+private directory for each action. The tool checks exact command/reference
+correlation, distinct control request IDs, live/stale identity, terminal drain,
+manager readback, OS-off and expected response hash. It rejects receipt reuse
+with a different command, but is not a persistent global replay ledger. A
+successful host verifier result is correlation only, not peer/capture proof.
+Negative missing response is not no-leak evidence.
+
+The optional physical_qa_contract mode of LoopbackWitness matches the new
+app's fixed literal HTTP authorities, AWG and UDP challenge bytes for all
+12 protocol/family/transport combinations. It remains strictly loopback-only.
+It cannot substitute for the independent isolated physical peers and captures.
+
+Read-only preflight 16.11: paired iPhone 13 is accessible; installed product
+ru.arvectum.proxylauncher.ios is already version 0.3.0 (49). The new candidate
+uses that same product identity, so installing over the current app is not
+an approved disposable-environment test. Stop before signing for installation
+or touching existing app data/managers. Choose a genuinely disposable device
+or separately approve isolated identities/signing before continuing.
