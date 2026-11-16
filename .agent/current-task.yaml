@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41: base signed lab full WG TCP4 and TCP6 positive verified; TCP6 5B4E87CA correlated independent handshake/data and nonce, drain/OFF. Next fresh UDP4 and UDP6."
+current: "Stage41: base signed lab full WG TCP4, TCP6 and UDP4 positive verified; UDP4 3028C520 correlated independent nonce and handshake/data, drain/OFF. Next fresh UDP6."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
