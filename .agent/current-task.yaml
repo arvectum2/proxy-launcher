@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Approved functional existing-proxy Wi-Fi/LTE/Wi-Fi smoke PASS on installed 0.3.0(49); same egress and provider PID, restored Wi-Fi and verified system OFF."
   - "Stage43c WG established DNS loss physical bracket PASS: AE9D0F1E/315AA993/0EF422E0 physical 1/0/1, tunnel 0/80/0 (20 first/35 intermediate/25 post-cut); exact peer and host correlations, no drops, terminal OFF. Both WG and AWG fixed-target healthy/loss matrices complete."
   - "Stage43c AWG isolated physical full-route fixed-target healthy and established-loss UDP4, UDP6, DNS brackets PASS; all 18 ordered receipts independently reverified, no direct egress in active test windows. Not general leak-proof."
   - "Stage43c WG established UDP4 and UDP6 peer-loss cycles independently corroborated PASS, both fresh post-cut probes remained tunnel-only; no general no-leak claim."
@@ -249,7 +250,7 @@ completed:
 
 
 
-current: "Owner-approved functional proxy handoff smoke. Installed APL 0.3.0 (49), initial VPN OFF and Wi-Fi on; selected existing Netherlands 2 profile preserved. Started normal APL VPN, production PacketTunnel PID 34022 observed, UI connected; fresh Safari HTTPS Cloudflare trace responded over Wi-Fi. Need direct owner radio transition and fresh HTTPS on cellular before returning to Wi-Fi. VPN temporarily remains ON by approved smoke scope, no configuration mutation. Native WAN handoff deferred."
+current: "Owner-approved functional proxy Wi-Fi/LTE/Wi-Fi smoke COMPLETE on installed APL 0.3.0 (49). Used Control Centre temporary Wi-Fi network disassociation (radio stays available for Continuity); wired CoreDevice and Mirroring remained available. Three fresh Safari HTTPS trace responses, same external address, same PacketTunnel PID 34022, Wi-Fi/LTE/Wi-Fi indicators, same selected profile. Returned Wi-Fi, disconnected normally, independent Settings VPN OFF and no PacketTunnel process. No profiles edited. Native instrumented WAN handoff explicitly deferred; no broad leakage or seamless existing-session continuity claim. Proceed to release packaging, notices/source/privacy and remaining production acceptance."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -264,6 +265,7 @@ pending:
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
 last_verified_commit: "86c4207c1fa89af07780070ec72a24383646dc80; signed NativeLab source 2576a82d physical WG DNS loss bracket PASS, 36 WG/AWG fixed-target records total; 331 Python +14 subtests and focused 22 Swift PASS; PR377-380 reviewed, mirror workflow equal main. Exact prior 0cf4e322 CI 7/7 PASS, mirror matched."
 test_results:
+  - "16.11 19:55–20:00 functional handoff on installed 0.3.0(49): initial Wi-Fi HTTPS, LTE fresh HTTPS, restored Wi-Fi fresh HTTPS all PASS; same external address and PacketTunnel PID 34022 through transition, no manual VPN reconnect. Control Centre temporary disassociation retained radio/Mirroring, CoreDevice wired. Same selected profile. Normal stop verified Settings VPN OFF, provider absent. Functional smoke only, not full packet escape, native handoff, or lossless established socket proof."
   - "16.11 19:55 functional handoff scope approved; installed APL 0.3.0(49), initial Wi-Fi ON/VPN OFF. Existing selected profile unchanged, normal VPN started, provider PID 34022, fresh HTTPS trace in Safari PASS over Wi-Fi. LTE and restored Wi-Fi pending direct operator; no full native handoff or leak claim."
   - "16.11 release integration review: compared PR377-380 actual relevant paths with HEAD; safety helper/test source identical, evolved provider, backup, physical tests and project file changes reviewed; PR381/382 ancestors, mirror workflow identical to main. 22 focused Swift +331 Python +14 subtests PASS. Actual active Wi-Fi/LTE not executed: controlled peer LAN-only, direct operator and WAN endpoint required. No new release-authorized features."
   - "16.11 19:48 WG DNS loss: Settings OFF and exact readManager 26DA5E6A after approved system prompt (prepare failure excluded). AE9D0F1E/315AA993/0EF422E0 chronological bracket physical 1/0/1, tunnel 0/80/0, 20 first/35 intermediate/25 post-cut. Independent exact response and peer shutdown, distinct second challenge no response, zero direct fixed-target packets, capture complete and removed, host terminal OFF. No broad leak-proof claim."
@@ -455,4 +457,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner at iPhone: switch Wi-Fi OFF temporarily (LTE/4G), reload current Safari trace and verify fresh response and same VPN egress, then restore Wi-Fi and lock device for Mirroring; report LTE success/failure. Do not repeat Wi-Fi baseline. After report independently verify fresh Wi-Fi HTTPS response, same selected profile and active provider, then disconnect working APL to restore starting OFF; verify no PacketTunnel process/system OFF. Record actual owner-assisted LTE evidence and limitations, do not claim native handoff. Then continue other release gates. No main merge/publication."
+resume_instruction: "Functional handoff completed, no owner action needed for that case. Do not repeat 36 WG/AWG fixed-target receipts or functional Wi-Fi/LTE/Wi-Fi smoke. Verify latest CI and GitVerse; review exact remaining release matrix, selected production dependencies and notice/source/privacy gates, and prepare approved final candidate without enabling unverified features. CloudKit/owner backup/final signing scope approval remain separate. Extended native WAN handoff backlog; no main merge/upload without explicit authorization. Production APL on phone OFF, Wi-Fi restored, original selected proxy preserved. Isolated WG lab manager remains OFF."

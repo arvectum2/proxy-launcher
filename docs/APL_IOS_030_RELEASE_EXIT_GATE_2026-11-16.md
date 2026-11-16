@@ -57,7 +57,7 @@ signing/upload, or establish a release date.
 
 1. Finish finite native safety acceptance for **declared** release
    capabilities: fixed-target WG/AWG healthy and fault/escape matrix done;
-   functional proxy Wi-Fi/LTE/Wi-Fi smoke and route policy remain.
+   functional proxy Wi-Fi/LTE/Wi-Fi smoke PASS; route policy remains.
    Extended instrumented native handoff deferred by explicit owner scope
    decision below; do not claim it passed.
 2. Resolve selected dependency source/notice/publication and privacy gates.
@@ -91,3 +91,23 @@ underlay observation is a deferred backlog item, not a PASS. No other
 release or publication gate is waived; no server purchase, public port
 or account change authorized. Final release must state the tested
 capabilities accurately.
+
+
+### Functional handoff receipt — PASS 16 November 19:55–20:00 MSK
+
+Installed working APL 0.3.0 (49), existing selected proxy, starting
+Wi-Fi ON/VPN OFF. Normal connect started the production PacketTunnel
+PID 34022. Fresh HTTPS Cloudflare trace in Safari succeeded on Wi-Fi.
+With macOS 27 Control Centre mirroring (Command-4), temporarily
+disassociated iPhone from its access point, not disabling Wi-Fi radio;
+Mirroring and wired CoreDevice continued. Status bar LTE, separate
+fresh HTTPS trace succeeded. Rejoined Wi-Fi via Control Centre;
+Wi-Fi indicator and a third fresh HTTPS response. All three trace
+responses show same external IP, provider PID unchanged throughout,
+selected profile unchanged; no manual VPN reconnect. The first LTE
+request took several seconds to complete. No raw address retained
+in Git. Normal disconnect and Settings verified VPN OFF, no
+PacketTunnel process, Wi-Fi restored. No profile edit or installation.
+This is the approved functional smoke, not transport-specific native
+handoff, continuous socket/zero interruption, or universal leak proof.
+Deferred extended native WAN handoff remains in roadmap.
