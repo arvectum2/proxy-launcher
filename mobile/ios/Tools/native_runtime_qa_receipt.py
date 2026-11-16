@@ -51,7 +51,8 @@ def validate_command(command):
         return
     kind = command["reference"]["kind"]
     if mode == "peer-loss":
-        need(kind=="wireGuard" and scope=="wireGuardFull" and probe in ("udp4","udp6") and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid peer loss command")
+        full_route = (kind == "wireGuard" and scope == "wireGuardFull") or (kind == "amneziaWG1" and scope is None)
+        need(full_route and probe in ("udp4","udp6") and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40),nonce) is not None,"invalid peer loss command")
         return
     need((probe in PROBES or (probe == "dns4" and mode == "positive" and ((kind == "amneziaWG1" and scope is None) or (kind == "wireGuard" and scope == "wireGuardFull")))) and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40), nonce) is not None, "invalid probe challenge")
     if kind == "amneziaWG1":
@@ -64,7 +65,7 @@ def validate_command(command):
 def post_loss_nonce(command):
     validate_command(command)
     need(command.get("mode")=="peer-loss","not a peer loss command")
-    return sha(("APL-QA-POST-LOSS:"+command["nonce"]).encode())[:40]
+    return sha(("APL-QA-POST-LOSS:"+command["nonce"]).encode())[:len(command["nonce"])]
 
 
 def make_command(fixture, owner, action, scope=None, probe=None, mode=None):

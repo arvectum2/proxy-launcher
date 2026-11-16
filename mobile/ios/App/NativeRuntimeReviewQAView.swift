@@ -27,9 +27,9 @@ private struct NativeRuntimeQACommand:Decodable {
         if action != .run {return scope==nil && probe==nil && nonce==nil && mode==nil}
         if mode=="peer-loss" {
 #if APL_NATIVE_EXACT_DNS
-            return reference.kind == .wireGuard && scope == .wireGuardFull &&
-                ["udp4","udp6"].contains(probe ?? "") &&
-                nonce?.utf8.count==40 && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
+            let fullRoute = (reference.kind == .wireGuard && scope == .wireGuardFull) || (reference.kind == .amneziaWG1 && scope == nil)
+            return fullRoute && ["udp4","udp6"].contains(probe ?? "") &&
+                nonce?.utf8.count == (reference.kind == .amneziaWG1 ? 48 : 40) && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
 #else
             return false
 #endif
@@ -48,7 +48,7 @@ private struct NativeRuntimeQACommand:Decodable {
     }
     var postLossNonce:String? {
         guard mode=="peer-loss",let nonce else{return nil}
-        return String(SHA256.hash(data:Data(("APL-QA-POST-LOSS:"+nonce).utf8)).map{String(format:"%02x",$0)}.joined().prefix(40))
+        return String(SHA256.hash(data:Data(("APL-QA-POST-LOSS:"+nonce).utf8)).map{String(format:"%02x",$0)}.joined().prefix(nonce.utf8.count))
     }
     var probeIPv4:String? {reference.kind == .amneziaWG1 || scope == .wireGuardFull ? nil:"198.51.100.77"}
     var probeIPv6:String? {scope == .vlessDatagrams ? "2001:db8:77::77":nil}

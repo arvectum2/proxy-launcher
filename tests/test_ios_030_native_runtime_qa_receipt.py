@@ -221,7 +221,7 @@ def test_peer_loss_requires_exact_positive_then_fresh_negative():
     with pytest.raises(AssertionError):verify_observation(c,r,p,o,h.replace("109.1","105.1"),s)
     with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondResponseSHA256="a"*64)))
     with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondChallengeSHA256=q.sha(c["nonce"].encode()))))
-    for kind,scope,probe in (("wireGuard",None,"udp4"),("wireGuard","wireGuardFull","tcp4"),("amneziaWG1",None,"udp4"),("vlessReality","vlessDatagrams","udp4")):
+    for kind,scope,probe in (("wireGuard",None,"udp4"),("wireGuard","wireGuardFull","tcp4"),("amneziaWG1","wireGuardFull","udp4"),("vlessReality","vlessDatagrams","udp4")):
         with pytest.raises(ValueError):command(kind,probe,"peer-loss",scope)
 
 @pytest.mark.parametrize("probe",("udp4","udp6","dnsWire4"))
@@ -239,3 +239,24 @@ def test_off_control_source_rejects_unexpected_exact_response_after_manager_read
     block=view.split('if command.action == .offControl {',1)[1].split('if command.action != .run',1)[0]
     assert block.index('let offResponse=await NativeRuntimeQAProbe.exchange(command)') < block.index('stage="off-control-after"') < block.index('guard offResponse==nil') < block.index('try save(')
     assert block.count('readNativeRuntimeQAManager(')==2
+
+@pytest.mark.parametrize("probe,target",(("udp4","192.0.2.2"),("udp6","2001:db8::2")))
+def test_awg_established_loss_uses_distinct_full_length_challenge_and_fixed_target(probe,target):
+    from verify_nativeqa_wg_loss import verify_observation
+    c=command("amneziaWG1",probe,"peer-loss",None)
+    next_nonce=q.post_loss_nonce(c)
+    assert len(next_nonce)==len(c["nonce"])==48 and next_nonce!=c["nonce"]
+    r=receipt(c);r["responseSHA256"]=q.sha(("APL:"+c["nonce"]).encode())
+    r["loss"]=dict(firstStart=100.,firstEnd=101.,secondStart=109.,secondEnd=113.,secondChallengeSHA256=q.sha(next_nonce.encode()))
+    p=dict(requestID=c["requestID"],probe=probe,challengeSHA256=q.sha(c["nonce"].encode()),responseSHA256=r["responseSHA256"],secondChallengeSHA256=r["loss"]["secondChallengeSHA256"],localPositiveControl=True,witnessAt=100.8,cutStart=101.8,cutComplete=102.5,witnessCounts={k:int(k==probe) for k in q.PROBES},releaseAuthorized=False)
+    o=dict(requestID=c["requestID"],probe=probe,started=99.,ended=114.,rviRemoved=True,releaseAuthorized=False,complete=True,physicalOut=0,tunnelOut=2,ambiguous=0)
+    ip="IP" if probe=="udp4" else "IP6"
+    source="192.0.2.1" if probe=="udp4" else "2001:db8::1"
+    h="".join(f"{t} (utun8, out) {ip} {source}.5555 > {target}.39892: UDP, length 48\n" for t in (100.4,109.1))
+    stats="listening on rvi0, link-type PKTAP (Apple DLT_PKTAP)\n2 packets captured\n0 packets dropped by kernel\n"
+    assert verify_observation(c,r,p,o,h,stats)==dict(firstTunnelPackets=1,postCutTunnelPackets=1,physicalOut=0,releaseAuthorized=False)
+    for wrong in (h.replace("utun8","en0"),h.replace("39892","39883"),h.replace("109.1","105.1")):
+        with pytest.raises(AssertionError):verify_observation(c,r,p,o,wrong,stats)
+    with pytest.raises(AssertionError):verify_observation(c,r,dict(p,localPositiveControl=False),o,h,stats)
+    with pytest.raises(ValueError):q.validate_command(dict(c,nonce="a"*40))
+    with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondChallengeSHA256=q.sha(next_nonce[:40].encode()))))

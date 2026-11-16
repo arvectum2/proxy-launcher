@@ -135,6 +135,7 @@ func serve(c config, stack *netstack.Net, b *scopedBind, path string) int {
 				if n == 48 && string(buf[:n]) == c.Nonce {
 					if n, e := u.WriteTo(response(c.Nonce), from); e == nil && n == 52 {
 						count[idx].Add(1)
+						fmt.Printf("AWG_EXACT_UDP_REPLY %d\n", idx-2)
 					}
 				}
 			}

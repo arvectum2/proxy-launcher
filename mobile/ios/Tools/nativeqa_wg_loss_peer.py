@@ -7,7 +7,7 @@ from nativeqa_wg_peer import session,report,local_probe,KINDS
 
 def run(root,binary,client,path):
     c=json.loads(path.read_text());validate_command(c)
-    assert c["mode"]=="peer-loss"
+    assert c["mode"]=="peer-loss" and c["reference"]["kind"]=="wireGuard"
     assert root.is_dir() and root.stat().st_mode&0o077==0
     assert hashlib.sha256(binary.read_bytes()).hexdigest()==(binary.parent/"SHA256SUMS").read_text().split()[0]
     source=json.loads((root/"peer.json").read_text())
