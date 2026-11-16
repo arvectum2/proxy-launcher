@@ -11,12 +11,19 @@ import XCTest
     var stopFinishes = true
     var starts = 0, stops = 0
     var actions: [TransportNativeRequest.Action] = []
+    var suspendObserve = false
+    var pendingReply: CheckedContinuation<TransportNativeResponse, Error>?
+    var pendingRequest: TransportNativeRequest?
     init(_ provider: TransportProvider) { self.provider = provider }
     func start(_ session: TransportBackendCoordinator.Session, identity: TransportNativeIdentity) throws {
         starts += 1; status = .connected
     }
     func exchange(_ request: TransportNativeRequest) async throws -> TransportNativeResponse {
         actions.append(request.action)
+        if request.action == .observe && suspendObserve {
+            pendingRequest = request
+            return try await withCheckedThrowingContinuation { pendingReply = $0 }
+        }
         let source = wrongReceipt ? TransportNativeRequest(identity: request.identity, action: request.action) : request
         return .init(request: source, state: request.action == .drain ? drainState : state)
     }
@@ -34,8 +41,8 @@ final class NativeControlTests: XCTestCase {
         }
         XCTFail("Timed out waiting for lifecycle")
     }
-    @MainActor private func system(_ x: NativeEndpointFixture, _ w: NativeEndpointFixture, verified: Bool = true) throws -> (TransportBackendAdapter, OwnedNativeControlSlot, OwnedNativeControlSlot) {
-        let xs = OwnedNativeControlSlot(endpoint: x, initialNativeQuiescenceVerified: verified), ws = OwnedNativeControlSlot(endpoint: w, initialNativeQuiescenceVerified: true)
+    @MainActor private func system(_ x: NativeEndpointFixture, _ w: NativeEndpointFixture, verified: Bool = true, replyTimeoutNS: UInt64 = 6_000_000_000) throws -> (TransportBackendAdapter, OwnedNativeControlSlot, OwnedNativeControlSlot) {
+        let xs = OwnedNativeControlSlot(endpoint: x, initialNativeQuiescenceVerified: verified, replyTimeoutNS: replyTimeoutNS), ws = OwnedNativeControlSlot(endpoint: w, initialNativeQuiescenceVerified: true)
         let d = try OwnedTransportDispatcher(xray: xs, awg: ws)
         let a = try TransportBackendAdapter(driver: d, lease: TransportBackendLease(), timeout: 2)
         xs.onReceipt = { [weak d, weak xs] e,s in if let xs { d?.receive(e,from:xs,session:s) } }
@@ -105,4 +112,45 @@ final class NativeControlTests: XCTestCase {
         let (a,_,_) = try system(x,w,verified:false)
         XCTAssertThrowsError(try a.begin(plan(.wireGuard))); XCTAssertEqual(x.starts,0)
     }
+    @MainActor func testHungRunningObservationFailsClosedAndIgnoresLateReply() async throws {
+        let x = NativeEndpointFixture(.rustXray), w = NativeEndpointFixture(.standaloneAWG)
+        let (a,xs,ws) = try system(x,w,replyTimeoutNS: 100_000_000)
+        try a.begin(plan(.wireGuard)); try await waitFor { a.model.phase == .running }
+        x.suspendObserve = true
+        try await waitFor { x.pendingReply != nil }
+        let reply = try XCTUnwrap(x.pendingReply)
+        let request = try XCTUnwrap(x.pendingRequest)
+        x.pendingReply = nil; x.pendingRequest = nil
+        do { try await waitFor { a.model.phase == .failedClosed } }
+        catch { reply.resume(throwing:error); throw error }
+        XCTAssertEqual(x.stops,1)
+        XCTAssertFalse(try xs.isQuiescent())
+        XCTAssertTrue(try ws.isQuiescent())
+        XCTAssertThrowsError(try a.reconcileFailure())
+        XCTAssertEqual(w.starts,0)
+        reply.resume(returning: .init(request:request,state:.ready))
+        try await Task.sleep(nanoseconds: 100_000_000)
+        XCTAssertEqual(a.model.phase,.failedClosed)
+        XCTAssertFalse(try xs.isQuiescent())
+        XCTAssertEqual(x.stops,1); XCTAssertEqual(w.starts,0)
+    }
+
+    @MainActor func testSupersededObservationCannotPoisonCompletedStop() async throws {
+        let x = NativeEndpointFixture(.rustXray), w = NativeEndpointFixture(.standaloneAWG)
+        let (a,xs,ws) = try system(x,w,replyTimeoutNS: 500_000_000)
+        try a.begin(plan(.wireGuard)); try await waitFor { a.model.phase == .running }
+        x.suspendObserve = true
+        try await waitFor { x.pendingReply != nil }
+        let reply = try XCTUnwrap(x.pendingReply)
+        let request = try XCTUnwrap(x.pendingRequest)
+        x.pendingReply = nil; x.pendingRequest = nil
+        try a.stop()
+        try await waitFor { a.model.phase == .idle }
+        reply.resume(returning: .init(request:request,state:.ready))
+        try await Task.sleep(nanoseconds: 600_000_000)
+        XCTAssertEqual(a.model.phase,.idle)
+        XCTAssertEqual(x.stops,1)
+        XCTAssertTrue(try xs.isQuiescent()); XCTAssertTrue(try ws.isQuiescent())
+    }
+
 }

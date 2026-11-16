@@ -19,10 +19,16 @@ enum NativeControlOSStatus { case off, starting, connected, stopping, unknown }
     private var knownDrained: Bool
     private var worker: Task<Void, Never>?
     private var workID: UUID?
+    private var replyWatchdog: Task<Void, Never>?
+    private var replyID: UUID?
+    private let replyTimeoutNS: UInt64
     var onReceipt: ((TransportBackendReceipt, Model.Session) -> Void)?
     var provider: TransportProvider { endpoint.provider }
 
-    init(endpoint: NativeControlEndpoint, initialNativeQuiescenceVerified: Bool) {
+    init(endpoint: NativeControlEndpoint, initialNativeQuiescenceVerified: Bool,
+         replyTimeoutNS: UInt64 = 6_000_000_000) {
+        precondition(replyTimeoutNS > 0 && replyTimeoutNS <= 120_000_000_000)
+        self.replyTimeoutNS = replyTimeoutNS
         self.endpoint = endpoint
         knownDrained = initialNativeQuiescenceVerified
     }
@@ -49,6 +55,7 @@ enum NativeControlOSStatus { case off, starting, connected, stopping, unknown }
     }
     private func invalidate() {
         workID = nil; worker?.cancel(); worker = nil
+        disarmReply()
     }
     private func launch(_ session: Model.Session, stopping: Bool) {
         invalidate()
@@ -61,12 +68,41 @@ enum NativeControlOSStatus { case off, starting, connected, stopping, unknown }
     private func stillOwns(_ session: Model.Session, _ id: UUID) -> Bool {
         active == session && workID == id && !Task.isCancelled
     }
+    private func disarmReply() {
+        replyID = nil
+        replyWatchdog?.cancel()
+        replyWatchdog = nil
+    }
+    // The transition timer no longer runs once connected. Bound every
+    // observation independently, including a provider that ignores cancellation.
+    // Late results cannot unlock a failed or superseded session.
+    private func exchange(_ request: TransportNativeRequest, session: Model.Session,
+                          work id: UUID) async throws -> TransportNativeResponse {
+        guard stillOwns(session,id), replyID == nil else { throw TransportAdapterError.unreconciled }
+        let token = UUID()
+        let deadline = DispatchTime.now().uptimeNanoseconds + replyTimeoutNS
+        replyID = token
+        replyWatchdog = Task { @MainActor [weak self] in
+            let now = DispatchTime.now().uptimeNanoseconds
+            do { if now < deadline { try await Task.sleep(nanoseconds: deadline - now) } }
+            catch { return }
+            guard let self, self.replyID == token, self.stillOwns(session,id) else { return }
+            self.invalidate()
+            self.knownDrained = false
+            self.onReceipt?(.failed,session)
+        }
+        defer { if replyID == token { disarmReply() } }
+        let response = try await endpoint.exchange(request)
+        guard stillOwns(session,id), replyID == token,
+              DispatchTime.now().uptimeNanoseconds < deadline else { throw TransportAdapterError.unreconciled }
+        return response
+    }
     private func run(_ session: Model.Session, id: UUID, stopping: Bool) async {
         do {
             if stopping {
                 guard endpoint.status == .connected else { throw TransportAdapterError.unreconciled }
                 let request = TransportNativeRequest(identity: identity(session), action: .drain)
-                let response = try await endpoint.exchange(request)
+                let response = try await exchange(request, session: session, work: id)
                 guard stillOwns(session,id) else { return }
                 guard response.matches(request), response.state == .drained else { throw TransportAdapterError.unreconciled }
                 onReceipt?(.nativeDrained, session)
@@ -88,7 +124,7 @@ enum NativeControlOSStatus { case off, starting, connected, stopping, unknown }
                 switch endpoint.status {
                 case .connected:
                     let request = TransportNativeRequest(identity: identity(session), action: .observe)
-                    let response = try await endpoint.exchange(request)
+                    let response = try await exchange(request, session: session, work: id)
                     guard stillOwns(session,id) else { return }
                     guard response.matches(request), endpoint.status == .connected else { throw TransportAdapterError.unreconciled }
                     if response.state == .ready {
