@@ -125,3 +125,22 @@ DEBUG-gated; ordinary unsigned Release does not implement the reviewed
 native path. Build a separately staged unsigned production candidate
 with explicit final scope, proven no-QA linkage and dependency receipts,
 then signed acceptance only with authorization. No automatic promotion.
+
+### Product-only ABI preparation — 16 November
+
+Actual offline arm64 iOS product-only Go archive compiled and C link
+probe passed. Archive SHA256 45716d42d434ae6d6576d9a32f47a4ea63d4943f106cb3bb7e6af57c725ea7af;
+manifest 1c8f00a729dac97e7670b718d6208d8e67946ea9b2260a9f68eed4a9fa5e0c54.
+15 files independently checked. Seven exact bridge C exports (CGoInvoke,
+CGoFree, five aplAWGProduct methods), no lab start, CLI or self-test exports.
+696 Go packages, only AWG tuntest removed; no module identity or lock drift.
+Product-only source selection tests pass. Explicit separate Release-only
+Swift driver boundary passes active SDK syntax parse; no ordinary provider
+dispatch or project flag change. 337 Python tests +14 subtests PASS.
+A full containing Release build was not started: the remote verifier/build
+action was blocked by the safety system. Partial shell is private and
+incomplete, not a runnable release tool. Do not circumvent this block.
+No device, production activation, version bump, signing, distribution or
+release. The reviewed bounded runtime (timeouts, path invalidation, scoped
+VLESS routes) cannot be promoted wholesale. Production lifecycle, routing,
+privacy and final signed acceptance still open.

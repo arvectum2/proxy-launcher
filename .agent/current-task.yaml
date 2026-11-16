@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -251,7 +251,7 @@ completed:
 
 
 
-current: "Physical fixed-target WG/AWG and functional Wi-Fi/LTE complete. Exact NativeLab 2576a82d private source review staged and independent 409 hash checks PASS; 697 Go packages unchanged, Rust graph unchanged, 250 Rust and 71 Go notices, 3 MPL archives, exact source and signed/unsigned mapping verified. 333 Python +14 subtests PASS. Actual 26 lab privacy manifests identical to historical bundle including tracking declaration; SDK/privacy gate unresolved. Ordinary production native runtime remains DEBUG-gated and final release linkage not established."
+current: "Product-only Go bridge completed: exact product bind/queue/ABI and necessary validation support copied from hash-pinned source; synthetic CLI, lab peer/listener and lab C exports excluded. Actual ARM64 iOS C archive link probe PASS, seven exact exports, 696 Go packages (only tuntest removed), unchanged module identities and locks. All 15 receipt files independently verified. Swift explicit Release-only type boundary added, active iPhoneOS parse PASS, 337 Python +14 subtests PASS. Actual containing Release build NOT started: remote combined verifier/build operation was blocked by safety systems. Incomplete staging shell preserved privately, not committed as working tool. Default project and activation unchanged."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -264,8 +264,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "5aff298f966a9cf554c64b62c7f677ab24985725 plus exact source review tool and tests in subsequent commit; 333 Python +14 subtests PASS, private kit SHA256 0902d1b794e02d44d1f9aaf04b5c2f4471a7eead973f7b8a41e7ff3d00e98eb5; exact 5aff298f GitVerse matched, 5/6 CI completed SUCCESS last read, Release running."
+last_verified_commit: "05ffe42e543dbc6ad78099e68436227a6dec5588; product-only Go archive SHA256 45716d42d434ae6d6576d9a32f47a4ea63d4943f106cb3bb7e6af57c725ea7af, manifest 1c8f00a729dac97e7670b718d6208d8e67946ea9b2260a9f68eed4a9fa5e0c54; 15/15 files, 696 packages, seven C exports, iOS arm64 link probe PASS, 337 Python +14 subtests, active Swift parse PASS. Full Release build/typecheck/runtime not accepted."
 test_results:
+  - "16.11 product-only Go native bridge: actual offline iOS arm64 archive and link probe PASS, 696 packages (AWG tuntest removed), 7 exact C exports, 15 receipt hashes independently verified; 337 Python +14 subtests, Release-flag Swift syntax PASS. No containing Release build/typecheck or production activation. Remote verifier/build operation blocked; draft retained."
   - "16.11 exact source review tool: 333 Python +14 subtests PASS; private kit 409/409 hashes, 697 Go packages, 64 Rust files, 250 Rust/71 Go original notices, 3 MPL archives. 26 actual lab privacy manifests byte-identical to historical, tracking declaration persists. No final production release acceptance."
   - "16.11 19:55–20:00 functional handoff on installed 0.3.0(49): initial Wi-Fi HTTPS, LTE fresh HTTPS, restored Wi-Fi fresh HTTPS all PASS; same external address and PacketTunnel PID 34022 through transition, no manual VPN reconnect. Control Centre temporary disassociation retained radio/Mirroring, CoreDevice wired. Same selected profile. Normal stop verified Settings VPN OFF, provider absent. Functional smoke only, not full packet escape, native handoff, or lossless established socket proof."
   - "16.11 19:55 functional handoff scope approved; installed APL 0.3.0(49), initial Wi-Fi ON/VPN OFF. Existing selected profile unchanged, normal VPN started, provider PID 34022, fresh HTTPS trace in Safari PASS over Wi-Fi. LTE and restored Wi-Fi pending direct operator; no full native handoff or leak claim."
@@ -459,4 +460,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Do not repeat completed physical cases or exact source kit. Review production-only native feature gate and design separate unsigned final candidate staging with exact Rust/Go archives and no lab/QA entry points; preserve default release until intended scope and safety verified. Resolve ads SDK privacy/terms and effective policy before public release (26 declarations, tracking persists; no unilateral monetization changes); source kit private-exact-native-review-20261116 is exact lab evidence only. Final production routing/storage/UI, version/build, source publication, CloudKit/owner backup, signed acceptance and explicit main/upload authorization remain. Recheck exact new CI/mirror."
+resume_instruction: "Preserve verified artifact sibling native-artifacts/product-only-go-release-prep-20261116. Do not repeat native physical cases or Go bridge build. Release integration staging blocked at combined remote verifier/build operation by safety system; do not circumvent the block. Incomplete shell privately preserved at ~/ArvectumSafe/apl-product-only-release-20261116/build_native_release_link_unsigned.sh.incomplete and references an absent verifier. It is NOT runnable or accepted. Review exact scope and available authorized tooling before any further build; no default flag, native start, signing or release authorization. Separate production admission and lifecycle must keep legacy HTTP/SOCKS path and reject review/synthetic envelopes; full VLESS routes, actual selected production candidate, privacy/SDK, source notices and signed final QA remain. Verify new CI and GitVerse."
