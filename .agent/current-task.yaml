@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage43a: independent AWG exact-name DNS reference and isolated system resolver command; local DNS/TCP control and actual physical positive DNS F20DEBD4 correlated PASS. No broad no-leak claim."
   - "Stage42 six AWG physical positives/negatives independently correlated; all 16 core native transport/authentication cases PASS. Direct reference exact-device source pinning and local controls verified; no production changes."
   - "Stages33-34 owned runtime dispatch, explicit disposable QA harness with metadata export, exact setup/stale/drain receipts and OS-off; pinned containing build verified, physical runbook added. Offline only."
   - "Stage34a actual QA-only product host command, disposable manager/fixture guards, exact setup/stale-epoch observations and independently verifiable drain exchange; focused Swift2/2 and Python3/3 pass; actual QA-harness containing build pending."
@@ -243,7 +244,7 @@ completed:
 
 
 
-current: "Stage43: core physical matrix 16/16 retained. Existing probes use literal IPs only, so DNS acceptance not established. Build isolated AWG exact-name DNS witness and QA-only hostname probe, with local reference tests. No production routing changes. Independent external escape observation still required."
+current: "Stage43: positive physical AWG system resolver test PASS on signed isolated candidate source 342f77b9. Actual DNS A responses 3, exact TCP witness 1, reference packets 13 sent/40 received, matching command/host/peer response digest, drain and OS OFF. Existing 16/16 core matrix retained. Independent route/DNS escape capture, WG system resolver and production gates still pending."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -256,8 +257,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "ae2f9a55 QA source; signed NativeLab diagnostic ca43fcc2; 96a0db2c direct reference build; 8cf01e3f direct witness runner; all six physical AWG command/host/peer receipt correlations PASS; 104 focused Python tests PASS, Go reference admission test and separate-process controls PASS."
+last_verified_commit: "342f77b9 isolated DNS command + reference source; unsigned manifest 382aece373a6aa845c6d649c1c364361abb13ebe961c36de9f8757942515c976; signed manifest 29312035cad9e1d30ee2a6a36db89fa96f926decbe17de6af89189d7d58dfadc; physical F20DEBD4 PASS; 105 targeted Python tests and Go exact-name/reference local DNS controls PASS."
 test_results:
+  - "Stage43a: Go exact-name DNS unit tests, separate-process 4 positives and 2 negatives, local tunneled DNS A + TCP witness PASS; Python105/105; unsigned/sign/install PASS. Physical AWG DNS F20DEBD4: 3 exact A responses, one TCP4 witness, reference sent13/received40, exact challenge and host/peer response hash, terminal drain/OFF. No peer listener or extension remaining. Production and independent DNS/IP leak gates pending."
   - "Stage42 AWG TCP4 9504B963 (7/11 sent/received), TCP6 9415666A (6/19), UDP4 D8025EC5 (2/15), UDP6 0B60FAF9 (2/19), wrong-key D15966FC (0/1), wrong-PSK 27577665 (1/1). Exact host command/receipt and independent peer challenge/response matched; positives one witness, negatives zero witnesses, local controls PASS; terminal drain/OFF. Reference direct source pin tests and local 4 positives + 2 negatives PASS; final 104 pytest PASS. Broad independent leak and release gates pending."
   - "Stage42: OS VPN OFF and NativeLab manager present verified. Exact AWG readManager receipt F9BB7331 correlated, release_authorized false. Reference binary SHA256 PASS. Legacy physical runner incompatible with installed QA protocol; no runtime executed."
   - "Stage42: library write diagnostics isolated build 20 focused checks PASS, signed/installed. Successful explicit synthetic WG deletion and one retired revision purge, AWG profile import, selection and reference export PASS. Exact underlying earlier write failure not established; no guard relaxation. System manager authorization pending."
@@ -433,4 +435,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Validate exact-name DNS witness and isolated QA-only hostname probe on macOS, then signed isolated NativeLab candidate; fresh manager OFF/readback before physical DNS case. Correlate host response with tunnel-side DNS query/response and TCP witness. Do not claim no-leak from positive DNS alone."
+resume_instruction: "Stage43 resume: do not repeat 16 core physical cases or AWG positive DNS. Retain exact isolated AWG manager OFF. Prepare independent controlled escape-canary tests with observable outside-tunnel positive control for DNS/IPv4/IPv6 and a tunnel-side witness; narrow synthetic data only. Existing positive DNS proves path, not lack of parallel escape. Prior RVI interfered with device control; avoid repeating identical setup. Obtain explicit owner approval before changing device/gateway/SSID or broader capture. Add WG full-scope DNS and remaining route/handoff/release gates; preserve production guards and main."

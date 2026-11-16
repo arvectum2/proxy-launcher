@@ -229,3 +229,29 @@ No remaining extension or peer listener was observed. Exact lab manager
 retained OFF for follow-up. The core physical protocol matrix is 16/16,
 not full production, device-wide no-leak, or release acceptance. RVI
 interference with Mirroring remains a limitation for independent capture.
+
+### Stage 43a: positive system DNS path
+
+An isolated QA-only hostname probe (source 342f77b9) uses a unique
+48-hex-label name in .apl-nativeqa.test. The independent DNS reference
+responds only to that exact question, with a controlled A answer and
+AAAA NODATA, inside the AWG tunnel. It does not recurse or log queries.
+Go exact-name unit tests, separate-process controls and actual local
+tunneled DNS plus TCP passed. 105 focused Python tests passed.
+The new isolated containing build and signed install passed. Fresh
+manager readback F814F910 confirmed ownership and OFF before testing.
+
+Physical request F20DEBD4: three A responses, one exact TCP4 witness,
+13 peer packets sent and 40 received; command/host/peer challenge
+and response hashes matched and drain/OS OFF were verified. No
+remaining peer listener or extension was observed.
+
+This is evidence for a positive system resolver path on AWG, not proof
+against parallel DNS or IP escape. WireGuard system DNS remains open;
+VLESS datagram mode is scoped and does not constitute a full-device DNS
+claim. A subsequent leak gate requires an independently observable
+external synthetic canary, a verified outside-tunnel positive control,
+and a tunnel-side witness. A missing response alone is not evidence of
+no escape. Prior RVI interference and the need for specific approval
+before changing gateway/device network remain constraints. No production
+activation or release authorization.
