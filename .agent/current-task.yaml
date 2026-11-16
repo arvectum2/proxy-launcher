@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: exact AWG manager consent/readback verified. Legacy runner incompatible; develop direct, single-device independent reference witness (no additional relay). Keep production source and manager unchanged. Validate reference provenance, local controls and exact source admission before physical test."
+current: "Stage42: independent exact-device AWG reference build/test PASS; fresh exact manager readback; physical AWG TCP4 9504B963 positive peer/host challenge and response correlated, drain/OFF. Next TCP6/UDP4/UDP6 and wrong-key/wrong-PSK."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
