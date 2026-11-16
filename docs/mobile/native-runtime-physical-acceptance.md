@@ -132,3 +132,28 @@ VPN had been independently observed OFF; no tunnel extension process or
 test listeners were present at the final check. Reconcile the exact pending
 manager before any fresh command; do not automatically replay permission
 or remove an unknown manager.
+
+## Stage 38: first physical scoped VLESS Reality TCP4 success (16.11)
+
+iOS permission interrupted the original prepare receipt. Explicit readManager
+verified the exact existing owner and selected fixture while OFF without
+creating or changing a manager. Initial starts failed before data-plane traffic.
+The actual last disconnect was APLNativeRuntimeReview:103: three additional
+transport dictionary fields alongside the four required native keys. The fix
+validates exactly the case-sensitive reserved aplNative namespace, bounds
+total options, rejects missing and unknown reserved keys; strict persisted
+configuration, owner, binding, one-use ticket and scope remain required.
+Unrelated transport metadata is not used to authorize anything.
+
+Verified source 7d0eab38; signed NativeLab manifest
+542be6149576974fdee485c1e736006360ffbe39502a3f529d3693b3c85a2986.
+Physical positive request 8D1F981F-8B0E-4C98-8852-C58F5899F979:
+host receipt validated setup, rejection of stale epoch, nonce response,
+terminal drained state, manager readback and OS OFF; independent peer
+recorded one matching witness and one LAN relay connection, 2151 inbound
+and 2618 outbound bytes and exact matching response SHA256. Peer exit 0.
+Exact owned manager removal verified, no extension process or test listeners.
+94 focused Python tests and 18 Swift NativeCredentialHandoffTests passed.
+No packet capture privilege (BPF), no negative transport or expanded
+protocol acceptance yet, no broad no-leak or release claim. Production
+APL untouched. Private evidence under ~/ArvectumSafe/apl-nativeqa-stage37.
