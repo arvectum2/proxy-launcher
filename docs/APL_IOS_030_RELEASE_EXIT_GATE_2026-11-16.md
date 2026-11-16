@@ -151,3 +151,16 @@ No device, production activation, version bump, signing, distribution or
 release. The reviewed bounded runtime (timeouts, path invalidation, scoped
 VLESS routes) cannot be promoted wholesale. Production lifecycle, routing,
 privacy and final signed acceptance still open.
+
+### Native control lifecycle hardening
+
+Independent source-only fix: the adapter transition timer is disarmed
+after readiness, so a suspended health observation previously had no
+reply deadline. Each owned native control exchange now has a monotonic
+six-second deadline and generation-scoped watchdog, including drain.
+A stalled exchange fails closed; superseded and late callbacks cannot
+change terminal state. No fallback, inferred drain, OS route or production
+activation change. Tests simulate a noncooperative provider reply while
+running, and a pending observation superseded by a confirmed stop.
+37 focused Swift tests, 337 Python tests and 14 subtests passed.
+Full containing Release remains incomplete.
