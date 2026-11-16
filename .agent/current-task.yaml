@@ -243,7 +243,7 @@ completed:
 
 
 
-current: "Stage42 COMPLETE: all six physical AWG cases independently correlated on signed NativeLab diagnostic build ca43fcc2; overall 16/16 core physical transport/authentication cases across VLESS, WG, AWG. Retained exact AWG lab manager OFF, no extension or peer listeners. Stage43 remaining independent device-wide route/DNS/no-leak, handoff and release gates."
+current: "Stage43: core physical matrix 16/16 retained. Existing probes use literal IPs only, so DNS acceptance not established. Build isolated AWG exact-name DNS witness and QA-only hostname probe, with local reference tests. No production routing changes. Independent external escape observation still required."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -433,4 +433,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43: do not repeat verified 16 core cases. Retain exact AWG lab manager OFF. Determine independently observable controlled device-wide capture for route/DNS/negative leak tests; prior RVI interrupted Mirroring/device control, Mac-side peer capture alone is not sufficient. Obtain specific owner approval before changing device network, gateway, or capture setup beyond previously approved bounded capture. Then exact signed candidate migration/production integration, remaining route/handoff/security and release gates. No main merge, native production activation or release without required approval."
+resume_instruction: "Validate exact-name DNS witness and isolated QA-only hostname probe on macOS, then signed isolated NativeLab candidate; fresh manager OFF/readback before physical DNS case. Correlate host response with tunnel-side DNS query/response and TCP witness. Do not claim no-leak from positive DNS alone."
