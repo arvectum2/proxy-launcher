@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Owner reaffirmed permanent existing monetization decision on 16.11; no repeated review or reminders, AGENTS.md and both roadmaps authoritative."
   - "Private exact NativeLab source kit 409 files, signed/unsigned archive correspondence and unchanged graphs verified; no publication."
   - "Approved functional existing-proxy Wi-Fi/LTE/Wi-Fi smoke PASS on installed 0.3.0(49); same egress and provider PID, restored Wi-Fi and verified system OFF."
   - "Stage43c WG established DNS loss physical bracket PASS: AE9D0F1E/315AA993/0EF422E0 physical 1/0/1, tunnel 0/80/0 (20 first/35 intermediate/25 post-cut); exact peer and host correlations, no drops, terminal OFF. Both WG and AWG fixed-target healthy/loss matrices complete."
@@ -251,7 +252,7 @@ completed:
 
 
 
-current: "Product-only Go ARM64 archive and Release driver syntax verified; actual containing Release build not started because one combined tool operation was blocked by OpenAI safety systems (reason unspecified, not Xcode or Mac permission). Independent SDK/Apple release decision review completed: exact historical 26 manifests/7 collection/1 tracking, locked Yandex 8.6.0 and AppMetrica 6.7.1; automatic AppMetrica startup confirmed in vendor docs, source acknowledgment not granular consent, no app-owned explicit data sending controls. Both attributions exist in About and 50/50 ASO records. Public repo policy contradicts actual bundle. Recommend owner decision on removing third-party ads SDK from next iOS candidate or obtaining written vendor/Apple clearance. No monetization changes."
+current: "Product-only Go ARM64 archive and Release driver syntax verified. Actual containing Release build not started: prior combined remote operation blocked by OpenAI safety systems, reason unspecified. Owner reaffirmed existing monetization unchanged; previous product decision closed. AGENTS.md and both roadmaps record permanent scope. Continue native production routing/lifecycle and release integration."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -261,7 +262,7 @@ pending:
   - "Verify exact-head CI; prepare real provider-owned underlay and secure session-bound cross-process handoff; native profile persistence/backup and actual runtime activation remain separate gates."
   - "Develop and prove provider-owned underlay without explicit broad endpoint bypass, route/DNS policy, MTU/QUIC and WAN/fault acceptance."
   - "Broader AWG versions/interoperability and packaging/provenance/license/security, including production native switching."
-  - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
+  - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
 last_verified_commit: "05ffe42e543dbc6ad78099e68436227a6dec5588; product-only Go archive SHA256 45716d42d434ae6d6576d9a32f47a4ea63d4943f106cb3bb7e6af57c725ea7af, manifest 1c8f00a729dac97e7670b718d6208d8e67946ea9b2260a9f68eed4a9fa5e0c54; 15/15 files, 696 packages, seven C exports, iOS arm64 link probe PASS, 337 Python +14 subtests, active Swift parse PASS. Full Release build/typecheck/runtime not accepted."
@@ -461,4 +462,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Do not repeat verified device cases, Go product-only bridge, or source kit. Read docs/APL_IOS_030_AD_SDK_RELEASE_DECISION_2026-11-16.md; owner business decision required before changing ads integration. Independently still need production routing/lifecycle and exact authorized integration build; prior combined tool action blocked by OpenAI safety systems, do not circumvent it. Incomplete shell private and not runnable. No public distribution, APP Store upload, main merge, privacy label or policy mutation without approval."
+resume_instruction: "Read AGENTS.md. Preserve approved existing monetization without reopening it. Do not repeat verified device cases, Go product-only bridge or source kit. Continue independent production routing/lifecycle work and verify exact-head CI and GitVerse. Prior combined tool operation blocked; do not circumvent it. Incomplete shell private and not runnable. No main merge, signing, upload or distribution without appropriate authorization."

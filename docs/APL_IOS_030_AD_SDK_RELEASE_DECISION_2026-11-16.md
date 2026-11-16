@@ -1,6 +1,8 @@
 # iOS 0.3.0 — ad SDK release decision, 16 November 2026
 
-Status: unresolved product/privacy decision. No change to advertising,
+**Historical review only — superseded by the owner decision of 16 November 2026. No active decision, follow-up, reminder or monetization change. See AGENTS.md.**
+
+Historical status before owner reaffirmation: unresolved product/privacy decision. No change to advertising,
 installed app, Apple metadata, public policy, SDK or distribution.
 
 ## Verified facts
