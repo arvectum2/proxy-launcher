@@ -44,7 +44,7 @@ def validate_command(command):
         need(all(v is None for v in (scope, probe, mode, nonce)), "manager command has probe options")
         return
     kind = command["reference"]["kind"]
-    need((probe in PROBES or (kind == "amneziaWG1" and scope is None and mode == "positive" and probe == "dns4")) and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40), nonce) is not None, "invalid probe challenge")
+    need((probe in PROBES or (probe == "dns4" and mode == "positive" and ((kind == "amneziaWG1" and scope is None) or (kind == "wireGuard" and scope == "wireGuardFull")))) and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40), nonce) is not None, "invalid probe challenge")
     if kind == "amneziaWG1":
         need(scope is None and mode in ("positive", "wrong-key", "wrong-psk"), "invalid AWG scope or mode")
     else:

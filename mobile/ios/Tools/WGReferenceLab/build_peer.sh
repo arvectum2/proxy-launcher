@@ -2,7 +2,9 @@
 # Build a standalone pinned non-Xray host peer, not a production component.
 set -euo pipefail
 umask 077
-[[ $# == 3 && "$(uname -m)" == arm64 ]]
+[[ ( $# == 3 || $# == 4 ) && "$(uname -m)" == arm64 ]]
+mode="${4:-standard}"
+[[ "$mode" == standard || "$mode" == dns ]]
 source_dir="$(cd "$1" && pwd)"
 archive="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 output="$(cd "$(dirname "$3")" && pwd)/$(basename "$3")"
@@ -19,8 +21,12 @@ export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off
 mkdir "$work/lab"
 ln -s "$source_dir" "$work/upstream"
 cp "$root"/main.go "$root"/client.go "$root"/go.mod "$root"/go.sum "$work/lab/"
+if [[ "$mode" == dns ]]; then
+ python3 "$root/prepare_dns_reference.py" "$work/lab"
+fi
 cd "$work/lab"
 go mod verify
+if [[ "$mode" == dns ]]; then go test -mod=readonly ./...; fi
 GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -mod=readonly -trimpath -o "$output" .
 go version -m "$output" >"$work/modules"
 grep -F 'golang.zx2c4.com/wireguard' "$work/modules"

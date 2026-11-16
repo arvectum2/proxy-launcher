@@ -244,7 +244,7 @@ completed:
 
 
 
-current: "Stage43: positive physical AWG system resolver test PASS on signed isolated candidate source 342f77b9. Actual DNS A responses 3, exact TCP witness 1, reference packets 13 sent/40 received, matching command/host/peer response digest, drain and OS OFF. Existing 16/16 core matrix retained. Independent route/DNS escape capture, WG system resolver and production gates still pending."
+current: "Stage43b: extend exact-name independent DNS witness to full-scope WG; preserve prior physical evidence. Audit migration, route and release regression contracts."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -435,4 +435,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43 resume: do not repeat 16 core physical cases or AWG positive DNS. Retain exact isolated AWG manager OFF. Prepare independent controlled escape-canary tests with observable outside-tunnel positive control for DNS/IPv4/IPv6 and a tunnel-side witness; narrow synthetic data only. Existing positive DNS proves path, not lack of parallel escape. Prior RVI interfered with device control; avoid repeating identical setup. Obtain explicit owner approval before changing device/gateway/SSID or broader capture. Add WG full-scope DNS and remaining route/handoff/release gates; preserve production guards and main."
+resume_instruction: "Validate pinned WG DNS reference build/local controls and QA command regression, then signed isolated candidate. Before changing fixture reconcile AWG OFF and exact manager ownership. Separate physical no-leak claim requires outside positive controls and trusted capture; no production activation."

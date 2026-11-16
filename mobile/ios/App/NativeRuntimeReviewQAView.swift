@@ -19,7 +19,7 @@ private struct NativeRuntimeQACommand:Decodable {
     var valid:Bool {
         guard schema==1,requestID != owner else{return false}
         if action != .run {return scope==nil && probe==nil && nonce==nil && mode==nil}
-        guard let probe,let nonce,let mode,(["tcp4","tcp6","udp4","udp6"].contains(probe) || (reference.kind == .amneziaWG1 && scope==nil && probe=="dns4" && mode=="positive")),
+        guard let probe,let nonce,let mode,(["tcp4","tcp6","udp4","udp6"].contains(probe) || (probe=="dns4" && mode=="positive" && ((reference.kind == .amneziaWG1 && scope==nil) || (reference.kind == .wireGuard && scope == .wireGuardFull)))),
               nonce.utf8.count==(reference.kind == .amneziaWG1 ? 48:40),
               nonce.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)}) else{return false}
 #if !APL_NATIVE_EXACT_DNS
