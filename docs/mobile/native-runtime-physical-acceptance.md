@@ -385,3 +385,36 @@ the second owned-manager readback instead of silently discarding it.
 parse passed. No signed build, new device configuration, capture or
 physical AWG acceptance was performed. A separately authorized owned
 fixture transition and a full candidate build are still required.
+
+### Stage 43c: AmneziaWG established UDP peer-loss preparation
+
+Source b1dd829f extends the DEBUG-only established-loss command to AWG
+full-route UDP4/UDP6 with fresh 48-hex challenges, without changing the
+WireGuard 40-hex challenge. The independent pinned AWG reference emits
+a marker only after writing the exact authenticated reply. The bounded
+operator helper verifies exact fixture/owner, pinned executable digest
+and fresh four-probe local positive controls, observes the marker,
+stops and reaps its own peer, and records the cut. The existing
+independent timestamp/capture verifier rejects wrong destinations,
+direct traffic, response reuse and incomplete evidence.
+
+Python 328/328 +14 subtests, active iPhoneOS Swift syntax, pinned Go
+reference unit and separate-process 4 positives/wrong-key/wrong-PSK
+and isolated containing ARM64 Debug build passed. NativeLab signing
+and strict signature verification passed using the existing isolated
+profiles. Signed manifest SHA256
+5c1e91cc47b9f6931d6d95ed0191654d3f88568d1760a6c1ccdd6cd2e541918f;
+reference SHA256
+d2a637e7e53963453e5804fb96bb2f3ba0be454f2aaa93da7d1d83cb4025a811.
+A local independent generated-key control observed all four positives
+and two exact UDP markers, then clean peer exit and no fresh-process
+TCP4/UDP4 receipt with a distinct challenge. No lab UDP listener
+remained. This is local evidence only, not an established physical
+iPhone tunnel or a general kill-switch test.
+
+Read-only paired device preflight found a process of the **production**
+PacketTunnel. System-wide VPN OFF has not been independently confirmed.
+No install, manager removal, capture, VPN or owner data modification
+was performed. Resume only after safe OFF confirmation; preserve
+previous physical WG evidence. Physical AWG/DNS fault/escape and
+network handoff remain open.
