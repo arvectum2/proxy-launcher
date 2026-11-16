@@ -1,0 +1,53 @@
+// Copied only into the direct DNS QA reference build. No recursive resolver,
+// public listener, arbitrary name resolution or plaintext logging.
+package main
+
+import (
+    "net"
+    "net/netip"
+    "strings"
+    "sync/atomic"
+    "time"
+    "golang.org/x/net/dns/dnsmessage"
+    "github.com/amnezia-vpn/amneziawg-go/v3/tun/netstack"
+)
+
+var witnessDNS = netip.MustParseAddr("192.0.2.53")
+func dnsName(nonce string) dnsmessage.Name {
+    return dnsmessage.MustNewName(nonce+".apl-nativeqa.test.")
+}
+func answerDNS(input []byte, nonce string) ([]byte, bool) {
+    if len(input)<12 || len(input)>512 {return nil,false}
+    var q dnsmessage.Message
+    if q.Unpack(input)!=nil || q.Response || q.OpCode!=0 || len(q.Questions)!=1 || len(q.Answers)!=0 || len(q.Authorities)!=0 {return nil,false}
+    question:=q.Questions[0]
+    if question.Class!=dnsmessage.ClassINET || !strings.EqualFold(question.Name.String(),dnsName(nonce).String()) {return nil,false}
+    if question.Type!=dnsmessage.TypeA && question.Type!=dnsmessage.TypeAAAA {return nil,false}
+    r:=dnsmessage.Message{Header:dnsmessage.Header{ID:q.ID,Response:true,Authoritative:true,RecursionDesired:q.RecursionDesired,RecursionAvailable:true},Questions:q.Questions}
+    a:=question.Type==dnsmessage.TypeA
+    if a {r.Answers=[]dnsmessage.Resource{{Header:dnsmessage.ResourceHeader{Name:question.Name,Type:dnsmessage.TypeA,Class:dnsmessage.ClassINET,TTL:0},Body:&dnsmessage.AResource{A:[4]byte{192,0,2,2}}}}}
+    result,e:=r.Pack()
+    if e!=nil{return nil,false}
+    return result,a
+}
+func serveDNS(u net.PacketConn, nonce string, witnessed *atomic.Uint64) {
+    buf:=make([]byte,513)
+    for {
+        n,from,e:=u.ReadFrom(buf)
+        if e!=nil{return}
+        response,a:=answerDNS(buf[:n],nonce)
+        if response==nil{continue}
+        if size,e:=u.WriteTo(response,from);e==nil && size==len(response) && a {witnessed.Add(1)}
+    }
+}
+func requestDNS(c config,stack *netstack.Net)bool {
+    p,e:=stack.DialUDPAddrPort(netip.AddrPortFrom(clientAddresses[0],0),netip.AddrPortFrom(witnessDNS,53))
+    if e!=nil{return false};defer p.Close();p.SetDeadline(time.Now().Add(3*time.Second))
+    q:=dnsmessage.Message{Header:dnsmessage.Header{ID:37,RecursionDesired:true},Questions:[]dnsmessage.Question{{Name:dnsName(c.Nonce),Type:dnsmessage.TypeA,Class:dnsmessage.ClassINET}}}
+    raw,e:=q.Pack();if e!=nil{return false};if _,e=p.Write(raw);e!=nil{return false}
+    buf:=make([]byte,513);n,e:=p.Read(buf);if e!=nil{return false}
+    var r dnsmessage.Message
+    if r.Unpack(buf[:n])!=nil || !r.Response || r.ID!=q.ID || len(r.Questions)!=1 || r.Questions[0]!=q.Questions[0] || len(r.Answers)!=1{return false}
+    a,ok:=r.Answers[0].Body.(*dnsmessage.AResource)
+    return ok && a.A==[4]byte{192,0,2,2}
+}

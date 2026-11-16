@@ -4,7 +4,7 @@ set -euo pipefail
 umask 077
 [[ ( $# == 3 || $# == 4 ) && "$(uname -m)" == arm64 ]]
 mode="${4:-loopback}"
-[[ "$mode" == loopback || "$mode" == direct ]]
+[[ "$mode" == loopback || "$mode" == direct || "$mode" == direct-dns ]]
 source_dir="$(cd "$1" && pwd)"
 archive="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 output="$(cd "$3" && pwd)"
@@ -18,7 +18,7 @@ trap 'rm -rf -- "$work"' EXIT
 mkdir "$work/peer"
 ln -s "$source_dir" "$work/awg"
 cp "$root"/main.go "$root"/go.mod "$root"/go.sum "$work/peer/"
-if [[ "$mode" == direct ]]; then
+if [[ "$mode" != loopback ]]; then
  python3 "$root/prepare_direct_reference.py" "$root/../AWGNativeLab/scoped_bind.go" "$work/peer"
  python3 - "$work/peer/main.go" <<'PY'
 import sys
@@ -39,11 +39,14 @@ p=d/'main.go';s=p.read_text();assert s.count('45 * time.Second')==1
 p.write_text(s.replace('45 * time.Second','120 * time.Second'))
 PY
 fi
+if [[ "$mode" == direct-dns ]]; then
+ python3 "$root/prepare_dns_reference.py" "$work/peer"
+fi
 tar -xzf "$archive" -C "$work"
 export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off GOPROXY=off
 (cd "$work/peer" && go mod verify && go test -mod=readonly ./... && go build -mod=readonly -trimpath -o "$work/awg-reference" .)
 digest="$(shasum -a256 "$work/awg-reference" | awk '{print $1}')"
-if [[ "$mode" == direct ]]; then
+if [[ "$mode" != loopback ]]; then
  python3 "$root/run_preflight.py" --peer "$work/awg-reference"
 else
  python3 "$root/../run_awg_reference_loopback.py" "$work/awg-reference" "$digest"
