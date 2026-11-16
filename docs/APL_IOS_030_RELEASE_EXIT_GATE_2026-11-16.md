@@ -164,3 +164,14 @@ activation change. Tests simulate a noncooperative provider reply while
 running, and a pending observation superseded by a confirmed stop.
 37 focused Swift tests, 337 Python tests and 14 subtests passed.
 Full containing Release remains incomplete.
+
+### Launch snapshot and route admission reconciliation
+
+ProfileStore now supplies live routing admission to the existing native
+launch boundary. Preparation binds the exact catalog snapshot and legacy
+ID set, checks collisions and policy; issuance rechecks before credential
+access, before ticket creation and after the write. A stale request
+revokes its ticket, retaining cleanup ownership if removal fails.
+No new manager, routing action, production activation or ticket purpose.
+79 focused default Swift tests, 62 focused Swift with existing explicit
+review flags, 337 Python +14 subtests PASS. Not a containing Release build.

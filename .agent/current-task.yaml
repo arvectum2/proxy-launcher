@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Launch boundary binds exact catalog/legacy selection and current route policy before and after issuing the one-time ticket; 79 default and 62 flagged Swift, 337 Python +14 subtests PASS."
   - "Native control reply deadline hardening and stale callback isolation: 37 focused Swift tests, 337 Python +14 subtests PASS."
   - "Owner reaffirmed permanent existing monetization decision on 16.11; no repeated review or reminders, AGENTS.md and both roadmaps authoritative."
   - "Private exact NativeLab source kit 409 files, signed/unsigned archive correspondence and unchanged graphs verified; no publication."
@@ -253,7 +254,7 @@ completed:
 
 
 
-current: "Native product-only ARM64 Go archive and Release driver syntax verified. Independent lifecycle hardening complete: bound each asynchronous native control reply with monotonic deadline, generation-owned watchdog, fail-closed receipt on stall after initial readiness, discard stale replies after timeout or stop. 37 targeted Swift and 337 Python +14 subtests pass. Actual containing Release build remains not started (previous combined remote operation blocked). No runtime activation, device or default project changes."
+current: "Independent launch boundary hardening completed. Actual ProfileStore routing admission, exact selected catalog snapshot and complete legacy ID set bound before ticket issuance; changed policy/catalog/legacy state rejects launch, including post-insert ticket cleanup. 79 focused default Swift, 62 flagged Swift, 337 Python +14 subtests PASS. Prior native reply watchdog and product-only Go archive retained. Actual containing Release build not started (prior combined operation safety-blocked); production activation still incomplete. Previous head a5e5c31f GitVerse ref matched despite CI SSH mirror failure."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -266,8 +267,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "2ddbaedca80fd0b7c0d203fe0e7f5502e4b074a9; 37 focused Swift tests PASS, 337 Python +14 subtests PASS, diff check clean. Previous product-only Go receipt 1c8f00a729dac97e7670b718d6208d8e67946ea9b2260a9f68eed4a9fa5e0c54 retained; no full production build."
+last_verified_commit: "a83c51aed918a34096b7c95c5447104b3e5339e1; 79 default and 62 explicitly flagged focused Swift PASS; 337 Python +14 subtests PASS; initial compile errors corrected; diff check PASS. Previous product-only archive retained. Full production build not verified."
 test_results:
+  - "16.11 launch boundary: drift between prepare/issue or during ticket insert rejects without dispatch; revokes newly issued ticket. Default Swift 79/79, explicit review flags Swift 62/62, Python 337+14 subtests PASS. Earlier compiler errors fixed. Prior mirror workflow SSH failure while actual a5e5c31f GitVerse head equals GitHub."
   - "16.11 native control reply watchdog: Swift 37/37, Python 337 +14 subtests PASS; noncooperative active observation times out without fallback, late reply cannot revive failed session or poison completed stop. Pure adapter evidence only; no native release activation."
   - "16.11 independent SDK review: historical manifest exact hash verified, 26/7/1 declarations; source consent configuration checks; 50/50 ASO records and About SDK attribution. Official Apple 5.4 and Yandex auto AppMetrica behavior verified; privacy decision open. No runtime or build claim."
   - "16.11 product-only Go native bridge: actual offline iOS arm64 archive and link probe PASS, 696 packages (AWG tuntest removed), 7 exact C exports, 15 receipt hashes independently verified; 337 Python +14 subtests, Release-flag Swift syntax PASS. No containing Release build/typecheck or production activation. Remote verifier/build operation blocked; draft retained."
@@ -464,4 +466,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Read AGENTS.md. Do not repeat finished physical tests, exact source kit, product-only Go bridge or native reply deadline fix. Continue production-only selection/lifecycle and integration when authorized tooling permits; previous combined build operation blocked, do not circumvent. Incomplete private shell is not runnable. Production full-route VLESS, native activation and exact unsigned/signed candidate remain incomplete. Check exact-head CI and GitVerse. No main merge/sign/upload/distribution without appropriate authorization."
+resume_instruction: "Read AGENTS.md and current state. Do not repeat completed physical cases, product-only archive, source review, reply deadline or launch boundary hardening. Remaining real production integration: explicit standard/native selection and provider ownership, full-route VLESS, exact authorized Release compile/link and actual signed acceptance. Previously blocked containing build operation must not be circumvented. Do not claim current draft is installable or production native runtime active. Reconcile exact-head CI/mirror; no main merge/signing/upload without approval."
