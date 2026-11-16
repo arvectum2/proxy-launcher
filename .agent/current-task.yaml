@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41: local independent WG TCP4/TCP6/UDP4/UDP6 preflight PASS. VLESS manager removed with verified receipt 33FC0771; one synthetic VLESS profile retired and purged; original narrow WG input correctly rejected by product validation, fixed device-only text with full AllowedIPs and controlled DNS 192.0.2.53 (preflight fixture stays narrow). WireGuard imported, selected, exact reference exported successfully. Fresh prepareManager C32636F3-F9CD-4ABD-962B-04E6D6EBA191 staged, requires OS consent. No WG physical run yet."
+current: "Stage41: physical scoped WG TCP4 positive correlated with independent official reference peer, fresh exact manager readback, authenticated handshake and bidirectional data, drain/OFF. Next TCP6/UDP4/UDP6 full-scope synthetic probes."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
