@@ -372,3 +372,16 @@ No settings/network changes. This is bounded UDP evidence for established
 peer loss, not a general kill-switch guarantee. DNS on peer loss,
 AmneziaWG escape observations, network handoff, migration and production
 release gates remain open.
+
+### Stage 43c: AmneziaWG fixed-target escape preparation
+
+Offline source 68417a37 extends the isolated DEBUG OFF-control command
+to the exact AWG fixture with its own 48-hex nonce. RVI selects only the
+protocol-specific fixed UDP4/UDP6 destination or the fixed test DNS
+resolver, rejects unsupported scope/probe/mode, and preserves the
+WireGuard targets. OFF now rejects an unexpected exact response after
+the second owned-manager readback instead of silently discarding it.
+326 Python tests plus 14 subtests and active iPhoneOS Swift syntax
+parse passed. No signed build, new device configuration, capture or
+physical AWG acceptance was performed. A separately authorized owned
+fixture transition and a full candidate build are still required.
