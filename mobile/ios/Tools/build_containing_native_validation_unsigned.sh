@@ -123,7 +123,7 @@ if [[ "$runtime_flag" == 1 ]]; then
 fi
 mkdir -m 700 "$out"
 cp "$work/build.log" "$work/provider-symbols.txt" "$work/provider-swift-symbols.txt" "$p/project.yml" "$out/"
-python3 - "$p" "$work/Build" "$host" "$extension" "$out" "$commit" "$root/Tools" "$product_flag" "$runtime_flag" "$exact_dns_flag" "$harness_flag" <<'PY'
+python3 - "$p" "$work/Build" "$host" "$extension" "$out" "$commit" "$root/Tools" "$product_flag" "$runtime_flag" "$exact_dns_flag" "$harness_flag" "$lab_flag" <<'PY'
 import hashlib,json,pathlib,plistlib,re,sys,shutil
 p,build,host,ext,out=map(pathlib.Path,sys.argv[1:6]);commit=sys.argv[6];sys.path.insert(0,sys.argv[7])
 from audit_unsigned_release_linkage import link_objects
@@ -147,7 +147,11 @@ shutil.copyfile(maps[0],out/'provider-link-map.txt')
 sources={str(f.relative_to(p)):sha(f) for folder in ('App','PacketTunnel','Shared','SharedCore','Config','Resources') for f in sorted((p/folder).rglob('*')) if f.is_file()}
 if lab:
     shutil.copytree(host.parent,out/'NativeLabHost.app')
-report={'schema':1,'isolated_nativeqa':lab,'source_commit':commit,'scope':('actual product containing app + separate native runtime-review provider, unsigned; no install or runtime performed' if sys.argv[9]=='1' else 'actual product app + ordinary provider, validation-only, unsigned; no install or runtime'),'runtime_authorized':False,'release_authorized':False,'synthetic_runtime':False,'product_awg_bridge':sys.argv[8]=='1','product_runtime_review':sys.argv[9]=='1','native_exact_dns':sys.argv[10]=='1','native_runtime_qa_harness':sys.argv[11]=='1','host_sha256':sha(host),'provider_sha256':sha(ext),'host_info_sha256':sha(host.parent/'Info.plist'),'provider_info_sha256':sha(ext.parent/'Info.plist'),'go_archive_sha256':sha(p/'Lib/Unified/libAPLUnified.a'),'rust_archive_sha256':sha(p/'Frameworks/tun2proxy.xcframework/ios-arm64/libtun2proxy.a'),'sources':sources,'linked_archive_objects':{k:sorted(v) for k,v in rows.items()},'evidence':{f.name:sha(f) for f in out.iterdir() if f.is_file()}}
+report={'schema':1,'source_commit':commit,'scope':('actual product containing app + separate native runtime-review provider, unsigned; no install or runtime performed' if sys.argv[9]=='1' else 'actual product app + ordinary provider, validation-only, unsigned; no install or runtime'),'runtime_authorized':False,'release_authorized':False,'synthetic_runtime':False,'product_awg_bridge':sys.argv[8]=='1','product_runtime_review':sys.argv[9]=='1','native_exact_dns':sys.argv[10]=='1','native_runtime_qa_harness':sys.argv[11]=='1','host_sha256':sha(host),'provider_sha256':sha(ext),'host_info_sha256':sha(host.parent/'Info.plist'),'provider_info_sha256':sha(ext.parent/'Info.plist'),'go_archive_sha256':sha(p/'Lib/Unified/libAPLUnified.a'),'rust_archive_sha256':sha(p/'Frameworks/tun2proxy.xcframework/ios-arm64/libtun2proxy.a'),'sources':sources,'linked_archive_objects':{k:sorted(v) for k,v in rows.items()},'evidence':{f.name:sha(f) for f in out.iterdir() if f.is_file()}}
+if lab:
+    report['isolated_nativeqa']=True
+    report['scope']='isolated NativeLab app and runtime-review provider; unsigned, no installation or runtime'
+    report['bundle_files']={str(f.relative_to(out/'NativeLabHost.app')):sha(f) for f in sorted((out/'NativeLabHost.app').rglob('*')) if f.is_file()}
 (out/'manifest.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print('CONTAINING_NATIVE_VALIDATION_LINK_PASS',report['provider_sha256'],{k:len(v) for k,v in rows.items()})
 PY
