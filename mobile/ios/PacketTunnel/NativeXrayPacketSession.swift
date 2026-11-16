@@ -1,6 +1,5 @@
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE
 import Foundation
-import Darwin
 import NetworkExtension
 import tun2proxy
 
@@ -69,43 +68,11 @@ import tun2proxy
         try await startOwned(provider:provider,route:plan.validation,configuration:configuration,planSettings:settings,mtu:UInt16(plan.mtu),exactDNS:exactDNS,descriptor:{NativeExactTunnelDescriptor.find(address:plan.localIPv4,ipv6:plan.localIPv6)})
     }
 #if APL_NATIVE_EXACT_DNS
-#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
-    /// Require one active physical interface on the synthetic peer LAN
-    /// before installing default routes; no guessed interface or fallback.
-    private static func syntheticLANInterface()->String? {
-        var head:UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&head)==0,let head else{return nil}
-        defer{freeifaddrs(head)}
-        var cursor:UnsafeMutablePointer<ifaddrs>?=head,names=Set<String>()
-        let required=UInt32(IFF_UP | IFF_RUNNING)
-        while let entry=cursor?.pointee {
-            cursor=entry.ifa_next
-            guard (entry.ifa_flags & required)==required,let address=entry.ifa_addr,let mask=entry.ifa_netmask,
-                  address.pointee.sa_family==UInt8(AF_INET),mask.pointee.sa_family==UInt8(AF_INET) else{continue}
-            let name=String(cString:entry.ifa_name)
-            guard name.range(of:"^en[0-9]{1,3}$",options:.regularExpression) != nil,if_nametoindex(name)>0 else{continue}
-            let host=address.withMemoryRebound(to:sockaddr_in.self,capacity:1){UInt32(bigEndian:$0.pointee.sin_addr.s_addr)}
-            let netmask=mask.withMemoryRebound(to:sockaddr_in.self,capacity:1){UInt32(bigEndian:$0.pointee.sin_addr.s_addr)}
-            guard netmask==0xffffff00,(host & netmask)==0xc0a80100,host != 0xc0a80150,
-                  (1...254).contains(host & 255) else{continue}
-            names.insert(name)
-        }
-        return names.count==1 ? names.first:nil
-    }
-#endif
     func startWireGuardFull(provider:NEPacketTunnelProvider,plan:NativeTunnelRoutePlan,configuration:Data)async throws {
         guard owner.reference.kind == .wireGuard,plan.provider == .rustXray,plan.excludedRoutes.isEmpty,
               !plan.dnsServers.isEmpty,NativeExactTunnelDescriptor.interfaces(address:plan.ipv4Address)?.isEmpty==true,
               NativeExactTunnelDescriptor.interfaces(address:plan.ipv6Address)?.isEmpty==true else{throw Failure.unsupported}
-        let runtimeConfig:Data
-#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
-        guard plan.remoteAddress=="192.168.1.80",plan.remotePort==39881,
-              let interface=Self.syntheticLANInterface() else{throw Failure.unsupported}
-        runtimeConfig=try NativeWireGuardRuntimeConfig.bindSyntheticReviewUnderlay(configuration,interface:interface)
-#else
-        runtimeConfig=configuration
-#endif
-        try await startOwned(provider:provider,route:.wireGuard(plan),configuration:runtimeConfig,planSettings:NativeTunnelNetworkSettings.make(plan),mtu:UInt16(plan.mtu),exactDNS:true,descriptor:{NativeExactTunnelDescriptor.find(address:plan.ipv4Address,ipv6:plan.ipv6Address)})
+        try await startOwned(provider:provider,route:.wireGuard(plan),configuration:configuration,planSettings:NativeTunnelNetworkSettings.make(plan),mtu:UInt16(plan.mtu),exactDNS:true,descriptor:{NativeExactTunnelDescriptor.find(address:plan.ipv4Address,ipv6:plan.ipv6Address)})
     }
 #endif
 #endif

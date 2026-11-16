@@ -183,3 +183,19 @@ for request IDs and encrypted relay byte counts. 94 focused Python tests
 passed. The VLESS TCP4 positive and wrong-key negative are in stages 38–39.
 This does not establish independent packet-capture/no-leak coverage,
 LTE underlay, or product release authorization. WG and AWG remain pending.
+
+## Stage 41: scoped WireGuard positive, full-route failure
+
+Pinned wireguard-go reference server and local transport preflight passed all
+four cases. Physical scoped TCP4 request BE5B437D matched the exact independent
+nonce response, one handshake in each direction and five encrypted data
+packets in each direction. Terminal drain and OS OFF verified.
+Full-scope TCP6 (41E6DE25) and TCP4 (B929E055) produced no response and no
+accepted WG relay packets, despite successful setup, drain and local controls;
+the failure is not limited to IPv6. A lab-only peer socket interface binding
+experiment (951d459c; 7 Swift, 101 Python checks and signed build passed) also
+failed full TCP4 (02EA460E). It is not a proven fix; experimental source
+reverted. A zero accepted relay count is not independent wire capture.
+Need bounded header-only physical packet capture to distinguish path loss,
+and then repair/retest. No endpoint-wide exclusions, production activation,
+extended WG, AWG, no-leak, or release acceptance.

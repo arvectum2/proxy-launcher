@@ -60,24 +60,6 @@ final class NativeWireGuardRuntimeConfigTests: XCTestCase {
         XCTAssertEqual(r.remoteEndpoint,"[2001:db8::42]:51820")
         XCTAssertFalse(r.withEngineConfiguration { String(decoding:$0,as:UTF8.self).contains("preSharedKey") })
     }
-    func testSyntheticUnderlayBindingIsPeerOnlyAndNotPersisted() throws {
-        let fixture=profile().replacingOccurrences(of:"192.0.2.42:51820",with:"192.168.1.80:39881")
-        let config=try NativeWireGuardRuntimeConfig.compile(fixture,expected:.wireGuard).withEngineConfiguration{$0}
-        let bound=try NativeWireGuardRuntimeConfig.bindSyntheticReviewUnderlay(config,interface:"en0")
-        var result=try XCTUnwrap(JSONSerialization.jsonObject(with:bound) as? [String:Any])
-        var out=try XCTUnwrap(result["outbounds"] as? [[String:Any]])
-        XCTAssertEqual(out.count,1)
-        let stream=try XCTUnwrap(out[0].removeValue(forKey:"streamSettings") as? [String:[String:String]])
-        XCTAssertEqual(stream,["sockopt":["interface":"en0"]])
-        result["outbounds"]=out
-        XCTAssertEqual(try JSONSerialization.data(withJSONObject:result,options:[.sortedKeys]),config)
-        for wrong in ["","utun0","lo0","en0;en1","pdp_ip0","en1234"] {
-            XCTAssertThrowsError(try NativeWireGuardRuntimeConfig.bindSyntheticReviewUnderlay(config,interface:wrong))
-        }
-        let external=try NativeWireGuardRuntimeConfig.compile(profile(),expected:.wireGuard).withEngineConfiguration{$0}
-        XCTAssertThrowsError(try NativeWireGuardRuntimeConfig.bindSyntheticReviewUnderlay(external,interface:"en0"))
-        XCTAssertThrowsError(try NativeWireGuardRuntimeConfig.bindSyntheticReviewUnderlay(bound,interface:"en0"))
-    }
     func testProductionStillDenied() throws {
         let r = try NativeWireGuardRuntimeConfig.compile(profile(),expected:.wireGuard)
         XCTAssertThrowsError(try TransportBackendPlan.prepare(profileID:UUID(),revision:UUID(),protocol:r.wireProtocol,scope:.production,routes:.tunnelOnly,required:[.tcpIPv4]))

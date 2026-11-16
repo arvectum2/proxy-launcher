@@ -75,30 +75,6 @@ struct NativeWireGuardRuntimeConfig: CustomStringConvertible, CustomReflectable 
         }
         return .init(wireProtocol:expected,provider:provider,addresses:preview.addresses,dnsServers:preview.dnsServers,remoteEndpoint:peer.endpoint,mtu:mtu,bytes:bytes)
     }
-    /// Isolated physical QA: bind only the sole encrypted WG peer socket.
-    /// No persisted configuration, direct outbound or global socket hook.
-    static func bindSyntheticReviewUnderlay(_ configuration:Data,interface:String)throws->Data {
-        guard interface.range(of:"^en[0-9]{1,3}$",options:.regularExpression) != nil,
-              var root=try JSONSerialization.jsonObject(with:configuration) as? [String:Any],
-              Set(root.keys)==["log","inbounds","outbounds","routing"],
-              let inbound=root["inbounds"] as? [[String:Any]],inbound.count==1,
-              inbound[0]["tag"] as? String=="apl-local",inbound[0]["listen"] as? String=="127.0.0.1",
-              inbound[0]["port"] as? Int==39879,inbound[0]["protocol"] as? String=="socks",
-              var outbounds=root["outbounds"] as? [[String:Any]],outbounds.count==1,
-              outbounds[0]["tag"] as? String=="apl-wg",outbounds[0]["protocol"] as? String=="wireguard",
-              Set(outbounds[0].keys)==["tag","protocol","settings"],
-              let settings=outbounds[0]["settings"] as? [String:Any],settings["noKernelTun"] as? Bool==true,
-              let peers=settings["peers"] as? [[String:Any]],peers.count==1,
-              peers[0]["endpoint"] as? String=="192.168.1.80:39881",
-              let allowed=peers[0]["allowedIPs"] as? [String],allowed.count==2,Set(allowed)==["0.0.0.0/0","::/0"],
-              let routing=root["routing"] as? [String:Any],let rules=routing["rules"] as? [[String:Any]],rules.count==1,
-              rules[0]["inboundTag"] as? [String]==["apl-local"],
-              rules[0]["outboundTag"] as? String=="apl-wg" else{throw Failure.unsupportedProfile}
-        outbounds[0]["streamSettings"]=["sockopt":["interface":interface]]
-        root["outbounds"]=outbounds
-        return try JSONSerialization.data(withJSONObject:root,options:[.sortedKeys])
-    }
-
     private static func literalEndpoint(_ endpoint: String) -> Bool {
         var addr4 = in_addr(), addr6 = in6_addr()
         if endpoint.hasPrefix("["), let end = endpoint.firstIndex(of:"]") {
