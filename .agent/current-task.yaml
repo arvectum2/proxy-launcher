@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41: physical scoped WG TCP4 positive correlated with independent official reference peer, fresh exact manager readback, authenticated handshake and bidirectional data, drain/OFF. Next TCP6/UDP4/UDP6 full-scope synthetic probes."
+current: "Stage41 WG scoped TCP4 PASS. Full TCP6 41E6DE25 failed with no host response and zero independent WG handshake/data packets, host drained/OFF. Compare fresh full TCP4 to isolate scope versus family; no route bypass changes."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
