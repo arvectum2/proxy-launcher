@@ -223,3 +223,19 @@ def test_peer_loss_requires_exact_positive_then_fresh_negative():
     with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondChallengeSHA256=q.sha(c["nonce"].encode()))))
     for kind,scope,probe in (("wireGuard",None,"udp4"),("wireGuard","wireGuardFull","tcp4"),("amneziaWG1",None,"udp4"),("vlessReality","vlessDatagrams","udp4")):
         with pytest.raises(ValueError):command(kind,probe,"peer-loss",scope)
+
+@pytest.mark.parametrize("probe",("udp4","udp6","dnsWire4"))
+def test_awg_off_control_requires_owned_full_route_and_no_response(probe):
+    c=q.make_command(fixture("amneziaWG1"),q.new_id(),"offControl",None,probe,"observe-off")
+    r=receipt(c);r["probeAttempted"]=True
+    out=q.verify_host(c,r)
+    assert out["kind"]=="amneziaWG1" and not out["runtime_authorized"] and not out["release_authorized"]
+    for bad in (dict(c,scope="wireGuardFull"),dict(c,nonce="a"*40)):
+        with pytest.raises(ValueError):q.validate_command(bad)
+    with pytest.raises(ValueError):q.verify_host(c,dict(r,responseSHA256="0"*64))
+
+def test_off_control_source_rejects_unexpected_exact_response_after_manager_readback():
+    view=(Path(__file__).resolve().parents[1]/"mobile/ios/App/NativeRuntimeReviewQAView.swift").read_text()
+    block=view.split('if command.action == .offControl {',1)[1].split('if command.action != .run',1)[0]
+    assert block.index('let offResponse=await NativeRuntimeQAProbe.exchange(command)') < block.index('stage="off-control-after"') < block.index('guard offResponse==nil') < block.index('try save(')
+    assert block.count('readNativeRuntimeQAManager(')==2

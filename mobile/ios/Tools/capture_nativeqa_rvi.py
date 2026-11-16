@@ -24,9 +24,16 @@ LIMIT = 30
 
 def target_for(command):
     validate_command(command)
-    if command["reference"]["kind"] != "wireGuard" or command.get("scope") != "wireGuardFull" or command["action"] not in ("offControl", "run"):
+    kind, scope = command["reference"]["kind"], command.get("scope")
+    if command["action"] not in ("offControl", "run") or command.get("probe") not in TARGETS:
         raise ValueError("unsupported RVI observation")
-    return TARGETS[command["probe"]]
+    if command.get("mode") not in ("observe-off", "positive", "peer-loss"):
+        raise ValueError("unsupported RVI mode")
+    if kind == "wireGuard" and scope == "wireGuardFull":
+        return TARGETS[command["probe"]]
+    if kind == "amneziaWG1" and scope is None:
+        return {"udp4": ("192.0.2.2", 39892), "udp6": ("2001:db8::2", 39892)}.get(command["probe"], TARGETS[command["probe"]])
+    raise ValueError("unsupported RVI observation")
 
 def summarize(headers, stats, target, started, ended):
     # PKTAP exposes the device interface and direction. Ambiguous rows or

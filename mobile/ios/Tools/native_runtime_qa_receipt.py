@@ -42,7 +42,9 @@ def validate_command(command):
     need(action in ACTIONS, "invalid action")
     scope, probe, mode, nonce = (command.get(k) for k in (*OPTIONAL, "nonce"))
     if action == "offControl":
-        need(command["reference"]["kind"] == "wireGuard" and scope=="wireGuardFull" and probe in ("udp4","udp6","dnsWire4") and mode=="observe-off" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None, "invalid OFF control")
+        kind = command["reference"]["kind"]
+        full_route = (kind == "wireGuard" and scope == "wireGuardFull") or (kind == "amneziaWG1" and scope is None)
+        need(full_route and probe in ("udp4","udp6","dnsWire4") and mode=="observe-off" and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40),nonce) is not None, "invalid OFF control")
         return
     if action != "run":
         need(all(v is None for v in (scope, probe, mode, nonce)), "manager command has probe options")

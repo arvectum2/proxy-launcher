@@ -19,9 +19,10 @@ private struct NativeRuntimeQACommand:Decodable {
     var valid:Bool {
         guard schema==1,requestID != owner else{return false}
         if action == .offControl {
-            return reference.kind == .wireGuard && scope == .wireGuardFull &&
+            let fullRoute = (reference.kind == .wireGuard && scope == .wireGuardFull) || (reference.kind == .amneziaWG1 && scope == nil)
+            return fullRoute &&
                 ["udp4","udp6","dnsWire4"].contains(probe ?? "") && mode=="observe-off" &&
-                nonce?.utf8.count==40 && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
+                nonce?.utf8.count == (reference.kind == .amneziaWG1 ? 48 : 40) && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
         }
         if action != .run {return scope==nil && probe==nil && nonce==nil && mode==nil}
         if mode=="peer-loss" {
@@ -184,11 +185,12 @@ private struct NativeRuntimeQAFailureReceipt:Encodable {
                 _=try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
                 guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
                 stage="off-control-probe"
-                _=await NativeRuntimeQAProbe.exchange(command)
+                let offResponse=await NativeRuntimeQAProbe.exchange(command)
                 guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
                 stage="off-control-after"
                 _=try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
                 guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+                guard offResponse==nil else{throw NativeValidationDispatch.Failure.invalidState}
                 try save(.init(requestID:command.requestID,owner:command.owner,reference:command.reference,action:.offControl,scope:command.scope,probe:command.probe,mode:command.mode,setup:[],drain:nil,probeAttempted:true,responseSHA256:nil,managerReadback:true,osOff:true))
                 status="OFF control attempted. External packet visibility must be verified."
                 return
