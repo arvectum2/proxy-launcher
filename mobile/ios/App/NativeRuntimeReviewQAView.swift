@@ -6,7 +6,7 @@ import CryptoKit
 
 /// A separate explicitly launched operator harness, never a normal VPN screen.
 private struct NativeRuntimeQACommand:Decodable {
-    enum Action:String,Codable {case prepareManager,readManager,run,removeManager}
+    enum Action:String,Codable {case prepareManager,readManager,run,removeManager,offControl}
     let schema:Int
     let requestID:UUID
     let owner:UUID
@@ -18,6 +18,11 @@ private struct NativeRuntimeQACommand:Decodable {
     let mode:String?
     var valid:Bool {
         guard schema==1,requestID != owner else{return false}
+        if action == .offControl {
+            return reference.kind == .wireGuard && scope == .wireGuardFull &&
+                ["udp4","udp6","dnsWire4"].contains(probe ?? "") && mode=="observe-off" &&
+                nonce?.utf8.count==40 && nonce?.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)})==true
+        }
         if action != .run {return scope==nil && probe==nil && nonce==nil && mode==nil}
         guard let probe,let nonce,let mode,(["tcp4","tcp6","udp4","udp6"].contains(probe) || (probe=="dns4" && mode=="positive" && ((reference.kind == .amneziaWG1 && scope==nil) || (reference.kind == .wireGuard && scope == .wireGuardFull)))),
               nonce.utf8.count==(reference.kind == .amneziaWG1 ? 48:40),
@@ -152,6 +157,20 @@ private struct NativeRuntimeQAFailureReceipt:Encodable {
         var stage="authorization"
         do {
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+            if command.action == .offControl {
+                stage="off-control-before"
+                _=try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
+                guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+                stage="off-control-probe"
+                _=await NativeRuntimeQAProbe.exchange(command)
+                guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+                stage="off-control-after"
+                _=try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
+                guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
+                try save(.init(requestID:command.requestID,owner:command.owner,reference:command.reference,action:.offControl,scope:command.scope,probe:command.probe,mode:command.mode,setup:[],drain:nil,probeAttempted:true,responseSHA256:nil,managerReadback:true,osOff:true))
+                status="OFF control attempted. External packet visibility must be verified."
+                return
+            }
             if command.action != .run {
                 stage="manager"
                 if command.action == .readManager {
@@ -208,18 +227,26 @@ private enum NativeRuntimeQAProbe {
     /// Fixed documentation-address witnesses, one bounded exchange, no DNS,
     /// redirects, arbitrary destinations, fallback, or owner data.
     static func exchange(_ command:NativeRuntimeQACommand)async->String? {
-        guard command.valid,command.action == .run,let probe=command.probe,let nonce=command.nonce else{return nil}
-        let awg=command.reference.kind == .amneziaWG1,udp=probe.hasPrefix("udp"),v4=probe.hasSuffix("4")
+        guard command.valid,(command.action == .run || command.action == .offControl),let probe=command.probe,let nonce=command.nonce else{return nil}
+        let awg=command.reference.kind == .amneziaWG1,udp=probe.hasPrefix("udp") || probe=="dnsWire4",v4=probe.hasSuffix("4")
         // Only one generated reserved-domain name, with no arbitrary hostname.
-        let host=probe=="dns4" ? nonce+".apl-nativeqa.test." : (awg ? (v4 ? "192.0.2.2":"2001:db8::2") : (v4 ? "198.51.100.77":"2001:db8:77::77"))
+        let host=probe=="dnsWire4" ? "192.0.2.53" : probe=="dns4" ? nonce+".apl-nativeqa.test." : (awg ? (v4 ? "192.0.2.2":"2001:db8::2") : (v4 ? "198.51.100.77":"2001:db8:77::77"))
         let expected=Data(((awg ? "APL:":"APL_RECEIPT:")+nonce).utf8)
         let http = !awg && !udp
         let request:Data
-        if http {
+        if probe=="dnsWire4" {
+            // Fixed documentation-address DNS positive-control attempt.
+            // No system resolver or user DNS name, no arbitrary destination.
+            var query=Data([0x41,0x50,0x01,0,0,1,0,0,0,0,0,0])
+            for label in [nonce,"apl-nativeqa","test"] {
+                query.append(UInt8(label.utf8.count));query.append(contentsOf:label.utf8)
+            }
+            query.append(contentsOf:[0,0,1,0,1]);request=query
+        } else if http {
             let authority=v4 ? host:"["+host+"]"
             request=Data(("GET /"+nonce+" HTTP/1.1\r\nHost: "+authority+":39883\r\nConnection: close\r\n\r\n").utf8)
         } else {request=Data(((awg ? "":"APL_UDP:")+nonce).utf8)}
-        let port:NWEndpoint.Port=awg ? 39892:39883
+        let port:NWEndpoint.Port=probe=="dnsWire4" ? 53 : (awg ? 39892:39883)
         let c=NWConnection(host:NWEndpoint.Host(host),port:port,using:udp ? .udp:.tcp)
         let q=DispatchQueue(label:"apl.native.runtime.qa.probe")
         let matched=await withCheckedContinuation { (continuation:CheckedContinuation<Bool,Never>) in

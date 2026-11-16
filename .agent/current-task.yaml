@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -245,7 +245,7 @@ completed:
 
 
 
-current: "Stage43b COMPLETE: 16/16 core physical cases, two independently correlated positive system DNS cases; full Swift Core 416/416 PASS, iOS030 Python314/314 +14 subtests PASS. Stage43c acceptance runbook recorded. Exact isolated WG manager remains OFF. Physical independent no-escape observation requires approved observation/control setup; no production activation."
+current: "Stage43c owner authorized bounded synthetic-only USB RVI and temporary Wi-Fi/LTE transitions. RVI readiness create rvi0, PKTAP/RAW and concurrent devicectl process read PASS, RVI removed. Prepare isolated explicit OFF control command (fixed synthetic UDP4/UDP6 and DNS destination) to establish actual capture visibility. No network changes yet."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -439,4 +439,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43c: obtain specific owner consent for bounded synthetic-only USB RVI observation and supervised control, or approved separate test gateway/SSID if prior RVI interference remains. Do not change Wi-Fi/cellular or gateway without consent. Verify actual before/after outside positive controls for DNS/IPv4/IPv6, healthy tunnel and peer-loss observations; inconclusive if missing visibility. Preserve exact WG manager OFF until approved test. Do not repeat 16 core or two DNS positive cases. Physical migration and release acceptance remain pending."
+resume_instruction: "Validate isolated offControl command/receipt contract and signed QA-only build; require exact owned manager OFF before/after each fixed probe. Use PKTAP interface/direction metadata and header-only filter restricted to lab targets/ports; no broad DNS capture. Only then compare independently witnessed ON and failed-peer probes with outside controls. Restore original network if any authorized transition occurs."

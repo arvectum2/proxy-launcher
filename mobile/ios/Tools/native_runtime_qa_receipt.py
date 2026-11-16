@@ -14,7 +14,7 @@ from validate_unified_synthetic_receipt import exact, need, read, uuidstr
 
 KINDS = ("wireGuard", "amneziaWG1", "vlessReality")
 PROBES = ("tcp4", "tcp6", "udp4", "udp6")
-ACTIONS = ("prepareManager", "readManager", "run", "removeManager")
+ACTIONS = ("prepareManager", "readManager", "run", "removeManager", "offControl")
 BINDING = ("requestID", "owner", "reference", "action")
 OPTIONAL = ("scope", "probe", "mode")
 
@@ -40,6 +40,9 @@ def validate_command(command):
     action = command["action"]
     need(action in ACTIONS, "invalid action")
     scope, probe, mode, nonce = (command.get(k) for k in (*OPTIONAL, "nonce"))
+    if action == "offControl":
+        need(command["reference"]["kind"] == "wireGuard" and scope=="wireGuardFull" and probe in ("udp4","udp6","dnsWire4") and mode=="observe-off" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None, "invalid OFF control")
+        return
     if action != "run":
         need(all(v is None for v in (scope, probe, mode, nonce)), "manager command has probe options")
         return
@@ -60,7 +63,7 @@ def make_command(fixture, owner, action, scope=None, probe=None, mode=None):
     for name, value in zip(OPTIONAL, (scope, probe, mode)):
         if value is not None:
             command[name] = value
-    if action == "run":
+    if action in ("run", "offControl"):
         command["nonce"] = secrets.token_hex(24 if fixture["reference"]["kind"] == "amneziaWG1" else 20)
     validate_command(command)
     return command
@@ -96,6 +99,9 @@ def verify_host(command, receipt):
     result = dict(status="host_receipt_correlated_only", action=command["action"], kind=command["reference"]["kind"], requestID=command["requestID"], independent_witness_required=True, runtime_authorized=False, release_authorized=False)
     setup, drain = receipt["setup"], receipt.get("drain")
     need(type(setup) is list, "invalid setup transcript")
+    if command["action"] == "offControl":
+        need(setup == [] and drain is None and receipt["probeAttempted"] is True and receipt.get("responseSHA256") is None, "invalid OFF control evidence")
+        return dict(result,probe=command["probe"],mode=command["mode"],challengeSHA256=sha(command["nonce"].encode()))
     if command["action"] != "run":
         need(setup == [] and drain is None and receipt["probeAttempted"] is False and receipt.get("responseSHA256") is None, "manager-only receipt contains runtime evidence")
         return result
@@ -135,8 +141,8 @@ def main():
     m.add_argument("--owner", required=True)
     m.add_argument("--action", choices=ACTIONS, required=True)
     m.add_argument("--scope", choices=("wireGuardFull", "vlessDatagrams"))
-    m.add_argument("--probe", choices=(*PROBES, "dns4"))
-    m.add_argument("--mode", choices=("positive", "wrong-key", "wrong-psk"))
+    m.add_argument("--probe", choices=(*PROBES, "dns4", "dnsWire4"))
+    m.add_argument("--mode", choices=("positive", "wrong-key", "wrong-psk", "observe-off"))
     v = sub.add_parser("verify-host")
     v.add_argument("command", type=Path)
     v.add_argument("receipt", type=Path)

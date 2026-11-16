@@ -188,3 +188,18 @@ def test_exact_hostname_probe_only_for_positive_full_route():
             command(kind,"dns4",mode,scope)
     view=(Path(__file__).resolve().parents[1]/"mobile/ios/App/NativeRuntimeReviewQAView.swift").read_text()
     assert 'nonce+".apl-nativeqa.test."' in view and 'probe=="dns4" && mode=="positive"' in view
+
+
+@pytest.mark.parametrize("probe",("udp4","udp6","dnsWire4"))
+def test_off_control_is_not_runtime_or_release_evidence(probe):
+    c=q.make_command(fixture(),q.new_id(),"offControl","wireGuardFull",probe,"observe-off")
+    r=receipt(c);r["probeAttempted"]=True
+    out=q.verify_host(c,r)
+    assert out["independent_witness_required"] and not out["runtime_authorized"] and not out["release_authorized"]
+    for field,value in (("osOff",False),("probeAttempted",False),("responseSHA256","0"*64)):
+        with pytest.raises(ValueError):q.verify_host(c,dict(r,**{field:value}))
+    with pytest.raises(ValueError):q.validate_command(dict(c,action="run"))
+    with pytest.raises(ValueError):q.validate_command(dict(c,scope=None))
+    with pytest.raises(ValueError):q.validate_command(dict(c,mode="positive"))
+    wrong=dict(c,reference=fixture("amneziaWG1")["reference"])
+    with pytest.raises(ValueError):q.validate_command(wrong)
