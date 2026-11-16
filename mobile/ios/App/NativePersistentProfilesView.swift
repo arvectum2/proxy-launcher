@@ -30,6 +30,9 @@ import NetworkExtension
     @State private var exportName="APL-Native-Encrypted"
     @State private var busy=false
     @State private var failed=false
+#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
+    @State private var qaWriteFailure:String?
+#endif
     @State private var authenticationFailed=false
     @State private var exportSaved=false
     @State private var generation=UUID()
@@ -57,6 +60,9 @@ import NetworkExtension
                     if exportSaved {Text(tr("Encrypted backup saved","Зашифрованная копия сохранена"))}
                     if authenticationFailed {Text(tr("Wrong password or damaged backup. Try again.","Неверный пароль или повреждённая копия. Повторите ввод.")).foregroundStyle(.red)}
                     if failed {Text(tr("Operation failed. Reload to check saved state and recovery.","Операция не завершена. Обновите список и проверьте восстановление.")).foregroundStyle(.red)}
+#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
+                    if failed,let qaWriteFailure {Text(qaWriteFailure).font(.caption.monospaced())}
+#endif
                     if failed || library == nil {Button(tr("Reload","Обновить"),action:reload)}
                 }
                 if let library {librarySections(library)}
@@ -417,7 +423,17 @@ import NetworkExtension
                 }
                 model.refreshNativeLibraryOverview()
                 if generation==token {reload()}
-            } catch {model.refreshNativeLibraryOverview();if generation==token {reload();failed=true}}
+            } catch {
+                model.refreshNativeLibraryOverview()
+                if generation==token {
+                    reload();failed=true
+#if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
+                    // Type and numeric category only: never error descriptions,
+                    // associated data, credentials or profile identifiers.
+                    qaWriteFailure="QA write: "+String(reflecting:type(of:error))+" / "+String((error as NSError).code)
+#endif
+                }
+            }
             if generation==token {busy=false}
         }
     }

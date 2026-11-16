@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage42: ARC permission dialog cleared by owner; Mirroring click/scroll confirmed working when pointer moved before scroll and 2-3 second settle. Settings verified system VPN OFF and no NativeLab manager. Confirmed exact synthetic WG row 9FEAF143, displayed explicit remove review (one record), first confirm did not persist on reopening; relaunched isolated app and attempted confirm again. Foreground switched to Figma before result readback; do not assume removal or continue blind clicks. AWG reference local controls already PASS. Additional helper invocation previously rejected; no physical AWG runtime."
+current: "Stage42: foreground resumed. Confirmed synthetic WG removal fails at library write (generic red error; row retained); OS VPN OFF and NativeLab manager absent previously verified. Add isolated QA-only categorical error type/code display, no admission or lifetime changes. Build and verify diagnostic candidate."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -429,4 +429,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "When Mac desktop is free, resume NativeLab library readback; verify actual old synthetic WG row state and any operation failure before retrying. If present diagnose library write failure without relaxing inactive VPN checks. If removed, purge only retired synthetic record, import staged AWG fixture, verify reference. Use reviewed approved test tooling only; previous rejected helper not executed. Physical AWG and independent no-leak gate pending."
+resume_instruction: "Verify isolated diagnostic signed build, reproduce exact WG removal with fresh receipt within 300 seconds, inspect safe error type/code. Repair proven defect only, keep all inactive checks. Then import AWG; no physical AWG or no-leak claim."
