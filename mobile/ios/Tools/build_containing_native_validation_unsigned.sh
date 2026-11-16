@@ -30,6 +30,8 @@ runtime_flag="${APL_COMPILE_NATIVE_RUNTIME_REVIEW:-0}"
 [[ "$runtime_flag" == 0 || ( "$runtime_flag" == 1 && "$product_flag" == 1 ) ]]
 harness_flag="${APL_COMPILE_NATIVE_RUNTIME_QA_HARNESS:-0}"
 [[ "$harness_flag" == 0 || ( "$harness_flag" == 1 && "$runtime_flag" == 1 ) ]]
+lab_flag="${APL_NATIVE_ISOLATED_LAB:-0}"
+[[ "$lab_flag" == 0 || ( "$lab_flag" == 1 && "$harness_flag" == 1 ) ]]
 exact_dns_flag=0
 if [[ -n "${APL_NATIVE_EXACT_DNS_RECEIPT:-}" ]]; then
     [[ "$runtime_flag" == 1 && "$APL_NATIVE_EXACT_DNS_RECEIPT" == /* ]]
@@ -60,7 +62,7 @@ python3 "$root/Tools/verify_ios_no_tproxy_receipt.py" "$research" "$r"
 if [[ "$exact_dns_flag" == 1 ]]; then
     python3 "$root/Tools/verify_ios_native_exact_dns_receipt.py" "$APL_NATIVE_EXACT_DNS_RECEIPT" "$r" "$p"
 fi
-python3 - "$p/project.yml" "$product_flag" "$runtime_flag" "$exact_dns_flag" "$harness_flag" <<'PY'
+python3 - "$p/project.yml" "$product_flag" "$runtime_flag" "$exact_dns_flag" "$harness_flag" "$lab_flag" <<'PY'
 import pathlib,sys
 p=pathlib.Path(sys.argv[1]);s=p.read_text()
 for target,flags in [
@@ -80,6 +82,9 @@ for target,flags in [
 assert 'APL_NATIVE_SYNTHETIC_RUNTIME' not in s
 p.write_text(s)
 PY
+if [[ "$lab_flag" == 1 ]]; then
+    python3 "$p/Tools/stage_nativeqa_isolated.py" "$p"
+fi
 (cd "$p" && xcodegen generate >/dev/null)
 # Package versions remain the exact tracked lock. Do not update resolutions.
 lock='ArvectumProxyLauncherIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved'
@@ -125,7 +130,8 @@ from audit_unsigned_release_linkage import link_objects
 def sha(f):
     with f.open('rb') as r:return hashlib.file_digest(r,'sha256').hexdigest()
 h=plistlib.loads((host.parent/'Info.plist').read_bytes());e=plistlib.loads((ext.parent/'Info.plist').read_bytes())
-assert h['CFBundleIdentifier']=='ru.arvectum.proxylauncher.ios' and e['CFBundleIdentifier']==h['CFBundleIdentifier']+'.PacketTunnel'
+lab=sys.argv[12]=='1'
+assert h['CFBundleIdentifier']==('ru.arvectum.proxylauncher.lab.nativeqa' if lab else 'ru.arvectum.proxylauncher.ios') and e['CFBundleIdentifier']==h['CFBundleIdentifier']+'.PacketTunnel'
 assert not list(host.parent.rglob('embedded.mobileprovision')) and not list(host.parent.rglob('_CodeSignature'))
 original=ext.parent.parent.parent.parent/ext.parent.name/ext.name
 assert original.is_file() and sha(original)==sha(ext)
@@ -139,7 +145,9 @@ for obj in link_objects(maps[0],original):
 assert set(rows)=={'libAPLUnified.a','libtun2proxy.a'} and all(rows.values())
 shutil.copyfile(maps[0],out/'provider-link-map.txt')
 sources={str(f.relative_to(p)):sha(f) for folder in ('App','PacketTunnel','Shared','SharedCore','Config','Resources') for f in sorted((p/folder).rglob('*')) if f.is_file()}
-report={'schema':1,'source_commit':commit,'scope':('actual product containing app + separate native runtime-review provider, unsigned; no install or runtime performed' if sys.argv[9]=='1' else 'actual product app + ordinary provider, validation-only, unsigned; no install or runtime'),'runtime_authorized':False,'release_authorized':False,'synthetic_runtime':False,'product_awg_bridge':sys.argv[8]=='1','product_runtime_review':sys.argv[9]=='1','native_exact_dns':sys.argv[10]=='1','native_runtime_qa_harness':sys.argv[11]=='1','host_sha256':sha(host),'provider_sha256':sha(ext),'host_info_sha256':sha(host.parent/'Info.plist'),'provider_info_sha256':sha(ext.parent/'Info.plist'),'go_archive_sha256':sha(p/'Lib/Unified/libAPLUnified.a'),'rust_archive_sha256':sha(p/'Frameworks/tun2proxy.xcframework/ios-arm64/libtun2proxy.a'),'sources':sources,'linked_archive_objects':{k:sorted(v) for k,v in rows.items()},'evidence':{f.name:sha(f) for f in out.iterdir() if f.is_file()}}
+if lab:
+    shutil.copytree(host.parent,out/'NativeLabHost.app')
+report={'schema':1,'isolated_nativeqa':lab,'source_commit':commit,'scope':('actual product containing app + separate native runtime-review provider, unsigned; no install or runtime performed' if sys.argv[9]=='1' else 'actual product app + ordinary provider, validation-only, unsigned; no install or runtime'),'runtime_authorized':False,'release_authorized':False,'synthetic_runtime':False,'product_awg_bridge':sys.argv[8]=='1','product_runtime_review':sys.argv[9]=='1','native_exact_dns':sys.argv[10]=='1','native_runtime_qa_harness':sys.argv[11]=='1','host_sha256':sha(host),'provider_sha256':sha(ext),'host_info_sha256':sha(host.parent/'Info.plist'),'provider_info_sha256':sha(ext.parent/'Info.plist'),'go_archive_sha256':sha(p/'Lib/Unified/libAPLUnified.a'),'rust_archive_sha256':sha(p/'Frameworks/tun2proxy.xcframework/ios-arm64/libtun2proxy.a'),'sources':sources,'linked_archive_objects':{k:sorted(v) for k,v in rows.items()},'evidence':{f.name:sha(f) for f in out.iterdir() if f.is_file()}}
 (out/'manifest.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print('CONTAINING_NATIVE_VALIDATION_LINK_PASS',report['provider_sha256'],{k:len(v) for k,v in rows.items()})
 PY
