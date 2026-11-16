@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage41: base signed lab full WG TCP4, TCP6 and UDP4 positive verified; UDP4 3028C520 correlated independent nonce and handshake/data, drain/OFF. Next fresh UDP6."
+current: "Stage41 full WG TCP4/TCP6/UDP4/UDP6 positive physical PASS on base signed NativeLab. Earlier failed full-route tests had timing confound; no runtime fix necessary to pass these cases. Exact host/independent peer correlation and drain/OFF all verified. Next wrong-key negative with rotated server and matching local control."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "7d0eab38 signed NativeLab base; 601a1059 expanded VLESS physical positive; e4e19102 pinned independent WG reference tooling; d3864954 scoped WG TCP4 physical positive; 951d459c experimental underlay binding failed physical full TCP4 (unsigned manifest a0adbfa37a756825996cf882ec39adf98d5bd2a44a09c162b48696ccc1d59294, signing receipt ca7427d526068982b05a9ff0e12e7280cb8abbfb1b86a0bc9049d092a3e1358d); experiment reverted."
+last_verified_commit: "7d0eab38 signed base; 890efaf8 witness timing fix and physical full TCP4 positive; 24e695d9 TCP6, ad91901e UDP4; UDP6 correlated."
 test_results:
+  - "Stage41 full WG positives: TCP4 A55559E5, TCP6 5B4E87CA, UDP4 3028C520, UDP6 01C260A6; 4/4 exact command/host and independent reference peer nonce/response matches, one matching witness, handshake/data each direction, terminal drain/OFF. No broad no-leak claim."
   - "Stage41 physical WG scoped TCP4 PASS after exact manager readback 13BB92C0; request BE5B437D independent upstream WG handshake 1/1, encrypted transport 5/5, witness1, exact digests, clean drain/OFF. Full-scope TCP6 41E6DE25, full TCP4 B929E055, QA-interface-binding full TCP4 02EA460E all FAILED expected response, zero accepted relay traffic; all host drain/OFF. Experiment Swift7/7 and Python101/101 passed; unsigned/signed build and install passed, not a physical fix. Source reverted. BPF root-only; no independent capture. No physical extended WG/AWG acceptance yet."
   - "Stage41 physical isolated fixture lifecycle: VLESS manager removal receipt verified, old synthetic VLESS retired and purged, corrected WG product-format fixture imported, selected and reference exported. 4 independent WG local preflight probes passed; no physical WG transport claim. Permission pending."
   - "Stage41 pinned WG peer build PASS; independent local reference server via LAN-scoped encrypted UDP relay and Xray local client four transport witnesses PASS; no physical WG result yet."
@@ -427,4 +428,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Continue Stage41 from full TCP4 positive on base signed NativeLab. Retain exact owned WG manager OFF. Generate fresh full TCP6/UDP4/UDP6 commands, verify peer ready and 100s bounded window, independently correlate host/peer, verify drain/OFF. Then wrong key and AWG. RVI direct capture needs reliable session; do not claim no-leak."
+resume_instruction: "Stage41: all four WG full-scope positives verified. Continue fresh wrong-key TCP4 on retained exact OFF lab manager with independently rotated server key, positive and negative local controls; require actual initiations and zero authenticated response/witness, drain/OFF. Then AWG import and testing. RVI direct capture interrupted Mirroring; independent no-leak gate pending."

@@ -8,6 +8,8 @@ from pathlib import Path
 from native_runtime_qa_receipt import validate_command
 from nativeqa_vless_tcp4_peer import socks_udp_probe
 from run_xray_vless_peer_qa import wait_for
+from unified_synthetic_fixture import keypair, b64
+import re
 
 LAN, HOST, PORT, BACKEND = "192.168.1.80", "127.0.0.1", 39881, 39882
 KINDS=("tcp4","tcp6","udp4","udp6")
@@ -74,9 +76,9 @@ def report(work):
     return {key:int(value) for key,value in (s.split("=") for s in lines[0].split()[1:])}
 
 
-def local_probe(root, binary, nonce, probes):
+def local_probe(root, binary, nonce, probes, fixture=None, expected=True):
     marker=root/"client.conf"
-    marker.write_bytes((root.parent/"fixture.txt").read_bytes())
+    marker.write_text(fixture if fixture is not None else (root.parent/"fixture.txt").read_text())
     log=root/"client.log"
     with log.open("w") as out:p=subprocess.Popen([str(binary),"wg-client",str(marker),"39879"],stdout=out,stderr=subprocess.STDOUT)
     try:
@@ -89,7 +91,7 @@ def local_probe(root, binary, nonce, probes):
                 authority=target if probe.endswith("4") else "["+target+"]"
                 got=subprocess.run(["curl","--disable","--noproxy","","--silent","--max-time","5","--socks5-hostname",HOST+":39879","http://"+authority+":39883/"+nonce],capture_output=True,env={k:v for k,v in os.environ.items() if "proxy" not in k.lower()})
                 ok=got.returncode==0 and got.stdout==("APL_RECEIPT:"+nonce).encode()
-            assert ok,"local WG "+probe+" failed"
+            assert ok==expected,"local WG "+probe+" mismatch"
     finally:
         Path(str(marker)+".stop").touch()
         p.wait(timeout=7)
@@ -106,13 +108,27 @@ def run(root,binary,client,command,preflight_only):
     if command:
         item=json.loads(command.read_text())
         validate_command(item)
-        assert item["action"]=="run" and item["reference"]["kind"]=="wireGuard" and item["mode"]=="positive"
+        assert item["action"]=="run" and item["reference"]["kind"]=="wireGuard" and item["mode"] in ("positive","wrong-key")
         probe=item["probe"]
+    negative=item is not None and item["mode"]=="wrong-key"
+    original=(root/"fixture.txt").read_text()
+    matching=original
+    if negative:
+        private,public=keypair()
+        cfg["private"]=private.hex()
+        pattern=r"(?m)^PublicKey = [A-Za-z0-9+/]{43}=$"
+        assert len(re.findall(pattern,original))==1
+        matching=re.sub(pattern,"PublicKey = "+b64(public),original)
+        assert matching!=original
     pre=secrets.token_hex(20);probes=[probe] if probe else KINDS
     with session(root,binary,dict(cfg,nonce=pre),"local") as (work,counts):
-        local_probe(work,client,pre,probes)
+        local_probe(work,client,pre,probes,matching)
     local=report(work)
     assert all(local[p]==(1 if p in probes else 0) for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]>0
+    if negative:
+        with session(root,binary,dict(cfg,nonce=pre),"local") as (work,failed):
+            local_probe(work,client,pre,probes,original,False)
+        assert all(report(work)[p]==0 for p in KINDS) and failed["c2s",1]>0 and failed["s2c",2]==0
     print("NATIVELAB_WG_PREFLIGHT_PASS",",".join(probes),flush=True)
     if preflight_only or item is None:return 0
     nonce=item["nonce"]
@@ -121,9 +137,11 @@ def run(root,binary,client,command,preflight_only):
         deadline=time.monotonic()+100
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
     witness=report(work)
-    result={"schema":1,"requestID":item["requestID"],"mode":"positive","probe":probe,"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"localPositiveControl":True,"witnessCounts":{p:witness[p] for p in KINDS},"relayCounts":{d+str(k):counts[d,k] for d in ("c2s","s2c") for k in range(1,5)},"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if witness[probe]==1 else None,"release_authorized":False}
+    result={"schema":1,"requestID":item["requestID"],"mode":item["mode"],"probe":probe,"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"localPositiveControl":True,"localNegativeControl":negative,"witnessCounts":{p:witness[p] for p in KINDS},"relayCounts":{d+str(k):counts[d,k] for d in ("c2s","s2c") for k in range(1,5)},"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if witness[probe]==1 else None,"release_authorized":False}
     (work/"peer-observation.json").write_text(json.dumps(result,sort_keys=True)+"\n")
     print("NATIVELAB_WG_PEER_OBSERVATION",json.dumps(result),flush=True)
+    if negative:
+        return 0 if all(witness[p]==0 for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]==0 and counts["s2c",4]==0 else 2
     return 0 if all(witness[p]==(1 if p==probe else 0) for p in KINDS) and counts["c2s",1]>0 and counts["s2c",2]>0 and counts["c2s",4]>0 and counts["s2c",4]>0 else 2
 
 
