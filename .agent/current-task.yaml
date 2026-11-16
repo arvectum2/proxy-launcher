@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage40 COMPLETE: retained exact NativeLab manager readback, expanded physical VLESS TCP6/UDP4/UDP6 positive PASS (all 3 independent peer preflights, host/peer nonce and response digests matched, one witness each, drain and OFF). Overall scoped TCP4 positive and wrong-key negative plus expanded TCP6/UDP4/UDP6 pass. Next Stage41 WG fixture and independent peer; remove exact lab manager only for isolated fixture change."
+current: "Stage41 active: generated private synthetic WireGuard fixture and peer input. Build pinned official wireguard-go peer, validate bounded LAN UDP relay and local preflight, then remove only existing VLESS lab manager and switch fixture."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
