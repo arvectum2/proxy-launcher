@@ -503,3 +503,18 @@ prompt on device; no tunnel started. Do not restart pending app.
 Previous PR383 exact 0cf4e322 CI 7/7 completed SUCCESS and GitVerse
 head matched. New DNS loss private run helpers prepared with pinned
 WG reference; physical DNS loss remains open.
+
+### Stage 43c: WG established DNS loss closure
+
+Owner approval saved the isolated manager despite prepare reporting
+failure when the app lost foreground continuity. Settings showed the
+lab selected and system VPN OFF. Exact readManager 26DA5E6A verified.
+The chronological physical DNS loss bracket AE9D0F1E / 315AA993 /
+0EF422E0 passed: physical out 1/0/1, tunnel out 0/80/0.
+The DNS loss capture has 20 first-window, 35 intervening and 25
+post-cut-window packets, zero direct packets to the fixed test resolver,
+zero ambiguity/drops, complete capture and removal. Independent exact
+DNS A/TCP witness and peer shutdown before distinct second challenge,
+no returned response, terminal OFF. This closes the fixed-target WG
+and AWG healthy/established-loss matrix, not a general leak or kill
+switch proof. Actual network handoff and production acceptance remain.

@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage43c WG established DNS loss physical bracket PASS: AE9D0F1E/315AA993/0EF422E0 physical 1/0/1, tunnel 0/80/0 (20 first/35 intermediate/25 post-cut); exact peer and host correlations, no drops, terminal OFF. Both WG and AWG fixed-target healthy/loss matrices complete."
   - "Stage43c AWG isolated physical full-route fixed-target healthy and established-loss UDP4, UDP6, DNS brackets PASS; all 18 ordered receipts independently reverified, no direct egress in active test windows. Not general leak-proof."
   - "Stage43c WG established UDP4 and UDP6 peer-loss cycles independently corroborated PASS, both fresh post-cut probes remained tunnel-only; no general no-leak claim."
   - "Stage43c healthy WG: UDP4, UDP6 and fixed resolver before/ON/after cycles PASS (9 ordered independent capture and host receipts, ON peer correlation); no broad leak claim."
@@ -248,7 +249,7 @@ completed:
 
 
 
-current: "Stage43c AWG 18/18 fixed-target physical acceptance complete on signed NativeLab 2576a82d. Exact AWG read C005AA9F and remove C7B7C7F8 passed, only isolated AWG fixture and one retired revision purged, empty lab library confirmed. Synthetic full-route WG DNS fixture imported and selected, ID 40BCE850 revision 80098756. WG prepare request 6EAD4AFE-B940-4072-94B2-662F5255E874 executed; iOS add-VPN permission prompt visible, awaiting owner on device. No new tunnel started."
+current: "Stage43c fixed-target WG and AWG physical healthy and established-loss matrices complete. WG prepare 6EAD4AFE returned failure due foreground continuity during permission but owner approval saved exact manager, Settings OFF and readback 26DA5E6A verified. WG DNS loss bracket AE9D0F1E/315AA993/0EF422E0 PASS, no direct fixed-target packets, 80 tunnel packets, terminal OFF. Next supervised actual network handoff and production acceptance."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -261,8 +262,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "0cf4e32230ae3c0772ccd9af1596fa9f2ba3e168: exact PR383 CI 7/7 including duplicate core/device/release and mirror PASS; GitVerse head matches. 331 Python +14 subtests PASS, AWG 18/18 receipts PASS. WG isolated transition verified; new OS permission pending."
+last_verified_commit: "e41748eade4d6ac79f28d67c51c987129a34a687; signed isolated source 2576a82d; WG DNS loss three correlated physical receipts PASS; prior 331 Python +14 subtests PASS and 0cf4e322 CI 7/7, mirror matched. New e41748ea device/release CI pending at read."
 test_results:
+  - "16.11 19:48 WG DNS loss: Settings OFF and exact readManager 26DA5E6A after approved system prompt (prepare failure excluded). AE9D0F1E/315AA993/0EF422E0 chronological bracket physical 1/0/1, tunnel 0/80/0, 20 first/35 intermediate/25 post-cut. Independent exact response and peer shutdown, distinct second challenge no response, zero direct fixed-target packets, capture complete and removed, host terminal OFF. No broad leak-proof claim."
   - "16.11 WG transition: exact AWG read/remove C005AA9F/C7B7C7F8 PASS; removed only lab fixture and one retired synthetic revision, empty library then full-route WG DNS import/select/export profile 40BCE850 revision 80098756. Prepare 6EAD4AFE pending physical iOS permission. Exact PR383 0cf4e322 CI 7/7 PASS and GitVerse matched. No new physical WG DNS loss receipt."
   - "16.11 19:29: AWG healthy UDP4 E5239B92/5A5CC782/13B667D2, UDP6 10B357BB/8387192D/C0AD760F, DNS CD8727AB/CE7A0A3A/8E693588; physical 1/0/1, tunnel 0/1/0, 0/1/0, 0/12/0. AWG established loss UDP4 FBFD5A2F/A16930CA/254ABC1F, UDP6 A1E5DF0F/0BE0B3C3/36F5271A, DNS 59604239/A2F18A30/BC531069; physical 1/0/1, tunnel 0/2/0 each UDP, 0/57/0 DNS (6 first/30 intermediate/21 post-cut-window). All 18 exact and chronological records reverified, terminal OFF. Abandoned UI trials and 30-packet truncated DNS trial excluded. Scoped capture cap 256 and DNS intermediate-window verifier regression tests 331 +14 PASS. Fixed target only, not general leak proof."
   - "16.11 18:38 physical transition: prior lab WG read/remove correlated, empty library and exact synthetic AWG import/select/export confirmed. Owner authorized stopping working VPN; system Settings OFF, no PacketTunnel process. AWG prepare A46DD542 failed code5 during Mirroring authorization; independently checked no lab profile, fresh command 0D029666 now awaiting iOS permission. No physical test yet. Offline DNS loss validation 330 Python +14 subtests, Swift active parse, pinned Go references, matching local DNS A + TCP4 marker and cleanup both protocols, isolated ARM64 signed candidate PASS."
@@ -451,4 +453,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner must approve current APL NativeLab add VPN prompt on physical iPhone and authenticate if requested. Do not kill or reinstall pending application. Read/verify prior prepare 6EAD4AFE-B940-4072-94B2-662F5255E874 outcome when available; if absent/failure, inspect system VPN settings and reconcile only exact known OFF manager, using fixture-ref and owner under ~/ArvectumSafe/apl-nativeqa-stage37/stage41/wgdns-loss43c; do not repeat AWG cleanup/import. Fresh exact readManager after selecting lab while OFF if needed. Then run the three scoped WG DNS loss cases using private prepare-case.sh and finish-case.sh in that directory (before-dnsWire4 offControl dnsWire4 observe-off; loss-dns4 run dns4 peer-loss; after-dnsWire4 offControl dnsWire4 observe-off). Each requires foreground UI arming and one-time authorized execution, independent peer and capture verification, terminal OFF; no production mutation. DNS loss verifier 256 cap, both windows and zero physical out. Then remaining supervised handoff and production gates; no main merge or release without explicit owner approval."
+resume_instruction: "Do not repeat completed WG/AWG healthy and loss physical matrices. Evidence WG DNS loss ~/ArvectumSafe/apl-nativeqa-stage37/stage41/wgdns-loss43c; selected lab WG manager terminal OFF and exact owner/reference in that folder. Next examine handoff acceptance gate and implement/verify a bounded actual interface transition probe with independent reachable peer, preserve native safety and foreground one-shot guard; coordinate owner temporary network changes, restore original network. Then production packaging, notices, route/security, integration gates. No production mutation, CloudKit/owner backup, main merge or release without appropriate explicit approval."
