@@ -6,6 +6,8 @@ import secrets, select, socket, socketserver, ssl, subprocess
 import threading, time, uuid
 from native_runtime_qa_receipt import validate_command
 from run_xray_vless_peer_qa import wait_for
+from unified_synthetic_fixture import keypair, url64
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 LAN, HOST, TARGET, PORT = "192.168.1.80", "127.0.0.1", "198.51.100.77", 39882
 
@@ -23,6 +25,18 @@ def config(root):
     return {"log":{"loglevel":"none"},"inbounds":[{"tag":"qa-in","listen":HOST,"port":PORT,"protocol":"vless","settings":{"clients":[{"id":uid}],"decryption":"none"},"streamSettings":{"network":"raw","security":"reality","realitySettings":{"target":HOST+":39884","serverNames":["example.com"],"privateKey":key,"shortIds":[sid]}}}],"outbounds":[{"tag":"deny","protocol":"blackhole"},{"tag":"receipt-only","protocol":"freedom","settings":{"redirect":HOST+":39883","finalRules":[{"action":"allow","network":"tcp","port":"39883","ip":[HOST+"/32"]},{"action":"block"}]}}],"routing":{"domainStrategy":"AsIs","rules":[{"type":"field","inboundTag":["qa-in"],"ip":[TARGET+"/32"],"port":"39883","network":"tcp","outboundTag":"receipt-only"}]}}
 
 
+def rotate_reality_key(server, fixture):
+    """Change server key only; return a matching positive-control URI."""
+    private, public = keypair()
+    parts = urlsplit(fixture.strip())
+    query = parse_qsl(parts.query, strict_parsing=True)
+    assert sum(k=="pbk" for k,v in query)==1
+    new = url64(public)
+    assert all(v!=new for k,v in query if k=="pbk")
+    server["inbounds"][0]["streamSettings"]["realitySettings"]["privateKey"]=url64(private)
+    return urlunsplit(parts._replace(query=urlencode([(k,new if k=="pbk" else v) for k,v in query])))
+
+
 def run(root, peer, command):
     assert root.is_dir() and root.stat().st_mode & 0o077 == 0
     nonce=secrets.token_hex(20)
@@ -30,13 +44,17 @@ def run(root, peer, command):
     if command:
         item=json.loads(command.read_text())
         validate_command(item)
-        assert item["action"]=="run" and item["reference"]["kind"]=="vlessReality" and item.get("scope") is None and item["probe"]=="tcp4" and item["mode"]=="positive"
+        assert item["action"]=="run" and item["reference"]["kind"]=="vlessReality" and item.get("scope") is None and item["probe"]=="tcp4" and item["mode"] in ("positive","wrong-key")
         nonce=item["nonce"]
     work=root/("witness-"+str(uuid.uuid4()))
     work.mkdir(mode=0o700)
     pre=secrets.token_hex(20)
     seen=[];counts=[0,0,0];lock=threading.Lock();stop=threading.Event()
-    conf=work/"server.json";conf.write_text(json.dumps(config(root)))
+    negative=item is not None and item["mode"]=="wrong-key"
+    server=config(root)
+    original=(root/"fixture.txt").read_text()
+    control=rotate_reality_key(server, original) if negative else original
+    conf=work/"server.json";conf.write_text(json.dumps(server))
     cert,key=work/"tls.crt",work/"tls.key"
     subprocess.run(["openssl","req","-x509","-newkey","rsa:2048","-nodes","-keyout",str(key),"-out",str(cert),"-days","1","-subj","/CN=example.com"],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     ctx=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -89,27 +107,33 @@ def run(root, peer, command):
         log=work/"server.log"
         with log.open("w") as out:process=subprocess.Popen([str(peer),"server",str(conf),str(PORT)],stdout=out,stderr=subprocess.STDOUT)
         wait_for(process,log,"PEER_QA_READY_server")
-        client=work/"client.uri";client.write_text((root/"fixture.txt").read_text())
-        clog=work/"client.log"
-        with clog.open("w") as out:p=subprocess.Popen([str(peer),"client",str(client),"39879"],stdout=out,stderr=subprocess.STDOUT)
-        try:
-            wait_for(p,clog,"PEER_QA_READY_client")
-            got=subprocess.run(["curl","--disable","--noproxy","","--silent","--max-time","8","--socks5-hostname",HOST+":39879","http://"+TARGET+":39883/"+pre],capture_output=True,env={k:v for k,v in os.environ.items() if "proxy" not in k.lower()})
-            assert got.returncode==0 and got.stdout==("APL_RECEIPT:"+pre).encode(),"local witness preflight failed"
-        finally:
-            Path(str(client)+".stop").touch();p.wait(timeout=7)
+        def local_probe(label,uri,challenge,success):
+            client=work/(label+".uri");client.write_text(uri)
+            clog=work/(label+".log")
+            with clog.open("w") as out:p=subprocess.Popen([str(peer),"client",str(client),"39879"],stdout=out,stderr=subprocess.STDOUT)
+            try:
+                wait_for(p,clog,"PEER_QA_READY_client")
+                got=subprocess.run(["curl","--disable","--noproxy","","--silent","--max-time","7","--socks5-hostname",HOST+":39879","http://"+TARGET+":39883/"+challenge],capture_output=True,env={k:v for k,v in os.environ.items() if "proxy" not in k.lower()})
+                matched=got.returncode==0 and got.stdout==("APL_RECEIPT:"+challenge).encode()
+                assert matched==success,"local witness preflight mismatch"
+            finally:
+                Path(str(client)+".stop").touch();p.wait(timeout=7)
+            assert p.returncode==0
+        local_probe("positive-control",control,pre,True)
+        if negative:
+            local_probe("wrong-key-control",original,nonce,False)
         with lock:
-            assert seen==[pre] and p.returncode==0
+            assert seen==[pre]
             baseline=counts.copy()
         print("NATIVELAB_VLESS_PEER_READY",flush=True)
         if not item:return 0
         deadline=time.monotonic()+48
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
         with lock:
-            result={"schema":1,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
+            result={"schema":1,"mode":item["mode"],"localPositiveControl":True,"localNegativeControl":negative,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
         (work/"peer-observation.json").write_text(json.dumps(result,sort_keys=True)+"\n")
         print("NATIVELAB_VLESS_PEER_OBSERVATION",json.dumps(result),flush=True)
-        return 0 if result["witnessCount"]==1 and result["ingressBytes"]>0 and result["egressBytes"]>0 else 2
+        return 0 if result["witnessCount"]==(0 if negative else 1) and result["relayAccepted"]>0 and result["ingressBytes"]>0 and result["egressBytes"]>0 else 2
     finally:
         stop.set()
         for s in servers:s.shutdown();s.server_close()
