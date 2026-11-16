@@ -210,3 +210,22 @@ The AWG fixture is staged in the isolated lab container, and the prior
 exact WireGuard manager removal receipt was verified. The previous
 synthetic library record still requires explicit confirmed removal and
 retired revision cleanup. No AWG physical data-plane result yet.
+
+### Stage 42 completion: direct AmneziaWG witness
+
+The signed isolated NativeLab diagnostic candidate (source ca43fcc2) was
+tested without changing the product runtime. The independent reference
+implementation was built from pinned upstream source with a 120-second
+bounded lifetime and a QA-only single-device source-port admission rule.
+Source admission unit tests and local positive, wrong-key and wrong-PSK
+controls passed. A fresh exact manager readback DA458B58 confirmed ownership
+and OFF before testing. Physical receipts matched independent reference
+observations: TCP4 9504B963 (7/11 sent/received), TCP6 9415666A (6/19),
+UDP4 D8025EC5 (2/15), UDP6 0B60FAF9 (2/19), wrong-key D15966FC (0/1),
+wrong-PSK 27577665 (1/1). Positive probes each had one exact corresponding
+witness; negative probes had zero and no matching application response.
+All six had terminal drain and OS OFF. Final 104 focused Python tests passed.
+No remaining extension or peer listener was observed. Exact lab manager
+retained OFF for follow-up. The core physical protocol matrix is 16/16,
+not full production, device-wide no-leak, or release acceptance. RVI
+interference with Mirroring remains a limitation for independent capture.

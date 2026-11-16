@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage42 six AWG physical positives/negatives independently correlated; all 16 core native transport/authentication cases PASS. Direct reference exact-device source pinning and local controls verified; no production changes."
   - "Stages33-34 owned runtime dispatch, explicit disposable QA harness with metadata export, exact setup/stale/drain receipts and OS-off; pinned containing build verified, physical runbook added. Offline only."
   - "Stage34a actual QA-only product host command, disposable manager/fixture guards, exact setup/stale-epoch observations and independently verifiable drain exchange; focused Swift2/2 and Python3/3 pass; actual QA-harness containing build pending."
   - "Stage33a shared app dispatch with distinct explicit native runtime mode, exact manager ownership and pre/post-drain census; focused 2 Swift and 3 Python checks pass, containing build pending."
@@ -242,7 +243,7 @@ completed:
 
 
 
-current: "Stage42 four physical AWG positives plus wrong-key negative correlated, drain/OFF. Next wrong-PSK."
+current: "Stage42 COMPLETE: all six physical AWG cases independently correlated on signed NativeLab diagnostic build ca43fcc2; overall 16/16 core physical transport/authentication cases across VLESS, WG, AWG. Retained exact AWG lab manager OFF, no extension or peer listeners. Stage43 remaining independent device-wide route/DNS/no-leak, handoff and release gates."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +256,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "ca43fcc2 signed diagnostic source; eddff969 renewed permission checkpoint; AWG exact manager host readback F9BB7331 PASS; reference SHA256 PASS; physical AWG pending."
+last_verified_commit: "ae2f9a55 QA source; signed NativeLab diagnostic ca43fcc2; 96a0db2c direct reference build; 8cf01e3f direct witness runner; all six physical AWG command/host/peer receipt correlations PASS; 104 focused Python tests PASS, Go reference admission test and separate-process controls PASS."
 test_results:
+  - "Stage42 AWG TCP4 9504B963 (7/11 sent/received), TCP6 9415666A (6/19), UDP4 D8025EC5 (2/15), UDP6 0B60FAF9 (2/19), wrong-key D15966FC (0/1), wrong-PSK 27577665 (1/1). Exact host command/receipt and independent peer challenge/response matched; positives one witness, negatives zero witnesses, local controls PASS; terminal drain/OFF. Reference direct source pin tests and local 4 positives + 2 negatives PASS; final 104 pytest PASS. Broad independent leak and release gates pending."
   - "Stage42: OS VPN OFF and NativeLab manager present verified. Exact AWG readManager receipt F9BB7331 correlated, release_authorized false. Reference binary SHA256 PASS. Legacy physical runner incompatible with installed QA protocol; no runtime executed."
   - "Stage42: library write diagnostics isolated build 20 focused checks PASS, signed/installed. Successful explicit synthetic WG deletion and one retired revision purge, AWG profile import, selection and reference export PASS. Exact underlying earlier write failure not established; no guard relaxation. System manager authorization pending."
   - "Stage42: artifact SHA256 verification PASS; AWG LAN separate-process preflight 4 positive transport witnesses, wrong-key and wrong-PSK rejected, UDP bridge IPv4/IPv6 PASS; previous exact WG manager removal PASS. No physical AWG data-plane result yet."
@@ -431,4 +433,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Review and test the isolated direct reference server; current NativeLab AWG manager remains OFF. Refresh owner readback before any physical run, then run only bounded synthetic exchanges and correlate current host protocol receipts."
+resume_instruction: "Stage43: do not repeat verified 16 core cases. Retain exact AWG lab manager OFF. Determine independently observable controlled device-wide capture for route/DNS/negative leak tests; prior RVI interrupted Mirroring/device control, Mac-side peer capture alone is not sufficient. Obtain specific owner approval before changing device network, gateway, or capture setup beyond previously approved bounded capture. Then exact signed candidate migration/production integration, remaining route/handoff/security and release gates. No main merge, native production activation or release without required approval."
