@@ -30,8 +30,19 @@ def verify_observation(command,receipt,peer,obs,headers,stats):
     stamps=[float(row.split()[0]) for row in headers.splitlines() if row.strip()]
     before=[t for t in stamps if a-.5<=t<=z+.5 and t<cs]
     after=[t for t in stamps if c-.5<=t<=d+.5 and t>ce]
-    assert before and after and len(before)+len(after)==len(stamps)
-    return dict(firstTunnelPackets=len(before),postCutTunnelPackets=len(after),physicalOut=0,releaseAuthorized=False)
+    assert before and after
+    result=dict(firstTunnelPackets=len(before),postCutTunnelPackets=len(after),physicalOut=0,releaseAuthorized=False)
+    if dns:
+        # iOS may continue retransmitting to the fixed resolver after the first
+        # successful query, including during the cut and between probe windows.
+        # Header-only capture cannot assign those packets to a specific name.
+        # Require both windows, no direct packets or drops anywhere, and bound
+        # all intervening traffic to the same measured trial.
+        assert all(a-.5<=t<=d+.5 for t in stamps)
+        result["interveningTunnelPackets"]=len(stamps)-len(before)-len(after)
+    else:
+        assert len(before)+len(after)==len(stamps)
+    return result
 
 def verify_dir(folder):
     cp=folder/"apl-native-runtime-qa-command.json";cmd=read(cp)

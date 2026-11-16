@@ -279,4 +279,10 @@ def test_dns_established_loss_requires_exact_peer_a_witness_and_both_capture_win
     with pytest.raises(AssertionError):verify_observation(c,r,p,o,h.replace("utun8","en0"),stats)
     with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondEnd=122.)))
     with pytest.raises(ValueError):q.verify_host(c,dict(r,loss=dict(r["loss"],secondResponseSHA256="f"*64)))
+    extra=h.splitlines()[0].replace("100.4","107.0")+"\n"
+    three=stats.replace("2 packets captured","3 packets captured")
+    amended=dict(o,tunnelOut=3)
+    assert verify_observation(c,r,p,amended,h+extra,three)["interveningTunnelPackets"]==1
+    with pytest.raises(AssertionError):verify_observation(c,r,p,amended,h+extra.replace("107.0","99.1"),three)
+    with pytest.raises(AssertionError):verify_observation(c,r,p,dict(amended,physicalOut=1,tunnelOut=2),h+extra.replace("utun8","en0"),three)
     with pytest.raises(ValueError):command(kind,"dns4","wrong-key",scope)
