@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -244,7 +244,7 @@ completed:
 
 
 
-current: "Stage43b: WG exact-name DNS reference pinned build/Go tests and local two-process DNS+TCP, exact original fixture key control PASS. Full iOS 030 Python314 +14 subtests, selected Swift92 PASS; stale clipboard count contract corrected (explicit import and same-protocol replacement only). Signed isolated candidate eede081d installed. Verified AWG manager OFF CF9DC6F0 and removed exact manager 8E09EA37, old synthetic row deleted and retired revision purged. WG fixture imported/selected 9CDD0F41 and fresh exact reference exported 109BA6CC. Preparing new owned manager; physical WG system DNS not run."
+current: "Stage43b: WG exact-name DNS reference pinned build/Go tests and local two-process DNS+TCP, exact original fixture key control PASS. Full iOS 030 Python314 +14 subtests, selected Swift92 PASS; stale clipboard count contract corrected (explicit import and same-protocol replacement only). Signed isolated candidate eede081d installed. Verified AWG manager OFF CF9DC6F0 and removed exact manager 8E09EA37, old synthetic row deleted and retired revision purged. WG fixture imported/selected 9CDD0F41 and fresh exact reference exported 109BA6CC. Fresh prepareManager F7CA75DD consumed; iOS VPN consent dialog visibly open. Await owner consent, then readback; physical WG system DNS not run."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -436,4 +436,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43b: fresh WG reference and owner in private stage41/wgdns, use prepareManager once; if OS consent needed obtain it, then fresh exact readManager OFF. Run DNS4 via nativeqa_wg_peer.py with pinned stage41/dns-reference/wg-reference and stage41/wgdns/dns4 command; correlate DNS responses, positive witness, control nonce and terminal drain. Do not replay consumed commands. Afterward Stage43c independent external capture with before/after positive controls; existing legacy RVI harness does not match native candidate and RVI interrupted Mirroring. Obtain specific user approval before changing gateway/SSID or capture scope; no production activation."
+resume_instruction: "Stage43b: fresh WG reference and owner in private stage41/wgdns, prepareManager F7CA75DD consumed; reconcile consent with fresh readManager F82C9AD1 OFF, do not replay consumed prepare. Run DNS4 via nativeqa_wg_peer.py with pinned stage41/dns-reference/wg-reference and stage41/wgdns/dns4 command; correlate DNS responses, positive witness, control nonce and terminal drain. Do not replay consumed commands. Afterward Stage43c independent external capture with before/after positive controls; existing legacy RVI harness does not match native candidate and RVI interrupted Mirroring. Obtain specific user approval before changing gateway/SSID or capture scope; no production activation."
