@@ -315,3 +315,20 @@ supervised device control; however, prior RVI interrupted Mirroring.
 If that limitation persists, use an approved independent test gateway
 or observation network instead. Do not weaken device authorization or
 silently switch the user's network.
+
+Stage 43c partial physical result: owner authorized bounded synthetic-only
+USB RVI and temporary Wi-Fi/LTE transitions. RVI recovered with PKTAP
+interface/direction metadata. The isolated e5108c7f candidate implements
+explicit OFF controls with exact owned manager readback before and after.
+Capture is restricted to fixed synthetic UDP destinations/ports and
+header summaries only. No raw packet file or user DNS capture.
+WG healthy UDP4 before/on/after (7D1F67FA / 14749DDA / 8CA3DB1D)
+physical-out counts 1/0/1; tunnel-out counts 0/1/0. Independent peer and
+host challenge-response match, zero capture drops and terminal OFF.
+IPv6 before DCC4C2E4 and fixed DNS before 35670F8B each yielded one
+physical-out packet, zero tunnel-out. Initial DNS attempt unconsumed
+because Mirroring lost foreground; discarded rather than counted.
+320 Python checks + 14 subtests passed. RVI removed; network settings
+unchanged. This is bounded healthy UDP4 evidence only, not a general
+no-leak result. IPv6/DNS ON and AFTER, peer loss, handoff and production
+acceptance remain pending.

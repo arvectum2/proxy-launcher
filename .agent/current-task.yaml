@@ -245,7 +245,7 @@ completed:
 
 
 
-current: "Stage43c: signed isolated e5108c7f installed; bounded RVI PKTAP capture verified. OFF before controls UDP4 7D1F67FA, UDP6 DCC4C2E4, DNS direct 35670F8B each one physical outgoing packet, exact host receipt and no capture drops; DNS first attempt was unconsumed and discarded. RVI removed after each. Ready ON controls and subsequent OFF controls; no no-escape verdict yet."
+current: "Stage43c: bounded physical WG UDP4 healthy no-escape cycle PASS for exact synthetic destination: OFF before 7D1F67FA physical1/tunnel0, ON 14749DDA physical0/tunnel1 and exact independent peer challenge/response, OFF after 8CA3DB1D physical1/tunnel0. All captures complete, zero drops, exact host receipts and OFF. IPv6 OFF before DCC4C2E4 and fixed DNS OFF before 35670F8B also PASS. RVI removed, no peer listener or tunnel extension. ON IPv6/DNS, after controls, peer loss and handoff remain pending."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -258,8 +258,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "acf20779 bounded RVI capture and parser; e5108c7f isolated source signed manifest 9c5ebcdd42006eb1953d24bd90779fc84c92d53cdc2fda344e0e17e590578f86; 317 Python +14 subtests and 81 focused checks PASS; physical RVI OFF visibility 3/3."
+last_verified_commit: "8cd202b1; signed isolated source e5108c7f manifest 9c5ebcdd42006eb1953d24bd90779fc84c92d53cdc2fda344e0e17e590578f86; final Python320/320 +14 subtests PASS, previous Swift416/416 PASS. Physical WG UDP4 bounded healthy before/on/after PASS."
 test_results:
+  - "Stage43c partial: 320 Python +14 subtests PASS. Signed isolated OFF-control candidate installed. PKTAP RVI exact UDP4 physical/tunnel counts 1/0 before, 0/1 ON, 1/0 after; peer and host correlated, no drops, terminal OFF. IPv6 and DNS exact OFF before controls each physical1/tunnel0. Initial DNS attempt unconsumed due Mirroring foreground; retry passed. Capture removed, network unchanged. No broad no-leak or release claim."
   - "Stage43c preparation: full Swift Core suite 416/416 PASS (includes previous selected92), zero failures; independent escape gate runbook documented; no physical capture performed or release authorized."
   - "Stage43b final: F82C9AD1 manager readback OFF and 6DF744B3 physical WG DNS exact A response 1, TCP4 witness 1, relay c2s handshake1/data15 and s2c reply1/data7; challenge and response matched, local positive control PASS, OS OFF, no remaining listener or tunnel extension. Previous 314 Python/92 Swift and Go checks PASS."
   - "Stage43b: 314 Python checks (14 additional subtests) and 92 Swift focused checks PASS. WG pinned DNS reference Go unit and separate-process DNS/TCP, exact fixture key control PASS. Isolated signed build installed; AWG exact manager read/removal and synthetic library cleanup verified, WG selection/export PASS. No physical WG system DNS yet. No no-leak claim."
@@ -439,4 +440,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Stage43c: owner permission for synthetic-only RVI and temporarily Wi-Fi/LTE is recorded. Use fresh stage41/wgdns/rvi43c/on-udp4, on-udp6, on-dns4 positive commands with independent pinned WG peer and capture_nativeqa_rvi.py. Require physical-out zero, actual tunnel witness, complete timestamped metadata and repeat OFF after controls; never claim general DNS no-leak from fixed destination. Wrong-key/peer-loss tests and handoff remain pending. Confirm foreground/window size before each GUI action, especially after app launch; never click if wrong desktop. Preserve exact owned manager OFF on completion."
+resume_instruction: "Continue Stage43c with fresh already-staged-in-private-folder commands on-udp6 and on-dns4 (not yet copied to phone); independent pinned WG reference plus capture_nativeqa_rvi.py, then after-udp6 and after-dnsWire4 OFF controls. Verify exact host/peer/capture command identity, complete visibility, metadata and no physical egress for fixed targets. Add failed-peer and Wi-Fi/LTE handoff cases under owner permission already granted. Use verified Mirroring foreground and current window coordinates before each click. Restore original network and exact owned manager OFF. Do not repeat verified UDP4 cycle or claim general leak/release acceptance."
