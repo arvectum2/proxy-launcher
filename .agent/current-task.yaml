@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage39 active: confirmed system VPN OFF and lab manager absent; prepare bounded wrong-Reality-key witness with matching local positive and mismatched local negative controls, fresh owner and command. Preserve device fixture and product."
+current: "Stage39: system VPN OFF and prior lab manager absent confirmed. Negative VLESS witness now rotates server Reality key, independently verifies matching local client succeeds and original client fails, retains original device fixture. Local negative/positive preflight PASS and 94 Python tests PASS. Fresh prepareManager 16518EAF-7A68-47D8-829D-9D761BE18F4E consumed; Allow clicked, system demands Mac login via Mirroring, failure receipt present. No runtime started or peer listeners retained. Direct Mac transport unavailable, SSH via MacBook works."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -255,8 +255,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "7d0eab38aa2c74d60a349c9c1a712222b5e7d031; signed manifest 542be6149576974fdee485c1e736006360ffbe39502a3f529d3693b3c85a2986; physical VLESS TCP4 positive and cleanup PASS; 94 Python + 18 Swift tests PASS."
+last_verified_commit: "7d0eab38 physical VLESS TCP4 positive; 5bffc3c1 evidence/cleanup; a734acf4 negative peer controls with follow-up preflight-only mode verified locally. 94 focused Python tests PASS."
 test_results:
+  - "Stage39: negative Reality key case prepared without modifying device credential. Matching rotated-key Mac client succeeds; original key Mac client fails with no additional witness. Preflight-only exits 0, 94 Python tests pass. No physical negative run, pending renewed iOS permission authentication; exact prepare failure receipt collected, no test listener or extension remained."
   - "Stage38: exact manager readback after system permission interruption PASS. First four attempts refused setup; actual NE disconnect diagnostic APLNativeRuntimeReview:103 proves three extra keys, all four required present. Reserved namespace fix 7d0eab38 preserves mandatory owner, binding, ticket and exact persisted config, rejects unknown reserved keys and bounds total options. Final scoped VLESS TCP4 positive request 8D1F981F-8B0E-4C98-8852-C58F5899F979 PASS; host and peer response hash correlated, 1 witness, 1 relay, ingress 2151, egress 2618. Terminal drain and OS OFF verified; removeManager receipt 22192398-CD26-4F86-8FEA-601E0931919A verified; no tunnel or peer listeners remain. 94 pytest and 18 NativeCredentialHandoffTests PASS. Packet capture privilege unavailable; no no-leak or release claim."
   - "Stage37: user turned VPN OFF, system Settings disconnected confirmed; bounded lab staged import fixed unreliable clipboard. NativeLab exact build 91ba63e7 unsigned manifest 0d2e17ec74f028d8c2c64b5cb6fefc60619141a1f97403e236ecd315de331066 and signed manifest e1acd0ae5d6b87b05053ac947caf674f8d1190523cc3a95f1f1506e6fcb04a83; installed only lab. Device fixture import/preview/save/select/ref export PASS, Mac peer standalone compile/preflight PASS (restricted target). After permission request Allow, Mac login authentication dialog blocks Mirroring, prepareManager receipt absent. No extension process, no test listeners, no data-plane claim."
   - "Stage36: existing NativeLab profiles valid to Nov 2027, dedicated Keychain VML75VY94V.ru.arvectum.proxylauncher.lab.nativeqa.shared, private per-process defaults, no application-group/iCloud entitlements, QA-only entry. Exact unsigned manifest d3fddd293ff881b8165e92bddba61157d43805bda19fe3f191d258b355e4b7ff; signed manifest b8faa079afbfab2a860f3639a763aa94f291f746178ce1c5f0bc8202acfd9dad, 523 file hashes, codesign strict PASS. Installed NativeLab (metadata 0.2.0 build 48), launched Not armed; existing product 0.3.0 build 49 unchanged; device system VPN connected. All 93 focused tests PASS; actual data-plane peer acceptance NOT performed. GitHub mirror workflow 43819251444 SUCCESS despite local SSH reachability errors."
@@ -421,4 +422,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Resume Stage39 from verified scoped VLESS TCP4 positive 8D1F981F-8B0E-4C98-8852-C58F5899F979. Do not repeat positive merely for verification. NativeLab 7d0eab38 signed and installed; test manager removed/OFF, synthetic selected fixture retained. Before next isolated run verify system VPN OFF; use fresh owner/commands and bounded peer with independently verified wrong-key/mode tests, then scoped WG, AWG and expanded VLESS. Negative/capture/no-leak/release remain separate gates; no owner profile mutation. Prior private evidence in ~/ArvectumSafe/apl-nativeqa-stage37."
+resume_instruction: "After owner authenticates Mirroring, reconcile exact stage39 manager using newly generated private readManager command in ~/ArvectumSafe/apl-nativeqa-stage37/stage39/readManager; inspect system VPN OFF and verify owner/readback before starting. Never replay consumed prepare. Run bounded wrong-key witness with --command stage39/run/apl-native-runtime-qa-command.json; require host negative receipt, peer zero witness with actual ingress/egress and both local controls, terminal drain/OFF. Keep lab manager between compatible probe cases where safe to avoid repeated permission prompts; remove only exact owned manager when no longer required. WG/AWG and capture remain pending."

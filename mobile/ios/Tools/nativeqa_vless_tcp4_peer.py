@@ -37,7 +37,7 @@ def rotate_reality_key(server, fixture):
     return urlunsplit(parts._replace(query=urlencode([(k,new if k=="pbk" else v) for k,v in query])))
 
 
-def run(root, peer, command):
+def run(root, peer, command, preflight_only=False):
     assert root.is_dir() and root.stat().st_mode & 0o077 == 0
     nonce=secrets.token_hex(20)
     item=None
@@ -126,7 +126,7 @@ def run(root, peer, command):
             assert seen==[pre]
             baseline=counts.copy()
         print("NATIVELAB_VLESS_PEER_READY",flush=True)
-        if not item:return 0
+        if not item or preflight_only:return 0
         deadline=time.monotonic()+48
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
         with lock:
@@ -147,5 +147,6 @@ if __name__=="__main__":
     os.umask(0o077)
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("root",type=Path);p.add_argument("peer",type=Path);p.add_argument("--command",type=Path)
+    p.add_argument("--preflight-only",action="store_true")
     a=p.parse_args()
-    raise SystemExit(run(a.root,a.peer,a.command))
+    raise SystemExit(run(a.root,a.peer,a.command,a.preflight_only))
