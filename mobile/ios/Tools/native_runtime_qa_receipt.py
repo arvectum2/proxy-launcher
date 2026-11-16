@@ -14,7 +14,7 @@ from validate_unified_synthetic_receipt import exact, need, read, uuidstr
 
 KINDS = ("wireGuard", "amneziaWG1", "vlessReality")
 PROBES = ("tcp4", "tcp6", "udp4", "udp6")
-ACTIONS = ("prepareManager", "run", "removeManager")
+ACTIONS = ("prepareManager", "readManager", "run", "removeManager")
 BINDING = ("requestID", "owner", "reference", "action")
 OPTIONAL = ("scope", "probe", "mode")
 

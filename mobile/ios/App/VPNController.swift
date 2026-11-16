@@ -565,6 +565,20 @@ final class VPNController: ObservableObject {
         guard try await nativeRuntimeQACanOpenFixtureLibrary() else{throw NativeValidationDispatch.Failure.unownedManager}
         return try ProfileStore().nativeRuntimeQAFixtureReference()
     }
+    /// Explicit readback after an interrupted permission prompt. No mutation.
+    func readNativeRuntimeQAManager(owner:UUID,reference:NativeCredentialRecord.Reference,authorized:()->Bool)async throws {
+        guard authorized(),Self.nativeValidationDispatch==nil else{throw NativeValidationDispatch.Failure.invalidState}
+        try await Self.operationGate.perform(.nativeValidation) {
+            let store=try ProfileStore(),all=try await loadAllManagers(requireResult:true)
+            let mode=NativeReviewMode.runtime(probeIPv4:nil,scope:nil,probeIPv6:nil)
+            let marked=reviewManagers(all)
+            let related=all.filter{item in isArvectumManager(item) || marked.contains(where:{$0 === item})}
+            guard !Task.isCancelled,authorized(),related.count==1,let item=related.first,
+                  reviewOwns(item,owner:owner,mode:mode),
+                  all.allSatisfy({$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}),
+                  try store.nativeRuntimeQAFixtureIsIsolated(reference) else{throw NativeValidationDispatch.Failure.unownedManager}
+        }
+    }
     func performNativeRuntimeQAManager(owner:UUID,reference:NativeCredentialRecord.Reference,remove:Bool,authorized:()->Bool)async throws {
         guard authorized(),Self.nativeValidationDispatch==nil else{throw NativeValidationDispatch.Failure.invalidState}
         try await Self.operationGate.perform(.nativeValidation) {

@@ -45,7 +45,7 @@ def test_run_receipt(kind, scope, mode, probe):
     assert c["nonce"] not in str(out)
 
 
-@pytest.mark.parametrize("action", ("prepareManager", "removeManager"))
+@pytest.mark.parametrize("action", ("prepareManager", "readManager", "removeManager"))
 def test_manager_only(action):
     c = q.make_command(fixture(), q.new_id(), action)
     assert "nonce" not in c

@@ -6,7 +6,7 @@ import CryptoKit
 
 /// A separate explicitly launched operator harness, never a normal VPN screen.
 private struct NativeRuntimeQACommand:Decodable {
-    enum Action:String,Codable {case prepareManager,run,removeManager}
+    enum Action:String,Codable {case prepareManager,readManager,run,removeManager}
     let schema:Int
     let requestID:UUID
     let owner:UUID
@@ -141,7 +141,11 @@ private struct NativeRuntimeQAReceipt:Encodable {
         do {
             guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
             if command.action != .run {
+                if command.action == .readManager {
+                    try await vpn.readNativeRuntimeQAManager(owner:command.owner,reference:command.reference,authorized:authorized)
+                } else {
                 try await vpn.performNativeRuntimeQAManager(owner:command.owner,reference:command.reference,remove:command.action == .removeManager,authorized:authorized)
+                }
                 guard authorized() else{throw NativeValidationDispatch.Failure.invalidState}
                 try save(.init(requestID:command.requestID,owner:command.owner,reference:command.reference,action:command.action,scope:nil,probe:nil,mode:nil,setup:[],drain:nil,probeAttempted:false,responseSHA256:nil,managerReadback:true,osOff:true))
                 status="Manager operation read back. No tunnel started."

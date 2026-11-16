@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -242,7 +242,7 @@ completed:
 
 
 
-current: "Stage37: system VPN OFF verified, NativeLab rebuilt and signed from 91ba63e7, installed lab only. Bounded synthetic VLESS file import, preview, save, select and fixture reference export PASS on iPhone. Independent Mac VLESS peer preflight PASS, stopped and no listeners. prepareManager command 42C56D8C-A9A7-4F44-80E6-8F20E34B75AC consumed, iOS permission Allow clicked; Mirroring requires Mac login authentication. No manager receipt yet, no tunnel started. Do not retry until reconcile exact owned state."
+current: "Stage38 Mirroring authorized; system Settings shows exact NativeLab review profile present OFF, prior prepare receipt missing after permission backgrounding. Add explicit nonmutating readManager reconciliation; rebuild lab only and verify original owner before runtime."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
