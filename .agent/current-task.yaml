@@ -254,7 +254,7 @@ completed:
 
 
 
-current: "17.11 source integration committed locally at 95800b7eaf57cd51af549e5fe869c6ccd13cf596; all 28 files preserved, working tree clean at commit. Previous source checks 86 default +88 review Swift, 338 Python +14 subtests. Both previous Release CI jobs were cancelled, not compiler failures. Xcode 27.1 accessible. Next isolated unsigned 0.3.0(49) Release configuration, exact linked candidate and acceptance."
+current: "17.11 source and deterministic 0.3.0(49) unsigned Release staging completed; candidate source 09c6cdfec262e61f24fcbe8e6a9bfccb5bbcfc3a, artifact directory native-artifacts/ios-030-release-candidate-20261117. Exact Go receipt and Rust archives verified; generated Xcode flags/version checked. Local xcodebuild Release started, log build.log and exit receipt build.exit; no IPA or signed build yet."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -466,4 +466,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Continue from committed 95800b7e: prepare isolated reproducible 0.3.0(49) Release configuration with pinned reviewed artifacts; verify unsigned compile/link and inspect actual product. Preserve default project and user data until gates pass. No unsupervised phone changes or publication."
+resume_instruction: "Inspect native-artifacts/ios-030-release-candidate-20261117/build.exit and build.log first. If build finished, validate App and embedded PacketTunnel version, binary symbols/link map, privacy resources and hashes; fix any build regression in a fresh staged revision. Then reconcile CI and request only necessary signing/device acceptance. No automatic publication."
