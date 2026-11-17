@@ -254,7 +254,7 @@ completed:
 
 
 
-current: "17.11 exact physical Development 0.3.0(49) candidate 09c6cdfe: prior in-place update and legacy tunnel start/stop PASS; independent separately signed HTTPSWitness app (3777b7f0) confirmed two HTTP200 endpoints direct/tunneled/direct after, both egress digests changed and restored, httpbingo nonce verified. Initial foreground launch produced no tunneled receipt; excluded, repeat PASS. Protected metadata parity 6/6, final VPN OFF. Remaining exact candidate VLESS/WG/AWG controlled peer acceptance, rollback and other release gates. Evidence native-artifacts/ios-030-release-candidate-20261117/https-witness-20261117/https-verification.json."
+current: "17.11 physical HTTPS egress exact candidate PASS (2/2 direct, VPN, restored; two origins changed; nonce and protected metadata 6/6). Independent witness app 1.0 remains installed; VPN OFF. Native fixed TCP witness source 03ae9828 compiled/typechecked with Sendable warnings, runtime not tested. Combined native WG staging/build/install operation was rejected by the tool and did not execute; read-only reconciliation confirmed clean repository, no native stage directory, no new fixture/device change. Remaining native protocol controlled acceptance and release gates. Evidence https-witness-20261117/https-verification.json."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -466,4 +466,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Production candidate remains installed and VPN OFF; existing HTTPSWitness separate app and signed artifact available. Do not repeat passed legacy HTTPS or reinstall. Next use controlled disposable native configuration and independent pinned local peer without touching legacy profiles, explicit safe temporary selection and cleanup; check existing native catalog and rollback feasibility first. Do not publish until native and remaining gates pass."
+resume_instruction: "Do not repeat successful legacy HTTPS or reinstall product. Read https-verification.json and source 03ae9828. Native TCP witness not yet accepted; address concurrency warnings and validate the isolated harness only within permitted scope. The combined fixture/build/install call was rejected; do not circumvent that rejection. No native profile was imported, product remains installed, VPN OFF. Continue native protocol acceptance when an authorized operation is available; no automatic publication."
