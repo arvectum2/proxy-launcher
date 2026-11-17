@@ -204,3 +204,8 @@ Windows WinDivert/new release, macOS per-app, Android/RuStore, Linux, Proxifier 
 - `39a6176c`: complete iOS source regression 627 PASS +1527 subtests; all 64 new resources plutil valid, active Swift parse and Xcode resource inclusion PASS.
 - Read-only provenance audit: existing original reference kit 409/409, product manifest 15/15 hashes verified, exact stage Go/Rust and signed IPA hash parity PASS; 250 Rust/71 Go notices and three MPL source archives. Delivery approval and final distribution remain separate.
 - Physical backup and exact native protocol acceptance still outstanding; prior installed 0.3.0(49) unchanged.
+
+### 17.11 — расширение нативных локализаций до 32 языков
+
+- `b0913d82`, `046bcb96`, `50bfc785`: добавлены 24 полных NativeProfiles каталога (2040 строк); 32/64 полных, 32 с явным английским fallback, заголовки 64/64. Технические обозначения VPN/IP/IPv4/ID проверяются тестом. 64 файла plutil PASS, iOS Python 627 +1527 subtests PASS. Русский/английский исходники и старый IPA не изменены. Лингвистическая проверка носителями отдельно не выполнялась.
+- Остаток: am, az, bn, ca, el, et, fil, gu, ha, hi, hu, hy, ka, kk, kn, ky, lt, lv, ml, mr, ms, or, pa, sr, sw, ta, te, tg, th, tk, ur, uz. Watchdog существует, выключен; состояние не изменено. Аппаратная приёмка native и physical backup, source delivery и новый signed IPA остаются открытыми.
