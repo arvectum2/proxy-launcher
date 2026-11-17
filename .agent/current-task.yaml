@@ -254,7 +254,7 @@ completed:
 
 
 
-current: "17.11 exact unsigned ARM64 Release 0.3.0(49) BUILD SUCCEEDED from 09c6cdfec262e61f24fcbe8e6a9bfccb5bbcfc3a. App/provider version, IDs, architecture, privacy resources, embedded binary identity, 9 native symbols, 11 Go+214 Rust link objects, ad linkage PASS. Evidence native-artifacts/ios-030-release-candidate-20261117/build-verification.json. Next unsigned Xcode archive and approved signed export/physical acceptance; no IPA or signed release yet."
+current: "17.11 verified exact unsigned Release build AND Xcode archive 0.3.0(49) from 09c6cdfec262e61f24fcbe8e6a9bfccb5bbcfc3a. Archive at native-artifacts/ios-030-release-candidate-20261117/APL-0.3.0-49-unsigned.xcarchive; archive.exit=0, archive-verification.json PASS bundle IDs/version/arm64/9 native symbols/privacy/ad resources. No technical tool blocker; next approved signing/export and exact-candidate physical QA. No signed IPA or publication yet."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -267,7 +267,7 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "09c6cdfec262e61f24fcbe8e6a9bfccb5bbcfc3a; unsigned arm64 Release App+PacketTunnel 0.3.0(49) BUILD SUCCEEDED, link and binary checks PASS; app 3e688cd08a083c0c0e2f39928c3de7a2aa56d64bbf801c687c92cacaf9e4fcd2, provider 238f8a692c49ba91751c86d1cc1b5457ba57d5c2112e9e8e093ccdb463dfb67e."
+last_verified_commit: "09c6cdfec262e61f24fcbe8e6a9bfccb5bbcfc3a; unsigned Release BUILD and ARCHIVE SUCCEEDED, archive App 3538128f9116935d56a255c70c1fec1eb1a0da0c2229ac82774f1d4c608ec5b2 provider e6c5aa90caed2ee95b8702941487175efd5b219ccbba44d59e8c21c0fe742829; archive and build manifests verified."
 test_results:
   - "16.11 launch boundary: drift between prepare/issue or during ticket insert rejects without dispatch; revokes newly issued ticket. Default Swift 79/79, explicit review flags Swift 62/62, Python 337+14 subtests PASS. Earlier compiler errors fixed. Prior mirror workflow SSH failure while actual a5e5c31f GitVerse head equals GitHub."
   - "16.11 native control reply watchdog: Swift 37/37, Python 337 +14 subtests PASS; noncooperative active observation times out without fallback, late reply cannot revive failed session or poison completed stop. Pure adapter evidence only; no native release activation."
@@ -466,4 +466,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Exact unsigned Release build accepted. Inspect native-artifacts/ios-030-release-candidate-20261117/build-verification.json and archive.exit/archive.log if present. Prepare and validate unsigned Xcode archive; no signing, export or device mutation until the corresponding release/device gates and approvals are met. Reconcile PR #383 CI without merging main automatically."
+resume_instruction: "Use existing verified archive and exact manifest; do not rebuild identical unsigned artifacts. Next verify signing/provisioning and scope, export signed QA candidate/IPA only with appropriate authorization, perform actual upgrade and native/legacy physical acceptance on safe phone. Reconcile exact-head PR383 checks, no main merge or App Store publication automatically."
