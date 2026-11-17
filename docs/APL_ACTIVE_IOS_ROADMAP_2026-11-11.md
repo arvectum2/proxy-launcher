@@ -213,3 +213,5 @@ Windows WinDivert/new release, macOS per-app, Android/RuStore, Linux, Proxifier 
 ### 17.11 — завершение покрытия NativeProfiles
 
 - [x] `2f5e06c8`, `78bb1be7`: оставшиеся 32 каталога, 64/64 × 85 = 5440 записей, плюс 19 переиспользованных локализованных элементов. Строгий контракт требует 64 полных каталога из ios-locales.json. 64 plutil PASS, ключи/форматы/технические токены PASS, 627 iOS Python tests и 1527 subtests PASS. Проверка носителями и визуальная приёмка отдельно не выполнены. IPA 09c6cdfe не менялся.
+
+- [x] Реальная unsigned ARM64 Release 0.3.0(49) локализованного кандидата `f940fea0`: BUILD SUCCEEDED, оба bundle IDs/версии, privacy, рекламный framework, 64 × 85 = 5440 значений в готовом .app идентичны исходникам; контрольные суммы runtime Go/Rust и Package.resolved неизменны. Протокол `native-artifacts/ios-030-localized-release-20261117/localization-build-verification.json`. Подписи/установки/публикации нового кандидата нет.
