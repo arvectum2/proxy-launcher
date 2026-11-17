@@ -7,7 +7,7 @@ sys.path.insert(0,str(ROOT/'scripts'))
 from ios_020_locale_audit import read_strings,format_error
 RES=ROOT/'mobile/ios/Resources'
 APP=ROOT/'mobile/ios/App/NativePersistentProfilesView.swift'
-FULL={'en','ru','es','de','fr','uk','pt-BR','zh-Hans'}
+FULL={'en','ru','es','de','fr','uk','pt-BR','zh-Hans','pt-PT','it','pl','tr','zh-Hant','nl','ja','ko','id'}
 
 def test_native_catalogs_match_actual_source_and_fallback():
     src=APP.read_text()
