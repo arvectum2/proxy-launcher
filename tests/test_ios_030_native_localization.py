@@ -7,7 +7,7 @@ sys.path.insert(0,str(ROOT/'scripts'))
 from ios_020_locale_audit import read_strings,format_error
 RES=ROOT/'mobile/ios/Resources'
 APP=ROOT/'mobile/ios/App/NativePersistentProfilesView.swift'
-FULL={'ar','be','bg','cs','de','en','es','fa','fr','he','hr','id','it','ja','ko','nl','pl','pt-BR','pt-PT','ro','ru','tr','uk','vi','zh-Hans','zh-Hant'}
+FULL={'ar','be','bg','cs','da','de','en','es','fa','fi','fr','he','hr','id','it','ja','ko','nb','nl','pl','pt-BR','pt-PT','ro','ru','sk','sl','sv','tr','uk','vi','zh-Hans','zh-Hant'}
 
 def test_native_catalogs_match_actual_source_and_fallback():
     src=APP.read_text()
@@ -30,5 +30,10 @@ def test_native_catalogs_match_actual_source_and_fallback():
         assert not duplicates and set(data)<=set(en)
         assert data.get('VPN-профили')
         assert all(v.strip() and not format_error(k,v) for k,v in data.items())
-        if set(data)==set(en):complete.add(locale)
+        if set(data)==set(en):
+            complete.add(locale)
+            for key,english in en.items():
+                for token in ('VPN','IP','IPv4','ID'):
+                    if token in english:
+                        assert token in data[key], (locale,key,token)
     assert FULL<=complete

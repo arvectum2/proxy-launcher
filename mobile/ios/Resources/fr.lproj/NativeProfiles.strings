@@ -82,5 +82,5 @@
 "Окончательно удалить только выведенные из обращения ключи." = "Supprimer définitivement uniquement les identifiants retirés.";
 "Выбрать профиль без подключения." = "Sélectionner le profil. Cela ne lance pas de connexion.";
 "Переименовать профиль без изменения ключей." = "Renommer le profil sans modifier les identifiants.";
-"Сохранить новую проверенную конфигурацию, сохранив имя и ID. Если профиль выбран, потребуется повторный выбор. Старые ключи останутся выведенными из обращения до очистки." = "Enregistrer la nouvelle configuration validée, en conservant le nom et l’identifiant. Si le profil est sélectionné, sélectionnez-le à nouveau avant la connexion. Les anciens identifiants restent retirés jusqu’au nettoyage.";
+"Сохранить новую проверенную конфигурацию, сохранив имя и ID. Если профиль выбран, потребуется повторный выбор. Старые ключи останутся выведенными из обращения до очистки." = "Enregistrer la nouvelle configuration validée, en conservant le nom et l’identifiant (ID). Si le profil est sélectionné, sélectionnez-le à nouveau avant la connexion. Les anciens identifiants restent retirés jusqu’au nettoyage.";
 "Удалить из библиотеки; ключи останутся до отдельной очистки." = "Retirer de la bibliothèque ; les identifiants sont conservés jusqu’à un nettoyage distinct.";

@@ -82,5 +82,5 @@
 "Окончательно удалить только выведенные из обращения ключи." = "Yalnızca kullanımdan kaldırılan kimlik bilgilerini kalıcı olarak sil.";
 "Выбрать профиль без подключения." = "Profil seç. Bu işlem bağlantı başlatmaz.";
 "Переименовать профиль без изменения ключей." = "Kimlik bilgilerini değiştirmeden profili yeniden adlandır.";
-"Сохранить новую проверенную конфигурацию, сохранив имя и ID. Если профиль выбран, потребуется повторный выбор. Старые ключи останутся выведенными из обращения до очистки." = "Yeni doğrulanmış yapılandırmayı ad ve kimliği koruyarak kaydet. Profil seçiliyse bağlanmadan önce tekrar seçin. Eski kimlik bilgileri temizlenene dek kullanımdan kaldırılmış olarak kalır.";
+"Сохранить новую проверенную конфигурацию, сохранив имя и ID. Если профиль выбран, потребуется повторный выбор. Старые ключи останутся выведенными из обращения до очистки." = "Yeni doğrulanmış yapılandırmayı ad ve kimliği (ID) koruyarak kaydet. Profil seçiliyse bağlanmadan önce tekrar seçin. Eski kimlik bilgileri temizlenene dek kullanımdan kaldırılmış olarak kalır.";
 "Удалить из библиотеки; ключи останутся до отдельной очистки." = "Kitaplıktan kaldır; kimlik bilgileri ayrı bir temizleme işlemine kadar saklanır.";
