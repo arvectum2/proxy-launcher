@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -254,7 +254,7 @@ completed:
 
 
 
-current: "Product runtime source integration and checks completed locally. App and PacketTunnel iPhoneOS arm64 typechecks passed under explicit product flags; 86 default and 88 review-flag Swift tests, 338 Python and 14 subtests passed. Final combined commit/checkpoint/push call was blocked by OpenAI safety systems and did not execute. Read-only reconciliation confirmed all changes remain in the working tree, 26 modified files including this checkpoint. HEAD 688700be. No linked or signed release artifact."
+current: "17.11 source integration committed locally at 95800b7eaf57cd51af549e5fe869c6ccd13cf596; all 28 files preserved, working tree clean at commit. Previous source checks 86 default +88 review Swift, 338 Python +14 subtests. Both previous Release CI jobs were cancelled, not compiler failures. Xcode 27.1 accessible. Next isolated unsigned 0.3.0(49) Release configuration, exact linked candidate and acceptance."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -267,7 +267,7 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "a83c51aed918a34096b7c95c5447104b3e5339e1; 79 default and 62 explicitly flagged focused Swift PASS; 337 Python +14 subtests PASS; initial compile errors corrected; diff check PASS. Previous product-only archive retained. Full production build not verified."
+last_verified_commit: "95800b7eaf57cd51af549e5fe869c6ccd13cf596 (local source revision; git diff --check PASS, previously recorded 86+88 Swift and 338 Python+14 subtests PASS; no full linked candidate yet)"
 test_results:
   - "16.11 launch boundary: drift between prepare/issue or during ticket insert rejects without dispatch; revokes newly issued ticket. Default Swift 79/79, explicit review flags Swift 62/62, Python 337+14 subtests PASS. Earlier compiler errors fixed. Prior mirror workflow SSH failure while actual a5e5c31f GitVerse head equals GitHub."
   - "16.11 native control reply watchdog: Swift 37/37, Python 337 +14 subtests PASS; noncooperative active observation times out without fallback, late reply cannot revive failed session or poison completed stop. Pure adapter evidence only; no native release activation."
@@ -466,4 +466,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Read AGENTS.md and the 16.11.2026 remaining-release section of docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md. Preserve local source changes, reconcile and save verified revision when authorized; then correct Release configuration, actual archive/IPA, final acceptance in that order. Prior blocked operations must not be circumvented. Do not repeat completed source checks or claim a binary exists. No automatic publication."
+resume_instruction: "Continue from committed 95800b7e: prepare isolated reproducible 0.3.0(49) Release configuration with pinned reviewed artifacts; verify unsigned compile/link and inspect actual product. Preserve default project and user data until gates pass. No unsupervised phone changes or publication."
