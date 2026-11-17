@@ -1,6 +1,7 @@
 import SwiftUI
 import Foundation
 import CryptoKit
+import Network
 
 private struct Receipt: Codable {
     let phase: String
@@ -28,6 +29,18 @@ private final class NoRedirect: NSObject, URLSessionTaskDelegate {
     var body: some Scene { WindowGroup { Text(status).padding().task { await run() } } }
     @MainActor private func run() async {
         let args = ProcessInfo.processInfo.arguments
+        if args.count == 4, let run = UUID(uuidString: args[1]), args[2] == "native-tcp4",
+           args[3].count == 40, args[3].allSatisfy({ "0123456789abcdef".contains($0) }) {
+            status = "Checking isolated TCP witness…"
+            let ok = await TCPWitness.probe(nonce: args[3])
+            let receipt = NativeReceipt(run: run.uuidString, nonceDigest: SHA256.hash(data: Data(args[3].utf8)).map { String(format: "%02x", $0) }.joined(), valid: ok)
+            do {
+                let documents = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+                try JSONEncoder().encode(receipt).write(to: documents.appendingPathComponent("receipt-native-tcp4.json"), options: .atomic)
+                status = ok ? "Native exact TCP receipt — PASS" : "Native exact TCP receipt — FAIL"
+            } catch { status = "Receipt write failed" }
+            return
+        }
         guard args.count == 3, let run = UUID(uuidString: args[1]),
               ["direct-before", "tunneled", "direct-after"].contains(args[2]) else { return }
         let phase = args[2]
@@ -65,5 +78,55 @@ private final class NoRedirect: NSObject, URLSessionTaskDelegate {
             let digest = SHA256.hash(data: Data((run.uuidString + "|" + origin).utf8)).map { String(format: "%02x", $0) }.joined()
             return .init(name: name, status: code, valid: true, originDigest: digest)
         } catch { return .init(name: name, status: (error as NSError).code, valid: false, originDigest: nil) }
+    }
+}
+
+private struct NativeReceipt: Codable {
+    let run: String
+    let nonceDigest: String
+    let valid: Bool
+}
+
+private final class TCPWitness {
+    private let queue = DispatchQueue(label: "apl.httpswitness.native")
+    private let connection = NWConnection(host: "198.51.100.77", port: 39883, using: .tcp)
+    private var response = Data()
+    private var complete: ((Bool) -> Void)?
+    private let nonce: String
+    private init(nonce: String) { self.nonce = nonce }
+    static func probe(nonce: String) async -> Bool {
+        await withCheckedContinuation { continuation in
+            let w = TCPWitness(nonce: nonce)
+            w.complete = { continuation.resume(returning: $0) }
+            w.queue.asyncAfter(deadline: .now() + 9) { w.finish(false) }
+            w.connection.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    let request = Data("GET /\(nonce) HTTP/1.1\r\nHost: 198.51.100.77:39883\r\nConnection: close\r\n\r\n".utf8)
+                    w.connection.send(content: request, completion: .contentProcessed { err in
+                        if err != nil { w.finish(false) } else { w.receive() }
+                    })
+                case .failed, .cancelled: w.finish(false)
+                default: break
+                }
+            }
+            w.connection.start(queue: w.queue)
+        }
+    }
+    private func receive() {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 2048) { data, _, ended, err in
+            guard self.complete != nil else { return }
+            if let data { self.response.append(data) }
+            guard self.response.count <= 4096 else { self.finish(false); return }
+            let text = String(data: self.response, encoding: .utf8) ?? ""
+            if let end = text.range(of: "\r\n\r\n"), text.hasPrefix("HTTP/1.1 200 OK\r\n"), String(text[end.upperBound...]) == "APL_RECEIPT:" + self.nonce {
+                self.finish(true)
+            } else if ended || err != nil { self.finish(false) }
+            else { self.receive() }
+        }
+    }
+    private func finish(_ ok: Bool) {
+        guard let done = complete else { return }; complete = nil
+        connection.stateUpdateHandler = nil; connection.cancel(); done(ok)
     }
 }
