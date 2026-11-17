@@ -1,5 +1,6 @@
 """Native profile copy uses separate, auditable locale resources."""
 import re
+import json
 import sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -7,7 +8,6 @@ sys.path.insert(0,str(ROOT/'scripts'))
 from ios_020_locale_audit import read_strings,format_error
 RES=ROOT/'mobile/ios/Resources'
 APP=ROOT/'mobile/ios/App/NativePersistentProfilesView.swift'
-FULL={'ar','az','be','bg','ca','cs','da','de','el','en','es','et','fa','fi','fil','fr','he','hr','hu','id','it','ja','kk','ko','lt','lv','ms','nb','nl','pl','pt-BR','pt-PT','ro','ru','sk','sl','sr','sv','tr','uk','uz','vi','zh-Hans','zh-Hant'}
 
 def test_native_catalogs_match_actual_source_and_fallback():
     src=APP.read_text()
@@ -36,4 +36,5 @@ def test_native_catalogs_match_actual_source_and_fallback():
                 for token in ('VPN','IP','IPv4','ID'):
                     if token in english:
                         assert token in data[key], (locale,key,token)
-    assert FULL<=complete
+    assert complete==set(json.loads((ROOT/'mobile/ios/ios-locales.json').read_text())['languages'])
+    assert len(complete)==64
