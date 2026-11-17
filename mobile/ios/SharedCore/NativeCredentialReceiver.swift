@@ -66,3 +66,98 @@ struct NativeProviderStartRequest: CustomStringConvertible, CustomReflectable {
         }
     }
 }
+
+/// Production-intent namespace. A distinct one-shot purpose, never a
+/// validation/review receipt. No launch permission is implied by decoding.
+struct NativeProductStartRequest:CustomStringConvertible,CustomReflectable {
+    static let mode="native-product-start-v1"
+    let owner:UUID
+    let binding:NativeCredentialHandoff.Binding
+    private let ticket:NativeCredentialHandoff.Ticket
+    var description:String {"NativeProductStartRequest(redacted)"}
+    var customMirror:Mirror {Mirror(self,children:[:])}
+    static func configuration(owner:UUID)->[String:String] {
+        [NativeProviderStartRequest.modeKey:mode,NativeProviderStartRequest.ownerKey:owner.uuidString]
+    }
+    static func ownsConfiguration(_ configuration:[String:Any]?,owner:UUID)->Bool {
+        typealias K=NativeProviderStartRequest
+        guard let configuration,Set(configuration.keys)==[K.modeKey,K.ownerKey] else{return false}
+        return configuration[K.modeKey] as? String==mode && configuration[K.ownerKey] as? String==owner.uuidString
+    }
+    static func options(ticket:NativeCredentialHandoff.Ticket,owner:UUID)throws->[String:NSObject] {
+        typealias K=NativeProviderStartRequest
+        guard ticket.binding.valid,ticket.validPurpose,ticket.purpose == .productStart,
+              ticket.runtimeOwner==owner else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        return [K.modeKey:mode as NSString,K.ownerKey:owner.uuidString as NSString,K.expectedKey:try TransportNativeCodec.encode(ticket.binding) as NSData,K.ticketKey:try TransportNativeCodec.encode(ticket) as NSData]
+    }
+    static func inspect(configuration:[String:Any]?,options:[String:NSObject]?,enabled:Bool)->Self? {
+        typealias K=NativeProviderStartRequest
+        guard enabled,let configuration,let options,options.count<=32,
+              let ownerText=configuration[K.ownerKey] as? String,let owner=UUID(uuidString:ownerText),
+              ownsConfiguration(configuration,owner:owner),
+              Set(options.keys.filter{K.hasReservedKey([$0])})==[K.modeKey,K.ownerKey,K.expectedKey,K.ticketKey],
+              options[K.modeKey] as? String==mode,options[K.ownerKey] as? String==owner.uuidString,
+              let raw=options[K.expectedKey] as? Data,let bytes=options[K.ticketKey] as? Data,
+              let binding=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),binding.valid,
+              let ticket=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,bytes),
+              ticket.binding==binding,ticket.validPurpose,ticket.purpose == .productStart,
+              ticket.runtimeOwner==owner else{return nil}
+        return .init(owner:owner,binding:binding,ticket:ticket)
+    }
+    func consume(via handoff:NativeCredentialHandoff,admission:()->NativeRoutingAdmission,
+                 exactDNSAvailable:Bool)throws->NativeFullTunnelCandidate {
+        guard admission() == .tunnelOnly else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        let record=try handoff.redeemProductStart(ticket,expected:binding,owner:owner)
+        let plan=try record.compileFullTunnelCandidate(admission:admission(),exactDNSAvailable:exactDNSAvailable)
+        guard plan.reference==binding.reference,try handoff.authorizes(binding),admission() == .tunnelOnly else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        return plan
+    }
+}
+
+
+/// Provider-instance ownership; legacy starts cannot take over native
+/// resources and native starts cannot borrow the legacy runner.
+final class NativeProductProviderLane: @unchecked Sendable {
+    private enum State {case unused,legacy,native}
+    private let lock=NSLock()
+    private var state=State.unused
+    func reserveNative()->Bool {
+        lock.lock();defer{lock.unlock()}
+        guard state == .unused else{return false};state = .native;return true
+    }
+    func reserveLegacy()->Bool {
+        lock.lock();defer{lock.unlock()}
+        guard state != .native else{return false};state = .legacy;return true
+    }
+    var isNative:Bool {
+        lock.lock();defer{lock.unlock()}
+        return state == .native
+    }
+}
+
+/// Explicit native selection, separate from legacy selection and from the
+/// catalog's last reviewed profile. Old installations have no product choice.
+struct NativeProductSelection:Codable,Equatable {
+    let reference:NativeCredentialRecord.Reference
+    let nonce:UUID
+    static func read(_ bytes:Data?)throws->Self? {
+        guard let bytes else{return nil}
+        return try TransportNativeCodec.decode(Self.self,bytes)
+    }
+    static func select(_ reference:NativeCredentialRecord.Reference,
+                       catalog:NativeCredentialCatalogReader,legacyIDs:Set<UUID>,
+                       admission:NativeRoutingAdmission)throws->Self {
+        guard admission == .tunnelOnly else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        let snapshot=try catalog.snapshot()
+        guard snapshot.version==2,!snapshot.hasPendingWrite,snapshot.selected==reference,
+              let nonce=snapshot.selectionNonce,
+              Set(snapshot.current.map(\.profileID)).isDisjoint(with:legacyIDs) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        return .init(reference:reference,nonce:nonce)
+    }
+    func authorizes(_ binding:NativeCredentialHandoff.Binding,
+                    catalog:NativeCredentialCatalogReader,legacyIDs:Set<UUID>,
+                    admission:NativeRoutingAdmission)throws->Bool {
+        guard binding.reference==reference,binding.selectionNonce==nonce else{return false}
+        return try Self.select(reference,catalog:catalog,legacyIDs:legacyIDs,admission:admission)==self
+    }
+}

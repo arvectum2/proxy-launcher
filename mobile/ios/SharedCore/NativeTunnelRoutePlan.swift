@@ -64,6 +64,22 @@ struct NativeTunnelRoutePlan: Equatable {
                      remoteAddress:remote.text, remotePort:port, dnsServers:dns.map(\.text), mtu:config.mtu)
     }
 
+    /// VLESS has no assigned inner address or resolver configuration in the
+    /// accepted share-link grammar. Use fixed local interface identities and
+    /// the same default resolvers as the legacy tunnel. No peer exemption.
+    /// A full-route candidate is not transport acceptance or permission
+    /// to apply NetworkExtension settings.
+    static func prepareVLESS(_ endpoint:NativeVLESSValidationPlan,
+                             routes:TransportBackendPlan.RoutePolicy = .tunnelOnly,
+                             siteExclusions:[String] = [],applicationExclusions:[String] = []) throws -> Self {
+        guard routes == .tunnelOnly,siteExclusions.isEmpty,applicationExclusions.isEmpty else{throw Failure.unsupportedPolicy}
+        guard let remote=IP(endpoint.remoteAddress),!remote.v6,endpoint.remotePort>0 else{throw Failure.invalidAddress}
+        let v4="192.0.2.177",v6="2001:db8:177::2",dns=["1.1.1.1","8.8.8.8"]
+        guard remote.text != v4,!dns.contains(remote.text) else{throw Failure.conflictingAddress}
+        return .init(provider:.rustXray,ipv4Address:v4,ipv6Address:v6,
+                     remoteAddress:remote.text,remotePort:endpoint.remotePort,dnsServers:dns,mtu:1500)
+    }
+
     /// Accept literal unicast only. Private/ULA addresses are intentional;
     /// loopback, link-local, multicast, mapped IPv4 and unspecified are not.
     private struct IP: Hashable {

@@ -1,4 +1,4 @@
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
 import SwiftUI
 import UniformTypeIdentifiers
 import UIKit
@@ -56,7 +56,11 @@ import NetworkExtension
         NavigationView {
             Form {
                 Section {
+#if APL_NATIVE_PRODUCT_RUNTIME
+                    Text(tr("Select a profile, then connect from Home.","Выберите профиль и подключитесь на главном экране.")).font(.footnote).foregroundStyle(.secondary)
+#else
                     Text(tr("VPN connection is not available yet.","VPN-подключение пока недоступно.")).font(.footnote).foregroundStyle(.secondary)
+#endif
                     if exportSaved {Text(tr("Encrypted backup saved","Зашифрованная копия сохранена"))}
                     if authenticationFailed {Text(tr("Wrong password or damaged backup. Try again.","Неверный пароль или повреждённая копия. Повторите ввод.")).foregroundStyle(.red)}
                     if failed {Text(tr("Operation failed. Reload to check saved state and recovery.","Операция не завершена. Обновите список и проверьте восстановление.")).foregroundStyle(.red)}
@@ -417,7 +421,12 @@ import NetworkExtension
             do {
                 try await model.vpn.withNativeLibraryWrite { inactive in
                     guard generation==token,lifecycle.visible,phase == .active else{throw NativePersistentProfileSession.Failure.stale}
-                    if let receipt {try session.confirm(receipt,vpnInactive:inactive)}
+                    if let receipt {
+                        try session.confirm(receipt,vpnInactive:inactive)
+#if APL_NATIVE_PRODUCT_RUNTIME
+                        if case .select(let ref)=receipt.action {try model.activateNativeSelection(ref)}
+#endif
+                    }
                     else if let summary {try session.confirmImport(summary,vpnInactive:inactive)}
                     else{throw NativePersistentProfileSession.Failure.stale}
                 }

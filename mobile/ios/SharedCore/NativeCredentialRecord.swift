@@ -57,6 +57,25 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
         let route = try NativeTunnelRoutePlan.prepare(config)
         return (.init(provider:config.provider,wireProtocol:config.wireProtocol,bytes:config.withEngineConfiguration{$0}),.wireGuard(route))
     }
+    /// Common full-tunnel candidate for the real-format profile library.
+    /// Keeps the engine configuration tied to the same immutable revision
+    /// and never reuses the single-destination review route as a default.
+    func compileFullTunnelCandidate(admission:NativeRoutingAdmission,
+                                    exactDNSAvailable:Bool)throws->NativeFullTunnelCandidate {
+        guard admission == .tunnelOnly else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        guard reference.kind == .amneziaWG1 || exactDNSAvailable else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        let (configuration,validation)=try compile(vlessDatagramReview:reference.kind == .vlessReality)
+        let route:NativeTunnelRoutePlan
+        switch validation {
+        case .wireGuard(let plan):route=plan
+        case .vlessTCP4(let endpoint):route=try NativeTunnelRoutePlan.prepareVLESS(endpoint)
+        }
+        guard configuration.provider==reference.kind.provider,configuration.wireProtocol==reference.kind.transport,
+              route.provider==configuration.provider,validation.remoteAddress==route.remoteAddress,
+              validation.remotePort==route.remotePort else{throw Failure.invalidRecord}
+        return .init(reference:reference,validation:validation,route:route,configuration:configuration,
+                     exactDNSRequired:reference.kind != .amneziaWG1)
+    }
     struct Endpoint:Equatable {
         let host:String
         let port:UInt16
@@ -178,4 +197,17 @@ struct NativeValidationConfiguration: CustomStringConvertible, CustomReflectable
     var description: String { "NativeValidationConfiguration(redacted)" }
     var customMirror: Mirror { Mirror(self,children:[:]) }
     func withEngineConfiguration<T>(_ body:(Data)throws->T) rethrows -> T {try body(bytes)}
+}
+
+
+/// Full-route compilation output, not a start envelope. No review probe
+/// destination or legacy fallback. Keep secret material redacted.
+struct NativeFullTunnelCandidate:CustomStringConvertible,CustomReflectable {
+    let reference:NativeCredentialRecord.Reference
+    let validation:NativeValidationRoute
+    let route:NativeTunnelRoutePlan
+    let configuration:NativeValidationConfiguration
+    let exactDNSRequired:Bool
+    var description:String {"NativeFullTunnelCandidate(redacted)"}
+    var customMirror:Mirror {Mirror(self,children:[] as [Mirror.Child])}
 }

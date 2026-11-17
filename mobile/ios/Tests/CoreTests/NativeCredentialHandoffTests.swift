@@ -286,4 +286,31 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference }), t=try p2.issueForValidation(local,binding:b,via:h)
         XCTAssertThrowsError(try p2.issueForValidation(local,binding:b,via:h));XCTAssertEqual(try h.redeem(t,expected:b).reference,r.reference)
     }
+    func testProductEnvelopeCannotBeReusedAsReviewAndRejectsStalePolicy() throws {
+        let (r,b,repo,_,items)=try fixture()
+        try repo.insert(r)
+        let h=NativeCredentialHandoff(items:items,repository:repo,authorizes:{$0==b}),owner=UUID()
+        let ticket=try h.issueProductStart(r,binding:b,owner:owner)
+        let config=NativeProductStartRequest.configuration(owner:owner)
+        let options=try NativeProductStartRequest.options(ticket:ticket,owner:owner)
+        XCTAssertNil(NativeProductStartRequest.inspect(configuration:config,options:nil,enabled:true))
+        XCTAssertNil(NativeProductStartRequest.inspect(configuration:config,options:options,enabled:false))
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:NativeRuntimeReviewRequest.configuration(owner:owner),options:options,enabled:true))
+        XCTAssertFalse(NativeRuntimeReviewRequest.validScope(ticket))
+        XCTAssertThrowsError(try h.redeem(ticket,expected:b,runtimeOwner:owner))
+        var forged=options;forged[NativeProviderStartRequest.ownerKey]=UUID().uuidString as NSString
+        XCTAssertNil(NativeProductStartRequest.inspect(configuration:config,options:forged,enabled:true))
+        var extra=options;extra["APLNativeUnknown"]=NSNumber(value:1)
+        XCTAssertNil(NativeProductStartRequest.inspect(configuration:config,options:extra,enabled:true))
+        let request=try XCTUnwrap(NativeProductStartRequest.inspect(configuration:config,options:options,enabled:true))
+        XCTAssertThrowsError(try request.consume(via:h,admission:{.siteExclusions},exactDNSAvailable:true))
+        let plan=try request.consume(via:h,admission:{.tunnelOnly},exactDNSAvailable:true)
+        XCTAssertEqual(plan.reference,r.reference);XCTAssertTrue(plan.route.excludedRoutes.isEmpty)
+        XCTAssertThrowsError(try request.consume(via:h,admission:{.tunnelOnly},exactDNSAvailable:true))
+        let review=try h.issue(r,binding:b,runtimeOwner:owner,runtimeScope:.wireGuardFull)
+        XCTAssertThrowsError(try NativeProductStartRequest.options(ticket:review,owner:owner))
+        XCTAssertThrowsError(try h.redeemProductStart(review,expected:b,owner:owner))
+        XCTAssertTrue(try h.revoke(review))
+    }
+
 }

@@ -1,4 +1,4 @@
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE
 import Foundation
 import NetworkExtension
 import tun2proxy
@@ -23,6 +23,22 @@ import tun2proxy
         self.owner=owner
         try control.bind(owner.session,provider:"rust-xray")
     }
+#if APL_NATIVE_PRODUCT_RUNTIME
+#if !APL_NATIVE_EXACT_DNS || APL_NATIVE_PRODUCT_RUNTIME_REVIEW || APL_NATIVE_SYNTHETIC_RUNTIME
+#error("The product runtime requires exact DNS and cannot include review or synthetic runtime")
+#endif
+    func startFull(provider:NEPacketTunnelProvider,candidate:NativeFullTunnelCandidate)async throws {
+        let plan=candidate.route
+        guard candidate.reference==owner.reference,plan.provider == .rustXray,
+              candidate.exactDNSRequired,plan.excludedRoutes.isEmpty,!plan.dnsServers.isEmpty,
+              NativeExactTunnelDescriptor.interfaces(address:plan.ipv4Address)?.isEmpty==true,
+              NativeExactTunnelDescriptor.interfaces(address:plan.ipv6Address)?.isEmpty==true else{throw Failure.unsupported}
+        try await startOwned(provider:provider,route:candidate.validation,
+            configuration:candidate.configuration.withEngineConfiguration{$0},
+            planSettings:NativeTunnelNetworkSettings.make(plan),mtu:UInt16(plan.mtu),exactDNS:true,
+            descriptor:{NativeExactTunnelDescriptor.find(address:plan.ipv4Address,ipv6:plan.ipv6Address)})
+    }
+#else
     /// Actual route settings for synthetic test destinations only. No DNS,
     /// default routes, excluded routes, or endpoint-wide application bypass.
     private func settings(_ route:NativeValidationRoute)throws -> NEPacketTunnelNetworkSettings {
@@ -76,6 +92,7 @@ import tun2proxy
     }
 #endif
 #endif
+#endif
     private func startOwned(provider:NEPacketTunnelProvider,route:NativeValidationRoute,configuration:Data,planSettings:NEPacketTunnelNetworkSettings,mtu:UInt16,exactDNS:Bool=false,descriptor:()->Int32?) async throws {
         guard !retired,!starting,!draining,!attemptedXray,!submittedRust else{throw Failure.busy}
         starting=true;defer{starting=false}
@@ -103,12 +120,14 @@ import tun2proxy
                     provider?.cancelTunnelWithError(NSError(domain:"APLNativeRuntime",code:1))
                 }
             }
+#if !APL_NATIVE_PRODUCT_RUNTIME
             lifetime=Task { @MainActor [weak self,weak provider] in
                 try? await Task.sleep(nanoseconds:20_000_000_000)
                 guard !Task.isCancelled,let self,!self.retired else{return}
                 self.retired=true;self.control.fail()
                 provider?.cancelTunnelWithError(NSError(domain:"APLNativeRuntime",code:3))
             }
+#endif
             // No ready receipt: queue submission is not independent peer or
             // native readiness evidence. A future accepted probe must supply it.
         } catch {

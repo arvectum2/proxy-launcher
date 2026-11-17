@@ -1,6 +1,9 @@
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+#if APL_NATIVE_PROVIDER_INTEGRATION && ((DEBUG && APL_NATIVE_PRODUCT_RUNTIME_REVIEW) || APL_NATIVE_PRODUCT_RUNTIME)
 #if !APL_NATIVE_AWG_PRODUCT_BRIDGE || !APL_NATIVE_UNIFIED_GO_CANDIDATE || !APL_NATIVE_XRAY_CANDIDATE || !APL_NATIVE_AWG_CANDIDATE || APL_NATIVE_SYNTHETIC_RUNTIME
 #error("Runtime review requires unified product drivers, never synthetic mode")
+#endif
+#if APL_NATIVE_PRODUCT_RUNTIME && (!APL_NATIVE_EXACT_DNS || APL_NATIVE_PRODUCT_RUNTIME_REVIEW || APL_NATIVE_RUNTIME_QA_HARNESS || APL_NATIVE_RUNTIME_QA_DIAGNOSTICS || APL_NATIVE_RELEASE_LINK_PREPARATION)
+#error("Product runtime cannot contain lab or link preparation modes")
 #endif
 import Foundation
 import NetworkExtension
@@ -34,6 +37,11 @@ import Network
     func start(provider:NEPacketTunnelProvider,options:[String:NSObject]?,completionHandler:@escaping(Error?)->Void)async{
         guard !used,!retired else{completionHandler(error(10));return}
         let configuration=(provider.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
+#if APL_NATIVE_PRODUCT_RUNTIME
+        guard let request=NativeProductStartRequest.inspect(configuration:configuration,options:options,enabled:true) else{
+            completionHandler(error(1));return
+        }
+#else
         guard let request=NativeRuntimeReviewRequest.inspect(configuration:configuration,options:options,enabled:true) else{
 #if APL_NATIVE_RUNTIME_QA_DIAGNOSTICS
             completionHandler(error(NativeRuntimeReviewRequest.rejectionCode(configuration:configuration,options:options)))
@@ -42,16 +50,24 @@ import Network
 #endif
             return
         }
+#endif
         used=true;starting=true;completion=completionHandler
         do {
             try control.bind(request.binding.session,provider:request.binding.reference.kind.providerName)
             let store=try ProfileStore(),handoff=store.makeNativeProviderValidationHandoff()
+#if APL_NATIVE_PRODUCT_RUNTIME
+            guard try store.nativeProductOwner()==request.owner else{throw error(1)}
+#endif
 #if APL_NATIVE_EXACT_DNS
             let exactDNSAvailable=true
 #else
             let exactDNSAvailable=false
 #endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+            let plan=try request.consume(via:handoff,admission:store.nativeRoutingAdmission,exactDNSAvailable:exactDNSAvailable)
+#else
             let plan=try request.consume(via:handoff,admission:store.nativeRoutingAdmission(),exactDNSAvailable:exactDNSAvailable)
+#endif
             guard try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
             timeout=Task { @MainActor [weak self,weak provider] in
                 do{try await Task.sleep(nanoseconds:45_000_000_000)}catch{return}
@@ -60,6 +76,25 @@ import Network
                 if !self.starting {try? await self.drain(provider:provider,removeSettings:true)}
             }
             let bytes=plan.configuration.withEngineConfiguration{$0}
+#if APL_NATIVE_PRODUCT_RUNTIME
+            switch plan.route.provider {
+            case .standaloneAWG:
+                let route=plan.route
+                guard NativeExactTunnelDescriptor.interfaces(address:route.ipv4Address)?.isEmpty==true,
+                      NativeExactTunnelDescriptor.interfaces(address:route.ipv6Address)?.isEmpty==true else{throw error(1)}
+                let flow=try NativeAWGProductFlow(flow:provider.packetFlow,plan:route,onFailure:{[weak self,weak provider] in
+                    Task{@MainActor in if let self,let provider{self.invalidate(provider:provider,code:3)}}
+                })
+                awg=flow;settingsInstalled=true
+                try await provider.setTunnelNetworkSettings(NativeTunnelNetworkSettings.make(route))
+                guard !retired,try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
+                guard await flow.startWithDeadline(configuration:bytes) else{throw error(3)}
+            case .rustXray:
+                let runner=try NativeXrayPacketSession(owner:request.binding)
+                xray=runner
+                try await runner.startFull(provider:provider,candidate:plan)
+            }
+#else
             switch plan.route {
             case .awg(let route):
                 guard NativeExactTunnelDescriptor.interfaces(address:route.ipv4Address)?.isEmpty==true,NativeExactTunnelDescriptor.interfaces(address:route.ipv6Address)?.isEmpty==true else{throw error(1)}
@@ -83,8 +118,13 @@ import Network
                 _=route;throw error(1)
 #endif
             }
+#endif
             guard !retired,try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
             starting=false
+#if APL_NATIVE_PRODUCT_RUNTIME
+            // The setup deadline is not a session lifetime.
+            timeout?.cancel();timeout=nil
+#endif
             let watcher=NWPathMonitor();monitor=watcher
             watcher.pathUpdateHandler={[weak self,weak provider] path in
                 let signature=PathSignature(path)

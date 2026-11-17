@@ -3,7 +3,7 @@ IOS=Path(__file__).resolve().parents[1]/'mobile/ios'
 
 
 def test_real_native_library_device_gate_and_explicit_mutations():
-    gate='#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)'
+    gate='#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)'
     view=(IOS/'App/NativePersistentProfilesView.swift').read_text()
     assert view.startswith(gate+'\n')
     assert 'session=model.makePersistentNativeLibrary()' in view

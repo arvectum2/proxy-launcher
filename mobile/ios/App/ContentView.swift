@@ -509,7 +509,7 @@ struct ContentView: View {
 
     private var homeProfileControl: some View {
         Group {
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
             HomeNativeLibraryMenu(model:model,canAdd:model.profiles.isEmpty && !qaProfile,onAdd:{showNewProfile=true},proxyMenu:profileSelectionMenu,label:homeProfileLabel(model.profiles.isEmpty && !qaProfile ? AppL10n.tr("Добавить прокси") : (qaProfile ? "QA Proxy":model.selectedLabel)))
 #else
             if model.profiles.isEmpty && !qaProfile {

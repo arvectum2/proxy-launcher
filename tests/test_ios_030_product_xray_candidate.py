@@ -4,7 +4,7 @@ IOS=Path(__file__).resolve().parents[1]/'mobile/ios'
 
 def test_concrete_xray_abi_only_under_explicit_candidate_gate():
     driver=(IOS/'PacketTunnel/NativeXrayRuntimeDriver.swift').read_text()
-    assert driver.startswith('#if (DEBUG || APL_NATIVE_RELEASE_LINK_PREPARATION) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE\n')
+    assert driver.startswith('#if (DEBUG || APL_NATIVE_RELEASE_LINK_PREPARATION || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE\n')
     assert 'CGoInvoke(input)' in driver and 'defer{CGoFree(reply)}' in driver
     assert 'CFBooleanGetTypeID()' in driver and 'maxResponseBytes' in driver
     assert 'static let shared=NativeXrayRuntimeDriver()' in driver
@@ -30,7 +30,7 @@ def test_source_candidate_compile_lane_restricts_artifacts_and_exports_only_rece
 
 def test_runner_scope_and_terminal_reconciliation_require_independent_receipt():
     runner=(IOS/'PacketTunnel/NativeXrayPacketSession.swift').read_text()
-    assert runner.startswith('#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE\n')
+    assert runner.startswith('#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE\n')
     assert 'route.remoteAddress=="192.168.1.80"' in runner
     assert 'destinationAddress:"198.51.100.77"' in runner and 'destinationAddress:"2001:db8:77::77"' in runner
     assert 'NEIPv4Route.default' not in runner and '.dnsSettings' not in runner

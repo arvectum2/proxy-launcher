@@ -67,7 +67,8 @@ struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
     }
 #endif
     static func validScope(_ ticket:NativeCredentialHandoff.Ticket)->Bool {
-        guard ticket.validPurpose,ticket.runtimeOwner != nil else{return false}
+        guard ticket.validPurpose,ticket.runtimeOwner != nil,
+              ticket.purpose == .runtimeReview || ticket.purpose == .runtimeDataPlaneReview else{return false}
         let v4=ticket.runtimeProbeIPv4.flatMap(canonicalIPv4)
         switch (ticket.binding.reference.kind,ticket.runtimeScope) {
         case (.amneziaWG1,nil):return ticket.runtimeProbeIPv4==nil && ticket.runtimeProbeIPv6==nil

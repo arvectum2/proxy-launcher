@@ -789,4 +789,29 @@ final class NativeCredentialCatalogTests: XCTestCase {
         _=try prepare()
     }
 
+    @MainActor func testExplicitNativeProductSelectionCannotBorrowReviewAuthority() throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        let catalog=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record()
+        try catalog.save(a,select:true);try catalog.save(b,select:false)
+        XCTAssertNil(try NativeProductSelection.read(nil))
+        XCTAssertThrowsError(try NativeProductSelection.select(b.reference,catalog:catalog.reader,legacyIDs:[],admission:.tunnelOnly))
+        XCTAssertThrowsError(try NativeProductSelection.select(a.reference,catalog:catalog.reader,legacyIDs:[b.reference.profileID],admission:.tunnelOnly))
+        let choice=try NativeProductSelection.select(a.reference,catalog:catalog.reader,legacyIDs:[],admission:.tunnelOnly)
+        XCTAssertEqual(try NativeProductSelection.read(TransportNativeCodec.encode(choice)),choice)
+        let binding=NativeCredentialHandoff.Binding(reference:a.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:choice.nonce)
+        XCTAssertTrue(try choice.authorizes(binding,catalog:catalog.reader,legacyIDs:[],admission:.tunnelOnly))
+        try catalog.select(b.reference);try catalog.select(a.reference)
+        XCTAssertFalse(try choice.authorizes(binding,catalog:catalog.reader,legacyIDs:[],admission:.tunnelOnly))
+        XCTAssertThrowsError(try NativeProductSelection.read(Data([0])))
+    }
+    func testProviderLaneNeverMixesLegacyAndNativeOwnership() {
+        let legacy=NativeProductProviderLane()
+        XCTAssertTrue(legacy.reserveLegacy());XCTAssertTrue(legacy.reserveLegacy())
+        XCTAssertFalse(legacy.reserveNative());XCTAssertFalse(legacy.isNative)
+        let native=NativeProductProviderLane()
+        XCTAssertTrue(native.reserveNative());XCTAssertTrue(native.isNative)
+        XCTAssertFalse(native.reserveLegacy());XCTAssertFalse(native.reserveNative())
+    }
+
 }

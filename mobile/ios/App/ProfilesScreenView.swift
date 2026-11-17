@@ -14,7 +14,7 @@ struct ProfilesScreenView<Header: View>: View {
     #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
     @State private var showNativeLibrary = false
     #endif
-    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
     @State private var showPersistentNativeLibrary=false
     #endif
     @State private var profileSearch = ""
@@ -42,7 +42,7 @@ struct ProfilesScreenView<Header: View>: View {
                         .font(.subheadline.weight(.medium))
                         .accessibilityIdentifier("profiles.nativeReviewQA")
                     #endif
-                    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+                    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
                     Button {showPersistentNativeLibrary=true} label:{
                         HStack(alignment:.center,spacing:12){
                             Image(systemName:"shield.lefthalf.filled").foregroundStyle(Brand.mintLight).accessibilityHidden(true)
@@ -116,7 +116,7 @@ struct ProfilesScreenView<Header: View>: View {
         #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
         .sheet(isPresented:$showNativeLibrary){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
         #endif
-        #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
         .sheet(isPresented:$showPersistentNativeLibrary,onDismiss:{model.refreshNativeLibraryOverview()}){NativePersistentProfilesView(model:model)}
         #endif
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
@@ -228,7 +228,7 @@ struct ProfilesScreenView<Header: View>: View {
 
 }
 
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
 @MainActor struct HomeNativeLibraryMenu<ProxyMenu:View,Title:View>:View {
     @ObservedObject var model:AppViewModel
     let canAdd:Bool

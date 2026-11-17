@@ -254,7 +254,7 @@ completed:
 
 
 
-current: "Independent launch boundary hardening completed. Actual ProfileStore routing admission, exact selected catalog snapshot and complete legacy ID set bound before ticket issuance; changed policy/catalog/legacy state rejects launch, including post-insert ticket cleanup. 79 focused default Swift, 62 flagged Swift, 337 Python +14 subtests PASS. Prior native reply watchdog and product-only Go archive retained. Actual containing Release build not started (prior combined operation safety-blocked); production activation still incomplete. Previous head a5e5c31f GitVerse ref matched despite CI SSH mirror failure."
+current: "Product runtime source integration and checks completed locally. App and PacketTunnel iPhoneOS arm64 typechecks passed under explicit product flags; 86 default and 88 review-flag Swift tests, 338 Python and 14 subtests passed. Final combined commit/checkpoint/push call was blocked by OpenAI safety systems and did not execute. Read-only reconciliation confirmed all changes remain in the working tree, 26 modified files including this checkpoint. HEAD 688700be. No linked or signed release artifact."
 blocked_on:
   - "Exact candidate signed physical QA requires explicitly approved disposable device, independent controlled peers/captures and signing scope; no owner-device action authorized."
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
@@ -466,4 +466,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Read AGENTS.md and current state. Do not repeat completed physical cases, product-only archive, source review, reply deadline or launch boundary hardening. Remaining real production integration: explicit standard/native selection and provider ownership, full-route VLESS, exact authorized Release compile/link and actual signed acceptance. Previously blocked containing build operation must not be circumvented. Do not claim current draft is installable or production native runtime active. Reconcile exact-head CI/mirror; no main merge/signing/upload without approval."
+resume_instruction: "Read AGENTS.md and the 16.11.2026 remaining-release section of docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md. Preserve local source changes, reconcile and save verified revision when authorized; then correct Release configuration, actual archive/IPA, final acceptance in that order. Prior blocked operations must not be circumvented. Do not repeat completed source checks or claim a binary exists. No automatic publication."

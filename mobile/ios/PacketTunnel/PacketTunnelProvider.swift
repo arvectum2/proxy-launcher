@@ -39,8 +39,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
     @MainActor private lazy var syntheticOwner=NativeSyntheticProviderOwner()
 #endif
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+#if APL_NATIVE_PROVIDER_INTEGRATION && ((DEBUG && APL_NATIVE_PRODUCT_RUNTIME_REVIEW) || APL_NATIVE_PRODUCT_RUNTIME)
     @MainActor private lazy var productRuntimeOwner=NativeProductRuntimeOwner()
+#endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+    // Never mix legacy Rust ownership and product ownership in one provider
+    // instance, even if an OS stop returned before native resources drained.
+    private let productionLane=NativeProductProviderLane()
 #endif
 #if DEBUG
     private let qaCallbackGate = TunnelQACallbackGate()
@@ -63,13 +68,29 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // Route reserved native starts before touching legacy state, telemetry,
         // settings, timers, or profile selection. Never fall back on rejection.
         let configuration=(protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
+#if APL_NATIVE_PRODUCT_RUNTIME
+        if NativeProductStartRequest.inspect(configuration:configuration,options:options,enabled:true) != nil {
+            guard productionLane.reserveNative() else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+            Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+            return
+        }
+#endif
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
         let validationEnabled=true
 #else
         let validationEnabled=false
 #endif
         switch NativeProviderStartRequest.inspect(configuration:configuration,options:options,validationEnabled:validationEnabled) {
-        case .legacy:rejectedNativeWithoutLegacy=false
+        case .legacy:
+            // A broken native manager must not be silently interpreted as a proxy.
+            guard protocolConfiguration.serverAddress != "APL Native Product" else {
+                if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+                completionHandler(NSError(domain:"APLNativeStart",code:1));return
+            }
+#if APL_NATIVE_PRODUCT_RUNTIME
+            guard productionLane.reserveLegacy() else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+#endif
+            rejectedNativeWithoutLegacy=false
         case .denied:
             if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
             completionHandler(NSError(domain:"APLNativeStart",code:1));return
@@ -225,6 +246,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
         return
 #else
+#if APL_NATIVE_PRODUCT_RUNTIME
+        if productionLane.isNative {
+            Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
+            return
+        }
+#endif
         if rejectedNativeWithoutLegacy && startTask==nil && active==nil {
             completionHandler();return
         }
@@ -265,6 +292,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 #elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
     override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
+    }
+#elseif APL_NATIVE_PRODUCT_RUNTIME
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        guard productionLane.isNative else{completionHandler?(nil);return}
         Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
     }
 #endif

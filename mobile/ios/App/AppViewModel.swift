@@ -40,7 +40,7 @@ final class AppViewModel: ObservableObject {
     @Published var events: [TunnelEvent] = []
     @Published var errorMessage: String?
 
-    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
     @Published private(set) var nativeLibraryOverview:NativePersistentProfileSession.State?
     func refreshNativeLibraryOverview(){
         // Metadata-only; failure invalidates the previous display, never a fallback selection.
@@ -50,6 +50,12 @@ final class AppViewModel: ObservableObject {
     #if APL_NATIVE_DOMAIN_POLICY_REVIEW
     func nativeDomainPolicyReview() throws -> NativeDomainPolicyReview {try store.nativeDomainPolicyReview()}
     #endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+    func activateNativeSelection(_ reference:NativeCredentialRecord.Reference)throws {
+        try store.selectNativeProduct(reference)
+        refreshNativeLibraryOverview()
+    }
+#endif
     func makePersistentNativeLibrary() -> NativePersistentProfileSession {
         NativePersistentProfileSession(catalog:store.makeNativeCredentialCatalog(),policy:{ [store] in store.nativeRoutingAdmission() })
     }
@@ -102,6 +108,13 @@ final class AppViewModel: ObservableObject {
     }
 
     var selectedLabel: String {
+#if APL_NATIVE_PRODUCT_RUNTIME && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        do {
+            if let selected=try store.nativeProductSelection() {
+                return nativeLibraryOverview?.library.rows.first(where:{$0.reference==selected.reference})?.displayName ?? selected.reference.kind.rawValue
+            }
+        } catch {return "Выберите прокси"}
+#endif
         if automaticSelection { return "Авто" }
         return profiles.first(where: { $0.id == selectedProfileID })?.name ?? "Выберите прокси"
     }
@@ -135,7 +148,7 @@ final class AppViewModel: ObservableObject {
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
         automaticSiteExpansion = store.automaticSiteExpansion
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
         refreshNativeLibraryOverview()
 #endif
 #if DEBUG
@@ -183,12 +196,18 @@ final class AppViewModel: ObservableObject {
     }
 
     func selectAuto() {
+#if APL_NATIVE_PRODUCT_RUNTIME
+        store.clearNativeProductSelection()
+#endif
         store.automaticSelection = true
         automaticSelection = true
         selectedProfileID = nil
     }
 
     func select(_ profile: ProxyProfile) {
+#if APL_NATIVE_PRODUCT_RUNTIME
+        store.clearNativeProductSelection()
+#endif
         store.selectedProfileID = profile.id
         store.automaticSelection = false
         automaticSelection = false
@@ -422,6 +441,14 @@ final class AppViewModel: ObservableObject {
             ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA")
 #else
         let ephemeralQA = false
+#endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+        do {
+            if try store.nativeProductSelection() != nil {try await vpn.connect();return}
+        } catch {
+            errorMessage=ProxyFailureReason.safeDisplay(for:error,translate:{AppL10n.tr($0)})
+            return
+        }
 #endif
         guard !profiles.isEmpty || ephemeralQA else {
             errorMessage = "Сначала добавьте хотя бы один прокси"

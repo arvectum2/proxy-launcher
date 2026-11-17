@@ -71,6 +71,9 @@ final class VPNController: ObservableObject {
     func prepare() async {
         do {
             try await Self.operationGate.perform(.start) {
+#if APL_NATIVE_PRODUCT_RUNTIME
+                if try await prepareProductManager() {refreshStatus();return}
+#endif
                 manager = try await loadOrCreateManager()
                 refreshStatus()
             }
@@ -103,7 +106,7 @@ final class VPNController: ObservableObject {
         }
     }
 
-    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
     /// No preference creation or repair. App-process lease, not an OS lock.
     func withNativeLibraryWrite(_ body: (() throws -> Bool) throws -> Void) async throws {
         try await Self.operationGate.perform(.restore) {
@@ -278,7 +281,94 @@ final class VPNController: ObservableObject {
     }
     #endif
 
+#if APL_NATIVE_PRODUCT_RUNTIME
+    private static let productConfigurationName="APL Native Product"
+    private func ownsProductManager(_ item:NETunnelProviderManager,owner:UUID)->Bool {
+        guard let proto=item.protocolConfiguration as? NETunnelProviderProtocol else{return false}
+        return proto.providerBundleIdentifier==AppShared.providerBundleIdentifier &&
+            item.localizedDescription==Self.productConfigurationName && proto.serverAddress==Self.productConfigurationName &&
+            NativeProductStartRequest.ownsConfiguration(proto.providerConfiguration,owner:owner) &&
+            item.isEnabled && !item.isOnDemandEnabled && (item.onDemandRules ?? []).isEmpty &&
+            proto.username==nil && proto.passwordReference==nil && proto.identityReference==nil &&
+            proto.identityData==nil && proto.identityDataPassword==nil && proto.proxySettings==nil &&
+            !proto.includeAllNetworks && !proto.enforceRoutes
+    }
+    private func splitProductManagers(_ all:[NETunnelProviderManager],owner:UUID?)throws->(legacy:[NETunnelProviderManager],product:NETunnelProviderManager?) {
+        let owned=all.filter(isArvectumManager)
+        var legacy=[NETunnelProviderManager](),product:NETunnelProviderManager?
+        for item in owned {
+            if let owner,ownsProductManager(item,owner:owner) {
+                guard product==nil else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+                product=item
+            } else {
+                try requireLegacyManager(item)
+                legacy.append(item)
+            }
+        }
+        return (legacy,product)
+    }
+    private func prepareProductManager()async throws->Bool {
+        let store=try ProfileStore()
+        let all=try await loadAllManagers(requireResult:true)
+        let split=try splitProductManagers(all,owner:store.nativeProductOwner())
+        if let product=split.product,product.connection.status != .disconnected {
+            manager=product;return true
+        }
+        if try store.nativeProductSelection() != nil {
+            let active=split.legacy.filter{$0.connection.status != .disconnected}
+            guard active.count<=1 else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            manager=active.first ?? split.product;return true
+        }
+        return false
+    }
+
+    private func connectProduct(_ store:ProfileStore,selection:NativeProductSelection)async throws {
+        let all=try await loadAllManagers(requireResult:true)
+        let initial=try splitProductManagers(all,owner:store.nativeProductOwner())
+        func allOff(_ items:[NETunnelProviderManager])->Bool {
+            items.allSatisfy{$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
+        }
+        guard allOff(all),store.nativeRoutingAdmission().permitsSelection,
+              try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        let owner=try store.ensureNativeProductOwner()
+        let target:NETunnelProviderManager
+        if let prior=initial.product {target=prior;try await reload(target)}
+        else {
+            target=NETunnelProviderManager()
+            let proto=NETunnelProviderProtocol()
+            proto.providerBundleIdentifier=AppShared.providerBundleIdentifier
+            proto.serverAddress=Self.productConfigurationName
+            proto.providerConfiguration=NativeProductStartRequest.configuration(owner:owner)
+            target.protocolConfiguration=proto
+            target.localizedDescription=Self.productConfigurationName
+            target.isEnabled=true;target.isOnDemandEnabled=false
+            try await save(target);try await reload(target)
+        }
+        let refreshed=try await loadAllManagers(requireResult:true)
+        let exact=try splitProductManagers(refreshed,owner:owner)
+        guard let readback=exact.product,allOff(refreshed),ownsProductManager(target,owner:owner),
+              ownsProductManager(readback,owner:owner),allOff([target]),
+              let session=target.connection as? NETunnelProviderSession,
+              try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        try Task.checkCancellation()
+        let launch=try store.issueNativeProductLaunch(selection,owner:owner)
+        do {
+            try Task.checkCancellation()
+            guard allOff(refreshed+[target]),ownsProductManager(target,owner:owner),target.connection === session,
+                  try store.nativeProductSelection()==selection,store.nativeRoutingAdmission().permitsSelection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        } catch {try store.revokeNativeProductLaunch(launch);throw error}
+        manager=target
+        // Once submitted, never retry or fall back to legacy. An unconsumed ticket expires.
+        try session.startTunnel(options:launch.options)
+        refreshStatus()
+    }
+#endif
+
     private func connectWithLease() async throws {
+#if APL_NATIVE_PRODUCT_RUNTIME
+        let store=try ProfileStore()
+        if let selection=try store.nativeProductSelection(){try await connectProduct(store,selection:selection);return}
+#endif
         var manager = try await loadOrCreateManager()
         self.manager = manager
 
@@ -425,8 +515,14 @@ final class VPNController: ObservableObject {
     private func loadOrCreateManager(forceSave: Bool = false) async throws -> NETunnelProviderManager {
         let managers = try await loadAllManagers()
 
+#if APL_NATIVE_PRODUCT_RUNTIME
+        let split=try splitProductManagers(managers,owner:ProfileStore().nativeProductOwner())
+        if let product=split.product,product.connection.status != .disconnected {throw NativeCredentialReceiver.Failure.invalidIdentity}
+        let matching=split.legacy
+#else
         let matching = managers.filter(isArvectumManager)
         for item in matching {try requireLegacyManager(item)}
+#endif
         let manager = matching.first(where: { $0.isEnabled }) ?? matching.first ?? NETunnelProviderManager()
 
         if !matching.isEmpty {
@@ -470,8 +566,8 @@ final class VPNController: ObservableObject {
     private func requireLegacyManager(_ manager: NETunnelProviderManager) throws {
         let config=(manager.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]
         guard !NativeProviderStartRequest.hasReservedKey(Array(config.keys)),
-              !["APL Native Credential Validation","APL Native Runtime Review"].contains(manager.localizedDescription ?? ""),
-              !["APL Native Credential Validation","APL Native Runtime Review"].contains(manager.protocolConfiguration?.serverAddress ?? "") else {
+              !["APL Native Credential Validation","APL Native Runtime Review","APL Native Product"].contains(manager.localizedDescription ?? ""),
+              !["APL Native Credential Validation","APL Native Runtime Review","APL Native Product"].contains(manager.protocolConfiguration?.serverAddress ?? "") else {
             throw NSError(domain:"APLNativeStart",code:1)
         }
     }

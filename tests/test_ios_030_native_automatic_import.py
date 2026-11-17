@@ -23,7 +23,7 @@ def test_native_import_ui_explicit_controls_and_bounded_read():
     assert 'NativeCredentialRecord.create(profileID:ref.profileID,expected:ref.kind.transport,source:source)' in (IOS/'SharedCore/NativePersistentProfileSession.swift').read_text()
     assert 'private func previewClipboard()' in v and 'summary=try session.previewAutomatic([text])' in v
     assert 'session.confirmImport(summary,vpnInactive:inactive)' in v
-    assert v.startswith('#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)')
+    assert v.startswith('#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)')
     assert 'startTunnel(' not in v and 'setTunnelNetworkSettings(' not in v
 
 def test_auto_import_uses_existing_validation_and_single_restore_review():

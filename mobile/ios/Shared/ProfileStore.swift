@@ -49,6 +49,10 @@ final class ProfileStore {
         static let recentlyFailedProfileID = "recently_failed_profile_id"
         static let recentlyFailedAt = "recently_failed_at"
         static let lastFailoverAt = "last_failover_at"
+#if APL_NATIVE_PRODUCT_RUNTIME
+        static let nativeProductSelection = "native_product_selection.v1"
+        static let nativeProductOwner = "native_product_owner.v1"
+#endif
         static let iosAppRoutingMode = "ios_app_routing_mode"
     }
 
@@ -150,7 +154,7 @@ final class ProfileStore {
             legacyIDs:{ [self] in Set(try profilesForMutation().map(\.id)) })
     }
 
-    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION
     /// Strict read-only legacy ID check plus exact native ticket consumption.
     /// Compiles only in explicit integration Debug builds, never default Release.
     // Unknown/corrupt policy is not an empty policy. This validation path
@@ -190,13 +194,70 @@ final class ProfileStore {
             ticketItems:NativeCredentialKeychain(purpose:.handoff),legacyIDs:{[self] in Set(try profilesForMutation().map(\.id))},routingAdmission:{[self] in nativeRoutingAdmission()})
     }
 
+#if APL_NATIVE_PRODUCT_RUNTIME
+    func nativeProductSelection()throws->NativeProductSelection? {
+        guard let raw=defaults.object(forKey:Key.nativeProductSelection) else{return nil}
+        guard let bytes=raw as? Data else{throw ProfileStoreError.corruptProfiles}
+        return try NativeProductSelection.read(bytes)
+    }
+    func selectNativeProduct(_ ref:NativeCredentialRecord.Reference)throws {
+        let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
+        let selected=try NativeProductSelection.select(ref,catalog:reader,
+            legacyIDs:Set(try profilesForMutation().map(\.id)),admission:nativeRoutingAdmission())
+        defaults.set(try TransportNativeCodec.encode(selected),forKey:Key.nativeProductSelection)
+    }
+    func clearNativeProductSelection(){defaults.removeObject(forKey:Key.nativeProductSelection)}
+    func nativeProductOwner()throws->UUID? {
+        guard let raw=defaults.object(forKey:Key.nativeProductOwner) else{return nil}
+        guard let text=raw as? String,let id=UUID(uuidString:text),id.uuidString==text else{throw ProfileStoreError.corruptProfiles}
+        return id
+    }
+    func ensureNativeProductOwner()throws->UUID {
+        if let owner=try nativeProductOwner(){return owner}
+        let owner=UUID()
+        defaults.set(owner.uuidString,forKey:Key.nativeProductOwner)
+        return owner
+    }
+    struct ProductLaunch:CustomStringConvertible,CustomReflectable {
+        let ticket:NativeCredentialHandoff.Ticket
+        let options:[String:NSObject]
+        var description:String {"ProductLaunch(redacted)"}
+        var customMirror:Mirror {Mirror(self,children:[:])}
+    }
+    func issueNativeProductLaunch(_ selection:NativeProductSelection,owner:UUID)throws->ProductLaunch {
+        let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
+        let snapshot=try reader.snapshot(),ids=Set(try profilesForMutation().map(\.id))
+        let binding=NativeCredentialHandoff.Binding(reference:selection.reference,
+            session:.init(epoch:UUID(),generation:1,provider:selection.reference.kind.providerName),selectionNonce:selection.nonce)
+        guard try nativeProductOwner()==owner,try nativeProductSelection()==selection,
+              try selection.authorizes(binding,catalog:reader,legacyIDs:ids,admission:nativeRoutingAdmission()) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        let repo=NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision))
+        guard let record=try repo.read(selection.reference) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        _=try record.compileFullTunnelCandidate(admission:nativeRoutingAdmission(),exactDNSAvailable:true)
+        let handoff=makeNativeProviderValidationHandoff()
+        guard try handoff.authorizes(binding),try reader.snapshot()==snapshot,try Set(profilesForMutation().map(\.id))==ids else{throw NativeCredentialReceiver.Failure.inactiveRevision}
+        let ticket=try handoff.issueProductStart(record,binding:binding,owner:owner)
+        do {
+            guard try handoff.authorizes(binding),try reader.snapshot()==snapshot,try Set(profilesForMutation().map(\.id))==ids else{throw NativeCredentialReceiver.Failure.inactiveRevision}
+            return .init(ticket:ticket,options:try NativeProductStartRequest.options(ticket:ticket,owner:owner))
+        }catch{_=try handoff.revoke(ticket);throw error}
+    }
+    func revokeNativeProductLaunch(_ launch:ProductLaunch)throws{_=try makeNativeProviderValidationHandoff().revoke(launch.ticket)}
+#endif
+
     func makeNativeProviderValidationHandoff() -> NativeCredentialHandoff {
         let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
         return NativeCredentialHandoff(items:NativeCredentialKeychain(purpose:.handoff),
             repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
             authorizes:{ [self] binding in
+#if APL_NATIVE_PRODUCT_RUNTIME
+                guard let selection=try nativeProductSelection() else{return false}
+                return try selection.authorizes(binding,catalog:reader,
+                    legacyIDs:Set(try profilesForMutation().map(\.id)),admission:nativeRoutingAdmission())
+#else
                 guard !(try profilesForMutation()).contains(where:{$0.id==binding.reference.profileID}) else{return false}
                 return try reader.authorizes(binding)
+#endif
             })
     }
     #endif
@@ -211,6 +272,9 @@ final class ProfileStore {
         if !(preservePasswordIfNil && password == nil) { try setPassword(password, for: profile.id) }
         defaults.set(data, forKey: Key.profiles)
         if makeActive {
+#if APL_NATIVE_PRODUCT_RUNTIME
+            clearNativeProductSelection()
+#endif
             defaults.set(profile.id.uuidString, forKey: Key.selectedProfileID)
             defaults.set(false, forKey: Key.automaticSelection)
         }

@@ -65,4 +65,49 @@ final class NativeTunnelRoutePlanTests: XCTestCase {
         XCTAssertFalse(String(reflecting:r).contains(Data(repeating:17,count:32).base64EncodedString()))
         XCTAssertThrowsError(try TransportBackendPlan.prepare(profileID:UUID(),revision:UUID(),protocol:c.wireProtocol,scope:.production,routes:.tunnelOnly,required:[.dns]))
     }
+    func testCommonFullRouteCandidateForAllSupportedKinds() throws {
+        let key=Data(repeating:17,count:32).base64EncodedString().replacingOccurrences(of:"=",with:"")
+        let vless="vless://12345678-abcd-abcd-abcd-123456789abc@192.0.2.42:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk="+key+"&sid=abcd"
+        for (kind,source) in [(TransportProtocol.wireGuard,profile()),(.amneziaWG1,profile(awg:true)),(.vlessReality,vless)] {
+            let r=try NativeCredentialRecord.create(profileID:UUID(),expected:kind,source:source)
+            let p=try r.compileFullTunnelCandidate(admission:.tunnelOnly,exactDNSAvailable:true)
+            XCTAssertEqual(p.reference,r.reference)
+            XCTAssertEqual(p.route.provider,r.reference.kind.provider)
+            XCTAssertEqual(p.validation.remoteAddress,p.route.remoteAddress)
+            XCTAssertEqual(p.validation.remotePort,p.route.remotePort)
+            XCTAssertEqual(p.route.ipv4DefaultRoutes,["0.0.0.0/0"])
+            XCTAssertEqual(p.route.ipv6DefaultRoutes,["::/1","8000::/1"])
+            XCTAssertTrue(p.route.excludedRoutes.isEmpty)
+            XCTAssertEqual(p.route.dnsMatchDomains,[""])
+            XCTAssertEqual(p.exactDNSRequired,kind != .amneziaWG1)
+            XCTAssertEqual(Mirror(reflecting:p).children.count,0)
+            for blocked in [NativeRoutingAdmission.siteExclusions,.dependencyPolicy,.normallyOff,.malformed] {
+                XCTAssertThrowsError(try r.compileFullTunnelCandidate(admission:blocked,exactDNSAvailable:true))
+            }
+            if kind == .amneziaWG1 {
+                XCTAssertNoThrow(try r.compileFullTunnelCandidate(admission:.tunnelOnly,exactDNSAvailable:false))
+            } else {
+                XCTAssertThrowsError(try r.compileFullTunnelCandidate(admission:.tunnelOnly,exactDNSAvailable:false))
+            }
+            if kind == .vlessReality {
+                XCTAssertEqual(p.route.dnsServers,["1.1.1.1","8.8.8.8"])
+                XCTAssertEqual(p.route.ipv4Address,"192.0.2.177")
+                XCTAssertEqual(p.route.ipv6Address,"2001:db8:177::2")
+                let json=try p.configuration.withEngineConfiguration {try XCTUnwrap(JSONSerialization.jsonObject(with:$0) as? [String:Any])}
+                let inbound=try XCTUnwrap((json["inbounds"] as? [[String:Any]])?.first)
+                XCTAssertEqual((inbound["settings"] as? [String:Any])?["udp"] as? Bool,true)
+                XCTAssertEqual((json["outbounds"] as? [[String:Any]])?.count,1)
+            } else {
+                XCTAssertEqual(p.route.dnsServers,["192.0.2.53","fd00::53"])
+            }
+        }
+    }
+
+    func testVLESSFullRouteRejectsRemoteLocalOrResolverCollision() throws {
+        for address in ["192.0.2.177","1.1.1.1","8.8.8.8","127.0.0.1","::1","example.com"] {
+            XCTAssertThrowsError(try NativeTunnelRoutePlan.prepareVLESS(.init(remoteAddress:address,remotePort:443)))
+        }
+        XCTAssertThrowsError(try NativeTunnelRoutePlan.prepareVLESS(.init(remoteAddress:"192.0.2.42",remotePort:0)))
+    }
+
 }

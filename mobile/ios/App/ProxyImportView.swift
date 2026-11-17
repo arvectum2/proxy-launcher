@@ -26,7 +26,7 @@ import UIKit
     @State private var nativeOffer:NativeImportTransfer?
     @State private var nativeHandoff:NativeImportTransfer?
     @State private var initialConsumed=false
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
     @State private var showNativeImport=false
 #endif
 #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
@@ -48,7 +48,7 @@ import UIKit
     var body: some View {
         NavigationView {
             Form {
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
                 Section {
                     Button {openNativeLibrary()} label:{
                         Label(refreshText("Импорт WireGuard, AmneziaWG, VLESS","Import WireGuard, AmneziaWG, VLESS"),systemImage:"shield.lefthalf.filled")
@@ -222,7 +222,7 @@ import UIKit
                 if phase == .background {discardNativeOffer();nativeHandoff?.discard();nativeHandoff=nil;if UnifiedProfileImport.hasNativeSyntax(source){source="";parsedSource=""}}
             }
             .onDisappear {visible=false;cancelSubscriptionFetch();clearAutomaticPreview();discardNativeOffer();if !nativeImportPresented {nativeHandoff?.discard();nativeHandoff=nil}}
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
             .sheet(isPresented:$showNativeImport,onDismiss:clearNativeHandoff){NativePersistentProfilesView(model:model,initialImport:nativeHandoff)}
 #endif
 #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
@@ -295,7 +295,7 @@ import UIKit
         automaticPreview=nil;parsedSource="";candidates=[]
     }
     private var nativeImportPresented:Bool {
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
         return showNativeImport
 #elseif DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
         return showNativeReview
@@ -451,7 +451,7 @@ import UIKit
     }
 
     private var nativeAvailable:Bool {
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
         return true
 #elseif DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
         return true
@@ -466,7 +466,7 @@ import UIKit
         if let offer {guard nativeOffer === offer else{return};nativeOffer=nil}else{discardNativeOffer()}
         cancelSubscriptionFetch();clearAutomaticPreview();clearNativeHandoff();editorFocused=false
         nativeHandoff=offer
-#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
         showNativeImport=true
 #elseif DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
         showNativeReview=true

@@ -13,7 +13,7 @@ struct NativeCredentialHandoff {
         let selectionNonce: UUID
         var valid: Bool { session.valid && session.provider == reference.kind.providerName }
     }
-    enum Purpose:String,Codable {case runtimeReview,runtimeDataPlaneReview}
+    enum Purpose:String,Codable {case runtimeReview,runtimeDataPlaneReview,productStart}
     enum RuntimeScope:String,Codable {case wireGuardFull,vlessDatagrams}
     struct Ticket: Codable, Equatable {
         let id: UUID
@@ -24,6 +24,7 @@ struct NativeCredentialHandoff {
         var runtimeScope:RuntimeScope? = nil
         var runtimeProbeIPv6:String? = nil
         var validPurpose:Bool {
+            if purpose == .productStart {return runtimeOwner != nil && runtimeScope==nil && runtimeProbeIPv4==nil && runtimeProbeIPv6==nil}
             if runtimeOwner==nil {return purpose==nil && runtimeScope==nil && runtimeProbeIPv4==nil && runtimeProbeIPv6==nil}
             return purpose==(runtimeScope == nil ? .runtimeReview:.runtimeDataPlaneReview) && (runtimeScope != nil || runtimeProbeIPv6==nil)
         }
@@ -41,10 +42,18 @@ struct NativeCredentialHandoff {
     init(items: NativeCredentialItems, repository: NativeCredentialRepository, authorizes: @escaping (Binding) throws -> Bool, now: @escaping () -> Date = Date.init) { self.items = items; self.repository = repository; self.authorizes = authorizes; self.now = now }
     private func account(_ id: UUID) -> String { "handoff-v1/\(id.uuidString)" }
     func issue(_ record: NativeCredentialRecord, binding: Binding, runtimeOwner:UUID? = nil,runtimeProbeIPv4:String? = nil,runtimeScope:RuntimeScope? = nil,runtimeProbeIPv6:String? = nil) throws -> Ticket {
-        guard binding.valid, binding.reference == record.reference, runtimeOwner != nil || (runtimeProbeIPv4 == nil && runtimeScope==nil && runtimeProbeIPv6==nil), try authorizes(binding) else { throw Failure.invalidBinding }
-        guard let stored = try repository.read(record.reference), try stored.encoded() == record.encoded() else { throw Failure.unavailable }
-        let issued = now(), ticket = Ticket(id:UUID(),binding:binding,purpose:runtimeOwner == nil ? nil:(runtimeScope == nil ? .runtimeReview:.runtimeDataPlaneReview),runtimeOwner:runtimeOwner,runtimeProbeIPv4:runtimeProbeIPv4,runtimeScope:runtimeScope,runtimeProbeIPv6:runtimeProbeIPv6)
-        guard ticket.validPurpose else{throw Failure.invalidBinding}
+        let ticket = Ticket(id:UUID(),binding:binding,purpose:runtimeOwner == nil ? nil:(runtimeScope == nil ? .runtimeReview:.runtimeDataPlaneReview),runtimeOwner:runtimeOwner,runtimeProbeIPv4:runtimeProbeIPv4,runtimeScope:runtimeScope,runtimeProbeIPv6:runtimeProbeIPv6)
+        return try persist(record,ticket:ticket)
+    }
+    /// Separate purpose: a review ticket may never authorize a product start.
+    func issueProductStart(_ record:NativeCredentialRecord,binding:Binding,owner:UUID)throws->Ticket {
+        try persist(record,ticket:.init(id:UUID(),binding:binding,purpose:.productStart,runtimeOwner:owner))
+    }
+    private func persist(_ record:NativeCredentialRecord,ticket:Ticket)throws->Ticket {
+        let binding=ticket.binding
+        guard binding.valid,binding.reference==record.reference,ticket.validPurpose,try authorizes(binding) else{throw Failure.invalidBinding}
+        guard let stored=try repository.read(record.reference),try stored.encoded()==record.encoded() else{throw Failure.unavailable}
+        let issued=now()
         let envelope = Envelope(version:1,ticket:ticket,issued:issued,expires:issued.addingTimeInterval(60))
         let bytes = try JSONEncoder().encode(envelope)
         guard bytes.count <= Self.maxEnvelopeBytes else { throw Failure.invalidEnvelope }
@@ -53,7 +62,15 @@ struct NativeCredentialHandoff {
         return ticket
     }
     func redeem(_ ticket: Ticket, expected: Binding, runtimeOwner:UUID? = nil) throws -> NativeCredentialRecord {
-        guard expected.valid, ticket.binding == expected,ticket.runtimeOwner==runtimeOwner,ticket.validPurpose else { throw Failure.invalidBinding }
+        guard ticket.purpose != .productStart else{throw Failure.invalidBinding}
+        return try redeemOwned(ticket,expected:expected,owner:runtimeOwner)
+    }
+    func redeemProductStart(_ ticket:Ticket,expected:Binding,owner:UUID)throws->NativeCredentialRecord {
+        guard ticket.purpose == .productStart else{throw Failure.invalidBinding}
+        return try redeemOwned(ticket,expected:expected,owner:owner)
+    }
+    private func redeemOwned(_ ticket:Ticket,expected:Binding,owner:UUID?)throws->NativeCredentialRecord {
+        guard expected.valid,ticket.binding==expected,ticket.runtimeOwner==owner,ticket.validPurpose else{throw Failure.invalidBinding}
         let name = account(ticket.id)
         guard let raw = try items.read(account:name) else { throw Failure.unavailable }
         // Concurrent readers can read, only one successful delete wins.
