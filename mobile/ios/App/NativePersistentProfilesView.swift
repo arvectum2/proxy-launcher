@@ -50,7 +50,34 @@ import NetworkExtension
     @State private var ipPreview:[String]?
     #endif
     static var title:String {label("VPN profiles","VPN-профили")}
-    private static func label(_ en:String,_ ru:String)->String {AppL10n.effectiveLanguage=="ru" ? ru:en}
+    private static func label(_ en:String,_ ru:String)->String {
+        let language = AppL10n.effectiveLanguage
+        if language == "ru" { return ru }
+        if language == "en" { return en }
+        // Reuse context-matched, reviewed translations instead of forcing English.
+        switch (en,ru) {
+        case ("Backup", "Резервная копия"): return AppL10n.tr("Копия", table: "ProfileManagement", language: language)
+        case ("Backup password", "Пароль резервной копии"): return AppL10n.tr("Пароль резервной копии", table: "ProfileManagement", language: language)
+        case ("Cancel", "Отмена"): return AppL10n.tr("Отмена", table: "Localizable", language: language)
+        case ("Choose file", "Выбрать файл"): return AppL10n.tr("Выбрать файл", table: "ProxyImport", language: language)
+        case ("Close", "Закрыть"): return AppL10n.tr("Закрыть", table: "ProfileManagement", language: language)
+        case ("Delete", "Удалить"): return AppL10n.tr("Удалить", table: "ProfileManagement", language: language)
+        case ("Encrypted backup saved", "Зашифрованная копия сохранена"): return AppL10n.tr("Зашифрованная копия сохранена", table: "ProfileManagement", language: language)
+        case ("Import", "Импорт"): return AppL10n.tr("Импорт", table: "ProfileManagement", language: language)
+        case ("New password", "Новый пароль"): return AppL10n.tr("Новый пароль", table: "ProfileManagement", language: language)
+        case ("Pending", "Ожидает"): return AppL10n.tr("Ожидает", table: "SmartExclusions", language: language)
+        case ("Port", "Порт"): return AppL10n.tr("Порт", table: "Localizable", language: language)
+        case ("Profile name", "Имя профиля"): return AppL10n.tr("Название профиля", table: "Localizable", language: language)
+        case ("Profiles", "Профили"): return AppL10n.tr("Профили", table: "Localizable", language: language)
+        case ("Rejected", "Отклонён"): return AppL10n.tr("Отклонён", table: "SmartExclusions", language: language)
+        case ("Reload", "Обновить"): return AppL10n.tr("Обновить", table: "Localizable", language: language)
+        case ("Repeat password", "Повторите пароль"): return AppL10n.tr("Повторите пароль", table: "ProfileManagement", language: language)
+        case ("Review", "Проверить"): return AppL10n.tr("Проверить", table: "ProxyImport", language: language)
+        case ("Select", "Выбрать"): return AppL10n.tr("Выбрать", table: "ProfileManagement", language: language)
+        case ("Use clipboard", "Вставить из буфера"): return AppL10n.tr("Вставить из буфера", table: "ProxyImport", language: language)
+        default: return en // New native-specific copy awaits translation.
+        }
+    }
     private func tr(_ en:String,_ ru:String)->String {Self.label(en,ru)}
     var body:some View {
         NavigationView {
