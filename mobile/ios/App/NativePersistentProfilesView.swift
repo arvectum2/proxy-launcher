@@ -75,7 +75,7 @@ import NetworkExtension
         case ("Review", "Проверить"): return AppL10n.tr("Проверить", table: "ProxyImport", language: language)
         case ("Select", "Выбрать"): return AppL10n.tr("Выбрать", table: "ProfileManagement", language: language)
         case ("Use clipboard", "Вставить из буфера"): return AppL10n.tr("Вставить из буфера", table: "ProxyImport", language: language)
-        default: return en // New native-specific copy awaits translation.
+        default: return AppL10n.tr(ru, table: "NativeProfiles", language: language)
         }
     }
     private func tr(_ en:String,_ ru:String)->String {Self.label(en,ru)}
