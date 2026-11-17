@@ -175,3 +175,7 @@ revokes its ticket, retaining cleanup ownership if removal fails.
 No new manager, routing action, production activation or ticket purpose.
 79 focused default Swift tests, 62 focused Swift with existing explicit
 review flags, 337 Python +14 subtests PASS. Not a containing Release build.
+
+### 17 November — exact product read-only reconciliation
+
+Exact production Go dependency graph 696 vs historical 697 packages: only AWG tun/tuntest removed, no new packages or changed module identities, go.mod and go.sum byte-identical. Exact signed App Store IPA SHA256 matched receipt, version 0.3.0(49), 64/64 localization directories present, 322 .strings resources. Native persistent profile screen uses RU/EN language branch with English fallback; full new native UI localization not established. Private product source-review kit staging was rejected and not executed; no tool or kit created. Legacy physical HTTPS acceptance remains PASS; exact native physical acceptance outstanding. No publication or device change in this reconciliation.
