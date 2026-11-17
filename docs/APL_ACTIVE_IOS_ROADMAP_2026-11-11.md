@@ -209,3 +209,7 @@ Windows WinDivert/new release, macOS per-app, Android/RuStore, Linux, Proxifier 
 
 - `b0913d82`, `046bcb96`, `50bfc785`: добавлены 24 полных NativeProfiles каталога (2040 строк); 32/64 полных, 32 с явным английским fallback, заголовки 64/64. Технические обозначения VPN/IP/IPv4/ID проверяются тестом. 64 файла plutil PASS, iOS Python 627 +1527 subtests PASS. Русский/английский исходники и старый IPA не изменены. Лингвистическая проверка носителями отдельно не выполнялась.
 - Остаток: am, az, bn, ca, el, et, fil, gu, ha, hi, hu, hy, ka, kk, kn, ky, lt, lv, ml, mr, ms, or, pa, sr, sw, ta, te, tg, th, tk, ur, uz. Watchdog существует, выключен; состояние не изменено. Аппаратная приёмка native и physical backup, source delivery и новый signed IPA остаются открытыми.
+
+### 17.11 — завершение покрытия NativeProfiles
+
+- [x] `2f5e06c8`, `78bb1be7`: оставшиеся 32 каталога, 64/64 × 85 = 5440 записей, плюс 19 переиспользованных локализованных элементов. Строгий контракт требует 64 полных каталога из ios-locales.json. 64 plutil PASS, ключи/форматы/технические токены PASS, 627 iOS Python tests и 1527 subtests PASS. Проверка носителями и визуальная приёмка отдельно не выполнены. IPA 09c6cdfe не менялся.
