@@ -197,3 +197,10 @@ Windows WinDivert/new release, macOS per-app, Android/RuStore, Linux, Proxifier 
 
 - Swift Core: 19 backup/restore codec tests и 62 native catalog/review session tests, 81/81 PASS, без повторной установки или работы с пользовательскими ключами. Аппаратный Files workflow ещё открыт.
 - `39923bcd`: новый экран VPN-профилей использует 19 проверенных контекстных переводов из существующих каталогов (19 × 64; проверено). Остаются 85 уникальных RU/EN пар; английский fallback сохранён честно. ARM64 active Swift parse и 18 Python UI/localization checks PASS. Изменение только в исходниках, выпущенный ранее IPA не менялся.
+
+### 17.11 — native localization resources and regression
+
+- `f87b9558`: fixed contextual localization audit without weakening legacy table validation. `1c3ec955` and `02e20011`: separate NativeProfiles.strings included in Xcode for all 64 locales; localized title in each, 19 reused reviewed labels, all 85 new keys in eight locales (en/ru/es/fr/de/uk/pt-BR/zh-Hans). English fallback for 56 partial catalogs, not claimed complete.
+- `39a6176c`: complete iOS source regression 627 PASS +1527 subtests; all 64 new resources plutil valid, active Swift parse and Xcode resource inclusion PASS.
+- Read-only provenance audit: existing original reference kit 409/409, product manifest 15/15 hashes verified, exact stage Go/Rust and signed IPA hash parity PASS; 250 Rust/71 Go notices and three MPL source archives. Delivery approval and final distribution remain separate.
+- Physical backup and exact native protocol acceptance still outstanding; prior installed 0.3.0(49) unchanged.
