@@ -2,6 +2,7 @@
 import re
 import json
 import sys
+import unicodedata
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
@@ -38,3 +39,24 @@ def test_native_catalogs_match_actual_source_and_fallback():
                         assert token in data[key], (locale,key,token)
     assert complete==set(json.loads((ROOT/'mobile/ios/ios-locales.json').read_text())['languages'])
     assert len(complete)==64
+
+
+def test_native_non_latin_catalogs_do_not_mix_unrelated_scripts():
+    scripts={
+        'am':{'ETHIOPIC'},'ar':{'ARABIC'},'fa':{'ARABIC'},'ur':{'ARABIC'},
+        'he':{'HEBREW'},'hy':{'ARMENIAN'},'ka':{'GEORGIAN'},'el':{'GREEK'},
+        'bn':{'BENGALI'},'gu':{'GUJARATI'},'hi':{'DEVANAGARI'},'mr':{'DEVANAGARI'},
+        'kn':{'KANNADA'},'ml':{'MALAYALAM'},'or':{'ORIYA'},'pa':{'GURMUKHI'},
+        'ta':{'TAMIL'},'te':{'TELUGU'},'th':{'THAI'},
+        'be':{'CYRILLIC'},'bg':{'CYRILLIC'},'kk':{'CYRILLIC'},'ky':{'CYRILLIC'},
+        'tg':{'CYRILLIC'},'uk':{'CYRILLIC'},'ru':{'CYRILLIC'},'sr':{'CYRILLIC'},
+        'ko':{'HANGUL'},'zh-Hans':{'CJK'},'zh-Hant':{'CJK'},
+        'ja':{'CJK','HIRAGANA','KATAKANA','KATAKANA-HIRAGANA'},
+    }
+    for locale,expected in scripts.items():
+        data,_=read_strings(RES/(locale+'.lproj')/'NativeProfiles.strings')
+        for key,value in data.items():
+            letters={unicodedata.name(c,'').split(' ')[0] for c in value
+                     if unicodedata.category(c).startswith('L')}
+            assert letters & expected,(locale,key,'no localized script')
+            assert letters <= expected | {'LATIN'},(locale,key,letters-expected-{'LATIN'})
