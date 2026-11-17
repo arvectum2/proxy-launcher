@@ -61,7 +61,6 @@ def analyze():
     features=files['en']['ProfileManagement']
     additive=set(features)-set(original)
     app='\n'.join(p.read_text(encoding='utf-8') for p in (BASE/'App').glob('*.swift'))
-    used=set(re.findall(r'AppL10n\.tr\(\s*"((?:\\.|[^"\\])+)"',app))
     # Separate supplemental disclosure: explicitly RU/EN only, with English fallback.
     # Keep the five required product catalogs and their key counts unchanged.
     supplemental=set()
@@ -71,8 +70,21 @@ def analyze():
             if set(data or {})!={'sdkManifestDisclosure'}:errors.append(f'{code}/PrivacyDetails: missing or extra keys')
             else:supplemental.update(data)
         elif data is not None:errors.append(f'{code}/PrivacyDetails: unexpected fallback override')
-    explicit_supplemental=set(re.findall(r'AppL10n\.tr\(\s*"([^"\n]+)"\s*,\s*table:\s*"PrivacyDetails"',app))
-    unused=sorted(used-set(original)-set(features)-(supplemental&explicit_supplemental))
+    # Resolve each literal at its actual call site, preserving generic-key
+    # checks even when the same spelling also occurs in a feature table.
+    lookups=re.findall(r'AppL10n\.tr\(\s*"((?:\\.|[^"\\])+)"(?:\s*,\s*table:\s*"([^"\n]+)")?',app)
+    generic_used=set()
+    for key,table in lookups:
+        if not table:
+            generic_used.add(key)
+        elif table in REQUIRED_TABLES:
+            if not all(key in files[code].get(table,{}) for code in codes):
+                errors.append(f'contextual lookup missing: {table}/{key}')
+        elif table=='PrivacyDetails':
+            if key not in supplemental:errors.append(f'contextual lookup missing: {table}/{key}')
+        else:
+            errors.append(f'unknown contextual table: {table}/{key}')
+    unused=sorted(generic_used-set(original)-set(features))
     rows=[]
     for code in codes:
         b=files[code].get('Localizable',{})
