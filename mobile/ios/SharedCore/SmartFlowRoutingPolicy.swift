@@ -62,3 +62,39 @@ struct SmartFlowRoutingPolicy {
         explain(host: host, resolvedIP: resolvedIP).disposition
     }
 }
+
+/// Native candidate admission, not a flow router. Never silently discard a
+/// stored bypass rule or downgrade normally-off routing to tunnel-only.
+enum NativeRoutingAdmission:Equatable {
+    case tunnelOnly, siteExclusions, dependencyPolicy, normallyOff, malformed
+    var permitsSelection:Bool {self == .tunnelOnly}
+    static func inspect(manual:Any?,legacy:Any?,graph:Any?,mode:Any?) -> Self {
+        var hasEntries=false
+        for value in [manual,legacy] {
+            if let value {
+                guard let list=value as? [String],list.count<=SiteExclusionPolicy.maxEntries,
+                      list.allSatisfy({$0.utf8.count<=1024}), (try? SiteExclusionPolicy.normalizeAll(list)) != nil else{return .malformed}
+                hasEntries = hasEntries || !list.isEmpty
+            }
+        }
+        var hasApprovals=false
+        if let graph {
+            guard let data=graph as? Data,!data.isEmpty,data.count<=65_536,
+                  let parsed=try? JSONDecoder().decode(SmartExclusionGraph.self,from:data),
+                  parsed.edges.count<=SiteExclusionPolicy.maxEntries*SiteDependencyDiscovery.maxCandidates else{return .malformed}
+            // Even orphaned or expired stored approvals require explicit
+            // policy review. Never reinterpret them as permission to tunnel.
+            hasApprovals=parsed.edges.contains{$0.decision == .approved}
+            guard (try? parsed.effective(manual:[])) != nil else{return .malformed}
+        }
+        var off=false
+        if let mode {
+            guard let raw=mode as? String,["normallyOn","normallyOff"].contains(raw) else{return .malformed}
+            off=raw=="normallyOff"
+        }
+        if off{return .normallyOff}
+        if hasEntries{return .siteExclusions}
+        if hasApprovals{return .dependencyPolicy}
+        return .tunnelOnly
+    }
+}

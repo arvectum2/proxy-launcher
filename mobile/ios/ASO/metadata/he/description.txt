@@ -7,3 +7,6 @@
 • הנתונים נשארים במכשיר והסיסמאות נשמרות בצרור המפתחות
 
 הזינו פרטים של שרת פרוקסי משלכם; APL אינו מספק שרתים.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

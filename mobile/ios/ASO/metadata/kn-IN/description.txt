@@ -7,3 +7,6 @@
 • ವಿವರಗಳು ಸಾಧನದಲ್ಲೇ ಇರುತ್ತವೆ, ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಕೀಚೈನ್‌ನಲ್ಲಿ
 
 ನಿಮ್ಮದೇ ಪ್ರಾಕ್ಸಿ ಸರ್ವರ್ ಅಗತ್ಯ; APL ಸರ್ವರ್ ಒದಗಿಸುವುದಿಲ್ಲ.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

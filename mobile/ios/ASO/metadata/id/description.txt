@@ -7,3 +7,6 @@ Hubungkan iPhone melalui proxy yang Anda atur sendiri, dengan kontrol yang mudah
 • Pengaturan tersimpan di perangkat dan kata sandi dalam Keychain
 
 Gunakan server proxy milik Anda; APL tidak menyediakan layanan proxy.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

@@ -7,3 +7,6 @@ Conecta tu iPhone mediante un proxy que tú eliges, con configuración sencilla.
 • Tus datos de conexión permanecen en el equipo
 
 Ingresa los datos de tu propio servidor proxy; no se incluye servicio de proxy.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

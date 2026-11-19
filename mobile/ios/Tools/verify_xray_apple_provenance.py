@@ -60,7 +60,9 @@ def verify(asset: Path, go_mod: Path, pin: Path = PIN) -> dict:
         if not all(name in names for name in required):
             raise ValueError("missing Apple iPhoneOS/Simulator static libraries")
     return {
-        "tag": settings["tag"], "source_tag_commit": settings["tag_commit"],
+        "tag": settings["tag"], "source_tag_object": settings.get("tag_object", settings["tag_commit"]),
+        "source_commit": settings.get("source_commit"),
+        "source_tag_commit": settings["tag_commit"],  # legacy field: annotated tag object
         "asset_sha256": settings["sha256"], "go_mod_sha256": settings["go_mod_sha256"],
         "xray_core_version": settings["xray_core_version"],
         "declared_go_modules": len(modules), "archive_members": len(names),

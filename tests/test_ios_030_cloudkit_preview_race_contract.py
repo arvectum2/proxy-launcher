@@ -14,7 +14,7 @@ class CloudKitPreviewConcurrencyContracts(unittest.TestCase):
         ui = UI.read_text()
         method = ui.split("private func apply() async {", 1)[1].split(
             "private func upload() async {", 1)[0]
-        self.assertIn("cloud.previewRemote()", method)
+        self.assertIn("cloud.previewRemote(expectedAccount:account)", method)
         self.assertIn("ExclusionSyncContract.remoteUnchanged(", method)
         self.assertIn("expectedRecord.recordID == currentRecord.recordID", method)
         self.assertIn("expectedRecord.recordChangeTag", method)

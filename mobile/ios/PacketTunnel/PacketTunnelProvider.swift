@@ -35,6 +35,18 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var lastPrimaryRecoveryProbeAt: Date?
     private var switching = false
     private var stopping = false
+    private var rejectedNativeWithoutLegacy = false
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+    @MainActor private lazy var syntheticOwner=NativeSyntheticProviderOwner()
+#endif
+#if APL_NATIVE_PROVIDER_INTEGRATION && ((DEBUG && APL_NATIVE_PRODUCT_RUNTIME_REVIEW) || APL_NATIVE_PRODUCT_RUNTIME)
+    @MainActor private lazy var productRuntimeOwner=NativeProductRuntimeOwner()
+#endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+    // Never mix legacy Rust ownership and product ownership in one provider
+    // instance, even if an OS stop returned before native resources drained.
+    private let productionLane=NativeProductProviderLane()
+#endif
 #if DEBUG
     private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
@@ -46,6 +58,77 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+        Task { @MainActor in await syntheticOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+        return
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+        return
+#else
+        // Route reserved native starts before touching legacy state, telemetry,
+        // settings, timers, or profile selection. Never fall back on rejection.
+        let configuration=(protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
+#if APL_NATIVE_PRODUCT_RUNTIME
+        if NativeProductStartRequest.inspect(configuration:configuration,options:options,enabled:true) != nil {
+            guard productionLane.reserveNative() else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+            Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+            return
+        }
+#endif
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+        let validationEnabled=true
+#else
+        let validationEnabled=false
+#endif
+        switch NativeProviderStartRequest.inspect(configuration:configuration,options:options,validationEnabled:validationEnabled) {
+        case .legacy:
+            // A broken native manager must not be silently interpreted as a proxy.
+            guard protocolConfiguration.serverAddress != "APL Native Product" else {
+                if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+                completionHandler(NSError(domain:"APLNativeStart",code:1));return
+            }
+#if APL_NATIVE_PRODUCT_RUNTIME
+            guard productionLane.reserveLegacy() else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+#endif
+            rejectedNativeWithoutLegacy=false
+        case .denied:
+            if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+            completionHandler(NSError(domain:"APLNativeStart",code:1));return
+        case .validation(let request):
+            if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+            // Explicit credential validation only. No runtime driver or routes.
+            // A successful credential check must still fail NE startup.
+            guard startTask==nil,active==nil else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+            do {
+                let validationStore=try ProfileStore()
+                guard try validationStore.nativeValidationPolicyIsEmpty() else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE
+                switch request.expected.reference.kind.provider {
+                case .rustXray:
+                    try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeXrayRuntimeDriver.shared.validate)
+                case .standaloneAWG:
+                    try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeAWGValidationDriver.validate)
+                default:throw NativeCredentialReceiver.Failure.providerMismatch
+                }
+#elseif APL_NATIVE_XRAY_CANDIDATE
+                guard request.expected.reference.kind.provider == .rustXray else{throw NativeCredentialReceiver.Failure.providerMismatch}
+                let driver=NativeXrayRuntimeDriver.shared
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:driver.validate)
+#elseif APL_NATIVE_AWG_CANDIDATE
+                guard request.expected.reference.kind.provider == .standaloneAWG else{throw NativeCredentialReceiver.Failure.providerMismatch}
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeAWGValidationDriver.validate)
+#else
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff())
+#endif
+                completionHandler(NSError(domain:"APLNativeStart",code:2))
+            } catch {completionHandler(NSError(domain:"APLNativeStart",code:1))}
+#else
+            _=request
+            completionHandler(NSError(domain:"APLNativeStart",code:1))
+#endif
+            return
+        }
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
@@ -149,12 +232,29 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 completionHandler(error)
             }
         }
+#endif
     }
 
     override func stopTunnel(
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+        Task { @MainActor in await syntheticOwner.stop(provider:self);completionHandler() }
+        return
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
+        return
+#else
+#if APL_NATIVE_PRODUCT_RUNTIME
+        if productionLane.isNative {
+            Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
+            return
+        }
+#endif
+        if rejectedNativeWithoutLegacy && startTask==nil && active==nil {
+            completionHandler();return
+        }
 #if DEBUG
         // A queued callback from this test must not fire after a new start.
         qaCallbackGate.invalidate()
@@ -183,7 +283,23 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         active = nil
         completionHandler()
+#endif
     }
+
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await syntheticOwner.message(messageData,provider:self)) }
+    }
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
+    }
+#elseif APL_NATIVE_PRODUCT_RUNTIME
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        guard productionLane.isNative else{completionHandler?(nil);return}
+        Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
+    }
+#endif
 
     private func selectProxy() async throws -> PreparedProxy {
         guard let store else { throw tunnelError("Общее хранилище недоступно") }

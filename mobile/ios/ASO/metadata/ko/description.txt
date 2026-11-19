@@ -7,3 +7,6 @@
 • 설정은 기기에 남고 암호는 키체인에 저장됩니다
 
 본인 소유의 프록시 정보를 입력해야 합니다. APL은 서버를 제공하지 않습니다.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

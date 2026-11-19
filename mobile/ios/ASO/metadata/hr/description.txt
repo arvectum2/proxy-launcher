@@ -7,3 +7,6 @@ Povežite iPhone putem vlastitog proxy poslužitelja uz jednostavno upravljanje.
 • Podaci ostaju na uređaju, a lozinke u privjesku ključeva
 
 Potreban je vaš proxy poslužitelj; APL ne pruža proxy uslugu.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

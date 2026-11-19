@@ -7,3 +7,6 @@
 • 接続情報は端末内に保存し、パスワードはキーチェーンで保護
 
 プロキシサーバーはご自身で用意してください。APLはサーバーを提供しません。
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

@@ -7,3 +7,6 @@
 • माहिती डिव्हाइसवर राहते आणि पासवर्ड कीचेनमध्ये असतो
 
 स्वतःचा प्रॉक्सी सर्व्हर आवश्यक आहे; APL सर्व्हर पुरवत नाही.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

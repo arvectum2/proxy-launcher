@@ -1,0 +1,23 @@
+task_id: APL-GITVERSE-SSH-20261116
+status: completed
+goal: "Restore GitHub to GitVerse SSH mirroring independently of HTTPS transport and either Mac."
+definition_of_done:
+  - "Dedicated Mac mini and CI deploy keys registered; MacBook existing SSH key verified."
+  - "SSH workflow verifies source and destination refs; tested on real GitHub Actions."
+  - "Both Macs have independent bare cache, durable SSH configuration and verified local fallback every 900 seconds."
+  - "Apply verified workflow to main and active iOS branch; verify exact GitHub/GitVerse ref parity."
+completed:
+  - "Mac mini repo-scoped key and direct SSH push 03d88dcc -> 2ace06c7 PASS; canonical remote set to SSH."
+  - "MacBook existing SSH key and independent bare cache; fallback fetched and pushed new checkpoint 03d88dcc PASS."
+  - "Both local launchd agents com.arvectum.apl-gitverse-ssh ran successfully every-900s configuration, exit 0; initial 591/591 parity."
+  - "Dedicated CI key secret configured; pin official GitVerse host key, strict host verification, bounded retry, changed-ref verification and scheduled full reconcile."
+  - "PR 384 infrastructure only merged to main 67df7e20; same workflow applied to active iOS branch at 2ace06c7."
+current: "SSH mirror completed and verified; iOS product release gate unchanged."
+pending: []
+last_verified_commit: "main 67df7e205ff63703bde90809e89f06211ec0d870; active iOS 2ace06c71b512633c946adf3df7cbd37c2ad409a"
+test_results:
+  - "GitHub Actions branch run 43816354952 SUCCESS, main 43816763575 SUCCESS, iOS 43816729995 SUCCESS."
+  - "Manual full reconcile 43816812349 SUCCESS: all branch and tag refs verified exactly."
+  - "MacBook local real SSH mirror attempted=1 and 591/591 refs + exact commit; Mac mini independent direct real SSH push and exact commit."
+  - "At merge of infrastructure-only PR 384, 15/16 checks passed; unrelated Windows installer job still running. No product code changed."
+resume_instruction: "If transport fails, check GitVerse host key/SSH registration and GitHub Actions mirror run. Both Macs can run /opt/homebrew/bin/python3.14 ~/ArvectumSafe/mirrors/apl-gitverse-sync.py. Local fallback never force-pushes or prunes; authoritative CI does exact reconciliation. Keep original iOS checkpoint release gate intact."

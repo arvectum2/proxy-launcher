@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct PrivacyDisclosureView: View {
+    @Binding var appLanguage: String
+    var reviewOnly = false
     let onContinue: () -> Void
 
     private let privacyURL = URL(string: "https://arvectum2.github.io/proxy-launcher/privacy.html")!
@@ -19,13 +21,23 @@ struct PrivacyDisclosureView: View {
                         .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 10))
                         .padding(.top, 28)
 
-                    Text("Конфиденциальность")
-                        .font(.system(size: 30, weight: .bold))
+                    if !reviewOnly {
+                    Picker(selection: $appLanguage) {
+                        ForEach(AppLanguage.allCases) { language in
+                            Text(language.title).tag(language.rawValue)
+                        }
+                    } label: { Text(tr("Язык приложения")) }
+                    .pickerStyle(.menu)
+                    .accessibilityIdentifier("privacy.language")
+                    }
+
+                    Text(tr("Конфиденциальность"))
+                        .font(.largeTitle.bold())
                         .foregroundStyle(Brand.text)
 
-                    Text("Перед первым подключением")
+                    if !reviewOnly { Text(tr("Перед первым подключением"))
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Brand.mintLight)
+                        .foregroundStyle(Brand.mintLight) }
 
                     disclosureRow(
                         icon: "hand.raised.fill",
@@ -47,18 +59,23 @@ struct PrivacyDisclosureView: View {
 
                     disclosureRow(
                         icon: "chart.bar.xaxis",
-                        title: AppL10n.tr("Реклама в приложении"),
-                        text: AppL10n.tr("В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений.")
+                        title: "Реклама в приложении",
+                        text: "В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений."
                     )
 
+                    Text(verbatim: AppL10n.tr("sdkManifestDisclosure", table: "PrivacyDetails", language: appLanguage))
+                        .font(.footnote)
+                        .foregroundStyle(Brand.softGray)
+                        .fixedSize(horizontal: false, vertical: true)
+
                     Link(destination: privacyURL) {
-                        Label("Политика конфиденциальности", systemImage: "doc.text")
+                        Label(tr("Политика конфиденциальности"), systemImage: "doc.text")
                             .font(.system(size: 16, weight: .semibold))
                     }
                     .foregroundStyle(Brand.mint)
 
                     Button(action: onContinue) {
-                        Text("Понятно, продолжить")
+                        Text(tr(reviewOnly ? "Закрыть" : "Понятно, продолжить"))
                             .font(.system(size: 18, weight: .bold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -67,17 +84,21 @@ struct PrivacyDisclosureView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier(reviewOnly ? "privacy.closeReview" : "privacy.continue")
                     .padding(.top, 4)
 
-                    Text("Продолжая, вы подтверждаете, что ознакомились с описанием обработки данных.")
+                    if !reviewOnly { Text(tr("Продолжая, вы подтверждаете, что ознакомились с описанием обработки данных."))
                         .font(.footnote)
                         .foregroundStyle(Brand.softGray)
-                        .padding(.bottom, 30)
+                        .padding(.bottom, 30) }
                 }
                 .padding(.horizontal, 28)
+                .padding(.bottom, 16)
             }
         }
     }
+
+    private func tr(_ key: String) -> String { AppL10n.tr(key, language: appLanguage) }
 
     private func disclosureRow(icon: String, title: String, text: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
@@ -87,11 +108,11 @@ struct PrivacyDisclosureView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(AppL10n.tr(title))
-                    .font(.system(size: 17, weight: .semibold))
+                Text(tr(title))
+                    .font(.headline)
                     .foregroundStyle(Brand.text)
-                Text(AppL10n.tr(text))
-                    .font(.system(size: 15))
+                Text(tr(text))
+                    .font(.body)
                     .foregroundStyle(Brand.softGray)
                     .fixedSize(horizontal: false, vertical: true)
             }

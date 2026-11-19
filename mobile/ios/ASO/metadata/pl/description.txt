@@ -7,3 +7,6 @@ Połącz iPhone’a z własnym serwerem proxy i łatwo zarządzaj połączeniem.
 • Dane proxy pozostają na urządzeniu, a hasła w Pęku kluczy
 
 Dodaj własne dane serwera proxy; APL nie udostępnia serwerów.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

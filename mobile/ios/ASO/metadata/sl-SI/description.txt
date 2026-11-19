@@ -7,3 +7,6 @@ Povežite iPhone prek lastnega posredniškega strežnika in preprosto upravljajt
 • Nastavitve ostanejo v napravi, gesla pa v Keychainu
 
 Potreben je lasten proxy strežnik; APL ne zagotavlja proxy storitve.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

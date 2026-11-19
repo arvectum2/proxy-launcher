@@ -7,3 +7,6 @@
 • 代理資訊保存在裝置上，密碼由鑰匙圈保護
 
 請自行提供代理伺服器。APL 不銷售或提供代理服務。
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

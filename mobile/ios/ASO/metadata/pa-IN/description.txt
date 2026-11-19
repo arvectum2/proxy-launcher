@@ -7,3 +7,6 @@
 • ਜਾਣਕਾਰੀ ਡਿਵਾਈਸ ਉੱਤੇ ਰਹਿੰਦੀ ਹੈ, ਪਾਸਵਰਡ ਕੀਚੇਨ ਵਿੱਚ
 
 ਆਪਣੇ ਪ੍ਰੌਕਸੀ ਸਰਵਰ ਦੀ ਜਾਣਕਾਰੀ ਦਿਓ; APL ਸਰਵਰ ਨਹੀਂ ਦਿੰਦਾ।
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

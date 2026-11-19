@@ -82,7 +82,13 @@ enum ProfileBackupCodec {
     static func seal(_ payload: ProfileBackupPayload, password: String) throws -> Data {
         try validatePassword(password)
         try validatePayload(payload)
-        let plaintext = try JSONEncoder().encode(payload)
+        return try sealPayloadBytes(JSONEncoder().encode(payload),password:password,format:magic)
+    }
+
+    // Shared version-1 authenticated envelope; callers use distinct fixed
+    // format identifiers. Existing proxy backup format remains unchanged.
+    static func sealPayloadBytes(_ plaintext: Data,password: String,format: String) throws -> Data {
+        try validatePassword(password)
         guard plaintext.count <= maxFileBytes / 2 else { throw ProfileBackupError.invalidFile }
         var salt = Data(count: saltSize)
         let randomStatus = salt.withUnsafeMutableBytes { buffer in
@@ -90,9 +96,9 @@ enum ProfileBackupCodec {
         }
         guard randomStatus == errSecSuccess else { throw ProfileBackupError.encryptionFailed }
         let key = try deriveKey(password: password, salt: salt)
-        let sealed = try AES.GCM.seal(plaintext, using: key)
+        let sealed = format == magic ? try AES.GCM.seal(plaintext, using:key) : try AES.GCM.seal(plaintext,using:key,authenticating:Data(format.utf8))
         guard let combined = sealed.combined else { throw ProfileBackupError.encryptionFailed }
-        let container = ProfileBackupEnvelope(format: magic, version: 1,
+        let container = ProfileBackupEnvelope(format: format, version: 1,
                                              kdf: "PBKDF2-HMAC-SHA256", iterations: iterations,
                                              salt: salt, ciphertext: combined)
         let result = try JSONEncoder().encode(container)
@@ -101,13 +107,20 @@ enum ProfileBackupCodec {
     }
 
     static func open(_ data: Data, password: String) throws -> ProfileBackupPayload {
+        let plaintext = try openPayloadBytes(data,password:password,format:magic)
+        guard let payload = try? JSONDecoder().decode(ProfileBackupPayload.self, from:plaintext) else {throw ProfileBackupError.invalidFile}
+        try validatePayload(payload)
+        return payload
+    }
+
+    static func openPayloadBytes(_ data: Data,password: String,format: String) throws -> Data {
         // Reject malformed input before expensive password derivation.
         guard data.count <= maxFileBytes, data.count >= 64,
               let envelope = try? JSONDecoder().decode(ProfileBackupEnvelope.self, from: data),
-              envelope.format == magic, envelope.version == 1,
+              envelope.format == format, envelope.version == 1,
               envelope.kdf == "PBKDF2-HMAC-SHA256", envelope.iterations == iterations,
               envelope.salt.count == saltSize,
-              (28...maxFileBytes).contains(envelope.ciphertext.count) else {
+              (28...(maxFileBytes / 2 + 28)).contains(envelope.ciphertext.count) else {
             throw ProfileBackupError.invalidFile
         }
         // A pasted import passphrase is untrusted user input as well. Bound it
@@ -117,16 +130,12 @@ enum ProfileBackupCodec {
         let plaintext: Data
         do {
             let sealed = try AES.GCM.SealedBox(combined: envelope.ciphertext)
-            plaintext = try AES.GCM.open(sealed, using: key)
+            plaintext = format == magic ? try AES.GCM.open(sealed, using:key) : try AES.GCM.open(sealed,using:key,authenticating:Data(format.utf8))
         } catch {
             throw ProfileBackupError.authenticationFailed
         }
-        guard plaintext.count <= maxFileBytes / 2,
-              let payload = try? JSONDecoder().decode(ProfileBackupPayload.self, from: plaintext) else {
-            throw ProfileBackupError.invalidFile
-        }
-        try validatePayload(payload)
-        return payload
+        guard plaintext.count <= maxFileBytes / 2 else {throw ProfileBackupError.invalidFile}
+        return plaintext
     }
 
     private static func validatePassword(_ password: String) throws {

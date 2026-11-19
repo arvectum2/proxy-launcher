@@ -101,3 +101,90 @@ def test_actual_release_pin_does_not_embed_binary_or_enable_vpn():
     project = (ROOT / "mobile/ios/project.yml").read_text()
     assert "LibXray.xcframework" not in project
     assert "APL_XRAY_LAB" not in project
+
+
+def test_source_pins_distinguish_annotated_tag_and_peeled_commit():
+    asset = json.loads(module.PIN.read_text())
+    source = json.loads((SCRIPT.parent / 'xray_source_pins.json').read_text())
+    assert asset['tag_object'] == source['annotated_tag_object'] == asset['tag_commit']
+    assert asset['source_commit'] == source['source_commit'] != asset['tag_object']
+    assert source['go_mod_sha256'] == asset['go_mod_sha256']
+    assert len(source['go_sum_sha256']) == len(source['go_archive_sha256']) == 64
+
+
+def test_source_notice_inventory_preserves_original_and_rejects_replacement(tmp_path):
+    import pytest
+    script = SCRIPT.parent / 'inventory_xray_source_licenses.py'
+    spec = importlib.util.spec_from_file_location('xray_notice_inventory', script)
+    inv = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(inv)
+    dep, go = tmp_path/'dep', tmp_path/'go'
+    for folder in (dep, go):
+        folder.mkdir(); (folder/'LICENSE').write_bytes(b'original notice')
+    graph = tmp_path/'graph.json'
+    package = {'Module': {'Path': 'example.invalid/dep', 'Version':'v1.0.0', 'Dir':str(dep)}}
+    graph.write_text(json.dumps(package))
+    output = tmp_path/'out'; inv.inventory(graph, go, output)
+    result = json.loads((output/'manifest.json').read_text())
+    assert len(result['modules']) == 2
+    for row in result['modules']:
+        for f in row['files']:
+            assert (output/f['file']).read_bytes() == b'original notice'
+    with pytest.raises(ValueError,match='output must not exist'):
+        inv.inventory(graph,go,output)
+    package['Module']['Replace'] = {'Path':'../not-pinned'}
+    graph.write_text(json.dumps(package))
+    with pytest.raises(ValueError,match='unexpected module replacement'):
+        inv.inventory(graph,go,tmp_path/'replaced')
+
+
+def test_exact_source_candidate_rejects_tamper_and_wrong_scope(tmp_path):
+    import pytest
+    script = SCRIPT.parent / 'verify_xray_source_candidate.py'
+    spec = importlib.util.spec_from_file_location('xray_source_candidate', script)
+    verifier = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(verifier)
+    files = {'libXray.a': b'archive fixture', 'libXray.h': b'header fixture'}
+    for name, raw in files.items():
+        (tmp_path / name).write_bytes(raw)
+    candidate = {'platform':'ios-arm64','scope':'unsigned NativeLab only','library_sha256':hashlib.sha256(files['libXray.a']).hexdigest(),'header_sha256':hashlib.sha256(files['libXray.h']).hexdigest()}
+    pin=tmp_path/'pin.json';pin.write_text(json.dumps({'validated_ios_source_candidate':candidate}))
+    assert verifier.verify(tmp_path,pin) == candidate
+    (tmp_path/'libXray.a').write_bytes(b'tampered')
+    with pytest.raises(ValueError,match='digest mismatch'):
+        verifier.verify(tmp_path,pin)
+    candidate['scope']='production';pin.write_text(json.dumps({'validated_ios_source_candidate':candidate}))
+    with pytest.raises(ValueError,match='scope mismatch'):
+        verifier.verify(tmp_path,pin)
+
+
+def test_nested_notice_inventory_preserves_package_ancestor(tmp_path):
+    script=SCRIPT.parent/'inventory_xray_source_licenses.py'
+    spec=importlib.util.spec_from_file_location('nested_inventory',script)
+    inv=importlib.util.module_from_spec(spec);spec.loader.exec_module(inv)
+    root=tmp_path/'module';child=root/'internal'/'pkg';child.mkdir(parents=True)
+    go=tmp_path/'go';go.mkdir()
+    for d in (root,child.parent,go): (d/'LICENSE').write_bytes(str(d.name).encode())
+    unrelated=root/'unused';unrelated.mkdir();(unrelated/'LICENSE').write_bytes(b'unused')
+    graph=tmp_path/'graph.json';graph.write_text(json.dumps({'Dir':str(child),'Module':{'Path':'example.invalid/module','Version':'v1','Dir':str(root)}}))
+    out=tmp_path/'out';inv.inventory(graph,go,out)
+    m=json.loads((out/'manifest.json').read_text());row=next(x for x in m['modules'] if x['module']=='example.invalid/module')
+    assert {f['module_relative_path'] for f in row['files']}=={'LICENSE','internal/LICENSE'}
+
+
+def test_mpl_correspondence_rejects_incomplete_wrong_lock_and_archive_paths(tmp_path):
+    import pytest
+    import zipfile
+    spec=importlib.util.spec_from_file_location('mpl_export',SCRIPT.parent/'export_xray_mpl_sources.py')
+    m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+    cache=tmp_path/'cache';cache.mkdir();rows=[];lock=set()
+    for i,name in enumerate(m.MODULES):
+        z=cache/f'{i}.zip';version='v1.0.0'
+        with zipfile.ZipFile(z,'w') as f:f.writestr(name+'@'+version+'/LICENSE','Mozilla Public License')
+        row={'Path':name,'Version':version,'Zip':str(z),'Sum':'h1:fixture','GoModSum':'h1:modfixture'}
+        rows.append(row);lock.update([(name,version,row['Sum']),(name,version+'/go.mod',row['GoModSum'])])
+    assert len(m.check_rows(rows,lock,cache))==3
+    with pytest.raises(ValueError,match='module set mismatch'):m.check_rows(rows[:-1],lock,cache)
+    with pytest.raises(ValueError,match='locked sum mismatch'):m.check_rows(rows,set(),cache)
+    with zipfile.ZipFile(rows[0]['Zip'],'w') as f:f.writestr('../LICENSE','Mozilla Public License')
+    with pytest.raises(ValueError,match='unexpected archive paths'):m.check_rows(rows,lock,cache)

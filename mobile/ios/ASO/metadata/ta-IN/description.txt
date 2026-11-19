@@ -7,3 +7,6 @@
 • தகவல்கள் சாதனத்திலும் கடவுச்சொற்கள் கீசெயினிலும் சேமிக்கப்படும்
 
 உங்கள் சொந்த ப்ராக்ஸி சேவையகம் தேவை; APL சேவையகம் வழங்காது.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

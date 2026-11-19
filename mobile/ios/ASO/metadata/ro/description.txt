@@ -7,3 +7,6 @@ Conectează iPhone-ul printr-un proxy configurat de tine și controlează ușor 
 • Datele rămân pe dispozitiv, iar parolele în portchei
 
 Folosește propriul server proxy; APL nu furnizează servere.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

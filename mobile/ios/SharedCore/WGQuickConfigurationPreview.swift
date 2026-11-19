@@ -30,6 +30,19 @@ struct WGQuickConfigurationPreview: Equatable {
     ]
 
     static func parse(_ config: String) throws -> WGQuickConfigurationPreview {
+        try validated(config).preview
+    }
+
+    // Internal only: reuse the one strict grammar for runtime compilation.
+    // No Codable conformance or storage API for secret-bearing fields.
+    struct Validated: CustomStringConvertible, CustomReflectable {
+        let preview: WGQuickConfigurationPreview
+        let properties: [String: String]
+        let peerProperties: [[String: String]]
+        var description: String { "ValidatedWG(redacted)" }
+        var customMirror: Mirror { Mirror(self, children: [:]) }
+    }
+    static func validated(_ config: String) throws -> Validated {
         guard config.utf8.count <= maxBytes else { throw Failure.tooLarge }
         guard !config.isEmpty, !config.contains("\0") else { throw Failure.invalid }
         var interface: [String: String]?
@@ -106,8 +119,8 @@ struct WGQuickConfigurationPreview: Equatable {
             return Peer(endpoint: endpoint, allowedIPs: try ranges(ips, maxEntries: 16),
                         hasPresharedKey: peer["presharedkey"] != nil)
         }
-        return WGQuickConfigurationPreview(format: format, addresses: addresses,
-                                           dnsServers: dns, peers: items)
+        return Validated(preview: .init(format: format, addresses: addresses,
+                                       dnsServers: dns, peers: items), properties: properties, peerProperties: peers)
     }
 
     private static func validKey(_ text: String?) -> Bool {

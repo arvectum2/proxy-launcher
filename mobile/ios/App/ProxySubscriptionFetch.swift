@@ -1,6 +1,6 @@
 import Foundation
 
-/// User-triggered fetch only. Redirects are intentionally refused: a provider
+/// Explicit user-triggered or opted-in foreground fetch. Redirects are intentionally refused: a provider
 /// URL must not silently transfer a subscription token to another endpoint.
 private final class SubscriptionRedirectBlocker: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask,

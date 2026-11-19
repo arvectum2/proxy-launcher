@@ -7,3 +7,6 @@
 • তথ্য ডিভাইসে থাকে, পাসওয়ার্ড কীচেইনে সংরক্ষিত
 
 নিজের প্রক্সি সার্ভার ব্যবহার করুন; APL কোনো সার্ভার দেয় না।
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

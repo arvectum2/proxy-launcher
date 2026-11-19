@@ -11,9 +11,9 @@ import YandexMobileAds
 final class HomeNativeAdController: NSObject, ObservableObject, NativeAdDelegate {
     enum State { case idle, loading, ready, unavailable }
     @Published private(set) var state: State = .idle
-    fileprivate let adView = HomeNativeAdContentView()
+    fileprivate lazy var adView = HomeNativeAdContentView()
 
-    private let loader = NativeAdLoader()
+    private lazy var loader = NativeAdLoader()
     private var ad: NativeAd?
     private var failureAt: Date?
     private var attempts = 0

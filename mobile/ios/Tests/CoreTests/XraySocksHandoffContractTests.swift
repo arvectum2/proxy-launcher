@@ -6,14 +6,13 @@ final class XraySocksHandoffContractTests: XCTestCase {
     func testExactLocalSocksTun2ProxyPlanWithoutDirectOrCredentials() throws {
         let p = try XraySocksHandoffPlan.prepare(
             tunFD: 17, socksPort: 39879,
-            dnsBypass: ["www.gosuslugi.ru", "example.com"])
+            dnsBypass: [])
         XCTAssertEqual(p.proxyURL, "socks5://127.0.0.1:39879")
         XCTAssertEqual(p.tunnelDescriptor, 17)
-        XCTAssertEqual(p.dnsBypasses, ["example.com", "www.gosuslugi.ru"])
+        XCTAssertTrue(p.dnsBypasses.isEmpty)
         XCTAssertEqual(p.tun2proxyArguments,
             "tun2proxy-bin --proxy socks5://127.0.0.1:39879 --tun-fd 17" +
-            " --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn" +
-            " --dns-bypass example.com --dns-bypass www.gosuslugi.ru")
+            " --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn")
         XCTAssertFalse(p.tun2proxyArguments.contains("experimental"))
         XCTAssertFalse(p.tun2proxyArguments.contains("password"))
     }
@@ -36,16 +35,12 @@ final class XraySocksHandoffContractTests: XCTestCase {
         }
     }
 
-    func testValidIPBypassAndRejectDuplicates() throws {
-        let p = try XraySocksHandoffPlan.prepare(
-            tunFD: 0, socksPort: 42000,
-            dnsBypass: ["203.0.113.5", "2001:db8::5"])
-        XCTAssertEqual(p.dnsBypasses, ["2001:db8::5", "203.0.113.5"])
-        XCTAssertThrowsError(try XraySocksHandoffPlan.prepare(
-            tunFD: 0, socksPort: 42000, dnsBypass: ["example.com", "example.com"]))
-        XCTAssertThrowsError(try XraySocksHandoffPlan.prepare(
-            tunFD: 0, socksPort: 42000,
-            dnsBypass: Array(repeating: "one.example", count: 65)))
+    func testPinnedCleanNativeArtifactRejectsAllBypassRequests() throws {
+        for entries in [["example.com"],["203.0.113.5","2001:db8::5"],["example.com=203.0.113.5"],["example.com","example.com"],Array(repeating:"one.example",count:65)] {
+            XCTAssertThrowsError(try XraySocksHandoffPlan.prepare(tunFD:0,socksPort:42000,dnsBypass:entries)) {
+                XCTAssertEqual($0 as? XrayHandoffError,.unsupportedBypass)
+            }
+        }
     }
 
     func testStartReadyDrainAndRejectStaleCallbacks() throws {

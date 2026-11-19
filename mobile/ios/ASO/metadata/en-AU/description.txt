@@ -7,3 +7,6 @@ Connect your iPhone through your preferred proxy with easy profile management.
 • Your connection settings stay on your iPhone
 
 You provide the proxy server; the app does not sell proxy access.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

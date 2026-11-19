@@ -9,6 +9,7 @@ struct ExclusionCloudSyncView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var busy = false
     @State private var checked = false
+    @State private var accountAtPreview: ExclusionCloudAccountReview?
     @State private var remoteAbsent = false
     @State private var remote: ManualExclusionSnapshot?
     @State private var record: CKRecord?
@@ -63,8 +64,11 @@ struct ExclusionCloudSyncView: View {
         busy = true
         defer { busy = false }
         do {
+            checked = false
+            accountAtPreview = nil
             localAtPreview = try SiteExclusionPolicy.normalizeAll(model.manualExclusions)
-            if let (snapshot, version) = try await cloud.previewRemote() {
+            let account = try await cloud.reviewAccount()
+            if let (snapshot, version) = try await cloud.previewRemote(expectedAccount:account) {
                 remote = snapshot
                 record = version
                 remoteAbsent = false
@@ -75,16 +79,18 @@ struct ExclusionCloudSyncView: View {
                 remoteAbsent = true
                 difference = nil
             }
+            accountAtPreview = account
             checked = true
             status = nil
         } catch {
             checked = false
+            accountAtPreview = nil
             status = "Не удалось прочитать iCloud. Проверьте Apple ID, подключение и разрешения."
         }
     }
 
     @MainActor private func apply() async {
-        guard !busy, checked, let remote, let expectedRecord = record,
+        guard !busy, checked, let account = accountAtPreview, let remote, let expectedRecord = record,
               ExclusionSyncContract.localUnchanged(
                 previewed: localAtPreview, current: model.manualExclusions) else {
             checked = false
@@ -92,11 +98,11 @@ struct ExclusionCloudSyncView: View {
             return
         }
         busy = true
-        defer { busy = false }
+        defer { busy = false; accountAtPreview = nil; checked = false }
         do {
             // The other iPhone may have modified its copy after preview.
             // Re-read instead of applying the silently stale approved list.
-            guard let (currentRemote, currentRecord) = try await cloud.previewRemote(),
+            guard let (currentRemote, currentRecord) = try await cloud.previewRemote(expectedAccount:account),
                   expectedRecord.recordID == currentRecord.recordID,
                   ExclusionSyncContract.remoteUnchanged(
                     previewed: remote, current: currentRemote,
@@ -132,7 +138,7 @@ struct ExclusionCloudSyncView: View {
     }
 
     @MainActor private func upload() async {
-        guard checked, !busy,
+        guard checked, !busy, let account = accountAtPreview,
               ExclusionSyncContract.localUnchanged(
                 previewed: localAtPreview, current: model.manualExclusions) else {
             checked = false
@@ -140,12 +146,12 @@ struct ExclusionCloudSyncView: View {
             return
         }
         busy = true
-        defer { busy = false }
+        defer { busy = false; accountAtPreview = nil; checked = false }
         do {
             // Use exactly the data reviewed by the user, not a mutable model
             // list that may differ after pressing "Upload".
             _ = try await cloud.upload(manualDomains: localAtPreview, expectedRemote: record,
-                                       observedRemoteWasAbsent: remoteAbsent)
+                                       observedRemoteWasAbsent: remoteAbsent, expectedAccount:account)
             checked = false // Require a fresh preview/changeTag before another upload.
             status = "Список сохранён в личной базе iCloud. Для повторной загрузки обновите предпросмотр."
         } catch {

@@ -7,3 +7,6 @@ Pripojte iPhone cez vlastný proxy server a jednoducho spravujte spojenia.
 • Údaje zostávajú v zariadení, heslá v Kľúčenke
 
 Potrebujete vlastný proxy server; APL žiadne proxy servery neposkytuje.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

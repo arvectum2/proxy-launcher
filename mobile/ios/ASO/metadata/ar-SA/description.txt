@@ -7,3 +7,6 @@
 • تبقى البيانات على الجهاز وتُحفظ كلمات المرور في سلسلة المفاتيح
 
 أدخل بيانات خادم البروكسي الخاص بك؛ لا يوفر APL خوادم بروكسي.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

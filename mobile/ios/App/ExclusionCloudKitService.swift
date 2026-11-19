@@ -6,6 +6,7 @@ enum ExclusionCloudKitFailure: Error {
     case invalidPayload
     case requiresRemotePreview
     case changedOnServer
+    case changedAccount
 }
 
 /// iCloud sync of manual hostname exclusions only. Never transports Keychain,
@@ -36,19 +37,41 @@ final class ExclusionCloudKitService {
         }
     }
 
+    private func currentAccountID() async throws -> String {
+        try await requireAvailableAccount()
+        let id = try await container.userRecordID()
+        try await requireAvailableAccount()
+        return id.recordName
+    }
+
+    func reviewAccount() async throws -> ExclusionCloudAccountReview {
+        try ExclusionCloudAccountReview(accountID: await currentAccountID(), elapsed: ProcessInfo.processInfo.systemUptime)
+    }
+
+    private func requireReview(_ review: ExclusionCloudAccountReview) async throws {
+        let id = try await currentAccountID()
+        guard !Task.isCancelled, review.matches(accountID:id,elapsed:ProcessInfo.processInfo.systemUptime) else {
+            throw ExclusionCloudKitFailure.changedAccount
+        }
+    }
+
     /// Returns the server record for optimistic concurrency control. A missing
     /// record is distinct from any error and must never be inferred from a
     /// failed request.
-    func previewRemote(now: Date = Date()) async throws -> (ManualExclusionSnapshot, CKRecord)? {
-        try await requireAvailableAccount()
+    func previewRemote(expectedAccount: ExclusionCloudAccountReview, now: Date = Date()) async throws -> (ManualExclusionSnapshot, CKRecord)? {
+        try await requireReview(expectedAccount)
         let record: CKRecord
         do {
             record = try await database.record(for: Self.recordID)
         } catch {
-            if (error as? CKError)?.code == .unknownItem { return nil }
+            if (error as? CKError)?.code == .unknownItem {
+                try await requireReview(expectedAccount)
+                return nil
+            }
             throw error
         }
-        guard record.recordType == Self.recordType,
+        try await requireReview(expectedAccount)
+        guard record.recordID == Self.recordID, record.recordType == Self.recordType,
               let data = record["payload"] as? Data else {
             throw ExclusionCloudKitFailure.invalidPayload
         }
@@ -60,9 +83,8 @@ final class ExclusionCloudKitService {
     /// nonempty remote state. CKModifyRecords.ifServerRecordUnchanged prevents
     /// silent last-writer-wins overwrites after the user's confirmation.
     func upload(manualDomains: [String], expectedRemote: CKRecord?,
-                observedRemoteWasAbsent: Bool) async throws -> ManualExclusionSnapshot {
-        try await requireAvailableAccount()
-        let live = try await previewRemote()
+                observedRemoteWasAbsent: Bool, expectedAccount: ExclusionCloudAccountReview) async throws -> ManualExclusionSnapshot {
+        let live = try await previewRemote(expectedAccount:expectedAccount)
         let record: CKRecord
         let revision: Int
         if let (currentSnapshot, currentRecord) = live {
@@ -90,6 +112,7 @@ final class ExclusionCloudKitService {
             record = CKRecord(recordType: Self.recordType, recordID: Self.recordID)
             revision = 1
         }
+        try await requireReview(expectedAccount)
         let data = try ExclusionSyncContract.encode(localDomains: manualDomains,
                                                      deviceID: deviceID(), revision: revision)
         let snapshot = try ExclusionSyncContract.decode(data)
@@ -101,6 +124,7 @@ final class ExclusionCloudKitService {
         }
         do { _ = try saved.get() }
         catch { throw ExclusionCloudKitFailure.changedOnServer }
+        try await requireReview(expectedAccount)
         return snapshot
     }
 

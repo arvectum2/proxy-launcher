@@ -7,3 +7,6 @@
 • Налаштування зберігаються на пристрої, паролі — у В’язці ключів
 
 Потрібен власний проксі-сервер; APL не надає доступу до проксі-серверів.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.
