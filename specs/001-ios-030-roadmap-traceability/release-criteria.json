@@ -1,0 +1,322 @@
+{
+  "schema": "arvectum.apl.release-criteria-review/1",
+  "source": {
+    "commit": "67df7e205ff63703bde90809e89f06211ec0d870",
+    "path": "docs/APL_IOS_030_UNIFIED_RELEASE_2026-11-11.md",
+    "sha256": "8d32cc457d8c6c8356e8df80600aed69bb51c2ee22f9436f9bb8a57fe128d391"
+  },
+  "scope": "nine capability rows and six release checklist criteria only; broader roadmap remains authoritative",
+  "qa_source": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+  "release_authorized": false,
+  "rows": [
+    {
+      "id": "APL-REL-009",
+      "source_line": 9,
+      "source_text": "| Универсальный импорт, QR/Share, JSON/XML/CSV/TXT | В main; ожидает публикации | Подписанная сборка, Keychain upgrade, QR/Share после первого QR-релиза по ранее согласованной политике |",
+      "label": "Импорт, QR/Share",
+      "state": "partial",
+      "task_id": "APL-VERIFY-009",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Физический импорт/backup на 09c6cdfe зафиксирован; полный QR/Share и подписанная итоговая сборка не подтверждены.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-010",
+      "source_line": 10,
+      "source_text": "| Безопасные ошибки DNS/TCP/HTTP 407/Keychain, исключения | В main; ожидает публикации | Регрессионные и релизные проверки без разглашения данных |",
+      "label": "Безопасные ошибки и исключения",
+      "state": "partial",
+      "task_id": "APL-VERIFY-010",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Структурные регрессии и часть fail-closed проверок описаны; проверка финального артефакта и приватности открыта.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-011",
+      "source_line": 11,
+      "source_text": "| Загрузка списка прокси поставщика по HTTPS (raw/Base64) | В main после PR #356 | Redirect/size/timeouts, Swift+ARM64, предпросмотр и ручное подтверждение; поддержка только реально работающих HTTP/HTTPS/SOCKS5 |",
+      "label": "HTTPS-загрузка списка",
+      "state": "partial",
+      "task_id": "APL-VERIFY-011",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Main содержит исходную реализацию; точная физическая приёмка финального кандидата не установлена.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-012",
+      "source_line": 12,
+      "source_text": "| Сохранённые подписки с ручным обновлением | **В main после PR #356:** URL/token в Keychain, список названий/доменов, ручная загрузка и удаление | Проверить Keychain на подписанном iPhone и отсутствие автоматической замены профилей; автоматическое фоновое обновление, разрешения и signed-provider trust остаются отдельно не реализованы |",
+      "label": "Сохранённые подписки",
+      "state": "partial",
+      "task_id": "APL-VERIFY-012",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Исходный Keychain-контракт не доказывает физическую приёмку токенов подписок и ручного обновления.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-013",
+      "source_line": 13,
+      "source_text": "| iCloud/CloudKit исключений | Snapshot/diff в main; отдельный **CloudKit private DB backend и UI готовы в source**, но экран скрыт `APL_CLOUDKIT_ENABLED`, entitlement отсутствует | Реальный private container, entitlement/provisioning, opt-in, conflict/merge, несколько устройств, privacy label |",
+      "label": "CloudKit",
+      "state": "blocked",
+      "task_id": "APL-VERIFY-013",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Entitlement выключен; необходимы реальный private container, opt-in и два устройства.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-014",
+      "source_line": 14,
+      "source_text": "| VLESS/Reality | Транспорт **НЕ реализован**; source-only строгая проверка REALITY/TCP ссылок и CGo API v3 contract, libXray v26.11.9 прошёл изолированный ARM64 Simulator conversion/start-stop/SOCKS-local receipt. [Исследование](APL_IOS_030_XRAY_RESEARCH_2026-11-11.md) | Выбор независимого iOS PacketTunnel transport, исходники/лицензия, пин версии и SBOM, IPv4/IPv6/DNS, egress/rollback, реальный сервер |",
+      "label": "VLESS/Reality",
+      "state": "partial",
+      "task_id": "APL-VERIFY-014",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Есть ранние ограниченные лабораторные результаты и восстановление тестового сервера; полный native physical egress финального артефакта открыт.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-015",
+      "source_line": 15,
+      "source_text": "| WireGuard/AmneziaWG | **Не работающий транспорт:** готов только fail-closed wg-quick/AmneziaWG1 предпросмотр (ключи не сохраняет), без UI и VPN-бэкенда; [гейты](APL_IOS_030_WIREGUARD_RESEARCH_2026-11-12.md) | Совместимый iOS backend, ключи в Keychain, UDP/handshake/failover, независимый физический egress, лицензирование |",
+      "label": "WireGuard/AmneziaWG",
+      "state": "partial",
+      "task_id": "APL-VERIFY-015",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Проверки тестовых серверов и прежних изолированных fixtures ограничены конкретными сборками; финальный physical underlay/egress и лицензии открыты.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-016",
+      "source_line": 16,
+      "source_text": "| Smart Routing 4.0 | DEBUG witness/TTL готовы; production DIRECT gate **открыт** | Связать original captured PacketTunnel flow с независимыми DIRECT/PROXY nonce, shared CDN IPv4/IPv6, QUIC, network revoke |",
+      "label": "Smart Routing 4.0",
+      "state": "partial",
+      "task_id": "APL-VERIFY-016",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Независимый настоящий native network policy/route acceptance открыт; legacy результаты не покрывают новый runtime.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-017",
+      "source_line": 17,
+      "source_text": "| Native FIN/CLOSE_WAIT PR #314 | Draft, запрещено включать без теста | Реальный iPhone FIN, длительные Safari upload/download, переключение Wi-Fi/LTE, отсутствие обрывов |",
+      "label": "Native FIN/CLOSE_WAIT",
+      "state": "open",
+      "task_id": "APL-VERIFY-017",
+      "observations": [],
+      "next_action": "Нужен отдельный физический протокол для исходного draft PR #314; подтверждения по этому критерию не установлены.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-033",
+      "source_line": 33,
+      "source_text": "- [ ] Все заявленные в App Store функции реально работают в **одном конкретном** подписанном IPA и PacketTunnel; нерелизные протоколы не рекламируются как готовые.",
+      "label": "Один подписанный IPA",
+      "state": "partial",
+      "task_id": "APL-VERIFY-033",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Отчет сверки точного подписанного IPA 0.3.0(49) не устанавливает готовность всех функций или полный содержащий native Release.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-034",
+      "source_line": 34,
+      "source_text": "- [ ] Непрерывное обновление с опубликованной версии: стабильные profile IDs, Keychain, выбор proxy, группы, исключения, `.aplbackup`.",
+      "label": "Непрерывное обновление",
+      "state": "partial",
+      "task_id": "APL-VERIFY-034",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "19 ноября backup/restore и очистка тестовых данных приняты для установленного 09c6cdfe; полный upgrade и миграция финального IPA остаются открыты.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-035",
+      "source_line": 35,
+      "source_text": "- [ ] Реальное физическое egress на актуальном iPhone по каждому включаемому транспорту и при смене Wi-Fi/LTE.",
+      "label": "Физический egress",
+      "state": "partial",
+      "task_id": "APL-VERIFY-035",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Legacy egress принят в ограниченных протоколах; новые native transport, Wi-Fi/LTE и DNS не покрыты целиком.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-036",
+      "source_line": 36,
+      "source_text": "- [ ] Регрессионные тесты Swift/iOS Python, Simulator/iPhoneOS Debug+Release, подписи/entitlements, конфиденциальность, 64 локали и App Store скриншоты.",
+      "label": "Регрессии, локализация, privacy",
+      "state": "partial",
+      "task_id": "APL-VERIFY-036",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_AD_SDK_RELEASE_DECISION_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Отчёт 17 ноября: 64 директории и 322 strings, новая UI-локализация не установлена; ad SDK решение и containing Release открыты.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-037",
+      "source_line": 37,
+      "source_text": "- [ ] Release decision с фиксированным SHA/IPA и понятными фактическими статуса App Store Connect.",
+      "label": "Решение о релизе",
+      "state": "blocked",
+      "task_id": "APL-VERIFY-037",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_AD_SDK_RELEASE_DECISION_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Нет установленного решения собственника о точном финальном SHA/IPA и составе релиза. Не считать draft решением.",
+      "acceptance_evidence": []
+    },
+    {
+      "id": "APL-REL-038",
+      "source_line": 38,
+      "source_text": "- [ ] Один реальный публичный выпуск `0.3.0` (или другой один номер, если Apple диктует номер); никаких промежуточных публичных версий только ради отдельных коммитов.",
+      "label": "Один публичный выпуск",
+      "state": "blocked",
+      "task_id": "APL-VERIFY-038",
+      "observations": [
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        },
+        {
+          "commit": "60e7d46f6ec1a2ae71f3a0575e036d8881c965ec",
+          "path": "docs/APL_IOS_030_RELEASE_EXIT_GATE_2026-11-16.md",
+          "kind": "recorded_report_not_independent_acceptance"
+        }
+      ],
+      "next_action": "Публичный 0.3.0 не подтвержден этими источниками. Нужны прохождение гейтов и отдельное разрешение на публикацию.",
+      "acceptance_evidence": []
+    }
+  ]
+}
