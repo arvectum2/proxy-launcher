@@ -1,0 +1,24 @@
+name: iOS release criteria traceability
+on:
+  pull_request:
+    paths:
+      - 'specs/001-ios-030-roadmap-traceability/**'
+      - 'docs/APL_IOS_030_UNIFIED_RELEASE_2026-11-11.md'
+      - 'scripts/check_ios_release_criteria.py'
+      - 'specs/001-ios-030-roadmap-traceability/checks/test_ios_release_criteria.py'
+      - '.github/workflows/ios-release-criteria.yml'
+permissions:
+  contents: read
+jobs:
+  release-criteria:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/check_ios_release_criteria.py
+      - run: python -m unittest discover -s specs/001-ios-030-roadmap-traceability/checks -p test_ios_release_criteria.py -v
