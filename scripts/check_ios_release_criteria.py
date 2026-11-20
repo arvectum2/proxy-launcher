@@ -14,8 +14,10 @@ SOURCE_HASH = "8d32cc457d8c6c8356e8df80600aed69bb51c2ee22f9436f9bb8a57fe128d391"
 LINES = tuple(range(9, 18)) + tuple(range(33, 39))
 
 
-def validate(data, raw, board):
+def validate(data, raw, board, current_source):
     errors = []
+    if current_source != raw:
+        errors.append("current source differs from reviewed baseline; reconcile before changing scope")
     if hashlib.sha256(raw).hexdigest() != SOURCE_HASH:
         errors.append("pinned source hash mismatch")
     if data.get("source") != {"commit": PIN, "path": SOURCE, "sha256": SOURCE_HASH}:
@@ -63,7 +65,7 @@ def validate(data, raw, board):
 def main():
     raw = subprocess.check_output(["git","-C",str(ROOT),"show",PIN+":"+SOURCE])
     data = json.loads((DIR/"release-criteria.json").read_text())
-    errors=validate(data,raw,(DIR/"tasks.md").read_text())
+    errors=validate(data,raw,(DIR/"tasks.md").read_text(),(ROOT/SOURCE).read_bytes())
     if errors:
         raise SystemExit("\n".join(errors))
     print("Structural source/criterion/task check PASS; actual acceptance and release authority not established.")
