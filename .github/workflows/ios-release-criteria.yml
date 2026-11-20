@@ -5,7 +5,7 @@ on:
       - 'specs/001-ios-030-roadmap-traceability/**'
       - 'docs/APL_IOS_030_UNIFIED_RELEASE_2026-11-11.md'
       - 'scripts/check_ios_release_criteria.py'
-      - 'tests/test_ios_release_criteria.py'
+      - 'specs/001-ios-030-roadmap-traceability/checks/test_ios_release_criteria.py'
       - '.github/workflows/ios-release-criteria.yml'
 permissions:
   contents: read
@@ -21,4 +21,4 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/check_ios_release_criteria.py
-      - run: python -m unittest discover -s tests -p test_ios_release_criteria.py -v
+      - run: python -m unittest discover -s specs/001-ios-030-roadmap-traceability/checks -p test_ios_release_criteria.py -v

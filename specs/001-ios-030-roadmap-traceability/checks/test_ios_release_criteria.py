@@ -5,7 +5,7 @@ import subprocess
 import unittest
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[3]
 spec=importlib.util.spec_from_file_location("gate",ROOT/"scripts/check_ios_release_criteria.py")
 gate=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gate)
