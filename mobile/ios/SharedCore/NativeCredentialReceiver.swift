@@ -106,7 +106,7 @@ struct NativeProductStartRequest:CustomStringConvertible,CustomReflectable {
     }
     func consume(via handoff:NativeCredentialHandoff,admission:()->NativeRoutingAdmission,
                  exactDNSAvailable:Bool)throws->NativeFullTunnelCandidate {
-        guard admission() == .tunnelOnly else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        guard admission() == .tunnelOnly,NativeProductTransportGate.allowsConnection(binding.reference.kind) else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
         let record=try handoff.redeemProductStart(ticket,expected:binding,owner:owner)
         let plan=try record.compileFullTunnelCandidate(admission:admission(),exactDNSAvailable:exactDNSAvailable)
         guard plan.reference==binding.reference,try handoff.authorizes(binding),admission() == .tunnelOnly else{throw NativeCredentialReceiver.Failure.invalidIdentity}

@@ -1,6 +1,22 @@
 import Foundation
 import Darwin
 
+/// Product connection availability is narrower than import and backup.
+/// VLESS Reality requires a separately accepted physical TCP underlay.
+enum NativeProductTransportGate {
+    static func allowsConnection(_ kind:NativeCredentialRecord.Kind)->Bool {
+        switch kind {
+        case .wireGuard,.amneziaWG1:return true
+        case .vlessReality:
+#if APL_NATIVE_PRODUCT_RUNTIME
+            return false
+#else
+            return true
+#endif
+        }
+    }
+}
+
 /// Immutable versioned record, separate from legacy proxy storage.
 struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
     enum Kind: String, Codable { case wireGuard, amneziaWG1, vlessReality
@@ -63,6 +79,7 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
     func compileFullTunnelCandidate(admission:NativeRoutingAdmission,
                                     exactDNSAvailable:Bool)throws->NativeFullTunnelCandidate {
         guard admission == .tunnelOnly else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        guard NativeProductTransportGate.allowsConnection(reference.kind) else{throw NativeTunnelRoutePlan.Failure.unsupportedProtocol}
         guard reference.kind == .amneziaWG1 || exactDNSAvailable else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
         let (configuration,validation)=try compile(vlessDatagramReview:reference.kind == .vlessReality)
         let route:NativeTunnelRoutePlan

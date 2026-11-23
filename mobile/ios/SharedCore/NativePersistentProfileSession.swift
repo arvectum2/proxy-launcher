@@ -84,7 +84,11 @@ import Foundation
         case .recover:guard s.version==2,s.hasPendingWrite else{throw Failure.unavailable};count=s.pendingRestore?.count ?? 1
         case .exportBackup:guard s.version==2,!s.hasPendingWrite,!s.current.isEmpty,Set(s.current.map(\.profileID)).isDisjoint(with:legacy) else{throw Failure.unavailable};count=s.current.count
         case .purgeRetired:guard s.version==2,!s.hasPendingWrite,!s.retired.isEmpty else{throw Failure.unavailable};count=s.retired.count
-        case .select(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID),policy().permitsSelection else{throw Failure.unavailable};count=1
+        case .select(let ref):
+            guard NativeProductTransportGate.allowsConnection(ref.kind),
+                  s.version==2,!s.hasPendingWrite,s.current.contains(ref),
+                  !legacy.contains(ref.profileID),policy().permitsSelection else{throw Failure.unavailable}
+            count=1
         case .rename(let ref,let name):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID) else{throw Failure.unavailable};_ = try NativeCredentialRecord.normalizedDisplayName(name);count=1
         case .replace(let ref):guard let replacement,replacement.reference.profileID==ref.profileID,replacement.reference.kind==ref.kind,s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID),s.retired.count<64 else{throw Failure.unavailable};count=1
         case .remove(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref) else{throw Failure.unavailable};count=1
@@ -114,6 +118,7 @@ import Foundation
             else {try catalog.reconcilePendingRestore(vpnInactive:vpnInactive)}
         case .purgeRetired:try catalog.reconcileRetired(vpnInactive:vpnInactive)
         case .select(let ref):
+            guard NativeProductTransportGate.allowsConnection(ref.kind) else{throw Failure.unavailable}
             try catalog.select(ref,vpnInactive:{try vpnInactive() && self.policy().permitsSelection})
         case .rename(let ref,let name):try catalog.rename(ref,name:name,vpnInactive:vpnInactive)
         case .replace(let ref):

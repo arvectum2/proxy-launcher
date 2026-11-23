@@ -328,7 +328,8 @@ final class VPNController: ObservableObject {
         func allOff(_ items:[NETunnelProviderManager])->Bool {
             items.allSatisfy{$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
         }
-        guard allOff(all),store.nativeRoutingAdmission().permitsSelection,
+        guard NativeProductTransportGate.allowsConnection(selection.reference.kind),
+              allOff(all),store.nativeRoutingAdmission().permitsSelection,
               try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         let owner=try store.ensureNativeProductOwner()
         let target:NETunnelProviderManager

@@ -204,11 +204,12 @@ import NetworkExtension
                             Text(rowTitle(row)).font(.headline)
                             if row.displayName != nil {Text(protocolTitle(row.reference.kind)).font(.caption).foregroundStyle(.secondary)}
                             if row.state == .legacyCollision {Text(status(row.state)).font(.caption).foregroundStyle(.secondary)}
+                            if !NativeProductTransportGate.allowsConnection(row.reference.kind) {Text(status(.reviewOnly)).font(.caption).foregroundStyle(.secondary)}
                         }
                         Spacer(minLength:0)
                         if row.selected {Image(systemName:"checkmark.circle.fill").foregroundStyle(.tint).accessibilityLabel(tr("Selected","Выбран"))}
                         Menu {
-                            Button(tr("Select","Выбрать")){prepare(.select(row.reference))}.disabled(!row.canReview)
+                            Button(tr("Select","Выбрать")){prepare(.select(row.reference))}.disabled(!row.canReview || !NativeProductTransportGate.allowsConnection(row.reference.kind))
                             Button(tr("Rename","Переименовать")){beginRename(row)}.disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision)
                             Button(tr("Edit server","Редактировать сервер")){beginEndpointEdit(row.reference)}.disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
                             Button(tr("Replace configuration","Заменить конфигурацию")){beginReplacement(row)}.disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)

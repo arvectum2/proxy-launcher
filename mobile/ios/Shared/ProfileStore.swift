@@ -225,6 +225,7 @@ final class ProfileStore {
         var customMirror:Mirror {Mirror(self,children:[:])}
     }
     func issueNativeProductLaunch(_ selection:NativeProductSelection,owner:UUID)throws->ProductLaunch {
+        guard NativeProductTransportGate.allowsConnection(selection.reference.kind) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
         let snapshot=try reader.snapshot(),ids=Set(try profilesForMutation().map(\.id))
         let binding=NativeCredentialHandoff.Binding(reference:selection.reference,
