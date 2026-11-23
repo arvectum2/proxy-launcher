@@ -307,9 +307,41 @@ final class VPNController: ObservableObject {
         }
         return (legacy,product)
     }
+    /// Legacy must never adopt or mutate a product manager. One exact, inactive
+    /// product marker may coexist after native QA or an in-place re-sign.
+    /// Any active, on-demand, malformed, or duplicated marker stays blocking.
+    private func isDormantProductManager(_ item:NETunnelProviderManager)->Bool {
+        guard let proto=item.protocolConfiguration as? NETunnelProviderProtocol else{return false}
+        return proto.providerBundleIdentifier==AppShared.providerBundleIdentifier &&
+            item.localizedDescription==Self.productConfigurationName &&
+            proto.serverAddress==Self.productConfigurationName &&
+            (item.connection.status == .disconnected || item.connection.status == .invalid) &&
+            !item.isOnDemandEnabled && (item.onDemandRules ?? []).isEmpty &&
+            proto.username==nil && proto.passwordReference==nil && proto.identityReference==nil &&
+            proto.identityData==nil && proto.identityDataPassword==nil && proto.proxySettings==nil &&
+            !proto.includeAllNetworks && !proto.enforceRoutes
+    }
+    private func legacyManagersExcludingDormantProduct(_ all:[NETunnelProviderManager])throws->[NETunnelProviderManager] {
+        var legacy=[NETunnelProviderManager]()
+        var dormantCount=0
+        for item in all.filter(isArvectumManager) {
+            if isDormantProductManager(item) {
+                dormantCount+=1
+                guard dormantCount==1 else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+                continue // Never reload, save, start or remove the native manager.
+            }
+            try requireLegacyManager(item) // Fail closed on every other reserved manager.
+            legacy.append(item)
+        }
+        return legacy
+    }
     private func prepareProductManager()async throws->Bool {
         let store=try ProfileStore()
         let all=try await loadAllManagers(requireResult:true)
+        if try store.nativeProductSelection() == nil {
+            _=try legacyManagersExcludingDormantProduct(all)
+            return false
+        }
         let split=try splitProductManagers(all,owner:store.nativeProductOwner())
         if let product=split.product,product.connection.status != .disconnected {
             manager=product;return true
@@ -517,9 +549,9 @@ final class VPNController: ObservableObject {
         let managers = try await loadAllManagers()
 
 #if APL_NATIVE_PRODUCT_RUNTIME
-        let split=try splitProductManagers(managers,owner:ProfileStore().nativeProductOwner())
-        if let product=split.product,product.connection.status != .disconnected {throw NativeCredentialReceiver.Failure.invalidIdentity}
-        let matching=split.legacy
+        // A parked native product manager is not an eligible legacy manager.
+        // Native starts retain the strict owner-bound census above.
+        let matching=try legacyManagersExcludingDormantProduct(managers)
 #else
         let matching = managers.filter(isArvectumManager)
         for item in matching {try requireLegacyManager(item)}
