@@ -102,6 +102,23 @@ enum ExclusionSyncContract {
     }
 }
 
+/// A CloudKit writer must retain its own stable, local identifier.
+/// Missing storage, malformed persisted state or a failed write denies upload;
+/// silently rotating identity would misattribute a remote revision.
+enum ExclusionCloudDeviceIdentity {
+    static func loadOrCreate(read: () -> String?, write: (String) -> Void) -> String? {
+        if let stored = read() {
+            guard let uuid = UUID(uuidString: stored),
+                  uuid.uuidString.lowercased() == stored else { return nil }
+            return stored
+        }
+        let created = UUID().uuidString.lowercased()
+        write(created)
+        guard read() == created else { return nil }
+        return created
+    }
+}
+
 /// Short-lived account identity proof. Memory only, never encoded or logged.
 struct ExclusionCloudAccountReview: CustomStringConvertible, CustomReflectable {
     private let accountID: String

@@ -5,6 +5,29 @@ import XCTest
 final class ExclusionSyncContractTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
+    func testCloudDeviceIdentityPersistsAndDoesNotRotate() throws {
+        var stored: String?
+        var writes = 0
+        let read = { stored }
+        let write: (String) -> Void = { stored = $0; writes += 1 }
+        let first = try XCTUnwrap(ExclusionCloudDeviceIdentity.loadOrCreate(read: read, write: write))
+        XCTAssertEqual(UUID(uuidString: first)?.uuidString.lowercased(), first)
+        XCTAssertEqual(ExclusionCloudDeviceIdentity.loadOrCreate(read: read, write: write), first)
+        XCTAssertEqual(writes, 1)
+    }
+
+    func testCloudDeviceIdentityRejectsCorruptOrUnavailableStorage() {
+        for bad in ["", "bogus", "not-a-uuid", String(repeating: "x", count: 512),
+                    "550E8400-E29B-41D4-A716-446655440000"] {
+            var writes = 0
+            XCTAssertNil(ExclusionCloudDeviceIdentity.loadOrCreate(
+                read: { bad }, write: { _ in writes += 1 }))
+            XCTAssertEqual(writes, 0)
+        }
+        XCTAssertNil(ExclusionCloudDeviceIdentity.loadOrCreate(
+            read: { nil }, write: { _ in }))
+    }
+
     func testDeterministicManualOnlyRoundTrip() throws {
         let encoded = try ExclusionSyncContract.encode(
             localDomains: ["www.gosuslugi.ru", "Example.COM", "example.com"],

@@ -30,6 +30,17 @@ def test_cloudkit_upload_requires_explicit_preview_and_optimistic_lock():
     assert 'record["payload"] = data as NSData' in service
 
 
+def test_cloudkit_device_identity_never_silently_rotates():
+    service = (APP / "ExclusionCloudKitService.swift").read_text()
+    core = (IOS / "SharedCore/ExclusionSyncContract.swift").read_text()
+    assert "ExclusionCloudDeviceIdentity.loadOrCreate(" in service
+    assert "guard let defaults = UserDefaults(suiteName:" in service
+    assert "guard let stableDeviceID = deviceID() else" in service
+    assert "throw ExclusionCloudKitFailure.unavailable" in service
+    assert "uuid.uuidString.lowercased() == stored" in core
+    assert "guard read() == created else { return nil }" in core
+
+
 def test_cloudkit_user_consent_and_local_vpn_rollback():
     view = (APP / "ExclusionCloudSyncView.swift").read_text()
     exclusions = (APP / "ExclusionsView.swift").read_text()

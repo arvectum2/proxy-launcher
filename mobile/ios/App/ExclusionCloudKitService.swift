@@ -113,8 +113,11 @@ final class ExclusionCloudKitService {
             revision = 1
         }
         try await requireReview(expectedAccount)
+        guard let stableDeviceID = deviceID() else {
+            throw ExclusionCloudKitFailure.unavailable
+        }
         let data = try ExclusionSyncContract.encode(localDomains: manualDomains,
-                                                     deviceID: deviceID(), revision: revision)
+                                                     deviceID: stableDeviceID, revision: revision)
         let snapshot = try ExclusionSyncContract.decode(data)
         record["payload"] = data as NSData
         let changes = try await database.modifyRecords(
@@ -128,12 +131,10 @@ final class ExclusionCloudKitService {
         return snapshot
     }
 
-    private func deviceID() -> String {
-        let defaults = UserDefaults(suiteName: AppShared.defaultsSuite)
-        if let existing = defaults?.string(forKey: Self.deviceIDKey),
-           !existing.isEmpty { return existing }
-        let created = UUID().uuidString.lowercased()
-        defaults?.set(created, forKey: Self.deviceIDKey)
-        return created
+    private func deviceID() -> String? {
+        guard let defaults = UserDefaults(suiteName: AppShared.defaultsSuite) else { return nil }
+        return ExclusionCloudDeviceIdentity.loadOrCreate(
+            read: { defaults.string(forKey: Self.deviceIDKey) },
+            write: { defaults.set($0, forKey: Self.deviceIDKey) })
     }
 }
