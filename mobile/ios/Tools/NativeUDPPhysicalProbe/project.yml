@@ -1,0 +1,28 @@
+name: APLNativeLabUDPOnly
+options:
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  NativeLabHost:
+    type: application
+    platform: iOS
+    sources:
+      - Host
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: "APL HTTPS QA UDP"
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.httpswitness
+        SWIFT_VERSION: "5.9"
+        ENABLE_DEBUG_DYLIB: NO
+        CODE_SIGNING_ALLOWED: NO
+schemes:
+  NativeLabHost:
+    build:
+      targets:
+        NativeLabHost: all

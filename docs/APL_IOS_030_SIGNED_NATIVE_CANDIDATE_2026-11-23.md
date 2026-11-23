@@ -25,3 +25,14 @@ A separate synthetic WG-7E5FCD65 profile and local pinned reference peer passed 
 
 ## Superseding physical WG evidence (23 Nov)
 The earlier WG no-handshake finding was specific to a test peer selection and is superseded by the exact controlled synthetic-profile acceptance in APL_IOS_030_WG_PHYSICAL_ACCEPTANCE_2026-11-23.md (new signed source f23dffaf). Physical DNS A, TCP4, TCP6 all independently PASS; general UDP4/6 and remaining release gates are not accepted.
+
+
+## 23 Nov independent UDP physical update
+
+The separate minimal QA host without a NetworkExtension entitlement, built from
+mobile/ios/Tools/NativeUDPPhysicalProbe, confirmed native product full-route
+synthetic UDP4 and UDP6 with exact app responses AND independent pinned WG peer
+witness counters (tcp4=2, udp4=1, udp6=1). See the linked physical acceptance
+document. The preexisting HTTPS QA app was restored; product IPA, customer
+profiles and AppStore submissions unchanged. Wi-Fi/LTE, WAN underlay,
+negative-path leak tests and release/licence/privacy gates remain open.
