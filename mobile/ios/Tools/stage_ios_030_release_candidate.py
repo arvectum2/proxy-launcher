@@ -41,8 +41,12 @@ def main():
     stage_no_tproxy(a.no_tproxy,framework/'ios-arm64')
     stage_exact_dns(a.exact_dns,framework/'ios-arm64',p)
     path=p/'project.yml'; s=path.read_text()
-    assert s.count('MARKETING_VERSION: "0.2.0"')==1 and s.count('CURRENT_PROJECT_VERSION: "48"')==1
-    s=s.replace('MARKETING_VERSION: "0.2.0"','MARKETING_VERSION: "0.3.0"').replace('CURRENT_PROJECT_VERSION: "48"','CURRENT_PROJECT_VERSION: "49"')
+    # Release must be frozen in the canonical checked-in project before staging.
+    # Never silently rewrite a 0.2.0 (48) source tree into a 0.3.0 (49) IPA.
+    assert s.count('MARKETING_VERSION: "0.3.0"') == 1
+    assert s.count('CURRENT_PROJECT_VERSION: "49"') == 1
+    assert 'MARKETING_VERSION: "0.2.0"' not in s
+    assert 'CURRENT_PROJECT_VERSION: "48"' not in s
     for target,flags in [('ArvectumProxyLauncher',APP_FLAGS),('PacketTunnel',TUN_FLAGS)]:
         start=s.index('  '+target+':\n',s.index('targets:\n'))
         offset=s.index('        Release:\n',start)+len('        Release:\n')
