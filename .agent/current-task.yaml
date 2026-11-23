@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "23 Nov supervised signed iPhone Development app install; 3 legacy + original WG preserved, legacy PacketTunnel live HTTPS PASS, early native WG manager-census isolated to stale own OS manager, synthetic full-route WG challenge conducted and cleaned after zero data witness."
   - "23.11 final native 0.3.0(49) Apple Distribution signed archive and dual AppStore/Development IPA: immutable current-source overlay and pinned Go/Rust, signed binary/profile/UUID verification passed; not installed or published."
   - "23.11 Native launch phase-safe diagnostics and immediate ticket revocation on synchronous OS start failure; no credentials, no hardware actions."
   - "23.11: Strict product NE status readback gate for owned invalid dormant product manager, nonowned/active fail-closed; code tested and recorded without device action."
@@ -265,7 +266,7 @@ completed:
 
 
 
-current: "23.11.2026 exact native signed iOS0.3.0(49) built from source 5c2d5554, vetted native flags and pinned Go/Rust inputs. Apple Distribution archive plus AppStore eb079c392f3a and Development 71606f85c1f8 IPA passed independent signatures, app/provider entitlements, provisioning, arm64 UUID and native marker checks; Yandex SDK preserved. Source CI all green; Swift431 and Python353+14 pass. Physical iPhone13 read-only event latest CONNECTED without later stop and dark screen: no safe installation, no actual product launch verdict. Not uploaded/published. Owner unlock/disconnect/approve in-place Development QA required."
+current: "23 Nov iPhone13 native 0.3.0(49) physical: signed IPA installed in-place, three legacy + original WG preserved; legacy Основной PacketTunnel and HTTPS Safari PASS, stop PASS. Original native WG UNKNOWN manager-census removed after deleting stale inactive own APL Native Product OS config, native WG then launched PID76404 and stopped. New temporary WG-7E5FCD65 and pinned independent peer: local positive DNS/TCP4 PASS, physical PacketTunnel PID76504 started, server relay received eight type-1 initiations but zero type-2 replies, DNS A=0, all payload=0; full-route WG FAIL. Test tunnel stopped, synthetic profile deleted, original WG and legacy Основной selected, VPN OFF, clipboard blank, independent peer stopped. No AppStore release."
 blocked_on:
   - "Owner unlock paired iPhone13, manually disconnect active VPN and explicitly permit in-place Development IPA hardware QA. Read-only app event latest CONNECTED and no later stop; screen dark, OS state unverified."
   - "Owner approved connected iPhone physical QA and temporary Wi-Fi switching on 17.11; validated independent synthetic test inputs/controlled peers and stable UI remain required. No separate install/signing or owner credential export authorization implied."
@@ -282,6 +283,7 @@ pending:
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
 last_verified_commit: "5c2d5554652aed38b993d3ede1f1ee0a10a51f3b (exact native signed archive/dual IPA, signatures/provision/UUID/source pin verification; Swift431, Python353+14, source CI all pass; physical QA pending)"
 test_results:
+  - "23 Nov independent physical WG witness: 8 type1 client handshakes relayed, 0 type2 server responses, DNS A 0, tcp4/6 udp4/6 data 0, local same-key DNS/TCP4 control PASS; actual WG DATA PLANE FAIL. Device now original profiles, VPN OFF."
   - "23.11 native signed AppStore IPA SHA eb079c392f3a and Development IPA SHA 71606f85c1f8, both app/provider 0.3.0(49) signed arm64, entitlement, device provisioning, retained ads/native markers PASS; Swift431, Python353+14, exact source GitHub CI all PASS."
   - "23.11 Native product start phase+ticket fix: Swift431/431 PASS, Python353+14 subtests PASS, unsigned iPhoneOS ARM64 Release App/PacketTunnel both 0.3.0(49) BUILD PASS; read-only iPhone13 process census non-connection evidence."
   - "23.11 Native product manager strict readback-only revalidation: 428/428 Swift tests PASS, 13/13 Python gates PASS, default unsigned ARM64 0.3.0(49) app+extension BUILD PASS; no actual iPhone connection/test."
@@ -488,6 +490,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC ONLY, NEVER RDC. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-physical-network-20261114. Signed source commit 5c2d5554; native IPAs and receipt in /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/native-artifacts/ios-030-release-candidate-20261123-final-5c2d5554. Owner must unlock paired iPhone13, manually disconnect VPN and confirm in-place Development IPA installation. Verify OS VPN OFF before install; last read-only event CONNECTED and screen dark, do not interrupt now. Verify 3 legacy+1 WG, signed legacy connections, native WG/AWG product manager phase and independent DNS/IPv6/UDP witnesses; restore original selection and terminal OFF. VLESS failclosed, CloudKit live two-device separate. Then release PR/main and owner-authorized AppStore upload. No RDC or new product scope. Existing ads unchanged."
+resume_instruction: "ARC ONLY NO RDC. Read current task checkpoint and exact worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-physical-network-20261114. Signed source code 5c2d5554, iPhone13 exact native 0.3.0(49) installed. User originals remain, original Основной selected, VPN OFF. Native WG manager-census early UNKNOWN bypassed by owner-authorized manual deletion of old inactive APL Native Product NE system manager. Physical WG data-plane still FAIL: pinned external synthetic reference WG result at /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/native-artifacts/product-physical-dns-ipv6-20261123-final-5c2d5554/result.json shows c2s1 8, s2c2 0, all DNS/TCP/UDP witnesses 0, while same fixture local positive DNS/TCP4 PASS. Diagnose Xray WG peer handshake vs independent peer with offline reproducible controls, then fix, rebuild signed candidate and retest. Clean any synthetic profile; preserve original three legacy + WG and finish OS OFF. No shipping, PR merge or AppStore upload until independent data acceptance."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
