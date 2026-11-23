@@ -39,3 +39,26 @@ VLESS production after an independently accepted HTTP nonce receipt.
 Apple App ID CloudKit capability, container, refreshed signed profiles and
 private two-device acceptance remain necessary and involve external account
 changes requiring separate approval. Preserve advertisements unchanged.
+
+
+## Pinned native Xray comparative Mac control (23 November)
+
+- Built independent pinned Xray-core CLI from the same transitive core
+  version as the embedded iOS library, with module checksums validated.
+- Strict iOS-source-equivalent private VLESS configuration was accepted
+  by the Xray config verifier both with no interface binding and with
+  the same sockopt.interface=en0 used by the iOS physical path.
+- Against the same synthetic independent peer, an actual SOCKS5 TCP
+  request via pinned Xray Mac received exact HTTP nonce receipt in BOTH
+  variants. Independent server receipt count=2, relay accepted=2,
+  ingress=4466 and egress=5188 bytes. No live-user credentials.
+- Evidence at private native-artifacts/ios-030-vless-macos-transport-diagnostic-20261123;
+  CLI SHA256 576030608df2055d40cc8a164012a85cdd8eda89631e64973a3e6e555fa2b5cc.
+- Therefore the synthetic URI, Xray Reality schema, credentials and
+  IP-bound TCP socket option are not the remaining generic failure.
+  Differences to isolate next: iOS actual TUN->SOCKS5 request delivery,
+  iOS libXray runtime behaviour versus pinned CLI, or captured route
+  lifecycles. Before a new phone trial, enable only scoped synthetic
+  packet destination categories on the independent VLESS server to
+  distinguish authenticated application target from background sessions.
+  A connected OS VPN status is never end-to-end acceptance.
