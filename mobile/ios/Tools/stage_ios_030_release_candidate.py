@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Stage an immutable, unsigned ARM64 Release candidate; no signing or install."""
-import argparse, json, pathlib, shutil, subprocess, sys
+import argparse, json, pathlib, plistlib, shutil, subprocess, sys
 from verify_ios_no_tproxy_receipt import sha, verify as stage_no_tproxy
 from verify_ios_native_exact_dns_receipt import verify as stage_exact_dns
 
@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('go', 'rust_framework', 'no_tproxy', 'exact_dns', 'out'):
         parser.add_argument(name, type=pathlib.Path)
+    parser.add_argument('--cloudkit', action='store_true', help='Compile manual CloudKit UI only with matching Apple App ID capability and signing profile')
     a = parser.parse_args()
     repo = pathlib.Path(subprocess.check_output(['git','rev-parse','--show-toplevel'], text=True).strip())
     commit = subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'], text=True).strip()
@@ -47,20 +48,33 @@ def main():
     assert s.count('CURRENT_PROJECT_VERSION: "49"') == 1
     assert 'MARKETING_VERSION: "0.2.0"' not in s
     assert 'CURRENT_PROJECT_VERSION: "48"' not in s
-    for target,flags in [('ArvectumProxyLauncher',APP_FLAGS),('PacketTunnel',TUN_FLAGS)]:
+    if a.cloudkit:
+        expected = plistlib.loads((p/'Config/App.entitlements').read_bytes())
+        cloud = plistlib.loads((p/'Config/App-CloudKit.entitlements').read_bytes())
+        assert cloud == dict(expected, **{
+            'com.apple.developer.icloud-services': ['CloudKit'],
+            'com.apple.developer.icloud-container-identifiers': ['iCloud.ru.arvectum.proxylauncher.ios']})
+        assert 'iCloud.ru.arvectum.proxylauncher.ios' in (p/'App/ExclusionCloudKitService.swift').read_text()
+        assert 'APL_CLOUDKIT_ENABLED' in (p/'App/ExclusionsView.swift').read_text()
+        # The PacketTunnel is deliberately NOT entitled to iCloud.
+        assert b'icloud' not in (p/'Config/PacketTunnel.entitlements').read_bytes()
+    app_flags = APP_FLAGS + (' APL_CLOUDKIT_ENABLED' if a.cloudkit else '')
+    for target,flags in [('ArvectumProxyLauncher',app_flags),('PacketTunnel',TUN_FLAGS)]:
         start=s.index('  '+target+':\n',s.index('targets:\n'))
         offset=s.index('        Release:\n',start)+len('        Release:\n')
         settings='          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) '+flags+'"\n'
+        if target=='ArvectumProxyLauncher' and a.cloudkit:
+            settings+='          CODE_SIGN_ENTITLEMENTS: Config/App-CloudKit.entitlements\n'
         if target=='PacketTunnel':
             settings+='          SWIFT_INCLUDE_PATHS: "$(PROJECT_DIR)/Lib/Unified/Headers"\n          LIBRARY_SEARCH_PATHS: "$(PROJECT_DIR)/Lib/Unified"\n          OTHER_LDFLAGS: "$(inherited) -lAPLUnified -lresolv"\n'
         s=s[:offset]+settings+s[offset:]
-    assert not any(x in s for x in ('APL_NATIVE_SYNTHETIC_RUNTIME','APL_NATIVE_RUNTIME_QA_HARNESS','APL_NATIVE_RUNTIME_QA_DIAGNOSTICS','APL_NATIVE_PRODUCT_RUNTIME_REVIEW','APL_NATIVE_RELEASE_LINK_PREPARATION'))
+    assert not any(x in s for x in ('APL_NATIVE_SYNTHETIC_RUNTIME','APL_NATIVE_RUNTIME_QA_HARNESS','APL_NATIVE_RUNTIME_QA_DIAGNOSTICS','APL_NATIVE_PRODUCT_RUNTIME_REVIEW','APL_NATIVE_RELEASE_LINK_PREPARATION','APL_VLESS_PHYSICAL_QA'))
     path.write_text(s)
     lock='ArvectumProxyLauncherIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved'
     locked=subprocess.check_output(['git','-C',str(repo),'show',commit+':mobile/ios/'+lock])
     run('xcodegen','generate',cwd=p)
     (p/lock).parent.mkdir(parents=True,exist_ok=True); (p/lock).write_bytes(locked)
-    receipt={'source_commit':commit,'version':'0.3.0','build':'49','configuration':'Release','app_flags':APP_FLAGS,'provider_flags':TUN_FLAGS,'source_project_sha256':sha(path),'go_receipt_sha256':GO_RECEIPT,'go_archive_sha256':sha(lib/'libAPLUnified.a'),'rust_archive_sha256':sha(framework/'ios-arm64/libtun2proxy.a'),'package_lock_sha256':sha(p/lock),'compiled':False,'signed':False,'release_authorized':False}
+    receipt={'source_commit':commit,'version':'0.3.0','build':'49','configuration':'Release','app_flags':app_flags,'provider_flags':TUN_FLAGS,'cloudkit_requested':a.cloudkit,'cloudkit_provisioned':False,'source_project_sha256':sha(path),'go_receipt_sha256':GO_RECEIPT,'go_archive_sha256':sha(lib/'libAPLUnified.a'),'rust_archive_sha256':sha(framework/'ios-arm64/libtun2proxy.a'),'package_lock_sha256':sha(p/lock),'compiled':False,'signed':False,'release_authorized':False}
     (a.out/'stage-manifest.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
     print('RELEASE_CANDIDATE_STAGED',commit,a.out)
 

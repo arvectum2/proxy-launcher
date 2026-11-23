@@ -7,7 +7,7 @@ import Foundation
 /// a converter-supplied routing policy, listeners or fallback outbounds.
 enum XrayVLESSRuntimeConfig {
     enum Failure: Error, Equatable {
-        case invalidPort, invalidEndpoint, invalidKey, invalidConverterResponse
+        case invalidPort, invalidEndpoint, invalidKey, invalidConverterResponse, invalidConfigurationForUnderlay
     }
 
     static let maxResponseBytes = 64 * 1024
@@ -104,6 +104,48 @@ enum XrayVLESSRuntimeConfig {
             ]
         ]
         return try JSONSerialization.data(withJSONObject: config, options: [.sortedKeys])
+    }
+
+    /// Physical iOS PacketTunnel only: pin the Xray TCP underlay to the
+    /// OS-confirmed Wi-Fi/cellular interface *before* installing default
+    /// tunnel routes. The Xray Darwin dialer applies IP_BOUND_IF, not an
+    /// endpoint-wide excluded NE route (which would leak other app traffic).
+    /// Never accept an interface name from an imported profile or URI.
+    static func bindPhysicalUnderlay(_ config: Data, interfaceName: String,
+                                    expectedAddress: String, expectedPort: UInt16) throws -> Data {
+        let allowed: Bool
+        if interfaceName.hasPrefix("en") {
+            let suffix = interfaceName.dropFirst(2)
+            allowed = !suffix.isEmpty && suffix.count <= 2 && suffix.allSatisfy { $0.isASCII && $0.isNumber }
+        } else if interfaceName.hasPrefix("pdp_ip") {
+            let suffix = interfaceName.dropFirst(6)
+            allowed = !suffix.isEmpty && suffix.count <= 2 && suffix.allSatisfy { $0.isASCII && $0.isNumber }
+        } else {
+            allowed = false
+        }
+        guard allowed, config.count <= maxResponseBytes,
+              var root = try? JSONSerialization.jsonObject(with: config) as? [String: Any],
+              Set(root.keys) == Set(["inbounds", "outbounds", "routing", "log"]),
+              let inbounds = root["inbounds"] as? [[String: Any]], inbounds.count == 1,
+              inbounds[0]["protocol"] as? String == "socks",
+              inbounds[0]["listen"] as? String == "127.0.0.1",
+              inbounds[0]["port"] as? Int == 39879,
+              let outbounds = root["outbounds"] as? [[String: Any]], outbounds.count == 1,
+              var outbound = outbounds.first,
+              outbound["tag"] as? String == outlet,
+              outbound["protocol"] as? String == "vless",
+              let settings = outbound["settings"] as? [String: Any],
+              settings["address"] as? String == expectedAddress,
+              settings["port"] as? Int == Int(expectedPort),
+              var stream = outbound["streamSettings"] as? [String: Any],
+              stream["network"] as? String == "raw",
+              stream["security"] as? String == "reality",
+              stream["realitySettings"] is [String: Any],
+              stream["sockopt"] == nil else { throw Failure.invalidConfigurationForUnderlay }
+        stream["sockopt"] = ["interface": interfaceName]
+        outbound["streamSettings"] = stream
+        root["outbounds"] = [outbound]
+        return try JSONSerialization.data(withJSONObject: root, options: [.sortedKeys])
     }
 
     private static func validEndpoint(_ host: String) -> Bool {

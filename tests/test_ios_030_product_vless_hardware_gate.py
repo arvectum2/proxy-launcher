@@ -11,7 +11,7 @@ def test_product_gate_is_release_only_and_keeps_two_physical_witnessed_transport
     gate = s.split("enum NativeProductTransportGate {", 1)[1].split("/// Immutable versioned record", 1)[0]
     assert "case .wireGuard,.amneziaWG1:return true" in gate
     assert "case .vlessReality:" in gate
-    assert "#if APL_NATIVE_PRODUCT_RUNTIME\n            return false" in gate
+    assert "#if APL_NATIVE_PRODUCT_RUNTIME && !APL_VLESS_PHYSICAL_QA" in gate and "return false" in gate
     assert "#else\n            return true" in gate
     candidate = s.split("func compileFullTunnelCandidate", 1)[1].split("struct Endpoint", 1)[0]
     assert "guard NativeProductTransportGate.allowsConnection(reference.kind)" in candidate

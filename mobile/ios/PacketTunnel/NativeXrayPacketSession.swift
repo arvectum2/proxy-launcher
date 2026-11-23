@@ -1,7 +1,29 @@
 #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_XRAY_CANDIDATE
 import Foundation
 import NetworkExtension
+import Network
 import tun2proxy
+
+/// One completion across an asynchronous physical-path observation and timeout.
+private final class NativeVLESSPhysicalPathReceipt: @unchecked Sendable {
+    private let lock = NSLock()
+    private var completed = false
+    private let monitor: NWPathMonitor
+    private let continuation: CheckedContinuation<String?, Never>
+    init(monitor: NWPathMonitor, continuation: CheckedContinuation<String?, Never>) {
+        self.monitor = monitor
+        self.continuation = continuation
+    }
+    func finish(_ name: String?) {
+        lock.lock()
+        guard !completed else { lock.unlock(); return }
+        completed = true
+        lock.unlock()
+        monitor.pathUpdateHandler = nil
+        monitor.cancel()
+        continuation.resume(returning: name)
+    }
+}
 
 /// Owned Xray runner. Only explicit experimental review lanes, never shipping starts.
 @MainActor final class NativeXrayPacketSession {
@@ -33,8 +55,24 @@ import tun2proxy
               candidate.exactDNSRequired,plan.excludedRoutes.isEmpty,!plan.dnsServers.isEmpty,
               NativeExactTunnelDescriptor.interfaces(address:plan.ipv4Address)?.isEmpty==true,
               NativeExactTunnelDescriptor.interfaces(address:plan.ipv6Address)?.isEmpty==true else{throw Failure.unsupported}
+        let engineConfiguration = candidate.configuration.withEngineConfiguration { $0 }
+        let boundConfiguration: Data
+        switch owner.reference.kind {
+        case .wireGuard:
+            boundConfiguration = engineConfiguration
+        case .vlessReality:
+            // Observe the actual physical route before inserting tun defaults.
+            // Never infer an interface name from arbitrary app/source data.
+            let name = try await physicalUnderlayInterface()
+            try Task.checkCancellation()
+            boundConfiguration = try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+                engineConfiguration, interfaceName: name,
+                expectedAddress: plan.remoteAddress, expectedPort: plan.remotePort)
+        case .amneziaWG1:
+            throw Failure.unsupported
+        }
         try await startOwned(provider:provider,route:candidate.validation,
-            configuration:candidate.configuration.withEngineConfiguration{$0},
+            configuration:boundConfiguration,
             planSettings:NativeTunnelNetworkSettings.make(plan),mtu:UInt16(plan.mtu),exactDNS:true,
             descriptor:{NativeExactTunnelDescriptor.find(address:plan.ipv4Address,ipv6:plan.ipv6Address)})
     }
@@ -93,6 +131,28 @@ import tun2proxy
 #endif
 #endif
 #endif
+    /// A one-shot NWPath sample, before any NE default routes are installed.
+    /// The production path watcher separately revokes the session on change.
+    /// A missing, ambiguous or inactive physical path fails closed.
+    private func physicalUnderlayInterface() async throws -> String {
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "apl.native.vless.physical-underlay")
+        let selected: String? = await withCheckedContinuation { continuation in
+            let receipt = NativeVLESSPhysicalPathReceipt(monitor: monitor, continuation: continuation)
+            monitor.pathUpdateHandler = { path in
+                guard path.status == .satisfied else { return }
+                let names = Set(path.availableInterfaces.filter {
+                    ($0.type == .wifi || $0.type == .cellular) && path.usesInterfaceType($0.type)
+                }.map(\.name))
+                receipt.finish(names.count == 1 ? names.first : nil)
+            }
+            queue.asyncAfter(deadline: .now() + 4) { receipt.finish(nil) }
+            monitor.start(queue: queue)
+        }
+        guard let selected else { throw Failure.unsupported }
+        return selected
+    }
+
     private func startOwned(provider:NEPacketTunnelProvider,route:NativeValidationRoute,configuration:Data,planSettings:NEPacketTunnelNetworkSettings,mtu:UInt16,exactDNS:Bool=false,descriptor:()->Int32?) async throws {
         guard !retired,!starting,!draining,!attemptedXray,!submittedRust else{throw Failure.busy}
         starting=true;defer{starting=false}

@@ -114,6 +114,64 @@ final class XrayVLESSRuntimeConfigTests: XCTestCase {
         }
     }
 
+    func testPhysicalUnderlayBindingKeepsValidatedRealityCredentials() throws {
+        let plain = try XrayVLESSRuntimeConfig.compileValidatedCandidate(
+            candidate(), socksPort: 39879, datagramReview: true)
+        let pinned = try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+            plain, interfaceName: "en0", expectedAddress: "example.com", expectedPort: 443)
+        let raw = try XCTUnwrap(JSONSerialization.jsonObject(with: pinned) as? [String: Any])
+        let original = try XCTUnwrap(JSONSerialization.jsonObject(with: plain) as? [String: Any])
+        let out = try XCTUnwrap((raw["outbounds"] as? [[String: Any]])?.first)
+        let before = try XCTUnwrap((original["outbounds"] as? [[String: Any]])?.first)
+        let stream = try XCTUnwrap(out["streamSettings"] as? [String: Any])
+        let originalStream = try XCTUnwrap(before["streamSettings"] as? [String: Any])
+        XCTAssertEqual((stream["sockopt"] as? [String: String])?["interface"], "en0")
+        XCTAssertEqual(stream["realitySettings"] as? [String: String],
+                       originalStream["realitySettings"] as? [String: String])
+        XCTAssertEqual(out["settings"] as? [String: String], before["settings"] as? [String: String])
+        XCTAssertEqual((out["settings"] as? [String: Any])?["id"] as? String, id)
+        XCTAssertNotNil(raw["inbounds"])
+        XCTAssertNotNil(raw["routing"])
+        let cellular = try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+            plain, interfaceName: "pdp_ip0", expectedAddress: "example.com", expectedPort: 443)
+        XCTAssertTrue(String(decoding:cellular,as:UTF8.self).contains("pdp_ip0"))
+        XCTAssertFalse(String(decoding:plain,as:UTF8.self).contains("sockopt"))
+    }
+
+    func testPhysicalUnderlayBindingRejectsMissingOrUntrustedInterfaceAndEndpoint() throws {
+        let config = try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate(), socksPort:39879)
+        for iface in ["", "utun0", "lo0", "en", "pdp_ip", "en-1", "pdp_ip0;utun0", "en999", "pdp_ip999"] {
+            XCTAssertThrowsError(try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+                config, interfaceName:iface, expectedAddress:"example.com", expectedPort:443))
+        }
+        XCTAssertThrowsError(try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+            config, interfaceName:"en0", expectedAddress:"other.example", expectedPort:443))
+        XCTAssertThrowsError(try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+            config, interfaceName:"en0", expectedAddress:"example.com", expectedPort:444))
+    }
+
+    func testPhysicalUnderlayRejectsExistingSockoptOrUnreviewedExtraOutbound() throws {
+        let plain = try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate(), socksPort:39879)
+        for mutation in ["sockopt", "outbound", "protocol"] {
+            var root = try XCTUnwrap(JSONSerialization.jsonObject(with:plain) as? [String:Any])
+            var out = try XCTUnwrap(root["outbounds"] as? [[String:Any]])
+            switch mutation {
+            case "sockopt":
+                var stream=try XCTUnwrap(out[0]["streamSettings"] as? [String:Any])
+                stream["sockopt"]=["interface":"utun0"]
+                out[0]["streamSettings"]=stream
+            case "outbound":
+                out.append(["protocol":"freedom"])
+            default:
+                out[0]["protocol"]="freedom"
+            }
+            root["outbounds"]=out
+            let changed=try JSONSerialization.data(withJSONObject:root)
+            XCTAssertThrowsError(try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(
+                changed,interfaceName:"en0",expectedAddress:"example.com",expectedPort:443))
+        }
+    }
+
     func testMalformedOversizedAndInvalidPortRejected() throws {
         let profile = try candidate()
         XCTAssertThrowsError(try XrayVLESSRuntimeConfig.prepare(candidate: profile,
