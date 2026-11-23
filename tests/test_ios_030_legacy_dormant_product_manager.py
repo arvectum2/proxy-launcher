@@ -38,7 +38,7 @@ def test_no_native_selection_uses_safe_legacy_census_and_active_product_still_bl
     assert "try requireLegacyManager(manager)" in legacy
     assert "try await save(manager)" in legacy
     strict=section("private func splitProductManagers", "private func isDormantProductManager")
-    assert "ownsProductManager(item,owner:owner)" in strict
+    assert "productManagerMatchesOwner(item,owner:owner)" in strict
     assert "guard product==nil else{throw NativeCredentialReceiver.Failure.invalidIdentity}" in strict
     assert "try requireLegacyManager(item)" in strict
 

@@ -85,6 +85,13 @@ enum NativeProductManagerPreflight {
         return true
     }
 
+    /// Only an idle, disabled and exactly owner-matched product manager can
+    /// be re-enabled after an iOS preference reload. This does not permit
+    /// starting the tunnel: permitsLaunch still requires disconnected readback.
+    static func permitsOwnedReenable(status:Status,ownerMatches:Bool,onDemandOff:Bool,isEnabled:Bool)->Bool {
+        ownerMatches && onDemandOff && !isEnabled && (status == .disconnected || status == .invalid)
+    }
+
     static func permitsLaunch(_ statuses: [Status]) -> Bool {
         statuses.allSatisfy { $0 == .disconnected }
     }

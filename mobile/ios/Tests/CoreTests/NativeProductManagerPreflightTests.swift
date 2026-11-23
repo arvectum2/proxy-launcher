@@ -15,6 +15,17 @@ final class NativeProductManagerPreflightTests: XCTestCase {
         XCTAssertFalse(Gate.permitsReadback([.disconnected, .activeOrUnknown], ownedProductIndex:1))
     }
 
+    func testOwnedDisabledManagerReenableRequiresExactInactiveOwnerAndReadback() {
+        for status in [Gate.Status.disconnected,.invalid] {
+            XCTAssertTrue(Gate.permitsOwnedReenable(status:status,ownerMatches:true,onDemandOff:true,isEnabled:false))
+            XCTAssertFalse(Gate.permitsOwnedReenable(status:status,ownerMatches:false,onDemandOff:true,isEnabled:false))
+            XCTAssertFalse(Gate.permitsOwnedReenable(status:status,ownerMatches:true,onDemandOff:false,isEnabled:false))
+            XCTAssertFalse(Gate.permitsOwnedReenable(status:status,ownerMatches:true,onDemandOff:true,isEnabled:true))
+        }
+        XCTAssertFalse(Gate.permitsOwnedReenable(status:.activeOrUnknown,ownerMatches:true,onDemandOff:true,isEnabled:false))
+        XCTAssertFalse(Gate.permitsLaunch([.invalid]))
+    }
+
     func testStartPhaseVocabularyDoesNotContainIdentityOrNetworkValues() {
         XCTAssertEqual(NativeProductStartPhase.allCases.map(\.rawValue), [
             "manager-census", "manager-reconcile", "manager-readback",

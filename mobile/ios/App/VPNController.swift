@@ -283,21 +283,26 @@ final class VPNController: ObservableObject {
 
 #if APL_NATIVE_PRODUCT_RUNTIME
     private static let productConfigurationName="APL Native Product"
-    private func ownsProductManager(_ item:NETunnelProviderManager,owner:UUID)->Bool {
+    // Identity must remain distinguishable from iOS's mutable enabled state.
+    // A disabled but exactly owner-marked product manager is never legacy.
+    private func productManagerMatchesOwner(_ item:NETunnelProviderManager,owner:UUID)->Bool {
         guard let proto=item.protocolConfiguration as? NETunnelProviderProtocol else{return false}
         return proto.providerBundleIdentifier==AppShared.providerBundleIdentifier &&
             item.localizedDescription==Self.productConfigurationName && proto.serverAddress==Self.productConfigurationName &&
             NativeProductStartRequest.ownsConfiguration(proto.providerConfiguration,owner:owner) &&
-            item.isEnabled && !item.isOnDemandEnabled && (item.onDemandRules ?? []).isEmpty &&
+            !item.isOnDemandEnabled && (item.onDemandRules ?? []).isEmpty &&
             proto.username==nil && proto.passwordReference==nil && proto.identityReference==nil &&
             proto.identityData==nil && proto.identityDataPassword==nil && proto.proxySettings==nil &&
             !proto.includeAllNetworks && !proto.enforceRoutes
+    }
+    private func ownsProductManager(_ item:NETunnelProviderManager,owner:UUID)->Bool {
+        productManagerMatchesOwner(item,owner:owner) && item.isEnabled
     }
     private func splitProductManagers(_ all:[NETunnelProviderManager],owner:UUID?)throws->(legacy:[NETunnelProviderManager],product:NETunnelProviderManager?) {
         let owned=all.filter(isArvectumManager)
         var legacy=[NETunnelProviderManager](),product:NETunnelProviderManager?
         for item in owned {
-            if let owner,ownsProductManager(item,owner:owner) {
+            if let owner,productManagerMatchesOwner(item,owner:owner) {
                 guard product==nil else{throw NativeCredentialReceiver.Failure.invalidIdentity}
                 product=item
             } else {
@@ -386,8 +391,23 @@ final class VPNController: ObservableObject {
             phase = .managerReconcile
             let owner=try store.ensureNativeProductOwner()
             let target:NETunnelProviderManager
-            if let prior=initial.product {target=prior;try await reload(target)}
-            else {
+            if let prior=initial.product {
+                target=prior
+                try await reload(target)
+                // iOS may disable this app's other VPN configuration after
+                // switching to legacy. Only an exact owner-marked, idle,
+                // on-demand-free manager may be re-enabled once. No deletion,
+                // no cross-manager repair, and no tunnel retry.
+                if !target.isEnabled {
+                    guard NativeProductManagerPreflight.permitsOwnedReenable(
+                        status:status(target), ownerMatches:productManagerMatchesOwner(target,owner:owner),
+                        onDemandOff:!target.isOnDemandEnabled && (target.onDemandRules ?? []).isEmpty,
+                        isEnabled:target.isEnabled) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+                    target.isEnabled=true
+                    try await save(target)
+                    try await reload(target)
+                }
+            } else {
                 target=NETunnelProviderManager()
                 let proto=NETunnelProviderProtocol()
                 proto.providerBundleIdentifier=AppShared.providerBundleIdentifier
