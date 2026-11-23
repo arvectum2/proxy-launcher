@@ -24,3 +24,11 @@ def test_native_staging_checks_exact_version_without_silent_rewrite():
     assert "assert 'MARKETING_VERSION: \"0.2.0\"' not in s" in stage
     assert "'source_commit':commit" in stage
     assert "exist_ok=False" in stage
+
+def test_active_development_identity_matches_shipped_source():
+    import json
+    manifest = json.loads((IOS / "Config/active-development.json").read_text())
+    assert manifest["marketing_version"] == "0.3.0"
+    assert manifest["build_number"] == "49"
+    assert manifest["draft_pull_request"] == 383
+    assert manifest["app_store_submission_authorized"] is False

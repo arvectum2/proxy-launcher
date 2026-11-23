@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate active iOS source identity
         run: python3 scripts/ios_active_release_preflight.py
-      - name: Active iOS 0.2 source, localization and UI-target contracts
+      - name: Active iOS source, localization and UI-target contracts
         run: python3 -m unittest discover -s tests -p 'test_ios_020_*.py'
       - name: Core policy tests
         run: swift test --package-path mobile/ios
