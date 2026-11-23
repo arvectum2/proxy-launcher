@@ -67,6 +67,29 @@ struct NativeProviderStartRequest: CustomStringConvertible, CustomReflectable {
     }
 }
 
+/// NE status classification used only for an ownership-bound, read-only
+/// preference reload before native product start. A stale invalid manager
+/// may be re-read; it must become disconnected before a ticket is issued.
+enum NativeProductManagerPreflight {
+    enum Status: Equatable { case disconnected, invalid, activeOrUnknown }
+
+    static func permitsReadback(_ statuses: [Status], ownedProductIndex: Int?) -> Bool {
+        for (index, status) in statuses.enumerated() {
+            switch status {
+            case .disconnected: continue
+            case .invalid:
+                guard ownedProductIndex == index else { return false }
+            case .activeOrUnknown: return false
+            }
+        }
+        return true
+    }
+
+    static func permitsLaunch(_ statuses: [Status]) -> Bool {
+        statuses.allSatisfy { $0 == .disconnected }
+    }
+}
+
 /// Production-intent namespace. A distinct one-shot purpose, never a
 /// validation/review receipt. No launch permission is implied by decoding.
 struct NativeProductStartRequest:CustomStringConvertible,CustomReflectable {

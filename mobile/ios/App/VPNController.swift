@@ -357,11 +357,29 @@ final class VPNController: ObservableObject {
     private func connectProduct(_ store:ProfileStore,selection:NativeProductSelection)async throws {
         let all=try await loadAllManagers(requireResult:true)
         let initial=try splitProductManagers(all,owner:store.nativeProductOwner())
+        func status(_ item:NETunnelProviderManager)->NativeProductManagerPreflight.Status {
+            switch item.connection.status {
+            case .disconnected:return .disconnected
+            case .invalid:return .invalid
+            default:return .activeOrUnknown
+            }
+        }
+        func onDemandOff(_ items:[NETunnelProviderManager])->Bool {
+            items.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
+        }
         func allOff(_ items:[NETunnelProviderManager])->Bool {
-            items.allSatisfy{$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
+            onDemandOff(items) && NativeProductManagerPreflight.permitsLaunch(items.map(status))
+        }
+        // A signed in-place upgrade may expose an invalid (not connected)
+        // *owned product manager* until reloadFromPreferences. Allow exactly
+        // that one read-only reconciliation, never a ticket/launch on invalid.
+        let ownedIndex=initial.product.flatMap{candidate in
+            all.firstIndex(where:{$0 === candidate})
         }
         guard NativeProductTransportGate.allowsConnection(selection.reference.kind),
-              allOff(all),store.nativeRoutingAdmission().permitsSelection,
+              onDemandOff(all),
+              NativeProductManagerPreflight.permitsReadback(all.map(status),ownedProductIndex:ownedIndex),
+              store.nativeRoutingAdmission().permitsSelection,
               try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         let owner=try store.ensureNativeProductOwner()
         let target:NETunnelProviderManager
