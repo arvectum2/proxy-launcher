@@ -1,0 +1,48 @@
+"""The standalone iOS Xray diagnostic must not turn into a VPN/profile app."""
+from pathlib import Path
+import unittest
+
+ROOT=Path(__file__).resolve().parents[1]
+QA=ROOT/'mobile/ios/Tools/DirectVLESSHardwareQA'
+SRC=(QA/'Host/DirectVLESSQA.swift').read_text()
+BUILD=(QA/'build_unsigned.sh').read_text()
+
+class DirectXrayQASafetyTests(unittest.TestCase):
+    def test_explicit_one_shot_input_and_synthetic_targets(self):
+        for token in ('--apl-vless-direct-qa','used=true','QAInput.consume(',
+                      'Set(root.keys)==Set(["runID","nonce","link"])',
+                      'candidate.serverHost=="192.168.1.80"',
+                      'candidate.serverPort==39882','candidate.serverName=="example.com"',
+                      'input.nonce.utf8.count==40','198,51,100,77,0x9b,0xcb'):
+            self.assertIn(token,SRC)
+
+    def test_no_vpn_or_user_account_apis(self):
+        for banned in ('import NetworkExtension','import CloudKit',
+                       'NEVPNManager(', 'NETunnelProviderManager(', 'SecItemCopyMatching(',
+                       'UserDefaults.standard', 'UIApplication.shared.open(', 'URLSession.shared'):
+            self.assertNotIn(banned,SRC)
+        self.assertIn('networkExtensionUsed":false',SRC)
+        self.assertIn('profilesAccessed":false',SRC)
+        self.assertIn('releaseAuthorized":false',SRC)
+
+    def test_exact_local_socks_receipt_and_native_stop_before_report(self):
+        self.assertIn('"GET /\\(nonce) HTTP/1.1',SRC)
+        self.assertIn('"APL_RECEIPT:\\(nonce)"',SRC)
+        self.assertIn('receipt.stopped=(NativeLabRuntime.running==false)',SRC)
+        self.assertIn('receipt.httpReceipt && receipt.stopped',SRC)
+        self.assertLess(SRC.index('NativeLabRuntime.call("stopXray")'),SRC.index('return receipt\n    }\n}'))
+
+    def test_unsigned_pinned_library_and_separate_project(self):
+        for token in ('verify_xray_source_candidate.py','CODE_SIGNING_ALLOWED: NO',
+                      'CODE_SIGNING_REQUIRED: NO','DIRECT_XRAY','release_authorized',):
+            if token=='DIRECT_XRAY':
+                self.assertIn('APLDirectXrayQA',BUILD)
+            elif token=='release_authorized':
+                self.assertIn("'release_authorized':False",BUILD)
+            else:self.assertIn(token,BUILD)
+        self.assertIn('<key>CFBundleIdentifier</key>',BUILD)
+        self.assertIn("PlistBuddy -c 'Print :CFBundleIdentifier'",BUILD)
+        product=(ROOT/'mobile/ios/project.yml').read_text()
+        self.assertNotIn('DirectVLESSHardwareQA',product)
+
+if __name__=='__main__':unittest.main()
