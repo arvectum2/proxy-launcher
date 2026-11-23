@@ -355,63 +355,84 @@ final class VPNController: ObservableObject {
     }
 
     private func connectProduct(_ store:ProfileStore,selection:NativeProductSelection)async throws {
-        let all=try await loadAllManagers(requireResult:true)
-        let initial=try splitProductManagers(all,owner:store.nativeProductOwner())
-        func status(_ item:NETunnelProviderManager)->NativeProductManagerPreflight.Status {
-            switch item.connection.status {
-            case .disconnected:return .disconnected
-            case .invalid:return .invalid
-            default:return .activeOrUnknown
-            }
-        }
-        func onDemandOff(_ items:[NETunnelProviderManager])->Bool {
-            items.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
-        }
-        func allOff(_ items:[NETunnelProviderManager])->Bool {
-            onDemandOff(items) && NativeProductManagerPreflight.permitsLaunch(items.map(status))
-        }
-        // A signed in-place upgrade may expose an invalid (not connected)
-        // *owned product manager* until reloadFromPreferences. Allow exactly
-        // that one read-only reconciliation, never a ticket/launch on invalid.
-        let ownedIndex=initial.product.flatMap{candidate in
-            all.firstIndex(where:{$0 === candidate})
-        }
-        guard NativeProductTransportGate.allowsConnection(selection.reference.kind),
-              onDemandOff(all),
-              NativeProductManagerPreflight.permitsReadback(all.map(status),ownedProductIndex:ownedIndex),
-              store.nativeRoutingAdmission().permitsSelection,
-              try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
-        let owner=try store.ensureNativeProductOwner()
-        let target:NETunnelProviderManager
-        if let prior=initial.product {target=prior;try await reload(target)}
-        else {
-            target=NETunnelProviderManager()
-            let proto=NETunnelProviderProtocol()
-            proto.providerBundleIdentifier=AppShared.providerBundleIdentifier
-            proto.serverAddress=Self.productConfigurationName
-            proto.providerConfiguration=NativeProductStartRequest.configuration(owner:owner)
-            target.protocolConfiguration=proto
-            target.localizedDescription=Self.productConfigurationName
-            target.isEnabled=true;target.isOnDemandEnabled=false
-            try await save(target);try await reload(target)
-        }
-        let refreshed=try await loadAllManagers(requireResult:true)
-        let exact=try splitProductManagers(refreshed,owner:owner)
-        guard let readback=exact.product,allOff(refreshed),ownsProductManager(target,owner:owner),
-              ownsProductManager(readback,owner:owner),allOff([target]),
-              let session=target.connection as? NETunnelProviderSession,
-              try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
-        try Task.checkCancellation()
-        let launch=try store.issueNativeProductLaunch(selection,owner:owner)
+        var phase = NativeProductStartPhase.managerCensus
         do {
+            let all=try await loadAllManagers(requireResult:true)
+            let initial=try splitProductManagers(all,owner:store.nativeProductOwner())
+            func status(_ item:NETunnelProviderManager)->NativeProductManagerPreflight.Status {
+                switch item.connection.status {
+                case .disconnected:return .disconnected
+                case .invalid:return .invalid
+                default:return .activeOrUnknown
+                }
+            }
+            func onDemandOff(_ items:[NETunnelProviderManager])->Bool {
+                items.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
+            }
+            func allOff(_ items:[NETunnelProviderManager])->Bool {
+                onDemandOff(items) && NativeProductManagerPreflight.permitsLaunch(items.map(status))
+            }
+            // A signed in-place upgrade may expose an invalid (not connected)
+            // *owned product manager* until reloadFromPreferences. Allow exactly
+            // that one read-only reconciliation, never a ticket/launch on invalid.
+            let ownedIndex=initial.product.flatMap{candidate in
+                all.firstIndex(where:{$0 === candidate})
+            }
+            guard NativeProductTransportGate.allowsConnection(selection.reference.kind),
+                  onDemandOff(all),
+                  NativeProductManagerPreflight.permitsReadback(all.map(status),ownedProductIndex:ownedIndex),
+                  store.nativeRoutingAdmission().permitsSelection,
+                  try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            phase = .managerReconcile
+            let owner=try store.ensureNativeProductOwner()
+            let target:NETunnelProviderManager
+            if let prior=initial.product {target=prior;try await reload(target)}
+            else {
+                target=NETunnelProviderManager()
+                let proto=NETunnelProviderProtocol()
+                proto.providerBundleIdentifier=AppShared.providerBundleIdentifier
+                proto.serverAddress=Self.productConfigurationName
+                proto.providerConfiguration=NativeProductStartRequest.configuration(owner:owner)
+                target.protocolConfiguration=proto
+                target.localizedDescription=Self.productConfigurationName
+                target.isEnabled=true;target.isOnDemandEnabled=false
+                try await save(target);try await reload(target)
+            }
+            phase = .managerReadback
+            let refreshed=try await loadAllManagers(requireResult:true)
+            let exact=try splitProductManagers(refreshed,owner:owner)
+            guard let readback=exact.product,allOff(refreshed),ownsProductManager(target,owner:owner),
+                  ownsProductManager(readback,owner:owner),allOff([target]),
+                  let session=target.connection as? NETunnelProviderSession,
+                  try store.nativeProductSelection()==selection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
             try Task.checkCancellation()
-            guard allOff(refreshed+[target]),ownsProductManager(target,owner:owner),target.connection === session,
-                  try store.nativeProductSelection()==selection,store.nativeRoutingAdmission().permitsSelection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
-        } catch {try store.revokeNativeProductLaunch(launch);throw error}
-        manager=target
-        // Once submitted, never retry or fall back to legacy. An unconsumed ticket expires.
-        try session.startTunnel(options:launch.options)
-        refreshStatus()
+            phase = .credentialTicket
+            let launch=try store.issueNativeProductLaunch(selection,owner:owner)
+            do {
+                try Task.checkCancellation()
+                guard allOff(refreshed+[target]),ownsProductManager(target,owner:owner),target.connection === session,
+                      try store.nativeProductSelection()==selection,store.nativeRoutingAdmission().permitsSelection else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            } catch {try store.revokeNativeProductLaunch(launch);throw error}
+            manager=target
+            phase = .osSubmission
+            // Once submitted, never retry or fall back to legacy. A rejected
+            // submission revokes its ticket; a successfully submitted ticket is
+            // single-use and expires independently if NE never consumes it.
+            try NativeProductStartSubmission.attempt({
+                try session.startTunnel(options:launch.options)
+            },revoke:{
+                try store.revokeNativeProductLaunch(launch)
+            })
+            TelemetryStore().append(TunnelEvent(type:"native start submitted",
+                detail:phase.rawValue))
+            refreshStatus()
+        } catch {
+            // Local metadata only: phase name, never user-owned endpoints
+            // nor a raw OS error description.
+            TelemetryStore().append(TunnelEvent(type:"native start blocked",
+                detail:phase.rawValue))
+            throw error
+        }
     }
 #endif
 

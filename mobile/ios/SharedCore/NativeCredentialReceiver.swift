@@ -90,6 +90,30 @@ enum NativeProductManagerPreflight {
     }
 }
 
+/// Fixed vocabulary for diagnosing a native start without exposing the
+/// selected profile, IPs, DNS settings, credentials or raw OS error payload.
+enum NativeProductStartPhase: String, CaseIterable {
+    case managerCensus = "manager-census"
+    case managerReconcile = "manager-reconcile"
+    case managerReadback = "manager-readback"
+    case credentialTicket = "credential-ticket"
+    case osSubmission = "os-submission"
+}
+
+/// NE startTunnel may throw synchronously (e.g. stale/disabled config).
+/// Its one-use Keychain ticket must then be revoked immediately rather than
+/// left pending until expiry. Retain the original NE failure if revocation
+/// itself cannot finish; the ticket also has bounded expiry/ownership.
+enum NativeProductStartSubmission {
+    static func attempt(_ submit: () throws -> Void, revoke: () throws -> Void) throws {
+        do { try submit() }
+        catch {
+            try? revoke()
+            throw error
+        }
+    }
+}
+
 /// Production-intent namespace. A distinct one-shot purpose, never a
 /// validation/review receipt. No launch permission is implied by decoding.
 struct NativeProductStartRequest:CustomStringConvertible,CustomReflectable {

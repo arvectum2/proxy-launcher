@@ -15,6 +15,40 @@ final class NativeProductManagerPreflightTests: XCTestCase {
         XCTAssertFalse(Gate.permitsReadback([.disconnected, .activeOrUnknown], ownedProductIndex:1))
     }
 
+    func testStartPhaseVocabularyDoesNotContainIdentityOrNetworkValues() {
+        XCTAssertEqual(NativeProductStartPhase.allCases.map(\.rawValue), [
+            "manager-census", "manager-reconcile", "manager-readback",
+            "credential-ticket", "os-submission"
+        ])
+    }
+
+    func testRejectedSystemSubmissionRevokesTicketAndPreservesCause() {
+        enum Failure: Error, Equatable { case networkExtension, keychain }
+        var attempts = 0, revocations = 0
+        XCTAssertThrowsError(try NativeProductStartSubmission.attempt({
+            attempts += 1
+            throw Failure.networkExtension
+        },revoke:{
+            revocations += 1
+            throw Failure.keychain
+        })) { error in
+            XCTAssertEqual(error as? Failure, .networkExtension)
+        }
+        XCTAssertEqual(attempts, 1)
+        XCTAssertEqual(revocations, 1)
+    }
+
+    func testAcceptedSystemSubmissionDoesNotRevokeTicket() throws {
+        var attempts = 0, revocations = 0
+        try NativeProductStartSubmission.attempt({
+            attempts += 1
+        },revoke:{
+            revocations += 1
+        })
+        XCTAssertEqual(attempts, 1)
+        XCTAssertEqual(revocations, 0)
+    }
+
     func testLaunchNeverAcceptsInvalidOrActiveManager() {
         XCTAssertTrue(Gate.permitsLaunch([]))
         XCTAssertTrue(Gate.permitsLaunch([.disconnected,.disconnected]))

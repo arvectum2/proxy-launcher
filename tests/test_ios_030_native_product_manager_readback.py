@@ -33,3 +33,18 @@ def test_model_blocks_stale_or_active_before_launch():
     assert "guard ownedProductIndex == index else { return false }" in CORE
     assert "case .activeOrUnknown: return false" in CORE
     assert "statuses.allSatisfy { $0 == .disconnected }" in CORE
+
+
+def test_product_launch_receipt_distinguishes_failure_phase_without_secrets():
+    section=product()
+    assert "var phase = NativeProductStartPhase.managerCensus" in section
+    for phase in ("managerReconcile","managerReadback","credentialTicket","osSubmission"):
+        assert "phase = ."+phase in section
+    assert "TelemetryStore().append(TunnelEvent(type:\"native start blocked\"" in section
+    assert "detail:phase.rawValue" in section
+    assert "throw error" in section
+    assert "NativeProductStartSubmission.attempt" in section
+    assert "try session.startTunnel(options:launch.options)" in section
+    assert "try store.revokeNativeProductLaunch(launch)" in section
+    assert "TelemetryStore().append(TunnelEvent(type:\"native start submitted\"" in section
+    assert "error.localizedDescription" not in section
