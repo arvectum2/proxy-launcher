@@ -21,6 +21,8 @@ jobs:
         run: python3 scripts/ios_active_release_preflight.py
       - name: Active iOS source, localization and UI-target contracts
         run: python3 -m unittest discover -s tests -p 'test_ios_020_*.py'
+      - name: Synthetic VLESS TLS record diagnostic contract
+        run: python3 -m unittest tests.test_ios_030_vless_tls_record_meter
       - name: Core policy tests
         run: swift test --package-path mobile/ios
 
