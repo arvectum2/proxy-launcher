@@ -12,6 +12,32 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 LAN, HOST, TARGET, PORT = "192.168.1.80", "127.0.0.1", "198.51.100.77", 39882
 
 
+class TLSFirstRecordMeter:
+    """Observe only TLS record header/length, never any client payload or SNI."""
+    def __init__(self):
+        self._prefix = bytearray()
+        self.client_bytes = 0
+
+    def feed(self, chunk):
+        if len(self._prefix) < 5:
+            self._prefix.extend(chunk[:5 - len(self._prefix)])
+        self.client_bytes += len(chunk)
+
+    def summary(self):
+        result = {"clientBytes": self.client_bytes, "tlsHeader": "incomplete"}
+        if len(self._prefix) < 5:
+            return result
+        prefix = self._prefix
+        length = int.from_bytes(prefix[3:5], "big")
+        if prefix[0] != 22 or prefix[1] != 3 or prefix[2] not in (1, 2, 3, 4) or not (1 <= length <= 18432):
+            result["tlsHeader"] = "notHandshakeRecord"
+            return result
+        result["tlsHeader"] = "handshakeRecordHeader"
+        result["expectedFirstRecordBytes"] = length + 5
+        result["firstRecordComplete"] = self.client_bytes >= length + 5
+        return result
+
+
 def config(root, probe="tcp4"):
     assert probe in ("tcp4","tcp6","udp4","udp6")
     target=TARGET if probe.endswith("4") else "2001:db8:77::77"
@@ -85,7 +111,7 @@ def run(root, peer, command, preflight_only=False):
     work=root/("witness-"+str(uuid.uuid4()))
     work.mkdir(mode=0o700)
     pre=secrets.token_hex(20)
-    seen=[];counts=[0,0,0];lock=threading.Lock();stop=threading.Event()
+    seen=[];counts=[0,0,0];first_records=[];lock=threading.Lock();stop=threading.Event()
     negative=item is not None and item["mode"]=="wrong-key"
     probe=item["probe"] if item else "tcp4"
     target=TARGET if probe.endswith("4") else "2001:db8:77::77"
@@ -119,6 +145,9 @@ def run(root, peer, command, preflight_only=False):
         allow_reuse_address=True
     class Relay(socketserver.BaseRequestHandler):
         def handle(self):
+            meter = TLSFirstRecordMeter()
+            with lock:
+                first_records.append(meter)
             self.request.settimeout(5)
             try:
                 with socket.create_connection((HOST,PORT),timeout=3) as upstream:
@@ -128,7 +157,9 @@ def run(root, peer, command, preflight_only=False):
                         for src in ready:
                             data=src.recv(65536)
                             if not data:return
-                            with lock:counts[1 if src is self.request else 2]+=len(data)
+                            with lock:
+                                counts[1 if src is self.request else 2]+=len(data)
+                                if src is self.request:meter.feed(data)
                             (upstream if src is self.request else self.request).sendall(data)
             except OSError:return
     class LANServer(Server):
@@ -174,13 +205,21 @@ def run(root, peer, command, preflight_only=False):
             local_probe("wrong-key-control",original,nonce,False)
         with lock:
             assert seen==[pre]
+            # Assert the local positive control actually carried a complete TLS
+            # record. Otherwise physical "no ClientHello" conclusions are unsound.
+            assert any(
+                m.summary().get("tlsHeader") == "handshakeRecordHeader" and
+                m.summary().get("firstRecordComplete")
+                for m in first_records
+            ), "local positive-control TLS record not observed"
             baseline=counts.copy()
+            first_record_baseline=len(first_records)
         print("NATIVELAB_VLESS_PEER_READY",flush=True)
         if not item or preflight_only:return 0
         deadline=time.monotonic()+48
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
         with lock:
-            result={"schema":1,"probe":probe,"mode":item["mode"],"localPositiveControl":True,"localNegativeControl":negative,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
+            result={"schema":1,"probe":probe,"mode":item["mode"],"localPositiveControl":True,"localNegativeControl":negative,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"firstTLSRecords":[meter.summary() for meter in first_records[first_record_baseline:first_record_baseline+8]],"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
         (work/"peer-observation.json").write_text(json.dumps(result,sort_keys=True)+"\n")
         print("NATIVELAB_VLESS_PEER_OBSERVATION",json.dumps(result),flush=True)
         return 0 if result["witnessCount"]==(0 if negative else 1) and result["relayAccepted"]>0 and result["ingressBytes"]>0 and result["egressBytes"]>0 else 2
