@@ -13,5 +13,8 @@ steps:
     result: "Scoped checkpoint completed; no active provider observed; full settings IPv4 default, two IPv6 /1, DNS 1.1.1.1 and 8.8.8.8, no exclusions."
   - step: 2
     action: "Prepare separate QA build with full route shape, local synthetic-only Xray allowlist and silent native logs."
+    result: "PASS: full route QA separate build, exact dual descriptor, local deny-default Xray + server allowlist, 20s deadline, no general log retention. ARM64 build, signature, Python21+50, parser9 and guard9 checks passed."
+  - step: 3
+    action: "Check product provider absent; install exact signed QA; read-only manager census before prepare."
     result: pending
 resume_instruction: "Implement and validate full route isolated guard before installing. Do not forward background device traffic. Original Основной remains unresolved; no credential edits."
