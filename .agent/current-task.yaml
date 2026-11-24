@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov 19:51: UDP6 and DNS wire established loss and independent RVI PASS, positive OFF control each. All four transport combinations, DNS wire, wrong key, guarded UDP4/UDP6/DNS loss/non-escape accepted. Historical census identical and previous lab restored. Product unchanged, no active provider or temporary sockets/RVI. Owner deferred Основной. WAN/dynamic underlay, unrestricted product and CloudKit/release remain."
+current: "24 Nov actual product runner/driver/initial NWPath/full routes guarded TCP4 accepted on physical iPhone in separate QA extension. Exact HTTP200 and independent witness1; drain/stop/cleanup verified, prior lab restored, product unchanged. Actual owner/ticket/UI/watcher path still pending; WAN/dynamic underlay and CloudKit/release gates remain."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "1213213f98317dbe98a9ea3951d3235df237f708 (physical UDP6/DNS loss, matched RVI controls and cleanup)"
+last_verified_commit: "1e4f547f2ffa0041d9ea02fd5aee88c6e27b6b77 (actual product runner guarded physical TCP4 PASS, 81 checks/preflight and cleanup)"
 test_results:
+  - "24 Nov actual product runner isolated guarded TCP4 physical PASS, run DA36CB94-CBE4-4A1A-BD28-E8E345801212, host98/160 peer2241/2613 witness1, exact correlated hashes, product driver drain/stop, cleanup. 9+22+50 and release preflight PASS. Not owner/ticket/UI or unrestricted product acceptance."
   - "24 Nov UDP6 and DNS wire physical loss + independent RVI PASS, OFF physical1/tunnel0 and active physical0/tunnel2 each; exact first receipt and second timeout, zero second witness. Prior lab restored, cleanup PASS. 201 offline checks and signed build already verified. CI 3 success and 3 pending at intermediate head."
   - "24 Nov IPv6/DNS loss signed candidate and 201 checks/preflight PASS, Mac both positive controls PASS. Physical launch blocked by Locked/CoreDevice10002; no test manager or traffic, previous lab restored. Previous CI 5 success/1 cancelled."
   - "24 Nov physical DNS wire/wrong-key PASS; established UDP4 loss PASS, OFF physical1/tunnel0 active physical0/tunnel2 complete. 92 receipt/RVI +22 focused +21 parser +15 guard +50 release checks/preflight PASS. Cleanup and original binary verified. No universal leak or product acceptance."
@@ -533,6 +534,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-PRODUCT-RUNNER-20261124.yaml. Actual product runner/driver inside isolated QA, guarded TCP4. No repeat lab acceptance, owner proxy deferred, no public activation or Apple changes."
+resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-PRODUCT-RUNNER-20261124.yaml and docs/APL_IOS_030_ACTUAL_PRODUCT_RUNNER_QA_2026-11-24.md. Actual product NativeXrayPacketSession/driver/initial NWPath/full route guarded TCP4 physical PASS, no repeat. NEXT design bounded actual product owner/credential-ticket/UI launch with strict synthetic-only egress guard and valid raw TCP stimulus, no unrelated traffic capture or forwarding. Keep production VLESS gate OFF and flags absent in release; preserve existing profiles/credentials and restore original signed app. Recheck baseline, no active owner VPN interruption without authorization. Owner deferred Основной. Then WAN/dynamic underlay and CloudKit/release gates; no Apple changes, merge or upload without owner decision."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
