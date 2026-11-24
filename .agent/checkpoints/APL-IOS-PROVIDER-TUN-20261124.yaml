@@ -1,6 +1,6 @@
 task_id: APL-IOS-PROVIDER-TUN-20261124
 parent_task: APL-IOS-UNIFIED-RELEASE-20261111
-status: in_progress
+status: completed
 goal: "Isolate exact product Rust/TUN forwarding under scoped routes after provider-direct PASS"
 definition_of_done:
   - "Verified product Go and Rust archives, fixed scoped route, synthetic destination only"
@@ -80,5 +80,5 @@ steps:
     result: "PASS: actual scoped TCP, exact HTTP200, host sent98 received160, TUN fd identity matched, SOCKS greeting, Rust target/TCP/SOCKS logs, native stop/drain and owned cleanup true. Independent peer witness1, relay1, ingress2209/egress2613, exact response hash correlated. Scoped only, not product acceptance."
   - step: 23
     action: "Verify historical manager unchanged, restore prior lab binary and remove synthetic private fixtures."
-    result: pending
-resume_instruction: "ARC only. Original Основной recovery first: iPhone Mirroring reports iPhone in Use; owner should lock phone with USB attached. Verify current profile and VPN state before action; use built-in targeted proxy check and original-only recovery, no other credentials/profile edits. Instrumented scoped signed QA candidate ready at native-artifacts/ios-030-provider-scoped-tun-metrics-v2-signed-20261124/NativeLabHost.app; no rebuild unchanged. After original VPN recovery and safe test authorization, one scoped synthetic test with exact nonce peer proof and new counters: hostHTTPAttempted/hostURLError/status, descriptorMatchedBefore/After, localSOCKSGreeting, Rust log/traffic/target counters. Preserve and restore original VPN, historical manager and prior lab app. No blind repeats, release gate changes or Apple changes."
+    result: "PASS: historical manager census identical, prior lab binary restored, temporary keys scrubbed, no test listeners or providers. Original proxy still OFF, separate unresolved recovery."
+resume_instruction: "Scoped TCP DoD complete with correlated physical run 288E0E16-9097-4FCF-AF36-7FC6A3BEC2A3. Do not rerun unchanged; parent task next product-equivalent route transition and original proxy recovery. See scoped TUN doc."
