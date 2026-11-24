@@ -1,6 +1,7 @@
 // Independent QA-only app; NEVER calls NetworkExtension, Keychain, App Group or profile APIs.
 import Darwin
 import Foundation
+import Network
 import SwiftUI
 
 private struct QAInput: Decodable {
@@ -30,44 +31,132 @@ private struct QAReceipt {
     var httpReceipt=false
     var stopped=false
     var directLANReachable=false
+    var lanErrorCode:Int32=0
+    var lanPhase="notProbed"
+    var lanPermissionDenied=false
+    var wifiHasIPv4=false
+    var wifiOnTestSubnet=false
     func encoded()->Data? {
         try? JSONSerialization.data(withJSONObject:[
             "schema":1,"runID":runID,"stage":stage,"socksGreeting":greeting,
             "socksConnect":connect,"exactHTTPReceipt":httpReceipt,
-            "xrayStopConfirmed":stopped,"directLANReachable":directLANReachable,"networkExtensionUsed":false,
+            "xrayStopConfirmed":stopped,"directLANReachable":directLANReachable,
+            "lanErrorCode":lanErrorCode,"lanPhase":lanPhase,
+            "lanPermissionDenied":lanPermissionDenied,"wifiHasIPv4":wifiHasIPv4,
+            "wifiOnTestSubnet":wifiOnTestSubnet,"networkExtensionUsed":false,
             "profilesAccessed":false,"releaseAuthorized":false],options:[.sortedKeys])
     }
 }
 
 // A bounded TCP-only transport control BEFORE libXray. Sends no application
 // payload, uses the same private-LAN peer socket, and never reads user routes.
+private struct LANProbe {
+    let connected:Bool
+    let errorCode:Int32
+    let phase:String
+    let wifiHasIPv4:Bool
+    let wifiOnTestSubnet:Bool
+}
+
 private enum DirectLANControl {
-    static func canConnect() -> Bool {
+    private static func wifiFlags() -> (Bool,Bool) {
+        var head:UnsafeMutablePointer<ifaddrs>?
+        guard Darwin.getifaddrs(&head)==0,let root=head else{return (false,false)}
+        defer { Darwin.freeifaddrs(root) }
+        var item:UnsafeMutablePointer<ifaddrs>?=root
+        var hasIPv4=false,onTestSubnet=false
+        while let entry=item {
+            defer { item=entry.pointee.ifa_next }
+            guard String(cString:entry.pointee.ifa_name)=="en0",
+                  let raw=entry.pointee.ifa_addr,
+                  Int32(raw.pointee.sa_family)==AF_INET else{continue}
+            hasIPv4=true
+            let addr=raw.withMemoryRebound(to:sockaddr_in.self,capacity:1){$0.pointee}
+            if UInt32(bigEndian:addr.sin_addr.s_addr) & 0xffffff00 == 0xc0a80100 {
+                onTestSubnet=true
+            }
+        }
+        return (hasIPv4,onTestSubnet)
+    }
+
+    static func probe() -> LANProbe {
+        let (wifiIPv4,sameSubnet)=wifiFlags()
+        func result(_ connected:Bool,_ code:Int32,_ phase:String)->LANProbe {
+            LANProbe(connected:connected,errorCode:code,phase:phase,
+                     wifiHasIPv4:wifiIPv4,wifiOnTestSubnet:sameSubnet)
+        }
         let fd=Darwin.socket(AF_INET,SOCK_STREAM,0)
-        guard fd>=0 else{return false}
-        defer{Darwin.close(fd)}
+        guard fd>=0 else{return result(false,errno,"socket")}
+        defer {Darwin.close(fd)}
         let flags=Darwin.fcntl(fd,F_GETFL)
-        guard flags>=0,Darwin.fcntl(fd,F_SETFL,flags|O_NONBLOCK)==0 else{return false}
+        guard flags>=0,Darwin.fcntl(fd,F_SETFL,flags|O_NONBLOCK)==0 else {
+            return result(false,errno,"nonblocking")
+        }
         var addr=sockaddr_in()
         addr.sin_len=UInt8(MemoryLayout<sockaddr_in>.size)
         addr.sin_family=sa_family_t(AF_INET)
         addr.sin_port=UInt16(39882).bigEndian
-        guard "192.168.1.80".withCString({inet_pton(AF_INET,$0,&addr.sin_addr)})==1 else{return false}
+        guard "192.168.1.80".withCString({inet_pton(AF_INET,$0,&addr.sin_addr)})==1 else {
+            return result(false,0,"invalidTarget")
+        }
         let connected=withUnsafePointer(to:&addr) {
             $0.withMemoryRebound(to:sockaddr.self,capacity:1) {
                 Darwin.connect(fd,$0,socklen_t(MemoryLayout<sockaddr_in>.size))
             }
         }
-        if connected==0{return true}
-        guard errno==EINPROGRESS else{return false}
+        if connected==0{return result(true,0,"connected")}
+        let connectError=errno
+        guard connectError==EINPROGRESS else{return result(false,connectError,"connect")}
         var ready=pollfd(fd:fd,events:Int16(POLLOUT),revents:0)
-        guard Darwin.poll(&ready,1,2500)>0,ready.revents & Int16(POLLOUT) != 0 else{return false}
+        let polled=Darwin.poll(&ready,1,2500)
+        if polled==0{return result(false,0,"timeout")}
+        if polled<0{return result(false,errno,"poll")}
         var soError:Int32=0
         var size=socklen_t(MemoryLayout<Int32>.size)
         guard withUnsafeMutablePointer(to:&soError,{
             getsockopt(fd,SOL_SOCKET,SO_ERROR,$0,&size)
-        })==0 else{return false}
-        return soError==0
+        })==0 else{return result(false,errno,"getsockopt")}
+        return result(soError==0,soError,soError==0 ? "connected" : "socketError")
+    }
+}
+
+// Apple's TN3179 recommends checking an endpoint-specific NWConnection
+// currentPath.unsatisfiedReason for .localNetworkDenied. This is a QA-only
+// outbound TCP attempt; no payload, VPN management, IP/profile logging.
+private struct LANPrivacyResult {
+    let state:String
+    let localNetworkDenied:Bool
+}
+
+private enum LANPrivacyControl {
+    static func probe() -> LANPrivacyResult {
+        let connection=NWConnection(host:"192.168.1.80",port:39882,using:.tcp)
+        let semaphore=DispatchSemaphore(value:0)
+        let lock=NSLock()
+        var state="timeout"
+        var localDenied=false
+        connection.stateUpdateHandler={ newState in
+            let label:String
+            switch newState {
+            case .ready: label="ready"
+            case .waiting(_): label="waiting"
+            case .failed(_): label="failed"
+            default: return
+            }
+            lock.lock()
+            state=label
+            localDenied=(connection.currentPath?.unsatisfiedReason == .localNetworkDenied)
+            lock.unlock()
+            semaphore.signal()
+        }
+        connection.start(queue:DispatchQueue.global(qos:.utility))
+        _=semaphore.wait(timeout: .now() + .seconds(3))
+        lock.lock()
+        let result=LANPrivacyResult(state:state,localNetworkDenied:localDenied)
+        lock.unlock()
+        connection.stateUpdateHandler=nil
+        connection.cancel()
+        return result
     }
 }
 
@@ -135,7 +224,19 @@ private enum DirectQAEngine {
               profile.serverHost=="192.168.1.80",profile.serverPort==39882,
               profile.serverName=="example.com" else{receipt.stage="rejectedInput";return receipt}
         guard NativeLabRuntime.running==false else{receipt.stage="alreadyRunning";return receipt}
-        receipt.directLANReachable=DirectLANControl.canConnect()
+        let lan=DirectLANControl.probe()
+        receipt.directLANReachable=lan.connected
+        receipt.lanErrorCode=lan.errorCode
+        receipt.lanPhase=lan.phase
+        receipt.wifiHasIPv4=lan.wifiHasIPv4
+        receipt.wifiOnTestSubnet=lan.wifiOnTestSubnet
+        if !lan.connected {
+            let privacy=LANPrivacyControl.probe()
+            receipt.lanPermissionDenied=privacy.localNetworkDenied
+            receipt.stage=privacy.localNetworkDenied ? "localNetworkPermissionDenied" : "lanUnavailable"
+            receipt.stopped=(NativeLabRuntime.running==false)
+            return receipt // Never start Xray against an unreachable LAN peer.
+        }
         do {
             let config=try NativeLabRuntime.prepare(profile,port:39879)
             receipt.stage="verifiedConfig"
@@ -158,9 +259,36 @@ private enum DirectQAEngine {
     @Published var status="Not requested"
     private var used=false
     func start() async {
-        guard !used,ProcessInfo.processInfo.arguments.contains("--apl-vless-direct-qa") else{return}
+        let args=ProcessInfo.processInfo.arguments
+        let lanOnly=args.contains("--apl-vless-lan-probe")
+        let full=args.contains("--apl-vless-direct-qa")
+        guard !used,lanOnly != full else{return}
         used=true
         let dir=FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]
+        if lanOnly {
+            status="Testing private LAN TCP only"
+            let evidence=await Task.detached(priority:.userInitiated) {
+                (DirectLANControl.probe(),LANPrivacyControl.probe())
+            }.value
+            let result=evidence.0
+            let privacy=evidence.1
+            let report:[String:Any]=[
+                "schema":1,"runID":UUID().uuidString.lowercased(),
+                "directLANReachable":result.connected,"lanErrorCode":result.errorCode,
+                "lanPhase":result.phase,"wifiHasIPv4":result.wifiHasIPv4,
+                "wifiOnTestSubnet":result.wifiOnTestSubnet,
+                "nwConnectionState":privacy.state,
+                "nwLocalNetworkDenied":privacy.localNetworkDenied,
+                "xrayWasNotStarted":true,"networkExtensionUsed":false,
+                "profilesAccessed":false,"releaseAuthorized":false]
+            if let bytes=try? JSONSerialization.data(withJSONObject:report,options:[.sortedKeys]) {
+                try? bytes.write(to:dir.appendingPathComponent("apl-vless-lan-control-result.json"),
+                                 options:[.atomic,.completeFileProtection])
+            }
+            status=privacy.localNetworkDenied ? "Allow Local Network in iOS Settings" :
+                   (result.connected ? "Private LAN TCP verified" : "Private LAN TCP unavailable")
+            return
+        }
         guard let input=QAInput.consume(dir.appendingPathComponent("apl-vless-direct-input.json")) else{
             status="Synthetic input rejected";return
         }

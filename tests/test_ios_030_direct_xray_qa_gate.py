@@ -34,11 +34,37 @@ class DirectXrayQASafetyTests(unittest.TestCase):
 
     def test_bounded_no_payload_lan_control_before_xray(self):
         self.assertIn('"directLANReachable":directLANReachable',SRC)
-        self.assertIn('DirectLANControl.canConnect()',SRC)
+        self.assertIn('DirectLANControl.probe()',SRC)
         self.assertIn('Darwin.poll(&ready,1,2500)',SRC)
         self.assertIn('"192.168.1.80"',SRC)
-        self.assertLess(SRC.index('receipt.directLANReachable=DirectLANControl.canConnect()'),
+        self.assertLess(SRC.index('let lan=DirectLANControl.probe()'),
                         SRC.index('let config=try NativeLabRuntime.prepare'))
+
+    def test_no_xray_readonly_lan_probe_and_bounded_diagnostics(self):
+        self.assertIn('args.contains("--apl-vless-lan-probe")',SRC)
+        self.assertIn('guard !used,lanOnly != full else{return}',SRC)
+        self.assertIn('"xrayWasNotStarted":true',SRC)
+        self.assertIn('import Network',SRC)
+        self.assertIn('LANPrivacyControl.probe()',SRC)
+        self.assertIn('Allow Local Network in iOS Settings',SRC)
+        self.assertIn('connection.currentPath?.unsatisfiedReason == .localNetworkDenied',SRC)
+        self.assertIn('"nwLocalNetworkDenied":privacy.localNetworkDenied',SRC)
+        self.assertIn('semaphore.wait(timeout: .now() + .seconds(3))',SRC)
+        self.assertIn('apl-vless-lan-control-result.json',SRC)
+        self.assertIn('result.errorCode',SRC)
+        self.assertIn('result.phase',SRC)
+        self.assertIn('wifiOnTestSubnet',SRC)
+        self.assertIn('"en0"',SRC)
+        self.assertIn('0xc0a80100',SRC)
+        self.assertIn('return',SRC[SRC.index('if lanOnly {'):SRC.index('guard let input=QAInput.consume')])
+        self.assertLess(SRC.index('if lanOnly {'),SRC.index('guard let input=QAInput.consume'))
+
+    def test_full_runtime_fail_closed_until_lan_is_reachable(self):
+        self.assertIn('if !lan.connected {',SRC)
+        self.assertIn('receipt.lanPermissionDenied=privacy.localNetworkDenied',SRC)
+        self.assertIn('"localNetworkPermissionDenied" : "lanUnavailable"',SRC)
+        self.assertIn('return receipt // Never start Xray against an unreachable LAN peer.',SRC)
+        self.assertLess(SRC.index('if !lan.connected {'),SRC.index('let config=try NativeLabRuntime.prepare'))
 
     def test_unsigned_pinned_library_and_separate_project(self):
         for token in ('verify_xray_source_candidate.py','CODE_SIGNING_ALLOWED: NO',
