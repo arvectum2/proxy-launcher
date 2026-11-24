@@ -13,5 +13,8 @@ steps:
     result: "All TCP/UDP combinations completed; provider absent on recheck. Owner deferred original proxy."
   - step: 2
     action: "Implement isolated DNS wire challenge and separate peer control; verify offline before device."
+    result: "PASS ARM64 signed DNS wire QA, 108 local checks, 87 receipt tests (offline uv); independent DNS wire and wrong-key Mac controls PASS. ARC job quota transient resolved sequentially."
+  - step: 3
+    action: "Actual device baseline OFF, Нидерланды 2; run DNS wire positive and wrong-key negative sequentially with existing signed candidate and fsynced journal, restore prior lab."
     result: pending
 resume_instruction: "Finish DNS wire implementation and tests, then signed QA with independent receipt. Do not repeat accepted protocols. No public resolver forwarding or owner VPN changes."
