@@ -17,5 +17,8 @@ steps:
     result: "Committed cb4ea9e3; ARM64 host and extension build PASS; focused Python18 PASS"
   - step: 3
     action: "Sign and install scoped variant using existing exact QA profiles; inspect before creating any manager"
+    result: "Initial signing failed before install: host sealed nested extension before extension was signed. Extension signature itself valid. Production PacketTunnel currently running (PID82794); no phone mutation."
+  - step: 4
+    action: "Re-sign exact QA extension first, then host; verify offline. Do not install or start QA while production VPN active."
     result: pending
 resume_instruction: "Build and sign isolated scoped TUN variant, inspect baseline, prepare exact owned profile, test one nonce, confirm both native engines drained and restore prior binary."
