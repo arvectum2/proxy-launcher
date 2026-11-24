@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov 18:58 DNS wire physical PASS and wrong-key expected rejection PASS; historical census and OFF baseline restored. Established peer loss and independent leak observation outstanding."
+current: "24 Nov 19:17: DNS wire, wrong-key rejection, established UDP4 peer-loss and independent bounded RVI PASS. OFF physical1/tunnel0, active physical0/tunnel2, no ambiguity/drop, first exact reply and second timed out after relay cut. Prior lab restored, historical manager unchanged, no QA sockets/RVI/providers. Original proxy diagnosis deferred. Remaining IPv6/DNS leak controls, WAN/dynamic underlay, actual product and CloudKit release gates."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "21ed00f5aebde12ead1626de170e3742414576ec (TCP6 UDP4 UDP6 physical PASS, all 101 offline checks/preflight PASS, cleanup verified)"
+last_verified_commit: "eb882142dcdcddf77ac7a95801ac213bcfd9b7d3 (physical DNS/wrong-key/UDP4 loss and bounded RVI evidence, 200 offline checks/preflight and cleanup)"
 test_results:
+  - "24 Nov physical DNS wire/wrong-key PASS; established UDP4 loss PASS, OFF physical1/tunnel0 active physical0/tunnel2 complete. 92 receipt/RVI +22 focused +21 parser +15 guard +50 release checks/preflight PASS. Cleanup and original binary verified. No universal leak or product acceptance."
   - "24 Nov physical full-route TCP6/UDP4/UDP6 all PASS, independent witness1 each and matching challenge/response hashes, native drain/stop, exact census, previous app restored, original selected Нидерланды 2 OFF. 22+50+15+14 and preflight PASS. Prior head 8d859e8f six CI checks success. No unrestricted/production acceptance."
   - "24 Nov full-route fixed protocol candidate ARM64 and strict signature PASS; 22+50+15+14 tests/preflight PASS; three independent Mac reference preflights PASS, temporary inputs cleaned. Physical TCP6/UDP4/UDP6 pending; no device mutation. Prior eadf6c9c six CI checks green."
   - "24 Nov full OS route shape guarded TCP4 physical PASS: host sent98/received160, HTTP200, Mac witness1 relay1 bytes2145/2613, correlated hashes, native drain/stop and exact cleanup. 21 focused +50 release +9 parser +9 guard checks/preflight PASS. No product/UDP/DNS/WAN/leak acceptance."
@@ -530,6 +531,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-DNS-NEGATIVE-QA-20261124.yaml. DNS wire and wrong-key accepted, no repeat. NEXT established synthetic peer loss with two challenges in same session and independent relay cut evidence; independent leak observation separate. Owner deferred Основной. No production activation or Apple changes."
+resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-DNS-NEGATIVE-QA-20261124.yaml and docs/APL_IOS_030_VLESS_DNS_NEGATIVE_QA_2026-11-24.md. DNS wire, wrong-key and UDP4 established loss bounded RVI PASS; do not repeat. NEXT extend independent synthetic RVI controls to UDP6 and DNS, using exact targets and positive OFF control, no raw payload capture; then WAN/dynamic underlay and actual product gates. Recheck device baseline, no active owner VPN interruption without permission. Owner deferred Основной. No public VLESS enablement, Apple changes, merge or upload. Prior lab restored. Verify CI exact head."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
