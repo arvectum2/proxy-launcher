@@ -1,0 +1,16 @@
+task_id: APL-IOS-PRODUCT-RUNNER-20261124
+status: in_progress
+goal: "Isolate actual product NativeXrayPacketSession and NativeXrayRuntimeDriver with real full candidate and dynamic initial NWPath sample in separately signed guarded QA."
+definition_of_done:
+  - "Compile actual product runner/driver and route builder against pinned archives; only explicit isolated QA synthetic guard; public release gate remains off."
+  - "One valid raw TCP physical receipt and independent peer proof plus exact native drain and cleanup; no product profile changes."
+  - "Do not claim product owner/UI/credential launch, unrestricted WAN or handoff acceptance."
+last_verified_commit: "acde4dcd guarded IPv6/DNS RVI physical PASS"
+steps:
+  - step: 1
+    action: "Inspect actual product source and r20, compare accepted lab."
+    result: "Product source unchanged since r20. Main differences actual runtime driver, descriptor-before-engine, second validation, immediate runner completion, NWPath initial selection and outer owner watcher. Need discriminating actual runner test first."
+  - step: 2
+    action: "Build isolated product runner QA mode with fixed TCP4 guard; compile actual source files, no owner profile access."
+    result: pending
+resume_instruction: "Finish isolated product runner build/test. Preserve public gate, no product app install, no original proxy diagnosis. No active owner VPN interruption."

@@ -533,6 +533,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml and docs/APL_IOS_030_VLESS_IPV6_DNS_LEAK_QA_2026-11-24.md. Do not repeat accepted guarded transport/DNS/loss/RVI. NEXT inspect actual product-equivalent runtime and WAN/dynamic underlay acceptance gates, use synthetic test with valid TCP stimulus, no capture or forwarding of unrelated traffic. Recheck baseline before any device action; do not interrupt active VPN without permission. Owner deferred Основной. No public enablement, merge, upload or Apple capability changes without owner decision."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-PRODUCT-RUNNER-20261124.yaml. Actual product runner/driver inside isolated QA, guarded TCP4. No repeat lab acceptance, owner proxy deferred, no public activation or Apple changes."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
