@@ -534,6 +534,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-PRODUCT-RUNNER-20261124.yaml and docs/APL_IOS_030_ACTUAL_PRODUCT_RUNNER_QA_2026-11-24.md. Actual product NativeXrayPacketSession/driver/initial NWPath/full route guarded TCP4 physical PASS, no repeat. NEXT design bounded actual product owner/credential-ticket/UI launch with strict synthetic-only egress guard and valid raw TCP stimulus, no unrelated traffic capture or forwarding. Keep production VLESS gate OFF and flags absent in release; preserve existing profiles/credentials and restore original signed app. Recheck baseline, no active owner VPN interruption without authorization. Owner deferred Основной. Then WAN/dynamic underlay and CloudKit/release gates; no Apple changes, merge or upload without owner decision."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml. Real containing app owner/credential path in separate QA namespace with strict guard. No owner proxy diagnosis, active VPN interruption, public activation or Apple changes."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
