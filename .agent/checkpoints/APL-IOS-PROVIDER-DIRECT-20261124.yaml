@@ -17,5 +17,9 @@ steps:
     result: "all six exact-head CI checks success; stage_nativeqa_isolated.py reused NativeLab IDs with product VPNController names, as well as prior AWG/Xray labs"
   - step: 2
     action: "Implement read-only historical manager classification and preservation-only scoped coexistence"
+    result: "v3 ARM64 build, 5 tests, offline signatures PASS; on-device inspect classified one native-runtime-review-v1, disabled/disconnected, strict no credential fields"
+  - step: 3
+    action: "Create separately marked provider-direct QA manager; preserve native-runtime-review-v1"
     result: pending
 resume_instruction: "Finish exact historical classification, do not remove pre-existing record; only create a distinctly marked temporary profile when the existing one is proven inactive and credential-free. Record each mutation and recovery."
+  # The first build and source test precede the device mutation below.

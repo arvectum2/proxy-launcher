@@ -33,6 +33,16 @@ class ProviderDirectQAGate(unittest.TestCase):
         self.assertIn('report["nativeStopConfirmed"]=stopped',P)
         self.assertIn('NativeLabRuntime.running==false',P)
         self.assertIn('20_000_000_000',P)
+    def test_historical_lab_is_preserved_not_adopted(self):
+        body=H.split('private func historicalDormantKind(',1)[1].split('private func inspectProviderManagers',1)[0]
+        for token in ('!item.isEnabled','item.connection.status == .disconnected','p.passwordReference==nil','p.identityData==nil','!p.includeAllNetworks','Set(config.keys)==["aplNativeMode","aplNativeOwner"]','UUID(uuidString:owner) != nil','native-product-start-v1','APL Native Product'):
+            self.assertIn(token,body)
+        for token in ('saveToPreferences','removeFromPreferences','startVPNTunnel','stopVPNTunnel'):
+            self.assertNotIn(token,body)
+        self.assertIn('APL provider-direct synthetic QA v1',H)
+        self.assertIn('preserved.allSatisfy({historicalDormantKind($0) != nil})',H)
+        self.assertIn('if let existing=owned.first{return existing}',H)
+
     def test_census_readonly_and_explicit_lab_owned_gate(self):
         body=H.split('private func inspectProviderManagers(runID:String)',1)[1].split('#endif',1)[0]
         for token in ('loadAllFromPreferences','relatedManagers','ownedManagers','otherActive'):
