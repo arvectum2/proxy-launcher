@@ -4,7 +4,7 @@ import argparse, hashlib, http.server, ipaddress, json, os
 from pathlib import Path
 import secrets, select, socket, socketserver, ssl, subprocess
 import threading, time, uuid
-from native_runtime_qa_receipt import validate_command
+from native_runtime_qa_receipt import validate_command, post_loss_nonce
 from run_xray_vless_peer_qa import wait_for
 from unified_synthetic_fixture import keypair, url64
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
@@ -117,13 +117,27 @@ def run(root, peer, command, preflight_only=False):
     if command:
         item=json.loads(command.read_text())
         validate_command(item)
-        assert item["action"]=="run" and item["reference"]["kind"]=="vlessReality" and (item.get("scope") in ("vlessDatagrams","vlessDNSWire") or (item.get("scope") is None and item["probe"]=="tcp4")) and item["mode"] in ("positive","wrong-key")
+        assert item["action"]=="run" and item["reference"]["kind"]=="vlessReality" and (item.get("scope") in ("vlessDatagrams","vlessDNSWire","vlessGuardedLoss") or (item.get("scope") is None and item["probe"]=="tcp4")) and item["mode"] in ("positive","wrong-key","peer-loss")
         nonce=item["nonce"]
     work=root/("witness-"+str(uuid.uuid4()))
     work.mkdir(mode=0o700)
     pre=secrets.token_hex(20)
     seen=[];counts=[0,0,0];first_records=[];lock=threading.Lock();stop=threading.Event()
     negative=item is not None and item["mode"]=="wrong-key"
+    loss=item is not None and item["mode"]=="peer-loss"
+    second=post_loss_nonce(item) if loss else None
+    cut=threading.Event()
+    loss_times={}
+    active=set()
+    def cut_relay():
+        with lock:
+            cut.set()
+            loss_times["cutAt"]=time.time()
+            sockets=list(active)
+        for sock in sockets:
+            try:sock.shutdown(socket.SHUT_RDWR)
+            except OSError:pass
+        print("NATIVELAB_VLESS_RELAY_CUT",flush=True)
     probe=item["probe"] if item else "tcp4"
     target=TARGET if probe.endswith("4") else "2001:db8:77::77"
     dns=probe=="dnsWire4"
@@ -154,10 +168,19 @@ def run(root, peer, command, preflight_only=False):
                 sock.sendto(dns_wire_response(challenge),self.client_address)
                 with lock:seen.append(challenge)
                 return
+            if loss and raw==("APL_UDP:"+second).encode():
+                with lock:seen.append(second)
+                return
             if raw not in (("APL_UDP:"+nonce).encode(),("APL_UDP:"+pre).encode()):return
             challenge=raw[8:].decode("ascii")
             sock.sendto(("APL_RECEIPT:"+challenge).encode(),self.client_address)
-            with lock:seen.append(challenge)
+            with lock:
+                seen.append(challenge)
+                if loss and challenge==nonce and "firstAt" not in loss_times:
+                    loss_times["firstAt"]=time.time()
+                    timer=threading.Timer(.5,cut_relay)
+                    timer.daemon=True
+                    timer.start()
     class Server(socketserver.ThreadingTCPServer):
         daemon_threads=True
         allow_reuse_address=True
@@ -169,8 +192,11 @@ def run(root, peer, command, preflight_only=False):
             self.request.settimeout(5)
             try:
                 with socket.create_connection((HOST,PORT),timeout=3) as upstream:
+                    with lock:
+                        if cut.is_set():return
+                        active.update((self.request,upstream))
                     until=time.monotonic()+18
-                    while not stop.is_set() and time.monotonic()<until:
+                    while not stop.is_set() and not cut.is_set() and time.monotonic()<until:
                         ready,_,_=select.select([self.request,upstream],[],[],.2)
                         for src in ready:
                             data=src.recv(65536)
@@ -180,10 +206,17 @@ def run(root, peer, command, preflight_only=False):
                                 if src is self.request:meter.feed(data)
                             (upstream if src is self.request else self.request).sendall(data)
             except OSError:return
+            finally:
+                with lock:
+                    active.discard(self.request)
+                    if "upstream" in locals():active.discard(upstream)
     class LANServer(Server):
         def verify_request(self,request,address):
             if ipaddress.ip_address(address[0]) not in ipaddress.ip_network("192.168.1.0/24"):return False
             with lock:
+                if cut.is_set():
+                    loss_times["postCutAttempts"]=loss_times.get("postCutAttempts",0)+1
+                    return False
                 if counts[0]>=8:return False
                 counts[0]+=1
             return not stop.is_set()
@@ -238,8 +271,12 @@ def run(root, peer, command, preflight_only=False):
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
         with lock:
             result={"schema":1,"probe":probe,"mode":item["mode"],"localPositiveControl":True,"localNegativeControl":negative,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"firstTLSRecords":[meter.summary() for meter in first_records[first_record_baseline:first_record_baseline+8]],"responseSHA256":hashlib.sha256(dns_wire_response(nonce) if dns else ("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
+            if loss:
+                result.update(loss=dict(loss_times,secondChallengeSHA256=hashlib.sha256(second.encode()).hexdigest(),secondWitnessCount=seen.count(second),relayCut=cut.is_set(),activeAfterCut=len(active)))
         (work/"peer-observation.json").write_text(json.dumps(result,sort_keys=True)+"\n")
         print("NATIVELAB_VLESS_PEER_OBSERVATION",json.dumps(result),flush=True)
+        if loss and not (cut.is_set() and 0<=loss_times.get("cutAt",0)-loss_times.get("firstAt",0)<=1.5 and seen.count(second)==0 and not active):
+            return 2
         return 0 if result["witnessCount"]==(0 if negative else 1) and result["relayAccepted"]>0 and result["ingressBytes"]>0 and result["egressBytes"]>0 else 2
     finally:
         stop.set()

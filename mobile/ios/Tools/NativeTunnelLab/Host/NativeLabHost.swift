@@ -5,6 +5,9 @@ import Foundation
 import SwiftUI
 import NetworkExtension
 import Network
+#if APL_PROVIDER_FULL_ROUTE_QA
+import CryptoKit
+#endif
 
 private final class LabMessageGate: @unchecked Sendable {
     private let lock = NSLock()
@@ -46,6 +49,9 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     private var runID: String?
     private var transport = "vless"
     private var probeKind = "tcp4"
+    #if APL_PROVIDER_FULL_ROUTE_QA
+    private var guardedLoss=false
+    #endif
     private var exitChallenge: Int?
     private var probeCode = -999
     private var counters:[String:Int] = [:]
@@ -71,7 +77,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let input = documents.appendingPathComponent("native-lab-input.json")
         let output = documents.appendingPathComponent("native-lab-result.json")
         try? FileManager.default.removeItem(at:output)
-        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int?; let transport:String?; let probeKind:String?; let nativeControlQA:Bool? }
+        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int?; let transport:String?; let probeKind:String?; let nativeControlQA:Bool?; let guardedLoss:Bool? }
         guard let raw=try? Data(contentsOf:input),raw.count<=4096,
               let request=try? JSONDecoder().decode(Input.self,from:raw),
               UUID(uuidString:request.runID) != nil else { return }
@@ -83,6 +89,22 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             if let data=try? JSONSerialization.data(withJSONObject:report,options:.sortedKeys) {
                 try? data.write(to:output,options:.atomic)
             }
+            return
+        }
+        #endif
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        if request.fixture=="loss-off-control" {
+            guard request.transport=="vless-product-direct",request.probeKind=="udp4",
+                  request.guardedLoss==true,ScopedTCPWitness.validNonce(request.nonce) else{return}
+            let before=await inspectProviderManagers(runID:request.runID)
+            guard before["ownedManagers"] as? Int==0,before["otherActive"] as? Int==0,
+                  before["knownDormantCount"] as? Int==1 else{return}
+            let value=request.nonce
+            let r=await Task.detached(priority:.userInitiated){FixedUDPWitness.run(value,kind:.udp4)}.value
+            let after=await inspectProviderManagers(runID:request.runID)
+            let same=NSDictionary(dictionary:before).isEqual(to:after)
+            let result:[String:Any]=["runID":request.runID,"offControl":true,"exact":r.exact,"counters":r.counters,"censusUnchanged":same]
+            if let data=try? JSONSerialization.data(withJSONObject:result,options:.sortedKeys) {try? data.write(to:output,options:.atomic)}
             return
         }
         #endif
@@ -98,6 +120,12 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         guard request.exitChallenge == nil || (100000...999999).contains(request.exitChallenge!) else {return}
         transport=request.transport ?? "vless"
         probeKind=request.probeKind ?? "tcp4"
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        guardedLoss=request.guardedLoss==true
+        guard !guardedLoss || probeKind=="udp4" else{return}
+        #else
+        guard request.guardedLoss != true else{return}
+        #endif
         #if APL_PROVIDER_DIRECT_QA
         #if APL_PROVIDER_FULL_ROUTE_QA
         guard (transport=="vless-product-direct" && FixedWitnessKind(rawValue:probeKind) != nil) || request.fixture=="cleanup-only" else{return}
@@ -407,7 +435,28 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let rawResult=await Task.detached(priority:.userInitiated){ScopedTCPWitness.run(value)}.value
         #endif
         counters.merge(rawResult.counters){old,_ in old}
-        let hostExact=rawResult.exact && manager.connection.status == .connected
+        var hostExact=rawResult.exact && manager.connection.status == .connected
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        if guardedLoss {
+            counters["lossFirstExact"]=hostExact ? 1:0
+            if hostExact {
+                // Peer closes only its synthetic relay after first response.
+                // Distinct second nonce, same provider session, no fallback.
+                let second=SHA256.hash(data:Data(("APL-QA-POST-LOSS:"+value).utf8)).map{String(format:"%02x",$0)}.joined().prefix(40)
+                let t=DispatchTime.now().uptimeNanoseconds
+                try? await Task.sleep(nanoseconds:2_000_000_000)
+                counters["lossWaitMS"]=Int((DispatchTime.now().uptimeNanoseconds-t)/1_000_000)
+                counters["lossSecondConnectedBefore"]=manager.connection.status == .connected ? 1:0
+                let n=String(second)
+                let secondResult=await Task.detached(priority:.userInitiated){FixedUDPWitness.run(n,kind:.udp4)}.value
+                for (k,v) in secondResult.counters {counters["lossSecond_"+k]=v}
+                counters["lossSecondExact"]=secondResult.exact ? 1:0
+                counters["lossSecondConnectedAfter"]=manager.connection.status == .connected ? 1:0
+                hostExact = !secondResult.exact && secondResult.counters["hostDatagramsSent"]==1 &&
+                    counters["lossSecondConnectedBefore"]==1 && counters["lossSecondConnectedAfter"]==1
+            }
+        }
+        #endif
         #endif
         let direct:Data?=await withCheckedContinuation { continuation in
             let gate=LabMessageGate(continuation)

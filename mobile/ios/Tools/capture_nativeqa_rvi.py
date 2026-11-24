@@ -34,6 +34,8 @@ def target_for(command):
         raise ValueError("unsupported RVI observation")
     if command.get("mode") not in ("observe-off", "positive", "peer-loss"):
         raise ValueError("unsupported RVI mode")
+    if kind=="vlessReality" and scope=="vlessGuardedLoss" and command["probe"]=="udp4":
+        return TARGETS["udp4"]
     if kind == "wireGuard" and scope == "wireGuardFull":
         return TARGETS[command["probe"]]
     if kind == "amneziaWG1" and scope is None:
