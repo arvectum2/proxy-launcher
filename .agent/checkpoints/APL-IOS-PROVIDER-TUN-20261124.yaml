@@ -33,5 +33,8 @@ steps:
   - step: 8
     action: "Run one scoped host HTTP request through Rust/TUN with independent synthetic peer; drain and remove owned manager."
     run_id: AFE8730D-6E80-4E8E-9EF9-34FA10205C14
+    result: "Device connected=true, Rust started=true, host HTTP=false, Rust drain=true, native stop=true, cleaned=true; independent peer positive control true, physical accepts=0 and witness=0, run IDs and challenge hash matched. Result negative."
+  - step: 9
+    action: "Post-test read-only manager census, restore previous lab binary and reconnect original Основной."
     result: pending
 resume_instruction: "Signed artifact ready at native-artifacts/ios-030-provider-scoped-tun-signed-20261124/NativeLabHost.app. Do not rebuild or re-sign unchanged. Physical test blocked while production VPN active. Obtain explicit authorization for temporary interruption or wait for user to stop it; record original selected profile and VPN state, then recheck device. Use existing scoped QA procedure, independent nonce witness, exact lab cleanup and restore original VPN state. Do not run concurrent VPNs."
