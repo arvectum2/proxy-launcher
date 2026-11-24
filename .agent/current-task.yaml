@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov 19:17: DNS wire, wrong-key rejection, established UDP4 peer-loss and independent bounded RVI PASS. OFF physical1/tunnel0, active physical0/tunnel2, no ambiguity/drop, first exact reply and second timed out after relay cut. Prior lab restored, historical manager unchanged, no QA sockets/RVI/providers. Original proxy diagnosis deferred. Remaining IPv6/DNS leak controls, WAN/dynamic underlay, actual product and CloudKit release gates."
+current: "24 Nov IPv6/DNS guarded loss candidate signed, 201 checks and both Mac positive controls PASS. Device locked CoreDevice10002 on read-only launch; prior NativeLab restored, no physical traffic/manager created. Await device unlock or active Mirroring. Owner deferred Основной."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "eb882142dcdcddf77ac7a95801ac213bcfd9b7d3 (physical DNS/wrong-key/UDP4 loss and bounded RVI evidence, 200 offline checks/preflight and cleanup)"
+last_verified_commit: "9e085679890477b3002fe35a92e9983c2ad78633 (offline IPv6 DNS candidate and Mac controls, no physical acceptance)"
 test_results:
+  - "24 Nov IPv6/DNS loss signed candidate and 201 checks/preflight PASS, Mac both positive controls PASS. Physical launch blocked by Locked/CoreDevice10002; no test manager or traffic, previous lab restored. Previous CI 5 success/1 cancelled."
   - "24 Nov physical DNS wire/wrong-key PASS; established UDP4 loss PASS, OFF physical1/tunnel0 active physical0/tunnel2 complete. 92 receipt/RVI +22 focused +21 parser +15 guard +50 release checks/preflight PASS. Cleanup and original binary verified. No universal leak or product acceptance."
   - "24 Nov physical full-route TCP6/UDP4/UDP6 all PASS, independent witness1 each and matching challenge/response hashes, native drain/stop, exact census, previous app restored, original selected Нидерланды 2 OFF. 22+50+15+14 and preflight PASS. Prior head 8d859e8f six CI checks success. No unrestricted/production acceptance."
   - "24 Nov full-route fixed protocol candidate ARM64 and strict signature PASS; 22+50+15+14 tests/preflight PASS; three independent Mac reference preflights PASS, temporary inputs cleaned. Physical TCP6/UDP4/UDP6 pending; no device mutation. Prior eadf6c9c six CI checks green."
@@ -531,6 +532,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml; UDP6 and DNS wire loss/RVI; no original proxy diagnosis or unauthorized interruption."
+resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml and docs/APL_IOS_030_VLESS_IPV6_DNS_LEAK_QA_2026-11-24.md. Signed candidate ready, local reference controls PASS; iOS launch blocked Locked/CoreDevice10002. Prior NativeLab restored, no manager prepared, no physical test started. When device unlocked or Mirroring available, recheck baseline OFF, use existing signed artifact and copy existing run.py to fresh private evidence directory; run UDP6/DNS OFF and established loss. Require exact peer and complete RVI with positive OFF control before leak acceptance. No repeat accepted UDP4 or original proxy diagnosis. No interruption of active VPN without authorization, Apple changes or public enablement."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
