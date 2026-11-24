@@ -387,6 +387,20 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         defer { busy = false }
         #if APL_PROVIDER_DIRECT_QA
         guard transport=="vless-product-direct",let session=manager.connection as? NETunnelProviderSession else{return}
+        #if APL_PROVIDER_SCOPED_TUN_QA
+        // Only the fixed synthetic target; the OS scoped route feeds Rust/TUN.
+        var hostExact=false
+        let cfg=URLSessionConfiguration.ephemeral
+        cfg.timeoutIntervalForRequest=5;cfg.timeoutIntervalForResource=6
+        cfg.connectionProxyDictionary=[:];cfg.urlCache=nil;cfg.httpCookieStorage=nil
+        let client=URLSession(configuration:cfg,delegate:NoLabRedirect(),delegateQueue:nil)
+        defer{client.invalidateAndCancel()}
+        if let url=URL(string:"http://198.51.100.77:39883/"+value) {
+            if let (body,response)=try? await client.data(from:url) {
+                hostExact=(response as? HTTPURLResponse)?.statusCode==200 && body==Data(("APL_RECEIPT:"+value).utf8) && manager.connection.status == .connected
+            }
+        }
+        #endif
         let direct:Data?=await withCheckedContinuation { continuation in
             let gate=LabMessageGate(continuation)
             DispatchQueue.global().asyncAfter(deadline:.now()+9){gate.finish(nil)}
@@ -396,7 +410,14 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         if let direct,let parsed=try? JSONSerialization.jsonObject(with:direct) as? [String:Bool] {
             providerDirectReceipt=parsed
         }
+        #if APL_PROVIDER_SCOPED_TUN_QA
+        providerDirectReceipt["hostExactHTTPReceipt"]=hostExact
+        let good=hostExact && providerDirectReceipt["providerProcess"]==true &&
+            providerDirectReceipt["rustTUNStarted"]==true && providerDirectReceipt["rustDrainConfirmed"]==true &&
+            providerDirectReceipt["nativeStopConfirmed"]==true
+        #else
         let good=providerDirectReceipt["exactHTTPReceipt"]==true && providerDirectReceipt["providerProcess"]==true && providerDirectReceipt["rustTUNStarted"]==false && providerDirectReceipt["nativeStopConfirmed"]==true
+        #endif
         probeCode=good ? 200 : -1001
         status=good ? "Exact response received; verify independent server receipt" : "Probe failed"
         return

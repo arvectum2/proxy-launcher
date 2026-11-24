@@ -1,0 +1,18 @@
+task_id: APL-IOS-PROVIDER-TUN-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: in_progress
+goal: "Isolate exact product Rust/TUN forwarding under scoped routes after provider-direct PASS"
+definition_of_done:
+  - "Verified product Go and Rust archives, fixed scoped route, synthetic destination only"
+  - "One actual host HTTP request through TUN; independent correlated peer witness; native drain and exact cleanup"
+  - "Compare against provider-direct PASS, document result, preserve old disabled profile and original lab app"
+baseline_commit: 68f07478
+baseline: "Provider-direct v3 PASS; old runtime-review manager preserved, new profile absent; original APL OFF, NativeLab restored"
+steps:
+  - step: 1
+    action: "Inspect exact product startOwned handoff and Rust archive"
+    result: "Rust SHA256 6aea76be103f0266c54d10e049f6b9a231cc8ccaf25c59c89003bafe61b2ae16 equals product stage manifest; exactDNS=true; fixed /32 route"
+  - step: 2
+    action: "Prepare distinct compile-time scoped Rust/TUN lab mode; no default routes or DNS capture"
+    result: pending
+resume_instruction: "Build and sign isolated scoped TUN variant, inspect baseline, prepare exact owned profile, test one nonce, confirm both native engines drained and restore prior binary."

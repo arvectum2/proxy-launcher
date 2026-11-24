@@ -20,7 +20,7 @@ class ProviderDirectQAGate(unittest.TestCase):
             self.assertIn(token,P)
     def test_synthetic_scope_without_rust_tun(self):
         self.assertIn('NEIPv4Route(destinationAddress:"198.51.100.77",subnetMask:"255.255.255.255")',P)
-        for token in ('default()', 'includedRoutes = [.default', 'excludedRoutes', 'dnsSettings', 'import tun2proxy', 'packetFlow', 'SecItem'):
+        for token in ('default()', 'includedRoutes = [.default', 'excludedRoutes', 'dnsSettings', 'packetFlow', 'SecItem'):
             self.assertNotIn(token,P)
         self.assertNotIn('ProviderVLESSHardwareQA',(ROOT/'mobile/ios/project.yml').read_text())
         self.assertIn('report["rustTUNStarted"]=false',P)
@@ -33,6 +33,15 @@ class ProviderDirectQAGate(unittest.TestCase):
         self.assertIn('report["nativeStopConfirmed"]=stopped',P)
         self.assertIn('NativeLabRuntime.running==false',P)
         self.assertIn('20_000_000_000',P)
+    def test_scoped_tun_variant_pinned_and_drained(self):
+        self.assertIn("6aea76be103f0266c54d10e049f6b9a231cc8ccaf25c59c89003bafe61b2ae16",B)
+        self.assertIn("APL_PROVIDER_SCOPED_TUN_QA",P)
+        self.assertIn('ExactLabTUNDescriptor.find(address:"192.0.2.177")',P)
+        self.assertIn("dnsBypass:[],exactDNS:true",P)
+        self.assertIn("TunnelEngineHandoff.stopAndDrain",P)
+        self.assertIn('providerDirectReceipt["rustDrainConfirmed"]==true',H)
+        self.assertIn('providerDirectReceipt["hostExactHTTPReceipt"]=hostExact',H)
+
     def test_historical_lab_is_preserved_not_adopted(self):
         body=H.split('private func historicalDormantKind(',1)[1].split('private func inspectProviderManagers',1)[0]
         for token in ('!item.isEnabled','item.connection.status == .disconnected','p.passwordReference==nil','p.identityData==nil','!p.includeAllNetworks','Set(config.keys)==["aplNativeMode","aplNativeOwner"]','UUID(uuidString:owner) != nil','native-product-start-v1','APL Native Product'):

@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 umask 077
-[[ $# == 2 && ! -e "$2" ]]
-source="$1";out="$2"
+[[ ( $# == 2 || $# == 3 ) && ! -e "$2" ]]
+source="$1";out="$2";rust="${3:-}"
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 python3 - "$source" <<'PY'
 import hashlib,json,pathlib,sys
@@ -87,12 +87,36 @@ schemes:
       targets:
         NativeLabHost: all
 YAML
+if [[ -n "$rust" ]];then
+  python3 - "$rust" <<'RUST'
+from pathlib import Path
+import hashlib,sys
+p=Path(sys.argv[1])/'libtun2proxy.a'
+with p.open('rb') as f:
+    assert hashlib.file_digest(f,'sha256').hexdigest()=='6aea76be103f0266c54d10e049f6b9a231cc8ccaf25c59c89003bafe61b2ae16'
+RUST
+  cp "$rust/libtun2proxy.a" "$out/Lib/"
+  cp "$rust/Headers/tun2proxy.h" "$out/Lib/Headers/"
+  printf 'module tun2proxy { header "tun2proxy.h" export * }\n' >> "$out/Lib/Headers/module.modulemap"
+  for n in XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate;do cp "$root/SharedCore/$n.swift" "$out/Sources/";done
+  cp "$root/Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift" "$out/Sources/"
+  python3 - "$out/project.yml" <<'YAML_EDIT'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1]);s=p.read_text().replace('CONDITIONS: APL_PROVIDER_DIRECT_QA','CONDITIONS: "APL_PROVIDER_DIRECT_QA APL_PROVIDER_SCOPED_TUN_QA"').replace('CONDITIONS: APL_DIRECT_PRODUCT_GO_QA','CONDITIONS: "APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA"').replace('-lAPLUnified -lresolv','-lAPLUnified -ltun2proxy -lresolv')
+p.write_text(s)
+YAML_EDIT
+fi
 (cd "$out" && xcodegen generate >/dev/null)
 if ! xcodebuild -project "$out/APLIsolatedProviderDirectQA.xcodeproj" -scheme NativeLabHost -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO -derivedDataPath "$out/Build" build > "$out/build.log" 2>&1;then grep -E 'error:|BUILD FAILED' "$out/build.log" | tail -25;exit 1;fi
 app="$out/Build/Build/Products/Debug-iphoneos/NativeLabHost.app"
 test -f "$app/NativeLabHost";test -f "$app/PlugIns/NativeLab.appex/NativeLab"
 xcrun nm "$app/PlugIns/NativeLab.appex/NativeLab" > "$out/symbols.txt"
 grep -qE ' [Tt] _CGoInvoke$' "$out/symbols.txt"
-! grep -qE ' [Tt] _tun2proxy_run_with_cli_args$' "$out/symbols.txt"
+if [[ -n "$rust" ]];then
+  grep -qE ' [Tt] _tun2proxy_run_with_cli_args$' "$out/symbols.txt"
+else
+  ! grep -qE ' [Tt] _tun2proxy_run_with_cli_args$' "$out/symbols.txt"
+fi
 shasum -a 256 "$app/NativeLabHost" "$app/PlugIns/NativeLab.appex/NativeLab" > "$out/sha256.txt"
 echo PROVIDER_DIRECT_QA_UNSIGNED_PASS

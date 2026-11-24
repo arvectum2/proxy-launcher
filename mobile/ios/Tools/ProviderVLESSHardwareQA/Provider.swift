@@ -2,12 +2,20 @@
 import Darwin
 import Foundation
 import NetworkExtension
+#if APL_PROVIDER_SCOPED_TUN_QA
+import tun2proxy
+#endif
 
 final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     private var started=false
     private var consumed=false
     private var challenge:String?
     private var deadline:Task<Void,Never>?
+    #if APL_PROVIDER_SCOPED_TUN_QA
+    private let engineQueue=DispatchQueue(label:"apl.qa.scoped.tun")
+    private let exitGate=TunnelEngineExitGate()
+    private var rustStarted=false
+    #endif
     override func startTunnel(options:[String:NSObject]?,completionHandler:@escaping(Error?)->Void) {
         Task { @MainActor in
             do {
@@ -39,6 +47,23 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 started=true
                 guard NativeLabRuntime.call("runXray",config:config) != nil,
                       NativeLabRuntime.running==true else {throw NativeLabError.stage(25)}
+                #if APL_PROVIDER_SCOPED_TUN_QA
+                guard let fd=ExactLabTUNDescriptor.find(address:"192.0.2.177") else{throw NativeLabError.stage(28)}
+                let handoff=try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[],exactDNS:true)
+                let token=exitGate.begin(),gate=exitGate
+                rustStarted=true
+                engineQueue.async { [weak self] in
+                    guard gate.isRunning(token) else{return}
+                    _=handoff.tun2proxyArguments.withCString{tun2proxy_run_with_cli_args($0,1500,true)}
+                    guard gate.markUnexpectedExit(token) else{return}
+                    Task { @MainActor [weak self] in
+                        guard gate.shouldCancelTunnel(token) else{return}
+                        self?.cancelTunnelWithError(NativeLabError.stage(29).safeNSError)
+                    }
+                }
+                try await Task.sleep(nanoseconds:350_000_000)
+                guard gate.isRunning(token),!consumed else{throw NativeLabError.stage(30)}
+                #endif
                 challenge=nonce
                 deadline=Task { @MainActor [weak self] in
                     try? await Task.sleep(nanoseconds:20_000_000_000)
@@ -58,7 +83,14 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 completionHandler?(nil);return
             }
             consumed=true;challenge=nil
+            #if APL_PROVIDER_SCOPED_TUN_QA
+            // The host made the request through the /32 route; this message
+            // only obtains native teardown evidence. No second direct probe.
+            _=nonce
+            let result=["rustDrainConfirmed":await drainRust()]
+            #else
             let result=await Task.detached(priority:.userInitiated){ProviderSOCKSProbe.run(nonce)}.value
+            #endif
             var report=result
             let stopReply=NativeLabRuntime.call("stopXray")
             let stopped=stopReply != nil && NativeLabRuntime.running==false
@@ -66,7 +98,11 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             report["nativeStopConfirmed"]=stopped
             report["providerProcess"]=true
             report["scopedRouteOnly"]=true
+            #if APL_PROVIDER_SCOPED_TUN_QA
+            report["rustTUNStarted"]=true
+            #else
             report["rustTUNStarted"]=false
+            #endif
             report["releaseAuthorized"]=false
             completionHandler?(try? JSONSerialization.data(withJSONObject:report,options:.sortedKeys))
         }
@@ -74,8 +110,22 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     override func stopTunnel(with reason:NEProviderStopReason,completionHandler:@escaping()->Void) {
         Task { @MainActor in await cleanup();completionHandler() }
     }
+    #if APL_PROVIDER_SCOPED_TUN_QA
+    @MainActor private func drainRust() async -> Bool {
+        exitGate.invalidate()
+        guard rustStarted else{return true}
+        do {
+            try await TunnelEngineHandoff.stopAndDrain(engineQueue:engineQueue,timeout:5){_=tun2proxy_stop()}
+            rustStarted=false
+            return true
+        } catch {return false}
+    }
+    #endif
     @MainActor private func cleanup() async {
         consumed=true;challenge=nil;deadline?.cancel();deadline=nil
+        #if APL_PROVIDER_SCOPED_TUN_QA
+        _=await drainRust()
+        #endif
         if started {
             _=NativeLabRuntime.call("stopXray")
             started=false
