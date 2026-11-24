@@ -11,5 +11,8 @@ steps:
     result: "No active provider observed. VLESS DNS target differs from WG DNS; use scope-specific target."
   - step: 2
     action: "Generalize only isolated loss lane, build and verify."
+    result: "PASS ARM64 signed build, 93 receipt/RVI +22 focused +21 parser +15 guard +50 release/preflight. Signed QA artifact ios-030-provider-full-route-ipv6-dns-loss-signed-20261124/NativeLabHost.app."
+  - step: 3
+    action: "Run UDP6 and DNS OFF controls and established loss sequentially, with independent exact RVI observation; restore prior lab."
     result: pending
 resume_instruction: "Finish isolated protocol loss tests; no repeat UDP4, no original proxy diagnosis, no public enablement."
