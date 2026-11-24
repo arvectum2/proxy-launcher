@@ -1,6 +1,6 @@
 task_id: APL-IOS-PROVIDER-TUN-20261124
 parent_task: APL-IOS-UNIFIED-RELEASE-20261111
-status: blocked
+status: in_progress
 goal: "Isolate exact product Rust/TUN forwarding under scoped routes after provider-direct PASS"
 definition_of_done:
   - "Verified product Go and Rust archives, fixed scoped route, synthetic destination only"
@@ -21,4 +21,7 @@ steps:
   - step: 4
     action: "Re-sign exact QA extension first, then host; verify offline. Do not install or start QA while production VPN active."
     result: "PASS: extension then host signed with existing exact QA profiles; deep strict verification and lab entitlement checks passed. Signed host SHA256 bb53857c97849d228e311c3324e50ebcfe395a8ecd6582e916810d0c533b29d3, extension SHA256 83d1e18d72792f3423ea9ca414d10d8fef262569761edd57d8712219288608a1. Python18+50 and release preflight PASS. Production provider PID82794 still present; no installation or VPN mutation."
+  - step: 5
+    action: "Owner explicitly authorized temporary VPN interruption; baseline APL 0.3.0(49), selected Основной, connected, provider PID82794. Stop via product UI; restore same profile ON after QA."
+    result: pending
 resume_instruction: "Signed artifact ready at native-artifacts/ios-030-provider-scoped-tun-signed-20261124/NativeLabHost.app. Do not rebuild or re-sign unchanged. Physical test blocked while production VPN active. Obtain explicit authorization for temporary interruption or wait for user to stop it; record original selected profile and VPN state, then recheck device. Use existing scoped QA procedure, independent nonce witness, exact lab cleanup and restore original VPN state. Do not run concurrent VPNs."
