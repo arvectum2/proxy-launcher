@@ -71,7 +71,7 @@ private final class NativeVLESSPhysicalPathReceipt: @unchecked Sendable {
         case .amneziaWG1:
             throw Failure.unsupported
         }
-        #if APL_ISOLATED_PRODUCT_RUNNER_QA
+        #if APL_ISOLATED_PRODUCT_RUNNER_QA || APL_PRODUCT_OWNER_QA
         // Only the isolated QA target may link this guard. The production
         // build does not contain the QA flag or guard implementation.
         guard owner.reference.kind == .vlessReality else{throw Failure.unsupported}

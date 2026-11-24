@@ -68,7 +68,7 @@ def main():
         if target=='PacketTunnel':
             settings+='          SWIFT_INCLUDE_PATHS: "$(PROJECT_DIR)/Lib/Unified/Headers"\n          LIBRARY_SEARCH_PATHS: "$(PROJECT_DIR)/Lib/Unified"\n          OTHER_LDFLAGS: "$(inherited) -lAPLUnified -lresolv"\n'
         s=s[:offset]+settings+s[offset:]
-    assert not any(x in s for x in ('APL_NATIVE_SYNTHETIC_RUNTIME','APL_NATIVE_RUNTIME_QA_HARNESS','APL_NATIVE_RUNTIME_QA_DIAGNOSTICS','APL_NATIVE_PRODUCT_RUNTIME_REVIEW','APL_NATIVE_RELEASE_LINK_PREPARATION','APL_VLESS_PHYSICAL_QA'))
+    assert not any(x in s for x in ('APL_NATIVE_SYNTHETIC_RUNTIME','APL_NATIVE_RUNTIME_QA_HARNESS','APL_NATIVE_RUNTIME_QA_DIAGNOSTICS','APL_NATIVE_PRODUCT_RUNTIME_REVIEW','APL_NATIVE_RELEASE_LINK_PREPARATION','APL_VLESS_PHYSICAL_QA','APL_PRODUCT_OWNER_QA','APL_ISOLATED_PRODUCT_RUNNER_QA'))
     path.write_text(s)
     lock='ArvectumProxyLauncherIOS.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved'
     locked=subprocess.check_output(['git','-C',str(repo),'show',commit+':mobile/ios/'+lock])

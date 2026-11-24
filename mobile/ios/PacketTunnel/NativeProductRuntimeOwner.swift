@@ -69,12 +69,21 @@ import Network
             let plan=try request.consume(via:handoff,admission:store.nativeRoutingAdmission(),exactDNSAvailable:exactDNSAvailable)
 #endif
             guard try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
+            #if APL_PRODUCT_OWNER_QA
+            let setupBudget:UInt64=20_000_000_000
+            #else
+            let setupBudget:UInt64=45_000_000_000
+            #endif
             timeout=Task { @MainActor [weak self,weak provider] in
-                do{try await Task.sleep(nanoseconds:45_000_000_000)}catch{return}
+                do{try await Task.sleep(nanoseconds:setupBudget)}catch{return}
                 guard let self,let provider,!self.retired else{return}
                 self.invalidate(provider:provider,code:2)
                 if !self.starting {try? await self.drain(provider:provider,removeSettings:true)}
             }
+            #if APL_PRODUCT_OWNER_QA
+            guard request.binding.reference.kind == .vlessReality,plan.route.remoteAddress=="192.168.1.80",
+                  plan.route.remotePort==39882 else{throw error(1)}
+            #endif
             let bytes=plan.configuration.withEngineConfiguration{$0}
 #if APL_NATIVE_PRODUCT_RUNTIME
             switch plan.route.provider {
@@ -121,7 +130,7 @@ import Network
 #endif
             guard !retired,try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
             starting=false
-#if APL_NATIVE_PRODUCT_RUNTIME
+#if APL_NATIVE_PRODUCT_RUNTIME && !APL_PRODUCT_OWNER_QA
             // The setup deadline is not a session lifetime.
             timeout?.cancel();timeout=nil
 #endif

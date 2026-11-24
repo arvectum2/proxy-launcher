@@ -74,6 +74,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
             return
         }
+#if APL_PRODUCT_OWNER_QA
+        // This temporary signed binary must not start an owner legacy VPN.
+        completionHandler(NSError(domain:"APLNativeStart",code:1));return
+#endif
 #endif
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
         let validationEnabled=true

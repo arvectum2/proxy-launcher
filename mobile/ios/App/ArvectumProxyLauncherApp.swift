@@ -3,6 +3,12 @@ import SwiftUI
 import YandexMobileAds
 #endif
 
+#if APL_PRODUCT_OWNER_QA
+@main
+struct ArvectumProxyLauncherApp: App {
+    var body:some Scene {WindowGroup {ProductOwnerQAView()}}
+}
+#else
 @main
 struct ArvectumProxyLauncherApp: App {
     @StateObject private var model = AppViewModel()
@@ -64,3 +70,5 @@ struct ArvectumProxyLauncherApp: App {
         .environmentObject(model)
     }
 }
+
+#endif

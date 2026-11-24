@@ -23,7 +23,8 @@ def test_real_product_runtime_in_separate_signed_lab_only():
     assert 'NativeXrayPacketSession.swift' in build and 'NativeXrayRuntimeDriver.swift' in build
     assert 'rm "$out/Sources/Provider.swift"' in build
     assert 'APL_ISOLATED_PRODUCT_RUNNER_QA' not in (IOS/"project.yml").read_text()
-    assert 'APL_ISOLATED_PRODUCT_RUNNER_QA' not in (IOS/"Tools/stage_ios_030_release_candidate.py").read_text()
+    assert all('APL_ISOLATED_PRODUCT_RUNNER_QA' not in line for line in (IOS/"Tools/stage_ios_030_release_candidate.py").read_text().splitlines() if line.startswith(('APP_FLAGS =','TUN_FLAGS =')))
+    assert "'APL_ISOLATED_PRODUCT_RUNNER_QA'" in (IOS/"Tools/stage_ios_030_release_candidate.py").read_text()
     for forbidden in ('SecItem','UserDefaults','ProfileStore()','NativeLabRuntime.call','tun2proxy_run_with_cli_args'):
         assert forbidden not in provider
 

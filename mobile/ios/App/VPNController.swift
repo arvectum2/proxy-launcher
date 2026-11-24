@@ -1,5 +1,8 @@
 import Foundation
 import NetworkExtension
+#if APL_PRODUCT_OWNER_QA
+import CryptoKit
+#endif
 
 @MainActor
 final class VPNController: ObservableObject {
@@ -282,7 +285,12 @@ final class VPNController: ObservableObject {
     #endif
 
 #if APL_NATIVE_PRODUCT_RUNTIME
+    #if APL_PRODUCT_OWNER_QA
+    private static let productConfigurationName="APL Native Product Synthetic QA"
+    private(set) var qaLaunch:ProfileStore.ProductLaunch?
+    #else
     private static let productConfigurationName="APL Native Product"
+    #endif
     // Identity must remain distinguishable from iOS's mutable enabled state.
     // A disabled but exactly owner-marked product manager is never legacy.
     private func productManagerMatchesOwner(_ item:NETunnelProviderManager,owner:UUID)->Bool {
@@ -340,6 +348,92 @@ final class VPNController: ObservableObject {
         }
         return legacy
     }
+    #if APL_PRODUCT_OWNER_QA
+    // Compare exact configuration metadata only inside the app; no owner data
+    // is emitted. Reject unknown/ambiguous manager identities.
+    private func qaIdentity(_ item:NETunnelProviderManager)throws->String {
+        guard let p=item.protocolConfiguration as? NETunnelProviderProtocol,
+            let name=item.localizedDescription,let address=p.serverAddress,
+            let bundle=p.providerBundleIdentifier,
+            !item.isOnDemandEnabled,(item.onDemandRules ?? []).isEmpty,
+            p.username==nil,p.passwordReference==nil,p.identityReference==nil,
+            p.identityData==nil,p.identityDataPassword==nil,p.proxySettings==nil else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        let config=p.providerConfiguration ?? [:]
+        guard JSONSerialization.isValidJSONObject(config) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        let raw=try JSONSerialization.data(withJSONObject:config,options:.sortedKeys)
+        let bytes=Data((name+"|"+address+"|"+bundle+"|"+String(p.includeAllNetworks)+"|"+String(p.enforceRoutes)+"|").utf8)+raw
+        return SHA256.hash(data:bytes).map{String(format:"%02x",$0)}.joined()
+    }
+    func qaOffCensus()async throws->[String:Bool] {
+        let all=try await loadAllManagers(requireResult:true)
+        guard all.allSatisfy({$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}),
+              !all.contains(where:isArvectumManager) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        var result=[String:Bool]()
+        for item in all {
+            let key=try qaIdentity(item)
+            guard result[key]==nil else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            result[key]=item.isEnabled
+        }
+        return result
+    }
+    func qaStopOwnedManager(owner:UUID)async throws {
+        let all=try await loadAllManagers(requireResult:true)
+        let owned=all.filter(isArvectumManager)
+        guard owned.count<=1,owned.allSatisfy({productManagerMatchesOwner($0,owner:owner)}),
+              all.filter({!isArvectumManager($0)}).allSatisfy({$0.connection.status == .disconnected || $0.connection.status == .invalid}) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        if let target=owned.first {
+            manager=target;refreshStatus()
+            if target.connection.status != .disconnected && target.connection.status != .invalid {
+                target.connection.stopVPNTunnel()
+                let deadline=Date().addingTimeInterval(10)
+                while target.connection.status != .disconnected && target.connection.status != .invalid && Date()<deadline {
+                    try await Task.sleep(nanoseconds:100_000_000)
+                }
+            }
+            guard target.connection.status == .disconnected || target.connection.status == .invalid else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        }
+    }
+    func qaRemoveManager(owner:UUID,baseline:[String:Bool])async throws {
+        let all=try await loadAllManagers(requireResult:true)
+        let owned=all.filter(isArvectumManager)
+        guard owned.count<=1,owned.allSatisfy({productManagerMatchesOwner($0,owner:owner)}),
+              all.allSatisfy({($0.connection.status == .disconnected || $0.connection.status == .invalid) && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        for item in owned {try await item.removeFromPreferences()}
+        manager=nil;refreshStatus()
+        let others=try await loadAllManagers(requireResult:true)
+        guard others.count==baseline.count,others.allSatisfy({$0.connection.status == .disconnected || $0.connection.status == .invalid}) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        // iOS can change enabled bits when another manager is activated. Restore
+        // only the exact unchanged configuration of a previously enabled APL manager.
+        for item in others {
+            let key=try qaIdentity(item)
+            guard let enabled=baseline[key] else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            if item.isEnabled != enabled {
+                guard let p=item.protocolConfiguration as? NETunnelProviderProtocol,
+                    p.providerBundleIdentifier==AppShared.providerBundleIdentifier,
+                    [Self.configurationName,"APL Native Product"].contains(item.localizedDescription ?? ""),
+                    item.localizedDescription==p.serverAddress,
+                    !item.isOnDemandEnabled,(item.onDemandRules ?? []).isEmpty else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+                item.isEnabled=enabled
+                try await save(item);try await reload(item)
+            }
+        }
+        guard try await qaOffCensus()==baseline else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+    }
+    func qaDrain()async throws->Bool {
+        guard let launch=qaLaunch,let session=manager?.connection as? NETunnelProviderSession,
+            session.status == .connected else{return false}
+        let request=TransportNativeRequest(identity:launch.ticket.binding.session,action:.drain)
+        let bytes=try TransportNativeCodec.encode(request)
+        let reply:Data?=await withCheckedContinuation { continuation in
+            let gate=ProductOwnerQAMessageGate(continuation)
+            DispatchQueue.global().asyncAfter(deadline:.now()+8){gate.finish(nil)}
+            do{try session.sendProviderMessage(bytes){gate.finish($0)}}catch{gate.finish(nil)}
+        }
+        guard let reply,let response=try? TransportNativeCodec.decode(TransportNativeResponse.self,reply) else{return false}
+        return response.matches(request) && response.state == .drained
+    }
+    func qaRefresh(){refreshStatus()}
+    #endif
     private func prepareProductManager()async throws->Bool {
         let store=try ProfileStore()
         let all=try await loadAllManagers(requireResult:true)
@@ -428,6 +522,9 @@ final class VPNController: ObservableObject {
             try Task.checkCancellation()
             phase = .credentialTicket
             let launch=try store.issueNativeProductLaunch(selection,owner:owner)
+            #if APL_PRODUCT_OWNER_QA
+            qaLaunch=launch
+            #endif
             do {
                 try Task.checkCancellation()
                 guard allOff(refreshed+[target]),ownsProductManager(target,owner:owner),target.connection === session,
@@ -460,6 +557,9 @@ final class VPNController: ObservableObject {
 #if APL_NATIVE_PRODUCT_RUNTIME
         let store=try ProfileStore()
         if let selection=try store.nativeProductSelection(){try await connectProduct(store,selection:selection);return}
+#if APL_PRODUCT_OWNER_QA
+        throw NativeCredentialReceiver.Failure.invalidIdentity
+#endif
 #endif
         var manager = try await loadOrCreateManager()
         self.manager = manager
@@ -647,11 +747,16 @@ final class VPNController: ObservableObject {
     }
 
     private func isArvectumManager(_ manager: NETunnelProviderManager) -> Bool {
+#if APL_PRODUCT_OWNER_QA
+        return manager.localizedDescription == Self.productConfigurationName ||
+            manager.protocolConfiguration?.serverAddress == Self.productConfigurationName
+#else
         if let proto = manager.protocolConfiguration as? NETunnelProviderProtocol,
            proto.providerBundleIdentifier == AppShared.providerBundleIdentifier {
             return true
         }
         return manager.localizedDescription == Self.configurationName
+#endif
     }
 
     /// Do not silently repair or adopt a manager reserved for future native use.

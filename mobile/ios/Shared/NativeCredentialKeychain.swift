@@ -87,6 +87,14 @@ struct NativeCredentialCatalogKeychain: NativeCredentialCatalogStorage {
         guard status == errSecSuccess, let bytes = result as? Data, bytes.count <= 32_768 else { throw NativeCredentialKeychain.Failure.status(status) }
         return bytes
     }
+    #if APL_PRODUCT_OWNER_QA
+    func qaRemoveEmptyCatalog()throws {
+        let snapshot=try NativeCredentialCatalogReader(storage:self).snapshot()
+        guard snapshot.current.isEmpty,snapshot.retired.isEmpty,snapshot.selected==nil,!snapshot.hasPendingWrite else{throw NativeCredentialKeychain.Failure.configuration}
+        let status=SecItemDelete(try query() as CFDictionary)
+        guard status==errSecSuccess || status==errSecItemNotFound else{throw NativeCredentialKeychain.Failure.status(status)}
+    }
+    #endif
     func replace(_ bytes: Data) throws {
         guard !bytes.isEmpty, bytes.count <= 32_768 else { throw NativeCredentialKeychain.Failure.configuration }
         var q = try query()

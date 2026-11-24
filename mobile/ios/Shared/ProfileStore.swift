@@ -50,8 +50,13 @@ final class ProfileStore {
         static let recentlyFailedAt = "recently_failed_at"
         static let lastFailoverAt = "last_failover_at"
 #if APL_NATIVE_PRODUCT_RUNTIME
+        #if APL_PRODUCT_OWNER_QA
+        static let nativeProductSelection = "qa_synthetic_native_product_selection.v1"
+        static let nativeProductOwner = "qa_synthetic_native_product_owner.v1"
+        #else
         static let nativeProductSelection = "native_product_selection.v1"
         static let nativeProductOwner = "native_product_owner.v1"
+        #endif
 #endif
         static let iosAppRoutingMode = "ios_app_routing_mode"
     }
@@ -212,6 +217,16 @@ final class ProfileStore {
         guard let text=raw as? String,let id=UUID(uuidString:text),id.uuidString==text else{throw ProfileStoreError.corruptProfiles}
         return id
     }
+    #if APL_PRODUCT_OWNER_QA
+    func qaInstallSyntheticOwner(_ exact:UUID)throws {
+        guard try nativeProductOwner()==nil,try nativeProductSelection()==nil else{throw ProfileStoreError.corruptProfiles}
+        defaults.set(exact.uuidString,forKey:Key.nativeProductOwner)
+    }
+    func qaRemoveSyntheticOwner(_ exact:UUID)throws {
+        guard try nativeProductOwner()==exact,try nativeProductSelection()==nil else{throw ProfileStoreError.corruptProfiles}
+        defaults.removeObject(forKey:Key.nativeProductOwner)
+    }
+    #endif
     func ensureNativeProductOwner()throws->UUID {
         if let owner=try nativeProductOwner(){return owner}
         let owner=UUID()
