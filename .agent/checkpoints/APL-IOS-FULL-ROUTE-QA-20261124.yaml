@@ -1,0 +1,17 @@
+task_id: APL-IOS-FULL-ROUTE-QA-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: in_progress
+goal: "Verify full IPv4/IPv6/DNS route transition with previously accepted raw TCP stimulus in isolated QA; synthetic destination only."
+definition_of_done:
+  - "Full product-equivalent OS route shape; dual address unique descriptor; pinned Go/Rust; strict synthetic-only Xray allowlist with blackhole default; no packet capture."
+  - "Build, signature, offline config checks and one physical correlated TCP witness with exact drain and cleanup."
+  - "Document distinction from product release, UDP, WAN and leak acceptance; original profiles intact."
+last_verified_commit: "315104e2 (scoped TCP physical PASS)"
+steps:
+  - step: 1
+    action: "Inspect actual full product settings, scoped receipt, device provider and CI."
+    result: "Scoped checkpoint completed; no active provider observed; full settings IPv4 default, two IPv6 /1, DNS 1.1.1.1 and 8.8.8.8, no exclusions."
+  - step: 2
+    action: "Prepare separate QA build with full route shape, local synthetic-only Xray allowlist and silent native logs."
+    result: pending
+resume_instruction: "Implement and validate full route isolated guard before installing. Do not forward background device traffic. Original Основной remains unresolved; no credential edits."
