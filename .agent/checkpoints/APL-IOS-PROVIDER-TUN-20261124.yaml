@@ -37,4 +37,10 @@ steps:
   - step: 9
     action: "Post-test read-only manager census, restore previous lab binary and reconnect original Основной."
     result: "Post-census identical, own manager removed; previous NativeLab restored, synthetic inputs scrubbed, no listeners. Original Основной selected but two reconnect attempts timed out; Activity UI TIMEOUT twice, provider absent. Restoration NOT complete."
+  - step: 10
+    action: "Recheck original VPN and device availability without editing profiles."
+    result: "Provider absent; Mirroring reports iPhone in Use. No further reconnect or profile mutation."
+  - step: 11
+    action: "Offline bounded TUN telemetry and host URL error instrumentation; no installation until restoration."
+    result: pending
 resume_instruction: "Physical scoped TUN diagnostic already negative and fully recorded; do not repeat unchanged. First restore original Основной VPN: two reconnect attempts timed out, investigate read-only before further retries; no profile/credential edits or alternative selection without approval. Historical lab preserved, prior NativeLab binary restored, no temporary manager/listeners. Then instrument exact TUN descriptor and packet/SOCKS boundaries to isolate zero peer accepts. See docs/APL_IOS_030_VLESS_SCOPED_TUN_2026-11-24.md."
