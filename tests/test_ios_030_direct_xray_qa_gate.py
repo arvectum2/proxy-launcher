@@ -32,6 +32,14 @@ class DirectXrayQASafetyTests(unittest.TestCase):
         self.assertIn('receipt.httpReceipt && receipt.stopped',SRC)
         self.assertLess(SRC.index('NativeLabRuntime.call("stopXray")'),SRC.index('return receipt\n    }\n}'))
 
+    def test_bounded_no_payload_lan_control_before_xray(self):
+        self.assertIn('"directLANReachable":directLANReachable',SRC)
+        self.assertIn('DirectLANControl.canConnect()',SRC)
+        self.assertIn('Darwin.poll(&ready,1,2500)',SRC)
+        self.assertIn('"192.168.1.80"',SRC)
+        self.assertLess(SRC.index('receipt.directLANReachable=DirectLANControl.canConnect()'),
+                        SRC.index('let config=try NativeLabRuntime.prepare'))
+
     def test_unsigned_pinned_library_and_separate_project(self):
         for token in ('verify_xray_source_candidate.py','CODE_SIGNING_ALLOWED: NO',
                       'CODE_SIGNING_REQUIRED: NO','DIRECT_XRAY','release_authorized',):

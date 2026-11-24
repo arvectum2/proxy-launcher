@@ -29,12 +29,45 @@ private struct QAReceipt {
     var connect=false
     var httpReceipt=false
     var stopped=false
+    var directLANReachable=false
     func encoded()->Data? {
         try? JSONSerialization.data(withJSONObject:[
             "schema":1,"runID":runID,"stage":stage,"socksGreeting":greeting,
             "socksConnect":connect,"exactHTTPReceipt":httpReceipt,
-            "xrayStopConfirmed":stopped,"networkExtensionUsed":false,
+            "xrayStopConfirmed":stopped,"directLANReachable":directLANReachable,"networkExtensionUsed":false,
             "profilesAccessed":false,"releaseAuthorized":false],options:[.sortedKeys])
+    }
+}
+
+// A bounded TCP-only transport control BEFORE libXray. Sends no application
+// payload, uses the same private-LAN peer socket, and never reads user routes.
+private enum DirectLANControl {
+    static func canConnect() -> Bool {
+        let fd=Darwin.socket(AF_INET,SOCK_STREAM,0)
+        guard fd>=0 else{return false}
+        defer{Darwin.close(fd)}
+        let flags=Darwin.fcntl(fd,F_GETFL)
+        guard flags>=0,Darwin.fcntl(fd,F_SETFL,flags|O_NONBLOCK)==0 else{return false}
+        var addr=sockaddr_in()
+        addr.sin_len=UInt8(MemoryLayout<sockaddr_in>.size)
+        addr.sin_family=sa_family_t(AF_INET)
+        addr.sin_port=UInt16(39882).bigEndian
+        guard "192.168.1.80".withCString({inet_pton(AF_INET,$0,&addr.sin_addr)})==1 else{return false}
+        let connected=withUnsafePointer(to:&addr) {
+            $0.withMemoryRebound(to:sockaddr.self,capacity:1) {
+                Darwin.connect(fd,$0,socklen_t(MemoryLayout<sockaddr_in>.size))
+            }
+        }
+        if connected==0{return true}
+        guard errno==EINPROGRESS else{return false}
+        var ready=pollfd(fd:fd,events:Int16(POLLOUT),revents:0)
+        guard Darwin.poll(&ready,1,2500)>0,ready.revents & Int16(POLLOUT) != 0 else{return false}
+        var soError:Int32=0
+        var size=socklen_t(MemoryLayout<Int32>.size)
+        guard withUnsafeMutablePointer(to:&soError,{
+            getsockopt(fd,SOL_SOCKET,SO_ERROR,$0,&size)
+        })==0 else{return false}
+        return soError==0
     }
 }
 
@@ -102,6 +135,7 @@ private enum DirectQAEngine {
               profile.serverHost=="192.168.1.80",profile.serverPort==39882,
               profile.serverName=="example.com" else{receipt.stage="rejectedInput";return receipt}
         guard NativeLabRuntime.running==false else{receipt.stage="alreadyRunning";return receipt}
+        receipt.directLANReachable=DirectLANControl.canConnect()
         do {
             let config=try NativeLabRuntime.prepare(profile,port:39879)
             receipt.stage="verifiedConfig"
