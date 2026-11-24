@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov full OS route shape synthetic-only TCP4 physical PASS, exact HTTP200, independent peer witness1 and hashes correlated, native drain/stop and historical cleanup confirmed. Isolated guard denies other flows, no raw log capture. Scoped and full-route TCP checkpoints completed; UDP4/6, TCP6, DNS, WAN/leak and dynamic underlay remain unaccepted. Original Основной remains OFF after earlier TIMEOUT, no credentials/profile edits."
+current: "24 Nov TCP6/UDP4/UDP6 isolated full-route signed candidate ready, ARM64/strict signature and 101 checks PASS; independent Mac preflight all three PASS. Previously accepted full-route TCP4 not repeated. Product VPN observed active, no device mutation; physical protocols pending safe VPN OFF. Owner deferred Основной diagnosis."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "5b44d55b80e440ad30612016a5ef8a65b44b6368 (full-route guarded actual physical TCP4 PASS, exact independent nonce/hash, 21+50+9+9 checks and cleanup verified)"
+last_verified_commit: "ab3b35ebb5d646473f369076fbf870aaaadf920c (signed QA candidate, 101 checks, Mac TCP6/UDP4/UDP6 preflight PASS)"
 test_results:
+  - "24 Nov full-route fixed protocol candidate ARM64 and strict signature PASS; 22+50+15+14 tests/preflight PASS; three independent Mac reference preflights PASS, temporary inputs cleaned. Physical TCP6/UDP4/UDP6 pending; no device mutation. Prior eadf6c9c six CI checks green."
   - "24 Nov full OS route shape guarded TCP4 physical PASS: host sent98/received160, HTTP200, Mac witness1 relay1 bytes2145/2613, correlated hashes, native drain/stop and exact cleanup. 21 focused +50 release +9 parser +9 guard checks/preflight PASS. No product/UDP/DNS/WAN/leak acceptance."
   - "24 Nov corrected raw TCP scoped physical PASS: host sent98/received160, exact HTTP200, Mac witness1 relay1 bytes2209/2613, hashes matched, native drain/stop and post-census cleanup true. Prior instrumented ATS -1022 invalid stimulus; parser9/Python20+50/preflight PASS. Original profile reconnect TIMEOUT persists, direct endpoint HTTP response confirmed both devices."
   - "24 Nov offline scoped metrics build v2 ARM64 PASS, strict signing and entitlement checks PASS, focused20/release50/preflight PASS; first build missing header resolved with prior pinned Lib. Prior exact head 663bc492 six CI green. iPhone original recovery blocked by Mirroring in Use; no physical retest."
@@ -528,6 +529,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-DATAGRAM-QA-20261124.yaml; owner deferred original proxy diagnosis. Product provider active, no interruption. Prepare offline TCP6/UDP4/UDP6 isolated QA. No release or Apple changes."
+resume_instruction: "ARC only. Owner deferred Основной diagnosis; do not inspect or change that proxy. Product provider was active PID84658; no interruption or device installation. Recheck current provider state. If VPN OFF or separately authorized interruption, use existing verified signed artifact native-artifacts/ios-030-provider-full-route-datagrams-signed-20261124/NativeLabHost.app, no rebuild. Run TCP6, UDP4, UDP6 separately, using existing generate(vlessReality,tcp4,positive,None) only for fresh synthetic keys, make_command scope=vlessDatagrams and matching probe/probeKind. Inspect owned manager and preserve historical, correlate exact independent hashes and witness kind; confirm drain/stop/cleanup, restore previous NativeLab and original device state. See docs/APL_IOS_030_VLESS_DATAGRAM_QA_2026-11-24.md. No repeating accepted TCP4, public enablement, Apple changes, merge or upload."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
