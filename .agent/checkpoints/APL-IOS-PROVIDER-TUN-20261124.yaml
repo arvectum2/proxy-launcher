@@ -61,5 +61,8 @@ steps:
   - step: 17
     action: "Run instrumented scoped synthetic HTTP test; collect coarse counters and independent peer witness."
     run_id: F28B6AA0-8A8F-4287-B689-3E88D6B30C5C
+    result: "ATS rejected host HTTP stimulus before network I/O (NSURLErrorDomain -1022); descriptor before/after matched, local SOCKS greeting PASS, Rust/native stop and cleanup true; independently correlated zero peer accepts. Invalid stimulus, not a Rust data-plane failure."
+  - step: 18
+    action: "Verify post-census, restore prior lab binary, scrub ephemeral fixtures before corrective test."
     result: pending
 resume_instruction: "ARC only. Original Основной recovery first: iPhone Mirroring reports iPhone in Use; owner should lock phone with USB attached. Verify current profile and VPN state before action; use built-in targeted proxy check and original-only recovery, no other credentials/profile edits. Instrumented scoped signed QA candidate ready at native-artifacts/ios-030-provider-scoped-tun-metrics-v2-signed-20261124/NativeLabHost.app; no rebuild unchanged. After original VPN recovery and safe test authorization, one scoped synthetic test with exact nonce peer proof and new counters: hostHTTPAttempted/hostURLError/status, descriptorMatchedBefore/After, localSOCKSGreeting, Rust log/traffic/target counters. Preserve and restore original VPN, historical manager and prior lab app. No blind repeats, release gate changes or Apple changes."
