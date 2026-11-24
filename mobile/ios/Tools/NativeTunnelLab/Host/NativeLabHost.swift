@@ -45,6 +45,9 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     private var exitChallenge: Int?
     private var probeCode = -999
     private var counters:[String:Int] = [:]
+    #if APL_PROVIDER_DIRECT_QA
+    private var providerDirectReceipt:[String:Bool] = [:]
+    #endif
     private func stage(_ value: String) {
         guard let runID else {return}
         let url=FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]
@@ -70,6 +73,15 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
               UUID(uuidString:request.runID) != nil else { return }
         try? FileManager.default.removeItem(at:input)
         runID=request.runID;stage("inputConsumed")
+        #if APL_PROVIDER_DIRECT_QA
+        if request.fixture=="inspect-only" {
+            let report=await inspectProviderManagers(runID:request.runID)
+            if let data=try? JSONSerialization.data(withJSONObject:report,options:.sortedKeys) {
+                try? data.write(to:output,options:.atomic)
+            }
+            return
+        }
+        #endif
         if request.fixture == "prepare-only" {
             await prepareExplicitly()
             let prepared=status == "Lab profile prepared; VPN OFF"
@@ -82,9 +94,16 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         guard request.exitChallenge == nil || (100000...999999).contains(request.exitChallenge!) else {return}
         transport=request.transport ?? "vless"
         probeKind=request.probeKind ?? "tcp4"
+        #if APL_PROVIDER_DIRECT_QA
+        guard (transport == "vless-product-direct" && probeKind == "tcp4") || request.fixture=="cleanup-only" else {return}
+        #else
         guard (transport == "vless" && probeKind == "tcp4") ||
             (transport == "wg-dual" && ["tcp4","tcp6","udp4","udp6"].contains(probeKind)) else {return}
+        #endif
         nativeControlQA = request.nativeControlQA == true
+        #if APL_PROVIDER_DIRECT_QA
+        guard !nativeControlQA,request.exitChallenge == nil,request.retainProfile != true else{return}
+        #endif
         guard !nativeControlQA || request.exitChallenge == nil else {return}
         exitChallenge=request.exitChallenge
         fixture=request.fixture;nonce=request.nonce
@@ -144,6 +163,9 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         var result:[String:Any]=["runID":request.runID,"connected":connected,
                                 "receipt":receipt,"cleaned":cleaned,"retainedOff":retained,
                                 "nativeExitConfirmed":nativeExitConfirmed,"probeCode":probeCode,"counters":counters]
+        #if APL_PROVIDER_DIRECT_QA
+        result["providerDirectReceipt"]=providerDirectReceipt
+        #endif
         if nativeControlQA {
             result["nativeControlAccepted"] = nativeAccepted
             if let nativeControl { for (key,value) in nativeControl.report { result[key] = value } }
@@ -154,6 +176,28 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         print("APL_PHYSICAL_NATIVE_QA_CONNECTED_\(connected)_RECEIPT_\(receipt)_CLEANED_\(cleaned)")
     }
 
+    #if APL_PROVIDER_DIRECT_QA
+    private func inspectProviderManagers(runID:String) async -> [String:Any] {
+        var report:[String:Any]=["runID":runID,"readOnly":true]
+        do {
+            let all=try await NETunnelProviderManager.loadAllFromPreferences()
+            let related=all.filter{($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier==Self.bundle}
+            let owned=related.filter(isOwned)
+            report["visibleManagers"]=all.count
+            report["relatedManagers"]=related.count
+            report["ownedManagers"]=owned.count
+            report["ownedEnabled"]=owned.filter{$0.isEnabled}.count
+            report["ownedOnDemand"]=owned.filter{$0.isOnDemandEnabled}.count
+            report["otherActive"]=all.filter{!isOwned($0) && $0.connection.status != .disconnected && $0.connection.status != .invalid}.count
+            report["relatedStates"]=related.map{$0.connection.status.rawValue}
+            report["relatedEnabled"]=related.filter{$0.isEnabled}.count
+        } catch {
+            report["errorCode"]=(error as NSError).code
+            report["loadFailed"]=true
+        }
+        return report
+    }
+    #endif
     private func isOwned(_ item: NETunnelProviderManager) -> Bool {
         guard let proto = item.protocolConfiguration as? NETunnelProviderProtocol else { return false }
         return proto.providerBundleIdentifier == Self.bundle &&
@@ -207,7 +251,19 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             stage("labPreparedOff")
             status="Lab profile prepared; VPN OFF"
         } catch {
+            #if APL_PROVIDER_DIRECT_QA
+            if let labError=error as? LabHostError {
+                switch labError {
+                case .conflict:stage("prepareConflict")
+                case .otherVPN:stage("prepareOtherVPN")
+                case .fixture:stage("prepareFixture")
+                }
+            } else {
+                stage("prepareSystemError-"+String((error as NSError).code))
+            }
+            #else
             stage("prepareFailed")
+            #endif
             status="Lab profile preparation failed"
         }
     }
@@ -239,6 +295,11 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                 "aplSyntheticLink":link as NSString,
                 "aplLabTransport":transport as NSString
             ]
+            #if APL_PROVIDER_DIRECT_QA
+            guard transport=="vless-product-direct",nonce.utf8.count==40,
+                  nonce.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)}) else {throw LabHostError.fixture}
+            options["aplProviderNonce"]=nonce as NSString
+            #endif
             if let exitChallenge {options["aplLabExitChallenge"]=NSNumber(value:exitChallenge)}
             if nativeControlQA {
                 let native = try NativeControlLabHost(manager:item, transport:transport == "wg-dual" ? .wireGuard : .vlessReality, options:options, externalQuiescenceConfirmed:true)
@@ -276,6 +337,22 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         }) else { status = "Invalid test nonce"; return }
         busy = true
         defer { busy = false }
+        #if APL_PROVIDER_DIRECT_QA
+        guard transport=="vless-product-direct",let session=manager.connection as? NETunnelProviderSession else{return}
+        let direct:Data?=await withCheckedContinuation { continuation in
+            let gate=LabMessageGate(continuation)
+            DispatchQueue.global().asyncAfter(deadline:.now()+9){gate.finish(nil)}
+            do {try session.sendProviderMessage(Data("apl-provider-direct-v1".utf8)){gate.finish($0)}}
+            catch {gate.finish(nil)}
+        }
+        if let direct,let parsed=try? JSONSerialization.jsonObject(with:direct) as? [String:Bool] {
+            providerDirectReceipt=parsed
+        }
+        let good=providerDirectReceipt["exactHTTPReceipt"]==true && providerDirectReceipt["providerProcess"]==true && providerDirectReceipt["rustTUNStarted"]==false && providerDirectReceipt["nativeStopConfirmed"]==true
+        probeCode=good ? 200 : -1001
+        status=good ? "Exact response received; verify independent server receipt" : "Probe failed"
+        return
+        #else
         if probeKind == "udp4" || probeKind == "udp6" {
             let destination=probeKind == "udp4" ? "198.51.100.77" : "2001:db8:77::77"
             let request=Data(("APL_UDP:"+value).utf8)
@@ -305,6 +382,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             }
             status = "Exact response received; verify independent server receipt"
         } catch { probeCode=(error as NSError).code;status = "Probe failed" }
+        #endif
     }
 
     private func udpProbe(host:String,request:Data) async -> Data? {

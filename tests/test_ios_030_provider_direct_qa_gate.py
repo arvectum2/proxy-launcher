@@ -1,0 +1,46 @@
+"""Provider-direct probe is isolated and cannot claim product VPN acceptance."""
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+QA = ROOT / "mobile/ios/Tools/ProviderVLESSHardwareQA"
+P = (QA / "Provider.swift").read_text()
+B = (QA / "build_unsigned.sh").read_text()
+H = (ROOT / "mobile/ios/Tools/NativeTunnelLab/Host/NativeLabHost.swift").read_text()
+
+class ProviderDirectQAGate(unittest.TestCase):
+    def test_exact_pinned_product_archive_and_bound_udp_config(self):
+        for token in ('45716d42d434ae6d6576d9a32f47a4ea63d4943f106cb3bb7e6af57c725ea7af',
+                      '1c8f00a729dac97e7670b718d6208d8e67946ea9b2260a9f68eed4a9fa5e0c54',
+                      'CODE_SIGNING_ALLOWED: NO','CODE_SIGNING_REQUIRED: NO'):
+            self.assertIn(token,B)
+        for token in ('compileValidatedCandidate(candidate,socksPort:39879,datagramReview:true)',
+                      'interfaceName:"en0",expectedAddress:"192.168.1.80",expectedPort:39882',
+                      'candidate.serverName=="example.com"'):
+            self.assertIn(token,P)
+    def test_synthetic_scope_without_rust_tun(self):
+        self.assertIn('NEIPv4Route(destinationAddress:"198.51.100.77",subnetMask:"255.255.255.255")',P)
+        for token in ('default()', 'includedRoutes = [.default', 'excludedRoutes', 'dnsSettings', 'import tun2proxy', 'packetFlow', 'SecItem'):
+            self.assertNotIn(token,P)
+        self.assertNotIn('ProviderVLESSHardwareQA',(ROOT/'mobile/ios/project.yml').read_text())
+        self.assertIn('report["rustTUNStarted"]=false',P)
+        self.assertIn('report["releaseAuthorized"]=false',P)
+    def test_one_shot_exact_response_and_native_stop(self):
+        self.assertIn('messageData==Data("apl-provider-direct-v1".utf8)',P)
+        self.assertIn('consumed=true;challenge=nil',P)
+        self.assertIn('nonce.utf8.count==40',P)
+        self.assertIn('Array(response[split.upperBound...])==target',P)
+        self.assertIn('report["nativeStopConfirmed"]=stopped',P)
+        self.assertIn('NativeLabRuntime.running==false',P)
+        self.assertIn('20_000_000_000',P)
+    def test_census_readonly_and_explicit_lab_owned_gate(self):
+        body=H.split('private func inspectProviderManagers(runID:String)',1)[1].split('#endif',1)[0]
+        for token in ('loadAllFromPreferences','relatedManagers','ownedManagers','otherActive'):
+            self.assertIn(token,body)
+        for token in ('saveToPreferences','removeFromPreferences','startVPNTunnel','stopVPNTunnel'):
+            self.assertNotIn(token,body)
+        self.assertIn('guard named.count <= 1, named.allSatisfy(isOwned)',H)
+        self.assertIn('providerDirectReceipt["nativeStopConfirmed"]==true',H)
+
+if __name__=="__main__":
+    unittest.main()
