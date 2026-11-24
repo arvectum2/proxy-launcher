@@ -388,25 +388,11 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         #if APL_PROVIDER_DIRECT_QA
         guard transport=="vless-product-direct",let session=manager.connection as? NETunnelProviderSession else{return}
         #if APL_PROVIDER_SCOPED_TUN_QA
-        // Only the fixed synthetic target; the OS scoped route feeds Rust/TUN.
-        var hostExact=false
-        let cfg=URLSessionConfiguration.ephemeral
-        cfg.timeoutIntervalForRequest=5;cfg.timeoutIntervalForResource=6
-        cfg.connectionProxyDictionary=[:];cfg.urlCache=nil;cfg.httpCookieStorage=nil
-        let client=URLSession(configuration:cfg,delegate:NoLabRedirect(),delegateQueue:nil)
-        defer{client.invalidateAndCancel()}
-        if let url=URL(string:"http://198.51.100.77:39883/"+value) {
-            counters["hostHTTPAttempted"]=1
-            do {
-                let (body,response)=try await client.data(from:url)
-                counters["hostHTTPStatus"]=(response as? HTTPURLResponse)?.statusCode ?? 0
-                hostExact=(response as? HTTPURLResponse)?.statusCode==200 && body==Data(("APL_RECEIPT:"+value).utf8) && manager.connection.status == .connected
-            } catch {
-                let error=error as NSError
-                counters["hostURLError"]=error.domain==NSURLErrorDomain ? error.code:0
-                counters["hostOtherError"]=error.domain==NSURLErrorDomain ? 0:1
-            }
-        }
+        // A fixed raw TCP probe avoids the URLSession ATS preflight failure.
+        // The system routing table, not an explicit interface, selects TUN.
+        let rawResult=await Task.detached(priority:.userInitiated){ScopedTCPWitness.run(value)}.value
+        counters.merge(rawResult.counters){old,_ in old}
+        let hostExact=rawResult.exact && manager.connection.status == .connected
         #endif
         let direct:Data?=await withCheckedContinuation { continuation in
             let gate=LabMessageGate(continuation)

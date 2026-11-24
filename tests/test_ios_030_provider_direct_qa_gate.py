@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 QA = ROOT / "mobile/ios/Tools/ProviderVLESSHardwareQA"
 P = (QA / "Provider.swift").read_text()
 M = (QA / "ScopedTUNMetrics.swift").read_text()
+W = (QA / "ScopedTCPWitness.swift").read_text()
 B = (QA / "build_unsigned.sh").read_text()
 H = (ROOT / "mobile/ios/Tools/NativeTunnelLab/Host/NativeLabHost.swift").read_text()
 
@@ -56,11 +57,17 @@ class ProviderDirectQAGate(unittest.TestCase):
         self.assertNotIn('198,51,100,77',greeting)
         self.assertNotIn('GET /',greeting)
 
-    def test_host_error_counters_are_not_lost_or_raw(self):
-        self.assertIn('counters["hostHTTPAttempted"]=1',H)
-        self.assertIn('counters["hostURLError"]=error.domain==NSURLErrorDomain ? error.code:0',H)
+    def test_host_raw_tcp_fixed_scope_and_numeric_counters(self):
+        self.assertIn('ScopedTCPWitness.run(value)',H)
+        self.assertIn('counters.merge(rawResult.counters){old,_ in old}',H)
         self.assertIn('counters.merge(parsed){old,_ in old}',H)
-        self.assertNotIn('counters["hostURLError"]=error.localizedDescription',H)
+        for token in ('"198.51.100.77".withCString','UInt16(39883).bigEndian','validNonce(nonce)',
+                      '6_000_000_000','hostConnectErrno','hostSentBytes','hostReceivedBytes',
+                      'response[split.upperBound...]==body','lengths.count==1','O_NONBLOCK'):
+            self.assertIn(token,W)
+        for token in ('NSAllowsArbitraryLoads','NSExceptionDomains','IP_BOUND_IF','SO_BINDTODEVICE'):
+            self.assertNotIn(token,W+B)
+        self.assertIn('ScopedTCPWitness.swift',B)
 
     def test_historical_lab_is_preserved_not_adopted(self):
         body=H.split('private func historicalDormantKind(',1)[1].split('private func inspectProviderManagers',1)[0]
