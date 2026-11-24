@@ -73,5 +73,9 @@ steps:
     result: "Installed corrected signed QA; read-only census known dormant1, own0, other active0."
   - step: 21
     action: "Prepare one owned raw TCP test manager."
+    result: "Prepared=true connected=false; run 0cef71e2-6870-4a83-ba12-98e2a12de163."
+  - step: 22
+    action: "Run corrected bounded raw TCP scoped test with exact independent witness."
+    run_id: 288E0E16-9097-4FCF-AF36-7FC6A3BEC2A3
     result: pending
 resume_instruction: "ARC only. Original Основной recovery first: iPhone Mirroring reports iPhone in Use; owner should lock phone with USB attached. Verify current profile and VPN state before action; use built-in targeted proxy check and original-only recovery, no other credentials/profile edits. Instrumented scoped signed QA candidate ready at native-artifacts/ios-030-provider-scoped-tun-metrics-v2-signed-20261124/NativeLabHost.app; no rebuild unchanged. After original VPN recovery and safe test authorization, one scoped synthetic test with exact nonce peer proof and new counters: hostHTTPAttempted/hostURLError/status, descriptorMatchedBefore/After, localSOCKSGreeting, Rust log/traffic/target counters. Preserve and restore original VPN, historical manager and prior lab app. No blind repeats, release gate changes or Apple changes."
