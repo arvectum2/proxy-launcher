@@ -1,6 +1,6 @@
 task_id: APL-IOS-PROVIDER-TUN-20261124
 parent_task: APL-IOS-UNIFIED-RELEASE-20261111
-status: in_progress
+status: blocked
 goal: "Isolate exact product Rust/TUN forwarding under scoped routes after provider-direct PASS"
 definition_of_done:
   - "Verified product Go and Rust archives, fixed scoped route, synthetic destination only"
@@ -36,5 +36,5 @@ steps:
     result: "Device connected=true, Rust started=true, host HTTP=false, Rust drain=true, native stop=true, cleaned=true; independent peer positive control true, physical accepts=0 and witness=0, run IDs and challenge hash matched. Result negative."
   - step: 9
     action: "Post-test read-only manager census, restore previous lab binary and reconnect original Основной."
-    result: pending
-resume_instruction: "Signed artifact ready at native-artifacts/ios-030-provider-scoped-tun-signed-20261124/NativeLabHost.app. Do not rebuild or re-sign unchanged. Physical test blocked while production VPN active. Obtain explicit authorization for temporary interruption or wait for user to stop it; record original selected profile and VPN state, then recheck device. Use existing scoped QA procedure, independent nonce witness, exact lab cleanup and restore original VPN state. Do not run concurrent VPNs."
+    result: "Post-census identical, own manager removed; previous NativeLab restored, synthetic inputs scrubbed, no listeners. Original Основной selected but two reconnect attempts timed out; Activity UI TIMEOUT twice, provider absent. Restoration NOT complete."
+resume_instruction: "Physical scoped TUN diagnostic already negative and fully recorded; do not repeat unchanged. First restore original Основной VPN: two reconnect attempts timed out, investigate read-only before further retries; no profile/credential edits or alternative selection without approval. Historical lab preserved, prior NativeLab binary restored, no temporary manager/listeners. Then instrument exact TUN descriptor and packet/SOCKS boundaries to isolate zero peer accepts. See docs/APL_IOS_030_VLESS_SCOPED_TUN_2026-11-24.md."
