@@ -13,5 +13,8 @@ steps:
     result: "Scoped/full TCP4 complete. Product PacketTunnel PID84658 running; no intervention. Owner deferred Основной."
   - step: 2
     action: "Prepare offline multi-protocol isolated QA, one fixed tuple per invocation."
+    result: "PASS ARM64 build, strict signature, 22 focused +50 release +15 parser +14 guard checks. Earlier ARC oversized command rejected without mutation; split commands succeeded."
+  - step: 3
+    action: "Verify existing local independent peer preflight for TCP6/UDP4/UDP6; no device action."
     result: pending
 resume_instruction: "Build/test/sign off-device. No phone mutation while production provider active. Do not diagnose original proxy."
