@@ -71,8 +71,16 @@ private final class NativeVLESSPhysicalPathReceipt: @unchecked Sendable {
         case .amneziaWG1:
             throw Failure.unsupported
         }
+        #if APL_ISOLATED_PRODUCT_RUNNER_QA
+        // Only the isolated QA target may link this guard. The production
+        // build does not contain the QA flag or guard implementation.
+        guard owner.reference.kind == .vlessReality else{throw Failure.unsupported}
+        let configurationForStart=try FullRouteGuard.restrict(boundConfiguration,kind:.tcp4)
+        #else
+        let configurationForStart=boundConfiguration
+        #endif
         try await startOwned(provider:provider,route:candidate.validation,
-            configuration:boundConfiguration,
+            configuration:configurationForStart,
             planSettings:NativeTunnelNetworkSettings.make(plan),mtu:UInt16(plan.mtu),exactDNS:true,
             descriptor:{NativeExactTunnelDescriptor.find(address:plan.ipv4Address,ipv6:plan.ipv6Address)})
     }

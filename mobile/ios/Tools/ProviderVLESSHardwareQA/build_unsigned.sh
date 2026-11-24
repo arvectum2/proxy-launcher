@@ -2,7 +2,7 @@
 set -euo pipefail
 umask 077
 [[ ( $# == 2 || $# == 3 || $# == 4 ) && ! -e "$2" ]]
-[[ $# != 4 || "$4" == full-route ]]
+[[ $# != 4 || "$4" == full-route || "$4" == product-runner ]]
 source="$1";out="$2";rust="${3:-}";mode="${4:-}"
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 python3 - "$source" <<'PY'
@@ -109,7 +109,7 @@ p=Path(sys.argv[1]);s=p.read_text().replace('CONDITIONS: APL_PROVIDER_DIRECT_QA'
 p.write_text(s)
 YAML_EDIT
 fi
-if [[ "$mode" == full-route ]];then
+if [[ "$mode" == full-route || "$mode" == product-runner ]];then
   [[ -n "$rust" ]]
   cp "$root/Tools/ProviderVLESSHardwareQA/FullRouteGuard.swift" "$root/Tools/ProviderVLESSHardwareQA/FixedWitnessKind.swift" "$out/Sources/"
   cp "$root/Tools/ProviderVLESSHardwareQA/FixedUDPWitness.swift" "$root/Tools/ProviderVLESSHardwareQA/FixedDNSWire.swift" "$out/Host/"
@@ -121,6 +121,21 @@ p=Path(sys.argv[1]);s=p.read_text().replace('APL_PROVIDER_SCOPED_TUN_QA"','APL_P
 s=s.replace('APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA"','APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA APL_NATIVE_PROVIDER_INTEGRATION APL_NATIVE_PRODUCT_RUNTIME_REVIEW DEBUG"')
 p.write_text(s)
 FULL_MODE
+fi
+if [[ "$mode" == product-runner ]];then
+  rm "$out/Sources/Provider.swift"
+  cp "$root/SharedCore/"*.swift "$out/Sources/"
+  cp "$root/PacketTunnel/NativeXrayPacketSession.swift" "$root/PacketTunnel/NativeXrayRuntimeDriver.swift" "$root/Shared/NativeTunnelNetworkSettings.swift" "$root/Tools/ProviderVLESSHardwareQA/ProductRunnerProvider.swift" "$out/Sources/"
+  python3 - "$out/project.yml" <<'PRODUCT_RUNNER_MODE'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1]);s=p.read_text()
+old='APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA APL_NATIVE_PROVIDER_INTEGRATION APL_NATIVE_PRODUCT_RUNTIME_REVIEW DEBUG'
+new='APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA APL_NATIVE_PROVIDER_INTEGRATION APL_NATIVE_PRODUCT_RUNTIME APL_NATIVE_EXACT_DNS APL_NATIVE_XRAY_CANDIDATE APL_NATIVE_UNIFIED_GO_CANDIDATE APL_VLESS_PHYSICAL_QA APL_ISOLATED_PRODUCT_RUNNER_QA DEBUG'
+assert s.count(old)==1
+s=s.replace(old,new)
+p.write_text(s)
+PRODUCT_RUNNER_MODE
 fi
 (cd "$out" && xcodegen generate >/dev/null)
 if ! xcodebuild -project "$out/APLIsolatedProviderDirectQA.xcodeproj" -scheme NativeLabHost -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO -derivedDataPath "$out/Build" build > "$out/build.log" 2>&1;then grep -E 'error:|BUILD FAILED' "$out/build.log" | tail -25;exit 1;fi
