@@ -1,7 +1,11 @@
 // Explicitly separate QA target. Never referenced by production project.yml.
 import Darwin
 import Foundation
+#if APL_DIRECT_PRODUCT_GO_QA
+import APLUnifiedGo
+#else
 import LibXray
+#endif
 
 enum NativeLabRuntime {
     static func call(_ method: String, config: String? = nil) -> [String: Any]? {

@@ -26,6 +26,11 @@ private struct QAInput: Decodable {
 private struct QAReceipt {
     let runID:String
     var stage="notStarted"
+    #if APL_DIRECT_PRODUCT_GO_QA
+    let engineVariant="unifiedGoProductBoundUDP"
+    #else
+    let engineVariant="standaloneTCP"
+    #endif
     var greeting=false
     var connect=false
     var httpReceipt=false
@@ -38,7 +43,7 @@ private struct QAReceipt {
     var wifiOnTestSubnet=false
     func encoded()->Data? {
         try? JSONSerialization.data(withJSONObject:[
-            "schema":1,"runID":runID,"stage":stage,"socksGreeting":greeting,
+            "schema":1,"runID":runID,"stage":stage,"engineVariant":engineVariant,"socksGreeting":greeting,
             "socksConnect":connect,"exactHTTPReceipt":httpReceipt,
             "xrayStopConfirmed":stopped,"directLANReachable":directLANReachable,
             "lanErrorCode":lanErrorCode,"lanPhase":lanPhase,
@@ -238,7 +243,22 @@ private enum DirectQAEngine {
             return receipt // Never start Xray against an unreachable LAN peer.
         }
         do {
+            #if APL_DIRECT_PRODUCT_GO_QA
+            // Exact product compiler and underlay transformation; no OS tunnel.
+            guard lan.wifiOnTestSubnet,if_nametoindex("en0") != 0,
+                  (NativeLabRuntime.call("xrayVersion")?["data"] as? [String:Any])?["version"] as? String == "26.11.9" else {
+                receipt.stage="productUnderlayUnavailable";return receipt
+            }
+            let raw=try XrayVLESSRuntimeConfig.compileValidatedCandidate(profile,socksPort:39879,datagramReview:true)
+            let bound=try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(raw,interfaceName:"en0",expectedAddress:"192.168.1.80",expectedPort:39882)
+            guard let config=String(data:bound,encoding:.utf8),
+                  NativeLabRuntime.call("testXray",config:config) != nil,
+                  NativeLabRuntime.running==false else {
+                receipt.stage="productConfigRejected";return receipt
+            }
+            #else
             let config=try NativeLabRuntime.prepare(profile,port:39879)
+            #endif
             receipt.stage="verifiedConfig"
             // Explicit stop before returning the value: a defer could update a
             // local copy only after Swift evaluates the returned struct.

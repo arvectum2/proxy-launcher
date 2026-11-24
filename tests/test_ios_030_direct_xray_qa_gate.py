@@ -66,6 +66,17 @@ class DirectXrayQASafetyTests(unittest.TestCase):
         self.assertIn('return receipt // Never start Xray against an unreachable LAN peer.',SRC)
         self.assertLess(SRC.index('if !lan.connected {'),SRC.index('let config=try NativeLabRuntime.prepare'))
 
+    def test_product_go_variant_pinned_and_exact_compiler(self):
+        self.assertIn("APL_DIRECT_PRODUCT_GO_QA",SRC)
+        self.assertIn("datagramReview:true",SRC)
+        self.assertIn('bindPhysicalUnderlay(raw,interfaceName:"en0",expectedAddress:"192.168.1.80",expectedPort:39882)',SRC)
+        self.assertIn('lan.wifiOnTestSubnet,if_nametoindex("en0") != 0',SRC)
+        self.assertIn('unifiedGoProductBoundUDP',SRC)
+        self.assertIn('1c8f00a729dac97e7670b718d6208d8e67946ea9b2260a9f68eed4a9fa5e0c54',BUILD)
+        self.assertIn('45716d42d434ae6d6576d9a32f47a4ea63d4943f106cb3bb7e6af57c725ea7af',BUILD)
+        self.assertIn('lib=APLUnified',BUILD)
+        self.assertIn('APL_DIRECT_PRODUCT_GO_QA',BUILD)
+
     def test_unsigned_pinned_library_and_separate_project(self):
         for token in ('verify_xray_source_candidate.py','CODE_SIGNING_ALLOWED: NO',
                       'CODE_SIGNING_REQUIRED: NO','DIRECT_XRAY','release_authorized',):
