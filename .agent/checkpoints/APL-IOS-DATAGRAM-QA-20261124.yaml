@@ -1,6 +1,6 @@
 task_id: APL-IOS-DATAGRAM-QA-20261124
 parent_task: APL-IOS-UNIFIED-RELEASE-20261111
-status: blocked
+status: in_progress
 goal: "Isolated full-route TCP6, UDP4 and UDP6 physical acceptance; one fixed synthetic tuple per run."
 definition_of_done:
   - "Strict per-run egress allowlist, exact raw socket challenge, pinned libraries; verified build and tests."
@@ -17,4 +17,10 @@ steps:
   - step: 3
     action: "Verify existing local independent peer preflight for TCP6/UDP4/UDP6; no device action."
     result: "PASS TCP6 UDP4 UDP6 independent Mac preflight-only; fresh synthetic fixtures cleaned; no QA TCP listeners. No device mutation."
+  - step: 4
+    action: "Owner authorized all three trials; verify actual baseline before changes."
+    result: "18:48 local: product provider absent, APL UI Connect, selected Нидерланды 2. Baseline OFF; no disconnection necessary. Preserve selected profile and restore OFF. Основной excluded."
+  - step: 5
+    action: "Install signed protocol QA, inspect, then run three sequential isolated cases and restore previous lab binary."
+    result: pending
 resume_instruction: "ARC only. Owner deferred Основной diagnosis; do not inspect or change that proxy. Product provider was active PID84658; no interruption or device installation. Recheck current provider state. If VPN OFF or separately authorized interruption, use existing verified signed artifact native-artifacts/ios-030-provider-full-route-datagrams-signed-20261124/NativeLabHost.app, no rebuild. Run TCP6, UDP4, UDP6 separately, using existing generate(vlessReality,tcp4,positive,None) only for fresh synthetic keys, make_command scope=vlessDatagrams and matching probe/probeKind. Inspect owned manager and preserve historical, correlate exact independent hashes and witness kind; confirm drain/stop/cleanup, restore previous NativeLab and original device state. See docs/APL_IOS_030_VLESS_DATAGRAM_QA_2026-11-24.md. No repeating accepted TCP4, public enablement, Apple changes, merge or upload."
