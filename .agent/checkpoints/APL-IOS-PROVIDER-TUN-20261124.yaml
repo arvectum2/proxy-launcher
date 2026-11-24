@@ -57,5 +57,9 @@ steps:
     result: "Signed metrics candidate installed; read-only census confirms known historical dormant=1, owned=0, other active=0."
   - step: 16
     action: "Prepare one owned isolated test manager."
+    result: "Prepared=true connected=false; exact run 190e1689-1e62-4fa9-80c9-f628275134b2."
+  - step: 17
+    action: "Run instrumented scoped synthetic HTTP test; collect coarse counters and independent peer witness."
+    run_id: F28B6AA0-8A8F-4287-B689-3E88D6B30C5C
     result: pending
 resume_instruction: "ARC only. Original Основной recovery first: iPhone Mirroring reports iPhone in Use; owner should lock phone with USB attached. Verify current profile and VPN state before action; use built-in targeted proxy check and original-only recovery, no other credentials/profile edits. Instrumented scoped signed QA candidate ready at native-artifacts/ios-030-provider-scoped-tun-metrics-v2-signed-20261124/NativeLabHost.app; no rebuild unchanged. After original VPN recovery and safe test authorization, one scoped synthetic test with exact nonce peer proof and new counters: hostHTTPAttempted/hostURLError/status, descriptorMatchedBefore/After, localSOCKSGreeting, Rust log/traffic/target counters. Preserve and restore original VPN, historical manager and prior lab app. No blind repeats, release gate changes or Apple changes."
