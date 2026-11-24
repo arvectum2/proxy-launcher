@@ -29,7 +29,7 @@ enum FixedUDPWitness {
                 if errno != EINTR{return false}
             }
         }
-        let request=Array(("APL_UDP:"+nonce).utf8)
+        let request=kind == .dnsWire4 ? Array(FixedDNSWire.query(nonce)):Array(("APL_UDP:"+nonce).utf8)
         guard ready(Int16(POLLOUT)) else{result.counters["hostSendErrno"]=Int(errno);return result}
         let sent=request.withUnsafeBytes{Darwin.send(fd,$0.baseAddress!,request.count,0)}
         guard sent==request.count else{result.counters["hostSendErrno"]=Int(errno);return result}
@@ -41,7 +41,7 @@ enum FixedUDPWitness {
         guard got>0 else{result.counters["hostReceiveErrno"]=Int(errno);return result}
         result.counters["hostReceivedBytes"]=got
         result.counters["hostDatagramsReceived"]=1
-        result.exact=matches(Data(bytes.prefix(got)),nonce:nonce)
+        result.exact=kind == .dnsWire4 ? FixedDNSWire.matches(Data(bytes.prefix(got)),nonce:nonce):matches(Data(bytes.prefix(got)),nonce:nonce)
         return result
     }
 }

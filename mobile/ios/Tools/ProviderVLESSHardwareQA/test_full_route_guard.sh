@@ -34,7 +34,10 @@ for (kind,cidr,network) in tuples {
     precondition(rules.count==2 && rules[0]["ip"] as? [String]==[cidr] && rules[0]["network"] as? String==network && rules[0]["port"] as? String=="39883" && rules[1]["outboundTag"] as? String=="qa-drop")
 }
 precondition(FixedWitnessKind(rawValue:"dns4")==nil)
-print("FULL_ROUTE_GUARD_14_PASS")
+let dnsRoot=try JSONSerialization.jsonObject(with:FullRouteGuard.restrict(encode(input),kind:.dnsWire4)) as! [String:Any]
+let dnsRules=(dnsRoot["routing"] as! [String:Any])["rules"] as! [[String:Any]]
+precondition(dnsRules[0]["ip"] as? [String]==["198.51.100.77/32"] && dnsRules[0]["network"] as? String=="udp" && dnsRules[0]["port"] as? String=="53" && dnsRules[1]["outboundTag"] as? String=="qa-drop")
+print("FULL_ROUTE_GUARD_15_PASS")
 SWIFT
 xcrun swiftc "$root/FixedWitnessKind.swift" "$root/FullRouteGuard.swift" "$temp/main.swift" -o "$temp/check"
 "$temp/check"

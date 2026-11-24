@@ -25,7 +25,7 @@ enum FullRouteGuard {
         root["outbounds"]=[deny,outbound[0]]
         root["routing"]=["domainStrategy":"AsIs","rules":[
             ["type":"field","inboundTag":["apl-local"],"network":kind.network,
-             "ip":[kind.cidr],"port":"39883","outboundTag":"apl-vless"],
+             "ip":[kind.cidr],"port":String(kind.port),"outboundTag":"apl-vless"],
             ["type":"field","network":"tcp,udp","outboundTag":"qa-drop"]
         ]]
         root["log"]=["loglevel":"none"]

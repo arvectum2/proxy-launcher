@@ -68,7 +68,7 @@ class ProviderDirectQAGate(unittest.TestCase):
                       '6_000_000_000','hostConnectErrno','hostSentBytes','hostReceivedBytes',
                       'response[split.upperBound...]==body','lengths.count==1','O_NONBLOCK'):
             self.assertIn(token,W)
-        for token in ('"198.51.100.77"','"2001:db8:77::77"','UInt16(39883).bigEndian'):
+        for token in ('"198.51.100.77"','"2001:db8:77::77"','port.bigEndian'):
             self.assertIn(token,(QA/"FixedWitnessKind.swift").read_text())
         for token in ('NSAllowsArbitraryLoads','NSExceptionDomains','IP_BOUND_IF','SO_BINDTODEVICE'):
             self.assertNotIn(token,W+B)
@@ -76,7 +76,7 @@ class ProviderDirectQAGate(unittest.TestCase):
 
     def test_full_route_qa_requires_synthetic_egress_guard(self):
         guard=(QA/"FullRouteGuard.swift").read_text()
-        for token in ('"qa-drop","protocol":"blackhole"','[deny,outbound[0]]','"network":kind.network','"ip":[kind.cidr]','"port":"39883"','"outboundTag":"qa-drop"','"loglevel":"none"'):
+        for token in ('"qa-drop","protocol":"blackhole"','[deny,outbound[0]]','"network":kind.network','"ip":[kind.cidr]','"port":String(kind.port)','"outboundTag":"qa-drop"','"loglevel":"none"'):
             self.assertIn(token,guard)
         self.assertNotIn('"freedom"',guard)
         for token in ('FullRouteGuard.restrict(bound,kind:kind)','NativeExactTunnelDescriptor.find(address:"192.0.2.177",ipv6:"2001:db8:177::2")','NEIPv4Route.default()','NEIPv6Route(destinationAddress:"8000::",networkPrefixLength:1)','dns.matchDomains=[""]','report["fullRouteSyntheticGuard"]=true'):

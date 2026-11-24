@@ -38,10 +38,21 @@ class TLSFirstRecordMeter:
         return result
 
 
+def dns_wire_query(challenge):
+    import re
+    assert re.fullmatch("[0-9a-f]{40}",challenge)
+    return bytes.fromhex("a11701000001000000000000")+b"".join(bytes([len(label)])+label for label in (challenge.encode(),b"apl",b"invalid"))+bytes.fromhex("0000010001")
+
+
+def dns_wire_response(challenge):
+    return bytes.fromhex("a11781800001000100000000")+dns_wire_query(challenge)[12:]+bytes.fromhex("c00c00010001000000000004c0000235")
+
+
 def config(root, probe="tcp4"):
-    assert probe in ("tcp4","tcp6","udp4","udp6")
+    assert probe in ("tcp4","tcp6","udp4","udp6","dnsWire4")
     target=TARGET if probe.endswith("4") else "2001:db8:77::77"
-    network=probe[:3]
+    network="udp" if probe=="dnsWire4" else probe[:3]
+    target_port="53" if probe=="dnsWire4" else "39883"
     # Use only the ephemeral keys from the private fixture, not arbitrary routing.
     i=json.loads((root/"peer.json").read_text())["inbounds"][0]
     uid=i["settings"]["clients"][0]["id"]
@@ -51,7 +62,7 @@ def config(root, probe="tcp4"):
     import base64,re
     assert re.fullmatch(r"[A-Za-z0-9_-]{43}",key) and len(base64.urlsafe_b64decode(key+"="))==32
     assert re.fullmatch(r"[a-f0-9]{16}",sid)
-    return {"log":{"loglevel":"none"},"inbounds":[{"tag":"qa-in","listen":HOST,"port":PORT,"protocol":"vless","settings":{"clients":[{"id":uid}],"decryption":"none"},"streamSettings":{"network":"raw","security":"reality","realitySettings":{"target":HOST+":39884","serverNames":["example.com"],"privateKey":key,"shortIds":[sid]}}}],"outbounds":[{"tag":"deny","protocol":"blackhole"},{"tag":"receipt-only","protocol":"freedom","settings":{"redirect":HOST+":39883","finalRules":[{"action":"allow","network":network,"port":"39883","ip":[HOST+"/32"]},{"action":"block"}]}}],"routing":{"domainStrategy":"AsIs","rules":[{"type":"field","inboundTag":["qa-in"],"ip":[target+("/32" if probe.endswith("4") else "/128")],"port":"39883","network":network,"outboundTag":"receipt-only"}]}}
+    return {"log":{"loglevel":"none"},"inbounds":[{"tag":"qa-in","listen":HOST,"port":PORT,"protocol":"vless","settings":{"clients":[{"id":uid}],"decryption":"none"},"streamSettings":{"network":"raw","security":"reality","realitySettings":{"target":HOST+":39884","serverNames":["example.com"],"privateKey":key,"shortIds":[sid]}}}],"outbounds":[{"tag":"deny","protocol":"blackhole"},{"tag":"receipt-only","protocol":"freedom","settings":{"redirect":HOST+":39883","finalRules":[{"action":"allow","network":network,"port":"39883","ip":[HOST+"/32"]},{"action":"block"}]}}],"routing":{"domainStrategy":"AsIs","rules":[{"type":"field","inboundTag":["qa-in"],"ip":[target+("/32" if probe.endswith("4") else "/128")],"port":target_port,"network":network,"outboundTag":"receipt-only"}]}}
 
 
 def rotate_reality_key(server, fixture):
@@ -66,7 +77,7 @@ def rotate_reality_key(server, fixture):
     return urlunsplit(parts._replace(query=urlencode([(k,new if k=="pbk" else v) for k,v in query])))
 
 
-def socks_udp_probe(target, challenge):
+def socks_udp_probe(target, challenge, dns=False):
     """Local SOCKS5 UDP associate; fixed synthetic target only."""
     def exact(sock,n):
         result=b""
@@ -91,12 +102,12 @@ def socks_udp_probe(target, challenge):
                 host=address(control,header[3]);port=int.from_bytes(exact(control,2),"big")
                 assert host in (HOST,"0.0.0.0") and port>0
                 ip=ipaddress.ip_address(target)
-                packet=b"\x00\x00\x00"+bytes([1 if ip.version==4 else 4])+ip.packed+(39883).to_bytes(2,"big")
-                datagram.sendto(packet+("APL_UDP:"+challenge).encode(),(HOST,port))
+                packet=b"\x00\x00\x00"+bytes([1 if ip.version==4 else 4])+ip.packed+(53 if dns else 39883).to_bytes(2,"big")
+                datagram.sendto(packet+(dns_wire_query(challenge) if dns else ("APL_UDP:"+challenge).encode()),(HOST,port))
                 response,src=datagram.recvfrom(512)
                 assert src==(HOST,port) and response[:3]==b"\x00\x00\x00"
                 size={1:4,4:16}.get(response[3])
-                return size is not None and response[4+size+2:]==("APL_RECEIPT:"+challenge).encode()
+                return size is not None and response[4+size+2:]==(dns_wire_response(challenge) if dns else ("APL_RECEIPT:"+challenge).encode())
     except (OSError,TimeoutError):return False
 
 def run(root, peer, command, preflight_only=False):
@@ -106,7 +117,7 @@ def run(root, peer, command, preflight_only=False):
     if command:
         item=json.loads(command.read_text())
         validate_command(item)
-        assert item["action"]=="run" and item["reference"]["kind"]=="vlessReality" and (item.get("scope")=="vlessDatagrams" or (item.get("scope") is None and item["probe"]=="tcp4")) and item["mode"] in ("positive","wrong-key")
+        assert item["action"]=="run" and item["reference"]["kind"]=="vlessReality" and (item.get("scope") in ("vlessDatagrams","vlessDNSWire") or (item.get("scope") is None and item["probe"]=="tcp4")) and item["mode"] in ("positive","wrong-key")
         nonce=item["nonce"]
     work=root/("witness-"+str(uuid.uuid4()))
     work.mkdir(mode=0o700)
@@ -115,7 +126,8 @@ def run(root, peer, command, preflight_only=False):
     negative=item is not None and item["mode"]=="wrong-key"
     probe=item["probe"] if item else "tcp4"
     target=TARGET if probe.endswith("4") else "2001:db8:77::77"
-    udp=probe.startswith("udp")
+    dns=probe=="dnsWire4"
+    udp=probe.startswith("udp") or dns
     server=config(root,probe)
     original=(root/"fixture.txt").read_text()
     control=rotate_reality_key(server, original) if negative else original
@@ -136,6 +148,12 @@ def run(root, peer, command, preflight_only=False):
     class UDPWitness(socketserver.BaseRequestHandler):
         def handle(self):
             raw,sock=self.request
+            if dns:
+                challenge=next((n for n in (nonce,pre) if raw==dns_wire_query(n)),None)
+                if challenge is None:return
+                sock.sendto(dns_wire_response(challenge),self.client_address)
+                with lock:seen.append(challenge)
+                return
             if raw not in (("APL_UDP:"+nonce).encode(),("APL_UDP:"+pre).encode()):return
             challenge=raw[8:].decode("ascii")
             sock.sendto(("APL_RECEIPT:"+challenge).encode(),self.client_address)
@@ -191,7 +209,7 @@ def run(root, peer, command, preflight_only=False):
             try:
                 wait_for(p,clog,"PEER_QA_READY_client")
                 if udp:
-                    matched=socks_udp_probe(target,challenge)
+                    matched=socks_udp_probe(target,challenge,dns)
                 else:
                     authority=target if probe.endswith("4") else "["+target+"]"
                     got=subprocess.run(["curl","--disable","--noproxy","","--silent","--max-time","7","--socks5-hostname",HOST+":39879","http://"+authority+":39883/"+challenge],capture_output=True,env={k:v for k,v in os.environ.items() if "proxy" not in k.lower()})
@@ -219,7 +237,7 @@ def run(root, peer, command, preflight_only=False):
         deadline=time.monotonic()+48
         while time.monotonic()<deadline and not (root/("stop-"+item["requestID"])).exists():time.sleep(.1)
         with lock:
-            result={"schema":1,"probe":probe,"mode":item["mode"],"localPositiveControl":True,"localNegativeControl":negative,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"firstTLSRecords":[meter.summary() for meter in first_records[first_record_baseline:first_record_baseline+8]],"responseSHA256":hashlib.sha256(("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
+            result={"schema":1,"probe":probe,"mode":item["mode"],"localPositiveControl":True,"localNegativeControl":negative,"requestID":item["requestID"],"challengeSHA256":hashlib.sha256(nonce.encode()).hexdigest(),"witnessCount":seen.count(nonce),"relayAccepted":counts[0]-baseline[0],"ingressBytes":counts[1]-baseline[1],"egressBytes":counts[2]-baseline[2],"firstTLSRecords":[meter.summary() for meter in first_records[first_record_baseline:first_record_baseline+8]],"responseSHA256":hashlib.sha256(dns_wire_response(nonce) if dns else ("APL_RECEIPT:"+nonce).encode()).hexdigest() if seen.count(nonce)==1 else None,"release_authorized":False}
         (work/"peer-observation.json").write_text(json.dumps(result,sort_keys=True)+"\n")
         print("NATIVELAB_VLESS_PEER_OBSERVATION",json.dumps(result),flush=True)
         return 0 if result["witnessCount"]==(0 if negative else 1) and result["relayAccepted"]>0 and result["ingressBytes"]>0 and result["egressBytes"]>0 else 2

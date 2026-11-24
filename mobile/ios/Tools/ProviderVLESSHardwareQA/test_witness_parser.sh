@@ -26,7 +26,14 @@ precondition(!FixedUDPWitness.matches(Data(body.utf8),nonce:String(repeating:"b"
 precondition(FixedUDPWitness.run(nonce,kind:.tcp6).counters.isEmpty)
 precondition(FixedUDPWitness.run("invalid",kind:.udp6).counters.isEmpty)
 precondition(ScopedTCPWitness.run(nonce,kind:.udp4).counters.isEmpty)
-print("TCP_UDP_WITNESS_PARSER_15_PASS")
+let dns=FixedDNSWire.expected(nonce)
+precondition(FixedDNSWire.query(nonce).count==70)
+precondition(dns.count==86)
+precondition(FixedDNSWire.matches(dns,nonce:nonce))
+precondition(!FixedDNSWire.matches(dns,nonce:String(repeating:"b",count:40)))
+precondition(!FixedDNSWire.matches(dns+Data([0]),nonce:nonce))
+precondition(!FixedDNSWire.matches(Data(),nonce:"invalid"))
+print("TCP_UDP_DNS_WITNESS_21_PASS")
 SWIFT
-xcrun swiftc "$root/FixedWitnessKind.swift" "$root/ScopedTCPWitness.swift" "$root/FixedUDPWitness.swift" "$temp/main.swift" -o "$temp/check"
+xcrun swiftc "$root/FixedWitnessKind.swift" "$root/ScopedTCPWitness.swift" "$root/FixedUDPWitness.swift" "$root/FixedDNSWire.swift" "$temp/main.swift" -o "$temp/check"
 "$temp/check"

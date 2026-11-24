@@ -50,6 +50,9 @@ def validate_command(command):
         need(all(v is None for v in (scope, probe, mode, nonce)), "manager command has probe options")
         return
     kind = command["reference"]["kind"]
+    if scope == "vlessDNSWire":
+        need(kind=="vlessReality" and probe=="dnsWire4" and mode=="positive" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid VLESS DNS wire command")
+        return
     if mode == "peer-loss":
         full_route = (kind == "wireGuard" and scope == "wireGuardFull") or (kind == "amneziaWG1" and scope is None)
         need(full_route and probe in ("udp4","udp6","dns4") and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40),nonce) is not None,"invalid peer loss command")
@@ -110,6 +113,7 @@ def verify_host(command, receipt):
         need(receipt.get(key) == command.get(key), "probe option mismatch")
     need(receipt["managerReadback"] is True and receipt["osOff"] is True and receipt["independentWitnessRequired"] is True and receipt["releaseAuthorized"] is False, "incomplete safety boundary")
     result = dict(status="host_receipt_correlated_only", action=command["action"], kind=command["reference"]["kind"], requestID=command["requestID"], independent_witness_required=True, runtime_authorized=False, release_authorized=False)
+    need(command.get("scope")!="vlessDNSWire","isolated DNS wire requires independent QA receipt")
     setup, drain = receipt["setup"], receipt.get("drain")
     if command.get("mode")=="peer-loss":
         allowed_loss={"firstStart","firstEnd","secondStart","secondEnd","secondChallengeSHA256"}

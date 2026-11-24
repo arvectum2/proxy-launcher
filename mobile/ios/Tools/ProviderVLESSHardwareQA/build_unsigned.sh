@@ -112,7 +112,7 @@ fi
 if [[ "$mode" == full-route ]];then
   [[ -n "$rust" ]]
   cp "$root/Tools/ProviderVLESSHardwareQA/FullRouteGuard.swift" "$root/Tools/ProviderVLESSHardwareQA/FixedWitnessKind.swift" "$out/Sources/"
-  cp "$root/Tools/ProviderVLESSHardwareQA/FixedUDPWitness.swift" "$out/Host/"
+  cp "$root/Tools/ProviderVLESSHardwareQA/FixedUDPWitness.swift" "$root/Tools/ProviderVLESSHardwareQA/FixedDNSWire.swift" "$out/Host/"
   cp "$root/PacketTunnel/NativeExactTunnelDescriptor.swift" "$out/Sources/"
   python3 - "$out/project.yml" <<'FULL_MODE'
 from pathlib import Path
