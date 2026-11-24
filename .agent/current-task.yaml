@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov corrected scoped Rust/TUN physical TCP PASS. Previous instrumented URLSession stimulus rejected by ATS -1022; replaced QA-only bounded raw TCP (no ATS weakening), physical exact receipt and independent peer witness1, relay1, challenge/response hashes matched, native drain and cleanup true, historical census identical, prior NativeLab restored and no QA listeners. Original Основной still OFF after third TIMEOUT; Mac TCP/407 and iPhone Safari proxy auth-required response confirm reachability, authenticated CONNECT not proven. No original edits. Scoped checkpoint completed, production full-route/UDP/WAN/leak acceptance outstanding."
+current: "24 Nov full OS route shape synthetic-only TCP4 physical PASS, exact HTTP200, independent peer witness1 and hashes correlated, native drain/stop and historical cleanup confirmed. Isolated guard denies other flows, no raw log capture. Scoped and full-route TCP checkpoints completed; UDP4/6, TCP6, DNS, WAN/leak and dynamic underlay remain unaccepted. Original Основной remains OFF after earlier TIMEOUT, no credentials/profile edits."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "5041f792a03ea5958f5096175136a927e8da78ca (actual physical scoped Rust/TUN TCP PASS, exact independent nonce/hash, 20+50+9 checks, cleanup verified)"
+last_verified_commit: "5b44d55b80e440ad30612016a5ef8a65b44b6368 (full-route guarded actual physical TCP4 PASS, exact independent nonce/hash, 21+50+9+9 checks and cleanup verified)"
 test_results:
+  - "24 Nov full OS route shape guarded TCP4 physical PASS: host sent98/received160, HTTP200, Mac witness1 relay1 bytes2145/2613, correlated hashes, native drain/stop and exact cleanup. 21 focused +50 release +9 parser +9 guard checks/preflight PASS. No product/UDP/DNS/WAN/leak acceptance."
   - "24 Nov corrected raw TCP scoped physical PASS: host sent98/received160, exact HTTP200, Mac witness1 relay1 bytes2209/2613, hashes matched, native drain/stop and post-census cleanup true. Prior instrumented ATS -1022 invalid stimulus; parser9/Python20+50/preflight PASS. Original profile reconnect TIMEOUT persists, direct endpoint HTTP response confirmed both devices."
   - "24 Nov offline scoped metrics build v2 ARM64 PASS, strict signing and entitlement checks PASS, focused20/release50/preflight PASS; first build missing header resolved with prior pinned Lib. Prior exact head 663bc492 six CI green. iPhone original recovery blocked by Mirroring in Use; no physical retest."
   - "24 Nov actual scoped Rust/TUN iPhone negative: connected, Rust started/drained and Xray stopped, own manager cleaned; host HTTP false; independent Mac positive control, physical relayAccepted0/witness0, nonce hash matched. Original lab census unchanged, prior NativeLab restored, original VPN reconnect TIMEOUT twice, remains OFF. No release acceptance."
@@ -527,6 +528,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-FULL-ROUTE-QA-20261124.yaml; scoped TCP complete, prepare isolated full-route synthetic-only variant. Original \u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 OFF unresolved; no credential changes. No production VLESS activation, Apple changes, merge or publication."
+resume_instruction: "ARC only. Read docs/APL_IOS_030_VLESS_FULL_ROUTE_QA_2026-11-24.md and completed .agent/checkpoints/APL-IOS-FULL-ROUTE-QA-20261124.yaml. Full route guarded TCP4 run CD6264F6-6B5F-4AC4-8F7D-E198E2CE54D3 PASS; do not repeat. NEXT bounded isolated UDP4/UDP6 and TCP6 synthetic witness, protocol-specific local/peer allowlist, exact nonce receipt, no background traffic forwarding or capture. Then dedicated DNS and negative/fail-closed checks. Original Основной remains unresolved OFF; no blind retry, profile or credential edits. No release gate changes, Apple changes, merge or upload. Check CI exact head."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
