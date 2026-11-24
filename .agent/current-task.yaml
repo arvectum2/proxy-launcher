@@ -528,6 +528,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read docs/APL_IOS_030_VLESS_FULL_ROUTE_QA_2026-11-24.md and completed .agent/checkpoints/APL-IOS-FULL-ROUTE-QA-20261124.yaml. Full route guarded TCP4 run CD6264F6-6B5F-4AC4-8F7D-E198E2CE54D3 PASS; do not repeat. NEXT bounded isolated UDP4/UDP6 and TCP6 synthetic witness, protocol-specific local/peer allowlist, exact nonce receipt, no background traffic forwarding or capture. Then dedicated DNS and negative/fail-closed checks. Original Основной remains unresolved OFF; no blind retry, profile or credential edits. No release gate changes, Apple changes, merge or upload. Check CI exact head."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-DATAGRAM-QA-20261124.yaml; owner deferred original proxy diagnosis. Product provider active, no interruption. Prepare offline TCP6/UDP4/UDP6 isolated QA. No release or Apple changes."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

@@ -1,0 +1,17 @@
+task_id: APL-IOS-DATAGRAM-QA-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: in_progress
+goal: "Isolated full-route TCP6, UDP4 and UDP6 physical acceptance; one fixed synthetic tuple per run."
+definition_of_done:
+  - "Strict per-run egress allowlist, exact raw socket challenge, pinned libraries; verified build and tests."
+  - "Three separate physical receipts correlated with independent protocol-specific server and native cleanup."
+  - "No owner VPN interruption without authorization; original proxy diagnosis deferred by owner."
+last_verified_commit: "eadf6c9c (full-route TCP4 PASS; all six CI checks successful)"
+steps:
+  - step: 1
+    action: "Read canonical state and check actual provider."
+    result: "Scoped/full TCP4 complete. Product PacketTunnel PID84658 running; no intervention. Owner deferred Основной."
+  - step: 2
+    action: "Prepare offline multi-protocol isolated QA, one fixed tuple per invocation."
+    result: pending
+resume_instruction: "Build/test/sign off-device. No phone mutation while production provider active. Do not diagnose original proxy."
