@@ -19,5 +19,9 @@ steps:
     result: "Installed; read-only census known dormant1, own0, other active0."
   - step: 4
     action: "Prepare one owned test manager, VPN OFF."
+    result: "Prepared=true connected=false; run 35d86eb1-d675-4763-acef-c2532e8bf8a6."
+  - step: 5
+    action: "Run one bounded full-route synthetic-only raw TCP experiment with independent witness."
+    run_id: CD6264F6-6B5F-4AC4-8F7D-E198E2CE54D3
     result: pending
 resume_instruction: "Implement and validate full route isolated guard before installing. Do not forward background device traffic. Original Основной remains unresolved; no credential edits."
