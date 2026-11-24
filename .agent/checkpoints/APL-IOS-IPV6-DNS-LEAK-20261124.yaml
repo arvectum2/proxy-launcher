@@ -1,10 +1,10 @@
 task_id: APL-IOS-IPV6-DNS-LEAK-20261124
-status: in_progress
+status: completed
 goal: "Extend established loss and independent RVI controls to UDP6 and synthetic DNS/53."
 definition_of_done:
   - "Per-protocol positive OFF physical observation and active first receipt, cut, second failed challenge; zero physical target packets, complete RVI."
   - "Preserve historical manager and restore prior app; document limitations if physical OFF control unavailable."
-last_verified_commit: "9e085679890477b3002fe35a92e9983c2ad78633 (201 checks, signed candidate, local peer controls PASS)"
+last_verified_commit: "1213213f98317dbe98a9ea3951d3235df237f708 (physical IPv6 DNS loss and RVI PASS, 201 offline checks verified previously)"
 steps:
   - step: 1
     action: "Recheck canonical state, provider, exact DNS tuple and RVI."
@@ -17,5 +17,5 @@ steps:
     result: "BLOCKED: signed candidate installed, initial read-only census launch denied Locked/CoreDevice10002, no manager prepared or physical test. Prior NativeLab restored. Mac UDP6/DNS local positive controls PASS, no QA sockets."
   - step: 4
     action: "Owner unlocked iPhone; recheck provider absent and no existing RVI; resume existing signed candidate in fresh evidence directory."
-    result: pending
-resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml and docs/APL_IOS_030_VLESS_IPV6_DNS_LEAK_QA_2026-11-24.md. Signed candidate ready, local reference controls PASS; iOS launch blocked Locked/CoreDevice10002. Prior NativeLab restored, no manager prepared, no physical test started. When device unlocked or Mirroring available, recheck baseline OFF, use existing signed artifact and copy existing run.py to fresh private evidence directory; run UDP6/DNS OFF and established loss. Require exact peer and complete RVI with positive OFF control before leak acceptance. No repeat accepted UDP4 or original proxy diagnosis. No interruption of active VPN without authorization, Apple changes or public enablement."
+    result: "PASS UDP6 4E2F0011-CCA1-4AFC-9811-F66863C484AF and DNS 73C437AD-EB15-475C-A6B3-C8534180360F, OFF physical1/tunnel0 and active physical0/tunnel2 each, exact first reply and second timeout, no second witness, all RVI complete. Prior lab restored, census identical, no QA sockets/RVI/providers."
+resume_instruction: "Completed; do not repeat. Parent next WAN/dynamic underlay and actual product acceptance, plus CloudKit/release gates."

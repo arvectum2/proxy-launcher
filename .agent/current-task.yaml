@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov IPv6/DNS guarded loss candidate signed, 201 checks and both Mac positive controls PASS. Device locked CoreDevice10002 on read-only launch; prior NativeLab restored, no physical traffic/manager created. Await device unlock or active Mirroring. Owner deferred Основной."
+current: "24 Nov 19:51: UDP6 and DNS wire established loss and independent RVI PASS, positive OFF control each. All four transport combinations, DNS wire, wrong key, guarded UDP4/UDP6/DNS loss/non-escape accepted. Historical census identical and previous lab restored. Product unchanged, no active provider or temporary sockets/RVI. Owner deferred Основной. WAN/dynamic underlay, unrestricted product and CloudKit/release remain."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "9e085679890477b3002fe35a92e9983c2ad78633 (offline IPv6 DNS candidate and Mac controls, no physical acceptance)"
+last_verified_commit: "1213213f98317dbe98a9ea3951d3235df237f708 (physical UDP6/DNS loss, matched RVI controls and cleanup)"
 test_results:
+  - "24 Nov UDP6 and DNS wire physical loss + independent RVI PASS, OFF physical1/tunnel0 and active physical0/tunnel2 each; exact first receipt and second timeout, zero second witness. Prior lab restored, cleanup PASS. 201 offline checks and signed build already verified. CI 3 success and 3 pending at intermediate head."
   - "24 Nov IPv6/DNS loss signed candidate and 201 checks/preflight PASS, Mac both positive controls PASS. Physical launch blocked by Locked/CoreDevice10002; no test manager or traffic, previous lab restored. Previous CI 5 success/1 cancelled."
   - "24 Nov physical DNS wire/wrong-key PASS; established UDP4 loss PASS, OFF physical1/tunnel0 active physical0/tunnel2 complete. 92 receipt/RVI +22 focused +21 parser +15 guard +50 release checks/preflight PASS. Cleanup and original binary verified. No universal leak or product acceptance."
   - "24 Nov physical full-route TCP6/UDP4/UDP6 all PASS, independent witness1 each and matching challenge/response hashes, native drain/stop, exact census, previous app restored, original selected Нидерланды 2 OFF. 22+50+15+14 and preflight PASS. Prior head 8d859e8f six CI checks success. No unrestricted/production acceptance."
@@ -532,6 +533,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Inspect private journal in native-artifacts/ios-030-ipv6-dns-loss-physical-resume-20261124 before any further action; one runner for UDP6 and DNS controls. Owner unlocked; no provider active. Do not repeat completed trials or original proxy diagnosis."
+resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml and docs/APL_IOS_030_VLESS_IPV6_DNS_LEAK_QA_2026-11-24.md. Do not repeat accepted guarded transport/DNS/loss/RVI. NEXT inspect actual product-equivalent runtime and WAN/dynamic underlay acceptance gates, use synthetic test with valid TCP stimulus, no capture or forwarding of unrelated traffic. Recheck baseline before any device action; do not interrupt active VPN without permission. Owner deferred Основной. No public enablement, merge, upload or Apple capability changes without owner decision."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
