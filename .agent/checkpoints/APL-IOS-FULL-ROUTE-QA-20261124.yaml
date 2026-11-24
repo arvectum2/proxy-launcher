@@ -23,5 +23,8 @@ steps:
   - step: 5
     action: "Run one bounded full-route synthetic-only raw TCP experiment with independent witness."
     run_id: CD6264F6-6B5F-4AC4-8F7D-E198E2CE54D3
+    result: "PASS full route synthetic-only TCP: exact HTTP200, host sent98 received160, both descriptor identities matched, Rust drain/Xray stop/owned cleanup true; independent peer relay1/witness1, bytes2145/2613, challenge and response hashes matched."
+  - step: 6
+    action: "Verify post-census, restore prior lab binary, scrub disposable fixtures and verify no active QA provider/listeners."
     result: pending
 resume_instruction: "Implement and validate full route isolated guard before installing. Do not forward background device traffic. Original Основной remains unresolved; no credential edits."
