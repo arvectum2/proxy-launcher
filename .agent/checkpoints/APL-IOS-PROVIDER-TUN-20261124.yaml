@@ -67,5 +67,8 @@ steps:
     result: "Post-census exactly matched; prior lab restored in-place, synthetic credentials scrubbed, no QA listeners."
   - step: 19
     action: "Correct invalid ATS stimulus using bounded direct TCP to fixed synthetic /32 in separate QA host. No ATS exception, no production change."
+    result: "Bounded raw TCP host, fixed endpoint and nonce, no ATS exception. ARM64 build, strict existing QA signature, parser9 and Python20+50 PASS."
+  - step: 20
+    action: "Install signed corrected raw TCP scoped variant only with provider absent; inspect historical manager."
     result: pending
 resume_instruction: "ARC only. Original Основной recovery first: iPhone Mirroring reports iPhone in Use; owner should lock phone with USB attached. Verify current profile and VPN state before action; use built-in targeted proxy check and original-only recovery, no other credentials/profile edits. Instrumented scoped signed QA candidate ready at native-artifacts/ios-030-provider-scoped-tun-metrics-v2-signed-20261124/NativeLabHost.app; no rebuild unchanged. After original VPN recovery and safe test authorization, one scoped synthetic test with exact nonce peer proof and new counters: hostHTTPAttempted/hostURLError/status, descriptorMatchedBefore/After, localSOCKSGreeting, Rust log/traffic/target counters. Preserve and restore original VPN, historical manager and prior lab app. No blind repeats, release gate changes or Apple changes."
