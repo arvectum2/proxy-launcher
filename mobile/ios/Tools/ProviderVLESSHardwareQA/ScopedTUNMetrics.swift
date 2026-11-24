@@ -12,10 +12,15 @@ final class ScopedTUNMetrics: @unchecked Sendable {
 
     func start() {
         lock.lock();values=[:];collecting=true;lock.unlock()
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        // Do not inspect general-device native log messages in full-route QA.
+        tun2proxy_set_log_callback({ _,_,_ in },nil)
+        #else
         tun2proxy_set_log_callback({ _, message, _ in
             guard let message else{return}
             ScopedTUNMetrics.shared.classify(String(cString:message))
         },nil)
+        #endif
         tun2proxy_set_traffic_status_callback(1,{ status,_ in
             guard let status else{return}
             ScopedTUNMetrics.shared.traffic(tx:status.pointee.tx,rx:status.pointee.rx)

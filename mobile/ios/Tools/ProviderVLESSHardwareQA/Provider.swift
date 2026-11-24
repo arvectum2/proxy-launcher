@@ -1,4 +1,4 @@
-// Isolated QA extension only; no product routes, DNS, TUN runner or owner profiles.
+// Isolated QA extension only; never loads owner profiles. Full-route variant has a synthetic-only egress guard.
 import Darwin
 import Foundation
 import NetworkExtension
@@ -35,21 +35,53 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                     else {throw NativeLabError.stage(22)}
                 let raw=try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate,socksPort:39879,datagramReview:true)
                 let bound=try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(raw,interfaceName:"en0",expectedAddress:"192.168.1.80",expectedPort:39882)
-                guard let config=String(data:bound,encoding:.utf8),
+                #if APL_PROVIDER_FULL_ROUTE_QA
+                let guarded=try FullRouteGuard.restrict(bound)
+                #else
+                let guarded=bound
+                #endif
+                guard let config=String(data:guarded,encoding:.utf8),
                     NativeLabRuntime.call("testXray",config:config) != nil,
                     NativeLabRuntime.running==false else {throw NativeLabError.stage(23)}
                 let settings=NEPacketTunnelNetworkSettings(tunnelRemoteAddress:"192.168.1.80")
                 let ipv4=NEIPv4Settings(addresses:["192.0.2.177"],subnetMasks:["255.255.255.255"])
+                #if APL_PROVIDER_FULL_ROUTE_QA
+                guard NativeExactTunnelDescriptor.interfaces(address:"192.0.2.177")?.isEmpty==true,
+                      NativeExactTunnelDescriptor.interfaces(address:"2001:db8:177::2")?.isEmpty==true else{throw NativeLabError.stage(28)}
+                ipv4.includedRoutes=[NEIPv4Route.default()]
+                ipv4.excludedRoutes=[]
+                let v6=NEIPv6Settings(addresses:["2001:db8:177::2"],networkPrefixLengths:[128])
+                v6.includedRoutes=[NEIPv6Route(destinationAddress:"::",networkPrefixLength:1),NEIPv6Route(destinationAddress:"8000::",networkPrefixLength:1)]
+                v6.excludedRoutes=[]
+                settings.ipv6Settings=v6
+                let dns=NEDNSSettings(servers:["1.1.1.1","8.8.8.8"])
+                dns.matchDomains=[""];dns.matchDomainsNoSearch=true
+                settings.dnsSettings=dns
+                #else
                 ipv4.includedRoutes=[NEIPv4Route(destinationAddress:"198.51.100.77",subnetMask:"255.255.255.255")]
+                #endif
                 settings.ipv4Settings=ipv4
                 settings.mtu=1500
+                #if APL_PROVIDER_FULL_ROUTE_QA
+                // Bound the full-route window from before installing routes.
+                deadline=Task { @MainActor [weak self] in
+                    do{try await Task.sleep(nanoseconds:20_000_000_000)}catch{return}
+                    guard !Task.isCancelled,let self else{return}
+                    self.consumed=true;self.challenge=nil
+                    self.cancelTunnelWithError(NativeLabError.stage(26).safeNSError)
+                }
+                #endif
                 try await setTunnelNetworkSettings(settings)
                 guard !consumed else {throw NativeLabError.stage(24)}
                 started=true
                 guard NativeLabRuntime.call("runXray",config:config) != nil,
                       NativeLabRuntime.running==true else {throw NativeLabError.stage(25)}
                 #if APL_PROVIDER_SCOPED_TUN_QA
+                #if APL_PROVIDER_FULL_ROUTE_QA
+                guard let fd=NativeExactTunnelDescriptor.find(address:"192.0.2.177",ipv6:"2001:db8:177::2") else{throw NativeLabError.stage(28)}
+                #else
                 guard let fd=ExactLabTUNDescriptor.find(address:"192.0.2.177") else{throw NativeLabError.stage(28)}
+                #endif
                 let handoff=try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[],exactDNS:true)
                 guard let identity=ScopedTUNMetrics.descriptorIdentity(fd) else{throw NativeLabError.stage(28)}
                 ScopedTUNMetrics.shared.start()
@@ -62,7 +94,11 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 rustStarted=true
                 engineQueue.async { [weak self] in
                     guard gate.isRunning(token) else{return}
+                    #if APL_PROVIDER_FULL_ROUTE_QA
+                    let args=handoff.tun2proxyArguments
+                    #else
                     let args=handoff.tun2proxyArguments.replacingOccurrences(of:"--verbosity warn",with:"--verbosity debug")
+                    #endif
                     _=args.withCString{tun2proxy_run_with_cli_args($0,1500,true)}
                     guard gate.markUnexpectedExit(token) else{return}
                     Task { @MainActor [weak self] in
@@ -77,11 +113,13 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 }
                 #endif
                 challenge=nonce
+                #if !APL_PROVIDER_FULL_ROUTE_QA
                 deadline=Task { @MainActor [weak self] in
                     try? await Task.sleep(nanoseconds:20_000_000_000)
                     guard !Task.isCancelled,let self else{return}
                     self.cancelTunnelWithError(NativeLabError.stage(26).safeNSError)
                 }
+                #endif
                 completionHandler(nil)
             } catch {
                 await cleanup()
@@ -116,7 +154,12 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             started = !stopped
             report["nativeStopConfirmed"]=stopped
             report["providerProcess"]=true
+            #if APL_PROVIDER_FULL_ROUTE_QA
+            report["scopedRouteOnly"]=false
+            report["fullRouteSyntheticGuard"]=true
+            #else
             report["scopedRouteOnly"]=true
+            #endif
             #if APL_PROVIDER_SCOPED_TUN_QA
             report["rustTUNStarted"]=true
             #else

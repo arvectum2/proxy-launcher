@@ -22,7 +22,10 @@ class ProviderDirectQAGate(unittest.TestCase):
             self.assertIn(token,P)
     def test_synthetic_scope_without_rust_tun(self):
         self.assertIn('NEIPv4Route(destinationAddress:"198.51.100.77",subnetMask:"255.255.255.255")',P)
-        for token in ('default()', 'includedRoutes = [.default', 'excludedRoutes', 'dnsSettings', 'packetFlow', 'SecItem'):
+        scoped=P.split('let ipv4=NEIPv4Settings',1)[1].split('settings.ipv4Settings=ipv4',1)[0].split('#else',1)[1]
+        for token in ('default()', 'includedRoutes = [.default', 'excludedRoutes', 'dnsSettings'):
+            self.assertNotIn(token,scoped)
+        for token in ('packetFlow','SecItem'):
             self.assertNotIn(token,P)
         self.assertNotIn('ProviderVLESSHardwareQA',(ROOT/'mobile/ios/project.yml').read_text())
         self.assertIn('report["rustTUNStarted"]=false',P)
@@ -68,6 +71,18 @@ class ProviderDirectQAGate(unittest.TestCase):
         for token in ('NSAllowsArbitraryLoads','NSExceptionDomains','IP_BOUND_IF','SO_BINDTODEVICE'):
             self.assertNotIn(token,W+B)
         self.assertIn('ScopedTCPWitness.swift',B)
+
+    def test_full_route_qa_requires_synthetic_egress_guard(self):
+        guard=(QA/"FullRouteGuard.swift").read_text()
+        for token in ('"qa-drop","protocol":"blackhole"','[deny,outbound[0]]','"network":"tcp"','"ip":["198.51.100.77/32"]','"port":"39883"','"outboundTag":"qa-drop"','"loglevel":"none"'):
+            self.assertIn(token,guard)
+        self.assertNotIn('"freedom"',guard)
+        for token in ('FullRouteGuard.restrict(bound)','NativeExactTunnelDescriptor.find(address:"192.0.2.177",ipv6:"2001:db8:177::2")','NEIPv4Route.default()','NEIPv6Route(destinationAddress:"8000::",networkPrefixLength:1)','dns.matchDomains=[""]','report["fullRouteSyntheticGuard"]=true'):
+            self.assertIn(token,P)
+        self.assertIn('tun2proxy_set_log_callback({ _,_,_ in },nil)',M)
+        self.assertIn('providerDirectReceipt["fullRouteSyntheticGuard"]==true',H)
+        self.assertIn('APL_PROVIDER_FULL_ROUTE_QA',B)
+        self.assertNotIn('APL_PROVIDER_FULL_ROUTE_QA',(ROOT/'mobile/ios/project.yml').read_text())
 
     def test_historical_lab_is_preserved_not_adopted(self):
         body=H.split('private func historicalDormantKind(',1)[1].split('private func inspectProviderManagers',1)[0]

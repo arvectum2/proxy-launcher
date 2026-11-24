@@ -1,8 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 umask 077
-[[ ( $# == 2 || $# == 3 ) && ! -e "$2" ]]
-source="$1";out="$2";rust="${3:-}"
+[[ ( $# == 2 || $# == 3 || $# == 4 ) && ! -e "$2" ]]
+[[ $# != 4 || "$4" == full-route ]]
+source="$1";out="$2";rust="${3:-}";mode="${4:-}"
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 python3 - "$source" <<'PY'
 import hashlib,json,pathlib,sys
@@ -107,6 +108,18 @@ import sys
 p=Path(sys.argv[1]);s=p.read_text().replace('CONDITIONS: APL_PROVIDER_DIRECT_QA','CONDITIONS: "APL_PROVIDER_DIRECT_QA APL_PROVIDER_SCOPED_TUN_QA"').replace('CONDITIONS: APL_DIRECT_PRODUCT_GO_QA','CONDITIONS: "APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA"').replace('-lAPLUnified -lresolv','-lAPLUnified -ltun2proxy -lresolv')
 p.write_text(s)
 YAML_EDIT
+fi
+if [[ "$mode" == full-route ]];then
+  [[ -n "$rust" ]]
+  cp "$root/Tools/ProviderVLESSHardwareQA/FullRouteGuard.swift" "$out/Sources/"
+  cp "$root/PacketTunnel/NativeExactTunnelDescriptor.swift" "$out/Sources/"
+  python3 - "$out/project.yml" <<'FULL_MODE'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1]);s=p.read_text().replace('APL_PROVIDER_SCOPED_TUN_QA"','APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA"')
+s=s.replace('APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA"','APL_DIRECT_PRODUCT_GO_QA APL_PROVIDER_SCOPED_TUN_QA APL_PROVIDER_FULL_ROUTE_QA APL_NATIVE_PROVIDER_INTEGRATION APL_NATIVE_PRODUCT_RUNTIME_REVIEW DEBUG"')
+p.write_text(s)
+FULL_MODE
 fi
 (cd "$out" && xcodegen generate >/dev/null)
 if ! xcodebuild -project "$out/APLIsolatedProviderDirectQA.xcodeproj" -scheme NativeLabHost -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO -derivedDataPath "$out/Build" build > "$out/build.log" 2>&1;then grep -E 'error:|BUILD FAILED' "$out/build.log" | tail -25;exit 1;fi

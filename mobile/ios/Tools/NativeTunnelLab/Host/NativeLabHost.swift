@@ -405,7 +405,12 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         }
         #if APL_PROVIDER_SCOPED_TUN_QA
         providerDirectReceipt["hostExactHTTPReceipt"]=hostExact
-        let good=hostExact && providerDirectReceipt["providerProcess"]==true &&
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        let expectedRoute=providerDirectReceipt["fullRouteSyntheticGuard"]==true && providerDirectReceipt["scopedRouteOnly"]==false
+        #else
+        let expectedRoute=providerDirectReceipt["scopedRouteOnly"]==true
+        #endif
+        let good=hostExact && expectedRoute && providerDirectReceipt["providerProcess"]==true &&
             providerDirectReceipt["rustTUNStarted"]==true && providerDirectReceipt["rustDrainConfirmed"]==true &&
             providerDirectReceipt["nativeStopConfirmed"]==true
         #else
