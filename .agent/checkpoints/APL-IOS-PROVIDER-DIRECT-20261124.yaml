@@ -20,6 +20,10 @@ steps:
     result: "v3 ARM64 build, 5 tests, offline signatures PASS; on-device inspect classified one native-runtime-review-v1, disabled/disconnected, strict no credential fields"
   - step: 3
     action: "Create separately marked provider-direct QA manager; preserve native-runtime-review-v1"
+    result: "prepared=true connected=false; distinct QA manager created, prepare run 982af116-0d5f-4281-8c72-36d22a224afe"
+  - step: 4
+    action: "Run one fixed scoped provider-only TCP HTTP challenge, independently verify Mac and device, clean own manager"
     result: pending
+    run_id: 3E9EC792-A3E8-44A0-AF01-9CDE0F0724EB
 resume_instruction: "Finish exact historical classification, do not remove pre-existing record; only create a distinctly marked temporary profile when the existing one is proven inactive and credential-free. Record each mutation and recovery."
   # The first build and source test precede the device mutation below.
