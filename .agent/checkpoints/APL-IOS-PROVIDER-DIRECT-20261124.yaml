@@ -1,0 +1,21 @@
+task_id: APL-IOS-PROVIDER-DIRECT-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: in_progress
+goal: "Resolve NativeLab manager conflict without deleting existing records; obtain scoped provider-only exact HTTP witness"
+definition_of_done:
+  - "Classify historical manager by exact known configuration and safe inactive state, no credential contents"
+  - "Preserve prior manager or stop if unsafe; isolate new test manager by distinct ownership marker"
+  - "Correlate device and independent peer receipt, then restore prior lab binary and verify cleanup"
+baseline_commit: 3c531de2
+baseline:
+  product: "APL 0.3.0(49), OFF; prior NativeLab 0.2.0(48) retained"
+  previous_evidence: "host-only exact product archive PASS; product r20 HTTP0; provider prepare blocked before traffic"
+  manager_census: "related=1 owned=0 disabled/disconnected, otherActive=0"
+steps:
+  - step: 1
+    action: "Read checkpoint, git, prior source and signing evidence"
+    result: "all six exact-head CI checks success; stage_nativeqa_isolated.py reused NativeLab IDs with product VPNController names, as well as prior AWG/Xray labs"
+  - step: 2
+    action: "Implement read-only historical manager classification and preservation-only scoped coexistence"
+    result: pending
+resume_instruction: "Finish exact historical classification, do not remove pre-existing record; only create a distinctly marked temporary profile when the existing one is proven inactive and credential-free. Record each mutation and recovery."

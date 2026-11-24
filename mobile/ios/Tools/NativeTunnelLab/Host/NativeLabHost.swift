@@ -30,7 +30,11 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
 
 @MainActor final class NativeLabHostModel: ObservableObject {
     private static let bundle = "ru.arvectum.proxylauncher.lab.nativeqa.PacketTunnel"
+    #if APL_PROVIDER_DIRECT_QA
+    private static let marker = "APL provider-direct synthetic QA v1"
+    #else
     private static let marker = "APL isolated synthetic QA v1"
+    #endif
     @Published var fixture = ""
     @Published var nonce = ""
     @Published private(set) var status = "Not started"
@@ -177,6 +181,38 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     }
 
     #if APL_PROVIDER_DIRECT_QA
+    // Accept coexistence only with a known historical lab shape in a disabled,
+    // disconnected, credential-free state. Never adopt, edit or remove it.
+    private func historicalDormantKind(_ item:NETunnelProviderManager)->String? {
+        guard let p=item.protocolConfiguration as? NETunnelProviderProtocol,
+              p.providerBundleIdentifier==Self.bundle,!item.isEnabled,
+              item.connection.status == .disconnected,
+              !item.isOnDemandEnabled,(item.onDemandRules ?? []).isEmpty,
+              p.username==nil,p.passwordReference==nil,p.identityReference==nil,
+              p.identityData==nil,p.identityDataPassword==nil,p.proxySettings==nil,
+              !p.includeAllNetworks,!p.enforceRoutes,
+              let config=p.providerConfiguration else{return nil}
+        if Set(config.keys)==["labOwner"],let marker=config["labOwner"] as? String {
+            if marker=="APL isolated synthetic QA v1",item.localizedDescription==marker,
+                p.serverAddress=="APL synthetic lab only" {return "priorXrayLab"}
+            if marker=="APL standalone AWG synthetic QA v1",item.localizedDescription==marker,
+                p.serverAddress=="Synthetic AWG only" {return "priorAWGLab"}
+        }
+        // stage_nativeqa_isolated.py rebinds the actual product controller
+        // to this lab-only bundle ID. Its exact two-key owner config is safe
+        // to preserve, not permission to assume ownership or erase Keychain.
+        guard Set(config.keys)==["aplNativeMode","aplNativeOwner"],
+              let mode=config["aplNativeMode"] as? String,
+              let owner=config["aplNativeOwner"] as? String,UUID(uuidString:owner) != nil else{return nil}
+        let name:String
+        switch mode {
+        case "native-product-start-v1":name="APL Native Product"
+        case "native-runtime-review-v1":name="APL Native Runtime Review"
+        case "credential-validation-v1":name="APL Native Credential Validation"
+        default:return nil
+        }
+        return item.localizedDescription==name && p.serverAddress==name ? mode:nil
+    }
     private func inspectProviderManagers(runID:String) async -> [String:Any] {
         var report:[String:Any]=["runID":runID,"readOnly":true]
         do {
@@ -191,6 +227,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             report["otherActive"]=all.filter{!isOwned($0) && $0.connection.status != .disconnected && $0.connection.status != .invalid}.count
             report["relatedStates"]=related.map{$0.connection.status.rawValue}
             report["relatedEnabled"]=related.filter{$0.isEnabled}.count
+            report["historicalDormantKinds"]=related.map{historicalDormantKind($0) ?? "unclassified"}
+            report["knownDormantCount"]=related.filter{historicalDormantKind($0) != nil}.count
         } catch {
             report["errorCode"]=(error as NSError).code
             report["loadFailed"]=true
@@ -211,12 +249,22 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let named = all.filter {
             ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Self.bundle
         }
+        #if APL_PROVIDER_DIRECT_QA
+        let owned=named.filter(isOwned),preserved=named.filter{!isOwned($0)}
+        guard owned.count<=1,preserved.count<=1,
+              preserved.allSatisfy({historicalDormantKind($0) != nil}) else{throw LabHostError.conflict}
+        #else
         guard named.count <= 1, named.allSatisfy(isOwned) else { throw LabHostError.conflict }
+        #endif
         // Never displace an existing owner or unrelated VPN.
         guard all.filter({ !isOwned($0) }).allSatisfy({
             $0.connection.status == .disconnected || $0.connection.status == .invalid
         }) else { throw LabHostError.otherVPN }
+        #if APL_PROVIDER_DIRECT_QA
+        if let existing=owned.first{return existing}
+        #else
         if let existing = named.first { return existing }
+        #endif
         guard create else { return nil }
         let item = NETunnelProviderManager()
         let proto = NETunnelProviderProtocol()
