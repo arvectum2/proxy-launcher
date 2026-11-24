@@ -57,3 +57,16 @@ def test_dns_loss_capture_has_scoped_larger_finite_limit():
     assert summarize(row*60,stats(60),target,1234,1235,limit=DNS_LOSS_LIMIT)["complete"]
     assert not summarize(row*256,stats(256),target,1234,1235,limit=DNS_LOSS_LIMIT)["complete"]
     assert not summarize(row*60,stats(60).replace("0 packets dropped","1 packet dropped"),target,1234,1235,limit=DNS_LOSS_LIMIT)["complete"]
+
+
+def test_vless_guarded_loss_exact_scope_targets():
+    import pytest
+    import native_runtime_qa_receipt as q
+    from capture_nativeqa_rvi import target_for
+    fixture=dict(schema=1,reference=dict(kind="vlessReality",profileID=q.new_id(),revision=q.new_id()))
+    for probe,target in (("udp4",TARGET),("udp6",("2001:db8:77::77",39883)),("dnsWire4",("198.51.100.77",53))):
+        for action,mode in (("run","peer-loss"),("offControl","observe-off")):
+            c=q.make_command(fixture,q.new_id(),action,"vlessGuardedLoss",probe,mode)
+            assert target_for(c)==target
+            with pytest.raises(ValueError):q.validate_command(dict(c,probe="tcp6"))
+            with pytest.raises(ValueError):q.validate_command(dict(c,probe="dns4"))

@@ -44,7 +44,7 @@ def validate_command(command):
     if action == "offControl":
         kind = command["reference"]["kind"]
         if scope=="vlessGuardedLoss":
-            need(kind=="vlessReality" and probe=="udp4" and mode=="observe-off" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid isolated loss off control")
+            need(kind=="vlessReality" and probe in ("udp4","udp6","dnsWire4") and mode=="observe-off" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid isolated loss off control")
             return
         full_route = (kind == "wireGuard" and scope == "wireGuardFull") or (kind == "amneziaWG1" and scope is None)
         need(full_route and probe in ("udp4","udp6","dnsWire4") and mode=="observe-off" and type(nonce) is str and re.fullmatch("[0-9a-f]{%d}" % (48 if kind == "amneziaWG1" else 40),nonce) is not None, "invalid OFF control")
@@ -54,7 +54,7 @@ def validate_command(command):
         return
     kind = command["reference"]["kind"]
     if scope=="vlessGuardedLoss":
-        need(kind=="vlessReality" and probe=="udp4" and mode=="peer-loss" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid isolated loss command")
+        need(kind=="vlessReality" and probe in ("udp4","udp6","dnsWire4") and mode=="peer-loss" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid isolated loss command")
         return
     if scope == "vlessDNSWire":
         need(kind=="vlessReality" and probe=="dnsWire4" and mode=="positive" and type(nonce) is str and re.fullmatch("[0-9a-f]{40}",nonce) is not None,"invalid VLESS DNS wire command")

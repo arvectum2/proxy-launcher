@@ -94,13 +94,14 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         #endif
         #if APL_PROVIDER_FULL_ROUTE_QA
         if request.fixture=="loss-off-control" {
-            guard request.transport=="vless-product-direct",request.probeKind=="udp4",
+            guard request.transport=="vless-product-direct",let rawKind=request.probeKind,
+                  let offKind=FixedWitnessKind(rawValue:rawKind),offKind.udp,
                   request.guardedLoss==true,ScopedTCPWitness.validNonce(request.nonce) else{return}
             let before=await inspectProviderManagers(runID:request.runID)
             guard before["ownedManagers"] as? Int==0,before["otherActive"] as? Int==0,
                   before["knownDormantCount"] as? Int==1 else{return}
             let value=request.nonce
-            let r=await Task.detached(priority:.userInitiated){FixedUDPWitness.run(value,kind:.udp4)}.value
+            let r=await Task.detached(priority:.userInitiated){FixedUDPWitness.run(value,kind:offKind)}.value
             let after=await inspectProviderManagers(runID:request.runID)
             let same=NSDictionary(dictionary:before).isEqual(to:after)
             let result:[String:Any]=["runID":request.runID,"offControl":true,"exact":r.exact,"counters":r.counters,"censusUnchanged":same]
@@ -122,7 +123,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         probeKind=request.probeKind ?? "tcp4"
         #if APL_PROVIDER_FULL_ROUTE_QA
         guardedLoss=request.guardedLoss==true
-        guard !guardedLoss || probeKind=="udp4" else{return}
+        guard !guardedLoss || FixedWitnessKind(rawValue:probeKind)?.udp==true else{return}
         #else
         guard request.guardedLoss != true else{return}
         #endif
@@ -448,7 +449,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                 counters["lossWaitMS"]=Int((DispatchTime.now().uptimeNanoseconds-t)/1_000_000)
                 counters["lossSecondConnectedBefore"]=manager.connection.status == .connected ? 1:0
                 let n=String(second)
-                let secondResult=await Task.detached(priority:.userInitiated){FixedUDPWitness.run(n,kind:.udp4)}.value
+                let secondResult=await Task.detached(priority:.userInitiated){FixedUDPWitness.run(n,kind:kind)}.value
                 for (k,v) in secondResult.counters {counters["lossSecond_"+k]=v}
                 counters["lossSecondExact"]=secondResult.exact ? 1:0
                 counters["lossSecondConnectedAfter"]=manager.connection.status == .connected ? 1:0

@@ -162,18 +162,14 @@ def run(root, peer, command, preflight_only=False):
     class UDPWitness(socketserver.BaseRequestHandler):
         def handle(self):
             raw,sock=self.request
-            if dns:
-                challenge=next((n for n in (nonce,pre) if raw==dns_wire_query(n)),None)
-                if challenge is None:return
-                sock.sendto(dns_wire_response(challenge),self.client_address)
-                with lock:seen.append(challenge)
-                return
-            if loss and raw==("APL_UDP:"+second).encode():
+            def query(n):
+                return dns_wire_query(n) if dns else ("APL_UDP:"+n).encode()
+            if loss and raw==query(second):
                 with lock:seen.append(second)
                 return
-            if raw not in (("APL_UDP:"+nonce).encode(),("APL_UDP:"+pre).encode()):return
-            challenge=raw[8:].decode("ascii")
-            sock.sendto(("APL_RECEIPT:"+challenge).encode(),self.client_address)
+            challenge=next((n for n in (nonce,pre) if raw==query(n)),None)
+            if challenge is None:return
+            sock.sendto(dns_wire_response(challenge) if dns else ("APL_RECEIPT:"+challenge).encode(),self.client_address)
             with lock:
                 seen.append(challenge)
                 if loss and challenge==nonce and "firstAt" not in loss_times:
