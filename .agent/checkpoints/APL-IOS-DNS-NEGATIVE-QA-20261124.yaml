@@ -1,0 +1,17 @@
+task_id: APL-IOS-DNS-NEGATIVE-QA-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: in_progress
+goal: "DNS wire destination preservation, wrong Reality key and established peer-loss negative QA, synthetic-only."
+definition_of_done:
+  - "Independent DNS wire positive control and physical exact response at synthetic UDP/53."
+  - "Wrong-key and established peer-loss physical negative evidence, no receipt for failed challenge, independently verified cleanup."
+  - "No inference of general DNS/leak or product acceptance without separate evidence."
+last_verified_commit: "b004a4f5 (all four synthetic TCP/UDP combinations passed)"
+steps:
+  - step: 1
+    action: "Read actual checkpoint and inspect DNS routing and witness harness."
+    result: "All TCP/UDP combinations completed; provider absent on recheck. Owner deferred original proxy."
+  - step: 2
+    action: "Implement isolated DNS wire challenge and separate peer control; verify offline before device."
+    result: pending
+resume_instruction: "Finish DNS wire implementation and tests, then signed QA with independent receipt. Do not repeat accepted protocols. No public resolver forwarding or owner VPN changes."
