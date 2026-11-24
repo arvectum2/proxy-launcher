@@ -531,6 +531,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-DNS-NEGATIVE-QA-20261124.yaml and docs/APL_IOS_030_VLESS_DNS_NEGATIVE_QA_2026-11-24.md. DNS wire, wrong-key and UDP4 established loss bounded RVI PASS; do not repeat. NEXT extend independent synthetic RVI controls to UDP6 and DNS, using exact targets and positive OFF control, no raw payload capture; then WAN/dynamic underlay and actual product gates. Recheck device baseline, no active owner VPN interruption without permission. Owner deferred Основной. No public VLESS enablement, Apple changes, merge or upload. Prior lab restored. Verify CI exact head."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml; UDP6 and DNS wire loss/RVI; no original proxy diagnosis or unauthorized interruption."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

@@ -1,0 +1,15 @@
+task_id: APL-IOS-IPV6-DNS-LEAK-20261124
+status: in_progress
+goal: "Extend established loss and independent RVI controls to UDP6 and synthetic DNS/53."
+definition_of_done:
+  - "Per-protocol positive OFF physical observation and active first receipt, cut, second failed challenge; zero physical target packets, complete RVI."
+  - "Preserve historical manager and restore prior app; document limitations if physical OFF control unavailable."
+last_verified_commit: "1a8093e4 (UDP4 loss and RVI PASS; CI five success, unsigned-device-build cancelled)"
+steps:
+  - step: 1
+    action: "Recheck canonical state, provider, exact DNS tuple and RVI."
+    result: "No active provider observed. VLESS DNS target differs from WG DNS; use scope-specific target."
+  - step: 2
+    action: "Generalize only isolated loss lane, build and verify."
+    result: pending
+resume_instruction: "Finish isolated protocol loss tests; no repeat UDP4, no original proxy diagnosis, no public enablement."
