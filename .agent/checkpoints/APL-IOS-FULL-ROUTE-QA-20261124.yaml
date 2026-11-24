@@ -16,5 +16,8 @@ steps:
     result: "PASS: full route QA separate build, exact dual descriptor, local deny-default Xray + server allowlist, 20s deadline, no general log retention. ARM64 build, signature, Python21+50, parser9 and guard9 checks passed."
   - step: 3
     action: "Check product provider absent; install exact signed QA; read-only manager census before prepare."
+    result: "Installed; read-only census known dormant1, own0, other active0."
+  - step: 4
+    action: "Prepare one owned test manager, VPN OFF."
     result: pending
 resume_instruction: "Implement and validate full route isolated guard before installing. Do not forward background device traffic. Original Основной remains unresolved; no credential edits."
