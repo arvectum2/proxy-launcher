@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov actual product runner/driver/initial NWPath/full routes guarded TCP4 accepted on physical iPhone in separate QA extension. Exact HTTP200 and independent witness1; drain/stop/cleanup verified, prior lab restored, product unchanged. Actual owner/ticket/UI/watcher path still pending; WAN/dynamic underlay and CloudKit/release gates remain."
+current: "24 Nov actual containing-app owner/ticket QA candidate signed, exact native libs, 84 local checks and release preflight PASS; diagnostic UI/isolated namespace and cleanup compiled, physical acceptance pending device unlock. No device install or mutation. Original user profiles untouched. Owner deferred Основной."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "1e4f547f2ffa0041d9ea02fd5aee88c6e27b6b77 (actual product runner guarded physical TCP4 PASS, 81 checks/preflight and cleanup)"
+last_verified_commit: "e4fbb11ca7389b855fee08fa300bf828cf20170c (signed product owner QA candidate, 84 local checks/preflight)"
 test_results:
+  - "24 Nov actual containing-app owner QA candidate ARM64 build, exact Go/Rust hash and strict signatures PASS; 12+22+50 local checks/preflight PASS. Physical test blocked device Locked, no installation or user profile changes. Runner syntax only verified."
   - "24 Nov actual product runner isolated guarded TCP4 physical PASS, run DA36CB94-CBE4-4A1A-BD28-E8E345801212, host98/160 peer2241/2613 witness1, exact correlated hashes, product driver drain/stop, cleanup. 9+22+50 and release preflight PASS. Not owner/ticket/UI or unrestricted product acceptance."
   - "24 Nov UDP6 and DNS wire physical loss + independent RVI PASS, OFF physical1/tunnel0 and active physical0/tunnel2 each; exact first receipt and second timeout, zero second witness. Prior lab restored, cleanup PASS. 201 offline checks and signed build already verified. CI 3 success and 3 pending at intermediate head."
   - "24 Nov IPv6/DNS loss signed candidate and 201 checks/preflight PASS, Mac both positive controls PASS. Physical launch blocked by Locked/CoreDevice10002; no test manager or traffic, previous lab restored. Previous CI 5 success/1 cancelled."
@@ -534,6 +535,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml. Real containing app owner/credential path in separate QA namespace with strict guard. No owner proxy diagnosis, active VPN interruption, public activation or Apple changes."
+resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml and docs/APL_IOS_030_PRODUCT_OWNER_QA_2026-11-24.md. Signed actual containing-app QA ready, build/84 checks/signature PASS, device Locked passcodeRequired true; no install or device mutation. Once unlocked and provider OFF, verify exact signed artifact and restore hashes, inspect native-artifacts/ios-030-product-owner-physical-20261124 for existing journal. If absent, execute its syntax-checked run.py once. If present, resume its actual stage, never repeat. Require actual product ticket consumption, exact TCP independent witness and native drain/cleanup, restore prior app only when safe. If baseline policy/census blocks, do not change owner profiles. No Основной diagnosis, no public VLESS activation, Apple changes, merge or upload. Normal UI/WAN/CloudKit acceptance remains."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
