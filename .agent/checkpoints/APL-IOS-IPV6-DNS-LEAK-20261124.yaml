@@ -1,5 +1,5 @@
 task_id: APL-IOS-IPV6-DNS-LEAK-20261124
-status: blocked
+status: in_progress
 goal: "Extend established loss and independent RVI controls to UDP6 and synthetic DNS/53."
 definition_of_done:
   - "Per-protocol positive OFF physical observation and active first receipt, cut, second failed challenge; zero physical target packets, complete RVI."
@@ -15,4 +15,7 @@ steps:
   - step: 3
     action: "Run UDP6 and DNS OFF controls and established loss sequentially, with independent exact RVI observation; restore prior lab."
     result: "BLOCKED: signed candidate installed, initial read-only census launch denied Locked/CoreDevice10002, no manager prepared or physical test. Prior NativeLab restored. Mac UDP6/DNS local positive controls PASS, no QA sockets."
+  - step: 4
+    action: "Owner unlocked iPhone; recheck provider absent and no existing RVI; resume existing signed candidate in fresh evidence directory."
+    result: pending
 resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml and docs/APL_IOS_030_VLESS_IPV6_DNS_LEAK_QA_2026-11-24.md. Signed candidate ready, local reference controls PASS; iOS launch blocked Locked/CoreDevice10002. Prior NativeLab restored, no manager prepared, no physical test started. When device unlocked or Mirroring available, recheck baseline OFF, use existing signed artifact and copy existing run.py to fresh private evidence directory; run UDP6/DNS OFF and established loss. Require exact peer and complete RVI with positive OFF control before leak acceptance. No repeat accepted UDP4 or original proxy diagnosis. No interruption of active VPN without authorization, Apple changes or public enablement."

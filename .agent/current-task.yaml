@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -532,6 +532,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-IPV6-DNS-LEAK-20261124.yaml and docs/APL_IOS_030_VLESS_IPV6_DNS_LEAK_QA_2026-11-24.md. Signed candidate ready, local reference controls PASS; iOS launch blocked Locked/CoreDevice10002. Prior NativeLab restored, no manager prepared, no physical test started. When device unlocked or Mirroring available, recheck baseline OFF, use existing signed artifact and copy existing run.py to fresh private evidence directory; run UDP6/DNS OFF and established loss. Require exact peer and complete RVI with positive OFF control before leak acceptance. No repeat accepted UDP4 or original proxy diagnosis. No interruption of active VPN without authorization, Apple changes or public enablement."
+resume_instruction: "ARC only. Inspect private journal in native-artifacts/ios-030-ipv6-dns-loss-physical-resume-20261124 before any further action; one runner for UDP6 and DNS controls. Owner unlocked; no provider active. Do not repeat completed trials or original proxy diagnosis."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
