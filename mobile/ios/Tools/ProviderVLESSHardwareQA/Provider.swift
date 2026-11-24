@@ -15,6 +15,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     private let engineQueue=DispatchQueue(label:"apl.qa.scoped.tun")
     private let exitGate=TunnelEngineExitGate()
     private var rustStarted=false
+    private var metricsStarted=false
     #endif
     override func startTunnel(options:[String:NSObject]?,completionHandler:@escaping(Error?)->Void) {
         Task { @MainActor in
@@ -50,11 +51,19 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 #if APL_PROVIDER_SCOPED_TUN_QA
                 guard let fd=ExactLabTUNDescriptor.find(address:"192.0.2.177") else{throw NativeLabError.stage(28)}
                 let handoff=try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[],exactDNS:true)
+                guard let identity=ScopedTUNMetrics.descriptorIdentity(fd) else{throw NativeLabError.stage(28)}
+                ScopedTUNMetrics.shared.start()
+                metricsStarted=true
+                ScopedTUNMetrics.shared.increment("descriptorMatchedBefore")
+                if ProviderSOCKSProbe.greetingOnly() {
+                    ScopedTUNMetrics.shared.increment("localSOCKSGreeting")
+                }
                 let token=exitGate.begin(),gate=exitGate
                 rustStarted=true
                 engineQueue.async { [weak self] in
                     guard gate.isRunning(token) else{return}
-                    _=handoff.tun2proxyArguments.withCString{tun2proxy_run_with_cli_args($0,1500,true)}
+                    let args=handoff.tun2proxyArguments.replacingOccurrences(of:"--verbosity warn",with:"--verbosity debug")
+                    _=args.withCString{tun2proxy_run_with_cli_args($0,1500,true)}
                     guard gate.markUnexpectedExit(token) else{return}
                     Task { @MainActor [weak self] in
                         guard gate.shouldCancelTunnel(token) else{return}
@@ -63,6 +72,9 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 }
                 try await Task.sleep(nanoseconds:350_000_000)
                 guard gate.isRunning(token),!consumed else{throw NativeLabError.stage(30)}
+                if ScopedTUNMetrics.descriptorIdentity(fd)==identity {
+                    ScopedTUNMetrics.shared.increment("descriptorMatchedAfter")
+                }
                 #endif
                 challenge=nonce
                 deadline=Task { @MainActor [weak self] in
@@ -79,6 +91,12 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     }
     override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
         Task { @MainActor in
+            #if APL_PROVIDER_SCOPED_TUN_QA
+            if messageData==Data("apl-lab-counters-v1".utf8),consumed {
+                completionHandler?(try? JSONSerialization.data(withJSONObject:ScopedTUNMetrics.shared.snapshot(),options:.sortedKeys))
+                return
+            }
+            #endif
             guard messageData==Data("apl-provider-direct-v1".utf8),started,!consumed,let nonce=challenge else {
                 completionHandler?(nil);return
             }
@@ -88,6 +106,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             // only obtains native teardown evidence. No second direct probe.
             _=nonce
             let result=["rustDrainConfirmed":await drainRust()]
+            if metricsStarted {ScopedTUNMetrics.shared.stop();metricsStarted=false}
             #else
             let result=await Task.detached(priority:.userInitiated){ProviderSOCKSProbe.run(nonce)}.value
             #endif
@@ -125,6 +144,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
         consumed=true;challenge=nil;deadline?.cancel();deadline=nil
         #if APL_PROVIDER_SCOPED_TUN_QA
         _=await drainRust()
+        if metricsStarted {ScopedTUNMetrics.shared.stop();metricsStarted=false}
         #endif
         if started {
             _=NativeLabRuntime.call("stopXray")
@@ -162,6 +182,23 @@ private enum ProviderSOCKSProbe {
         guard haystack.count>=needle.count,!needle.isEmpty else{return false}
         return (0...(haystack.count-needle.count)).contains { haystack[$0..<($0+needle.count)].elementsEqual(needle) }
     }
+    #if APL_PROVIDER_SCOPED_TUN_QA
+    static func greetingOnly()->Bool {
+        let fd=Darwin.socket(AF_INET,SOCK_STREAM,0)
+        guard fd>=0 else{return false}
+        defer{Darwin.close(fd)}
+        var timeout=timeval(tv_sec:1,tv_usec:0),one:Int32=1
+        _=withUnsafePointer(to:&one){setsockopt(fd,SOL_SOCKET,SO_NOSIGPIPE,$0,socklen_t(MemoryLayout<Int32>.size))}
+        _=withUnsafePointer(to:&timeout){setsockopt(fd,SOL_SOCKET,SO_RCVTIMEO,$0,socklen_t(MemoryLayout<timeval>.size))}
+        _=withUnsafePointer(to:&timeout){setsockopt(fd,SOL_SOCKET,SO_SNDTIMEO,$0,socklen_t(MemoryLayout<timeval>.size))}
+        var addr=sockaddr_in()
+        addr.sin_len=UInt8(MemoryLayout<sockaddr_in>.size)
+        addr.sin_family=sa_family_t(AF_INET);addr.sin_port=UInt16(39879).bigEndian
+        guard "127.0.0.1".withCString({inet_pton(AF_INET,$0,&addr.sin_addr)})==1 else{return false}
+        guard withUnsafePointer(to:&addr,{$0.withMemoryRebound(to:sockaddr.self,capacity:1){Darwin.connect(fd,$0,socklen_t(MemoryLayout<sockaddr_in>.size))}})==0 else{return false}
+        return sendAll(fd,[5,1,0]) && exact(fd,2)==[5,0]
+    }
+    #endif
     static func probe(_ nonce:String,_ receipt:inout ProviderReceipt) {
         let fd=Darwin.socket(AF_INET,SOCK_STREAM,0)
         guard fd>=0 else{receipt.stage="socketUnavailable";return}

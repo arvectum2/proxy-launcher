@@ -123,7 +123,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                         try session.sendProviderMessage(Data("apl-lab-counters-v1".utf8)) { gate.finish($0) }
                     } catch { gate.finish(nil) }
                 }
-                if let data, let parsed=try JSONSerialization.jsonObject(with:data) as? [String:Int] {counters=parsed}
+                if let data, let parsed=try JSONSerialization.jsonObject(with:data) as? [String:Int] {counters.merge(parsed){old,_ in old}}
             } catch {}
         }
         let receipt=status == "Exact response received; verify independent server receipt"
@@ -396,8 +396,15 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let client=URLSession(configuration:cfg,delegate:NoLabRedirect(),delegateQueue:nil)
         defer{client.invalidateAndCancel()}
         if let url=URL(string:"http://198.51.100.77:39883/"+value) {
-            if let (body,response)=try? await client.data(from:url) {
+            counters["hostHTTPAttempted"]=1
+            do {
+                let (body,response)=try await client.data(from:url)
+                counters["hostHTTPStatus"]=(response as? HTTPURLResponse)?.statusCode ?? 0
                 hostExact=(response as? HTTPURLResponse)?.statusCode==200 && body==Data(("APL_RECEIPT:"+value).utf8) && manager.connection.status == .connected
+            } catch {
+                let error=error as NSError
+                counters["hostURLError"]=error.domain==NSURLErrorDomain ? error.code:0
+                counters["hostOtherError"]=error.domain==NSURLErrorDomain ? 0:1
             }
         }
         #endif

@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 QA = ROOT / "mobile/ios/Tools/ProviderVLESSHardwareQA"
 P = (QA / "Provider.swift").read_text()
+M = (QA / "ScopedTUNMetrics.swift").read_text()
 B = (QA / "build_unsigned.sh").read_text()
 H = (ROOT / "mobile/ios/Tools/NativeTunnelLab/Host/NativeLabHost.swift").read_text()
 
@@ -41,6 +42,25 @@ class ProviderDirectQAGate(unittest.TestCase):
         self.assertIn("TunnelEngineHandoff.stopAndDrain",P)
         self.assertIn('providerDirectReceipt["rustDrainConfirmed"]==true',H)
         self.assertIn('providerDirectReceipt["hostExactHTTPReceipt"]=hostExact',H)
+
+    def test_scoped_metrics_bounded_and_no_second_external_probe(self):
+        for token in ('descriptorMatchedBefore','descriptorMatchedAfter','localSOCKSGreeting','ScopedTUNMetrics.shared.stop()','apl-lab-counters-v1'):
+            self.assertIn(token,P)
+        self.assertIn("ScopedTUNMetrics.swift",B)
+        for token in ('tun2proxy_set_log_callback(nil,nil)','tun2proxy_set_traffic_status_callback(1,nil,nil)','tun2proxy_set_flow_event_callback(nil,nil)','min(1_000_000,','min(tx,1_000_000_000)','=="198.51.100.77"','(0...7).contains(event)'):
+            self.assertIn(token,M)
+        for token in ('print(', 'FileManager', 'UserDefaults', 'Data(contentsOf:'):
+            self.assertNotIn(token,M)
+        greeting=P.split('static func greetingOnly()',1)[1].split('#endif',1)[0]
+        self.assertIn('sendAll(fd,[5,1,0]) && exact(fd,2)==[5,0]',greeting)
+        self.assertNotIn('198,51,100,77',greeting)
+        self.assertNotIn('GET /',greeting)
+
+    def test_host_error_counters_are_not_lost_or_raw(self):
+        self.assertIn('counters["hostHTTPAttempted"]=1',H)
+        self.assertIn('counters["hostURLError"]=error.domain==NSURLErrorDomain ? error.code:0',H)
+        self.assertIn('counters.merge(parsed){old,_ in old}',H)
+        self.assertNotIn('counters["hostURLError"]=error.localizedDescription',H)
 
     def test_historical_lab_is_preserved_not_adopted(self):
         body=H.split('private func historicalDormantKind(',1)[1].split('private func inspectProviderManagers',1)[0]

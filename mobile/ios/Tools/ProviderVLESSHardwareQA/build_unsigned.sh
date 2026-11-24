@@ -99,7 +99,7 @@ RUST
   cp "$rust/Headers/tun2proxy.h" "$out/Lib/Headers/"
   printf 'module tun2proxy { header "tun2proxy.h" export * }\n' >> "$out/Lib/Headers/module.modulemap"
   for n in XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate;do cp "$root/SharedCore/$n.swift" "$out/Sources/";done
-  cp "$root/Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift" "$out/Sources/"
+  cp "$root/Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift" "$root/Tools/ProviderVLESSHardwareQA/ScopedTUNMetrics.swift" "$out/Sources/"
   python3 - "$out/project.yml" <<'YAML_EDIT'
 from pathlib import Path
 import sys
