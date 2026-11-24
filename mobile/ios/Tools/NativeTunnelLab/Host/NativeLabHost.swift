@@ -99,7 +99,11 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         transport=request.transport ?? "vless"
         probeKind=request.probeKind ?? "tcp4"
         #if APL_PROVIDER_DIRECT_QA
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        guard (transport=="vless-product-direct" && FixedWitnessKind(rawValue:probeKind) != nil) || request.fixture=="cleanup-only" else{return}
+        #else
         guard (transport == "vless-product-direct" && probeKind == "tcp4") || request.fixture=="cleanup-only" else {return}
+        #endif
         #else
         guard (transport == "vless" && probeKind == "tcp4") ||
             (transport == "wg-dual" && ["tcp4","tcp6","udp4","udp6"].contains(probeKind)) else {return}
@@ -347,6 +351,10 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             guard transport=="vless-product-direct",nonce.utf8.count==40,
                   nonce.utf8.allSatisfy({(48...57).contains($0)||(97...102).contains($0)}) else {throw LabHostError.fixture}
             options["aplProviderNonce"]=nonce as NSString
+            #if APL_PROVIDER_FULL_ROUTE_QA
+            guard FixedWitnessKind(rawValue:probeKind) != nil else{throw LabHostError.fixture}
+            options["aplFixedWitnessKind"]=probeKind as NSString
+            #endif
             #endif
             if let exitChallenge {options["aplLabExitChallenge"]=NSNumber(value:exitChallenge)}
             if nativeControlQA {
@@ -390,7 +398,14 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         #if APL_PROVIDER_SCOPED_TUN_QA
         // A fixed raw TCP probe avoids the URLSession ATS preflight failure.
         // The system routing table, not an explicit interface, selects TUN.
+        #if APL_PROVIDER_FULL_ROUTE_QA
+        guard let kind=FixedWitnessKind(rawValue:probeKind) else{return}
+        let rawResult=await Task.detached(priority:.userInitiated){
+            kind.udp ? FixedUDPWitness.run(value,kind:kind):ScopedTCPWitness.run(value,kind:kind)
+        }.value
+        #else
         let rawResult=await Task.detached(priority:.userInitiated){ScopedTCPWitness.run(value)}.value
+        #endif
         counters.merge(rawResult.counters){old,_ in old}
         let hostExact=rawResult.exact && manager.connection.status == .connected
         #endif
@@ -406,7 +421,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         #if APL_PROVIDER_SCOPED_TUN_QA
         providerDirectReceipt["hostExactHTTPReceipt"]=hostExact
         #if APL_PROVIDER_FULL_ROUTE_QA
-        let expectedRoute=providerDirectReceipt["fullRouteSyntheticGuard"]==true && providerDirectReceipt["scopedRouteOnly"]==false
+        let expectedRoute=providerDirectReceipt["fullRouteSyntheticGuard"]==true && providerDirectReceipt["scopedRouteOnly"]==false && providerDirectReceipt["witness_"+kind.rawValue]==true
         #else
         let expectedRoute=providerDirectReceipt["scopedRouteOnly"]==true
         #endif

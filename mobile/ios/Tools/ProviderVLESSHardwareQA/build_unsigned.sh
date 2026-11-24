@@ -100,7 +100,7 @@ RUST
   cp "$rust/Headers/tun2proxy.h" "$out/Lib/Headers/"
   printf 'module tun2proxy { header "tun2proxy.h" export * }\n' >> "$out/Lib/Headers/module.modulemap"
   for n in XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate;do cp "$root/SharedCore/$n.swift" "$out/Sources/";done
-  cp "$root/Tools/ProviderVLESSHardwareQA/ScopedTCPWitness.swift" "$out/Host/"
+  cp "$root/Tools/ProviderVLESSHardwareQA/ScopedTCPWitness.swift" "$root/Tools/ProviderVLESSHardwareQA/FixedWitnessKind.swift" "$out/Host/"
   cp "$root/Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift" "$root/Tools/ProviderVLESSHardwareQA/ScopedTUNMetrics.swift" "$out/Sources/"
   python3 - "$out/project.yml" <<'YAML_EDIT'
 from pathlib import Path
@@ -111,7 +111,8 @@ YAML_EDIT
 fi
 if [[ "$mode" == full-route ]];then
   [[ -n "$rust" ]]
-  cp "$root/Tools/ProviderVLESSHardwareQA/FullRouteGuard.swift" "$out/Sources/"
+  cp "$root/Tools/ProviderVLESSHardwareQA/FullRouteGuard.swift" "$root/Tools/ProviderVLESSHardwareQA/FixedWitnessKind.swift" "$out/Sources/"
+  cp "$root/Tools/ProviderVLESSHardwareQA/FixedUDPWitness.swift" "$out/Host/"
   cp "$root/PacketTunnel/NativeExactTunnelDescriptor.swift" "$out/Sources/"
   python3 - "$out/project.yml" <<'FULL_MODE'
 from pathlib import Path

@@ -64,25 +64,36 @@ class ProviderDirectQAGate(unittest.TestCase):
         self.assertIn('ScopedTCPWitness.run(value)',H)
         self.assertIn('counters.merge(rawResult.counters){old,_ in old}',H)
         self.assertIn('counters.merge(parsed){old,_ in old}',H)
-        for token in ('"198.51.100.77".withCString','UInt16(39883).bigEndian','validNonce(nonce)',
+        for token in ('kind.connect(fd)','validNonce(nonce)',
                       '6_000_000_000','hostConnectErrno','hostSentBytes','hostReceivedBytes',
                       'response[split.upperBound...]==body','lengths.count==1','O_NONBLOCK'):
             self.assertIn(token,W)
+        for token in ('"198.51.100.77"','"2001:db8:77::77"','UInt16(39883).bigEndian'):
+            self.assertIn(token,(QA/"FixedWitnessKind.swift").read_text())
         for token in ('NSAllowsArbitraryLoads','NSExceptionDomains','IP_BOUND_IF','SO_BINDTODEVICE'):
             self.assertNotIn(token,W+B)
         self.assertIn('ScopedTCPWitness.swift',B)
 
     def test_full_route_qa_requires_synthetic_egress_guard(self):
         guard=(QA/"FullRouteGuard.swift").read_text()
-        for token in ('"qa-drop","protocol":"blackhole"','[deny,outbound[0]]','"network":"tcp"','"ip":["198.51.100.77/32"]','"port":"39883"','"outboundTag":"qa-drop"','"loglevel":"none"'):
+        for token in ('"qa-drop","protocol":"blackhole"','[deny,outbound[0]]','"network":kind.network','"ip":[kind.cidr]','"port":"39883"','"outboundTag":"qa-drop"','"loglevel":"none"'):
             self.assertIn(token,guard)
         self.assertNotIn('"freedom"',guard)
-        for token in ('FullRouteGuard.restrict(bound)','NativeExactTunnelDescriptor.find(address:"192.0.2.177",ipv6:"2001:db8:177::2")','NEIPv4Route.default()','NEIPv6Route(destinationAddress:"8000::",networkPrefixLength:1)','dns.matchDomains=[""]','report["fullRouteSyntheticGuard"]=true'):
+        for token in ('FullRouteGuard.restrict(bound,kind:kind)','NativeExactTunnelDescriptor.find(address:"192.0.2.177",ipv6:"2001:db8:177::2")','NEIPv4Route.default()','NEIPv6Route(destinationAddress:"8000::",networkPrefixLength:1)','dns.matchDomains=[""]','report["fullRouteSyntheticGuard"]=true'):
             self.assertIn(token,P)
         self.assertIn('tun2proxy_set_log_callback({ _,_,_ in },nil)',M)
         self.assertIn('providerDirectReceipt["fullRouteSyntheticGuard"]==true',H)
         self.assertIn('APL_PROVIDER_FULL_ROUTE_QA',B)
         self.assertNotIn('APL_PROVIDER_FULL_ROUTE_QA',(ROOT/'mobile/ios/project.yml').read_text())
+
+    def test_full_route_protocol_selection_is_bound_to_receipt(self):
+        self.assertIn('FixedWitnessKind(rawValue:rawKind)',P)
+        self.assertIn('options["aplFixedWitnessKind"]=probeKind as NSString',H)
+        self.assertIn('providerDirectReceipt["witness_"+kind.rawValue]==true',H)
+        u=(QA/"FixedUDPWitness.swift").read_text()
+        self.assertIn('guard kind.udp,ScopedTCPWitness.validNonce(nonce)',u)
+        self.assertEqual(u.count('Darwin.send('),1)
+        self.assertIn('response==Data(("APL_RECEIPT:"+nonce).utf8)',u)
 
     def test_historical_lab_is_preserved_not_adopted(self):
         body=H.split('private func historicalDormantKind(',1)[1].split('private func inspectProviderManagers',1)[0]

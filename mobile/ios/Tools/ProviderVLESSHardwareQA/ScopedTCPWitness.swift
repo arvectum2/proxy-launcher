@@ -25,12 +25,12 @@ enum ScopedTCPWitness {
               !lines.dropFirst().contains(where:{$0.lowercased().hasPrefix("transfer-encoding:")}) else{return false}
         return response[split.upperBound...]==body
     }
-    static func run(_ nonce:String)->Result {
+    static func run(_ nonce:String,kind:FixedWitnessKind = .tcp4)->Result {
         var result=Result()
-        guard validNonce(nonce) else{return result}
+        guard validNonce(nonce),!kind.udp else{return result}
         result.counters["hostHTTPAttempted"]=1
         result.counters["hostRawTCP"]=1
-        let fd=Darwin.socket(AF_INET,SOCK_STREAM,0)
+        let fd=Darwin.socket(kind.family,SOCK_STREAM,0)
         guard fd>=0 else{result.counters["hostSocketErrno"]=Int(errno);return result}
         defer{Darwin.close(fd)}
         let flags=fcntl(fd,F_GETFL)
@@ -50,18 +50,14 @@ enum ScopedTCPWitness {
                 if errno != EINTR{return false}
             }
         }
-        var addr=sockaddr_in()
-        addr.sin_len=UInt8(MemoryLayout<sockaddr_in>.size)
-        addr.sin_family=sa_family_t(AF_INET);addr.sin_port=UInt16(39883).bigEndian
-        guard "198.51.100.77".withCString({inet_pton(AF_INET,$0,&addr.sin_addr)})==1 else{return result}
-        let rc=withUnsafePointer(to:&addr){$0.withMemoryRebound(to:sockaddr.self,capacity:1){Darwin.connect(fd,$0,socklen_t(MemoryLayout<sockaddr_in>.size))}}
+        let rc=kind.connect(fd)
         if rc != 0 {
             guard errno==EINPROGRESS,ready(Int16(POLLOUT)) else{result.counters["hostConnectErrno"]=Int(errno);return result}
             var err:Int32=0,len=socklen_t(MemoryLayout<Int32>.size)
             guard getsockopt(fd,SOL_SOCKET,SO_ERROR,&err,&len)==0,err==0 else{result.counters["hostConnectErrno"]=Int(err==0 ? errno:err);return result}
         }
         result.counters["hostTCPConnected"]=1
-        let request=Array("GET /\(nonce) HTTP/1.1\r\nHost: 198.51.100.77\r\nConnection: close\r\n\r\n".utf8)
+        let request=Array("GET /\(nonce) HTTP/1.1\r\nHost: \(kind.v6 ? "["+kind.ip+"]":kind.ip)\r\nConnection: close\r\n\r\n".utf8)
         var offset=0
         while offset<request.count {
             guard ready(Int16(POLLOUT)) else{result.counters["hostSendErrno"]=Int(errno);return result}

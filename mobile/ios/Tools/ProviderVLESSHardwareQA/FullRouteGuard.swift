@@ -1,10 +1,10 @@
 // Isolated full-route QA only. Blackhole is first/default; only the fixed
-// synthetic TCP witness may reach the disposable VLESS peer.
+// synthetic witness tuple may reach the disposable VLESS peer.
 import Foundation
 
 enum FullRouteGuard {
     enum Failure:Error {case invalidInput}
-    static func restrict(_ bound:Data)throws->Data {
+    static func restrict(_ bound:Data,kind:FixedWitnessKind = .tcp4)throws->Data {
         guard var root=try JSONSerialization.jsonObject(with:bound) as? [String:Any],
               Set(root.keys)==Set(["inbounds","outbounds","routing","log"]),
               let inbound=root["inbounds"] as? [[String:Any]],inbound.count==1,
@@ -24,8 +24,8 @@ enum FullRouteGuard {
         let deny:[String:Any]=["tag":"qa-drop","protocol":"blackhole","settings":[:]]
         root["outbounds"]=[deny,outbound[0]]
         root["routing"]=["domainStrategy":"AsIs","rules":[
-            ["type":"field","inboundTag":["apl-local"],"network":"tcp",
-             "ip":["198.51.100.77/32"],"port":"39883","outboundTag":"apl-vless"],
+            ["type":"field","inboundTag":["apl-local"],"network":kind.network,
+             "ip":[kind.cidr],"port":"39883","outboundTag":"apl-vless"],
             ["type":"field","network":"tcp,udp","outboundTag":"qa-drop"]
         ]]
         root["log"]=["loglevel":"none"]

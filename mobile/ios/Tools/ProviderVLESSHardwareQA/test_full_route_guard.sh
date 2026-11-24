@@ -27,7 +27,14 @@ changed=input;changed["outbounds"]=[altered];precondition(rejected(changed))
 altered=outbound;altered["streamSettings"]=["sockopt":["interface":"pdp_ip0"]]
 changed=input;changed["outbounds"]=[altered];precondition(rejected(changed))
 changed=input;changed["api"]=[:];precondition(rejected(changed))
-print("FULL_ROUTE_GUARD_9_PASS")
+let tuples:[(FixedWitnessKind,String,String)]=[(.tcp4,"198.51.100.77/32","tcp"),(.tcp6,"2001:db8:77::77/128","tcp"),(.udp4,"198.51.100.77/32","udp"),(.udp6,"2001:db8:77::77/128","udp")]
+for (kind,cidr,network) in tuples {
+    let root=try JSONSerialization.jsonObject(with:FullRouteGuard.restrict(encode(input),kind:kind)) as! [String:Any]
+    let rules=(root["routing"] as! [String:Any])["rules"] as! [[String:Any]]
+    precondition(rules.count==2 && rules[0]["ip"] as? [String]==[cidr] && rules[0]["network"] as? String==network && rules[0]["port"] as? String=="39883" && rules[1]["outboundTag"] as? String=="qa-drop")
+}
+precondition(FixedWitnessKind(rawValue:"dns4")==nil)
+print("FULL_ROUTE_GUARD_14_PASS")
 SWIFT
-xcrun swiftc "$root/FullRouteGuard.swift" "$temp/main.swift" -o "$temp/check"
+xcrun swiftc "$root/FixedWitnessKind.swift" "$root/FullRouteGuard.swift" "$temp/main.swift" -o "$temp/check"
 "$temp/check"

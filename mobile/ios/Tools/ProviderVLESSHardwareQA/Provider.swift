@@ -11,6 +11,9 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     private var consumed=false
     private var challenge:String?
     private var deadline:Task<Void,Never>?
+    #if APL_PROVIDER_FULL_ROUTE_QA
+    private var witnessKind:FixedWitnessKind?
+    #endif
     #if APL_PROVIDER_SCOPED_TUN_QA
     private let engineQueue=DispatchQueue(label:"apl.qa.scoped.tun")
     private let exitGate=TunnelEngineExitGate()
@@ -36,7 +39,10 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 let raw=try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate,socksPort:39879,datagramReview:true)
                 let bound=try XrayVLESSRuntimeConfig.bindPhysicalUnderlay(raw,interfaceName:"en0",expectedAddress:"192.168.1.80",expectedPort:39882)
                 #if APL_PROVIDER_FULL_ROUTE_QA
-                let guarded=try FullRouteGuard.restrict(bound)
+                guard let rawKind=options?["aplFixedWitnessKind"] as? String,
+                      let kind=FixedWitnessKind(rawValue:rawKind) else{throw NativeLabError.stage(21)}
+                witnessKind=kind
+                let guarded=try FullRouteGuard.restrict(bound,kind:kind)
                 #else
                 let guarded=bound
                 #endif
@@ -157,6 +163,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             #if APL_PROVIDER_FULL_ROUTE_QA
             report["scopedRouteOnly"]=false
             report["fullRouteSyntheticGuard"]=true
+            if let witnessKind {report["witness_"+witnessKind.rawValue]=true}
             #else
             report["scopedRouteOnly"]=true
             #endif

@@ -20,7 +20,13 @@ precondition(!ScopedTCPWitness.matches(response("200 OK",body.utf8.count,body,"T
 precondition(!ScopedTCPWitness.matches(response("200 OK",body.utf8.count,body),nonce:String(repeating:"b",count:40)))
 precondition(!ScopedTCPWitness.matches(Data(body.utf8),nonce:nonce))
 precondition(ScopedTCPWitness.run("invalid").counters.isEmpty)
-print("SCOPED_TCP_WITNESS_PARSER_9_PASS")
+precondition(FixedUDPWitness.matches(Data(body.utf8),nonce:nonce))
+precondition(!FixedUDPWitness.matches(Data((body+"x").utf8),nonce:nonce))
+precondition(!FixedUDPWitness.matches(Data(body.utf8),nonce:String(repeating:"b",count:40)))
+precondition(FixedUDPWitness.run(nonce,kind:.tcp6).counters.isEmpty)
+precondition(FixedUDPWitness.run("invalid",kind:.udp6).counters.isEmpty)
+precondition(ScopedTCPWitness.run(nonce,kind:.udp4).counters.isEmpty)
+print("TCP_UDP_WITNESS_PARSER_15_PASS")
 SWIFT
-xcrun swiftc "$root/ScopedTCPWitness.swift" "$temp/main.swift" -o "$temp/check"
+xcrun swiftc "$root/FixedWitnessKind.swift" "$root/ScopedTCPWitness.swift" "$root/FixedUDPWitness.swift" "$temp/main.swift" -o "$temp/check"
 "$temp/check"
