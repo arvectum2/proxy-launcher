@@ -19,5 +19,8 @@ steps:
     result: "PASS DNS wire run 43F42FD4-A7E0-4BDA-BAAB-894CFAAF1CFD and expected wrong-key rejection BF1E03B1-B1FD-4B13-84F5-59E70CEF1281, independently correlated, cleanup and original OFF verified."
   - step: 4
     action: "Design and test established peer-loss: two unique challenges in same session with relay cut after first exact receipt, distinct second no delivery, no general leak claim."
+    result: "ARM64 build and strict signing PASS; 92 receipt/RVI, 22 focused, 21 parser and 15 guard checks PASS. Prepared bounded OFF control and live peer-loss runner."
+  - step: 5
+    action: "Recheck OFF baseline, run one filtered synthetic UDP OFF control and established peer-loss, independently verify peer and RVI; restore prior app."
     result: pending
 resume_instruction: "DNS and wrong-key completed, do not repeat. Implement established synthetic UDP peer-loss test, then separate underlay leak observation with strict filters and positive control."
