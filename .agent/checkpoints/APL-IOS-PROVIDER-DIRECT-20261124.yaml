@@ -1,6 +1,6 @@
 task_id: APL-IOS-PROVIDER-DIRECT-20261124
 parent_task: APL-IOS-UNIFIED-RELEASE-20261111
-status: in_progress
+status: completed
 goal: "Resolve NativeLab manager conflict without deleting existing records; obtain scoped provider-only exact HTTP witness"
 definition_of_done:
   - "Classify historical manager by exact known configuration and safe inactive state, no credential contents"
@@ -23,7 +23,10 @@ steps:
     result: "prepared=true connected=false; distinct QA manager created, prepare run 982af116-0d5f-4281-8c72-36d22a224afe"
   - step: 4
     action: "Run one fixed scoped provider-only TCP HTTP challenge, independently verify Mac and device, clean own manager"
-    result: pending
+    result: "device provider exact HTTP=true, Mac independent witness1, challenge and response hashes matched, native stop and owned manager cleanup true"
     run_id: 3E9EC792-A3E8-44A0-AF01-9CDE0F0724EB
-resume_instruction: "Finish exact historical classification, do not remove pre-existing record; only create a distinctly marked temporary profile when the existing one is proven inactive and credential-free. Record each mutation and recovery."
+  - step: 5
+    action: "Verify historical manager preserved; restore prior lab binary; scrub ephemeral inputs"
+    result: "pre/post read-only census identical except runID; related=1 historical runtime-review, owned=0, disabled/disconnected. Prior NativeLab restored; original APL and HTTPS QA retained; no listeners, disposable keys scrubbed"
+resume_instruction: "Completed scoped provider-only comparison; do not repeat it. Proceed to exact product Rust/TUN scoped comparison as distinct stage."
   # The first build and source test precede the device mutation below.
