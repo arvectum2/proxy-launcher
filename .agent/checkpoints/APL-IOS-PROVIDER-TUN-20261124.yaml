@@ -26,5 +26,8 @@ steps:
     result: "OFF confirmed visually (Основной selected, Connect button) and provider process absent."
   - step: 6
     action: "Install signed scoped QA in place; inspect and prepare only the owned lab manager."
+    result: "Signed lab installed; read-only census one known dormant historical manager, no owned or active other manager."
+  - step: 7
+    action: "Prepare one explicitly owned test manager with VPN OFF; preserve historical manager."
     result: pending
 resume_instruction: "Signed artifact ready at native-artifacts/ios-030-provider-scoped-tun-signed-20261124/NativeLabHost.app. Do not rebuild or re-sign unchanged. Physical test blocked while production VPN active. Obtain explicit authorization for temporary interruption or wait for user to stop it; record original selected profile and VPN state, then recheck device. Use existing scoped QA procedure, independent nonce witness, exact lab cleanup and restore original VPN state. Do not run concurrent VPNs."
