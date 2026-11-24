@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov provider-direct v3 succeeded on physical iPhone13. Historical disabled native-runtime-review-v1 exact marker and credential-free configuration identified read-only; separate QA manager created without adopting/deleting old. Provider-only scoped RFC5737 route, pinned product Go, UDP-enabled SOCKS en0 bound, no Rust: iOS connected, SOCKS/HTTP exact true, native stop true, cleaned true, independent Mac witness1, bytes2241/2589, TLS complete2015; hashes correlated. Before/after manager census identical, previous NativeLab restored, APL OFF and HTTPS QA retained, keys/listeners removed. 17 diagnostic+50 release tests PASS. Full-route TUN remains FAIL/r20. Next controlled scoped TUN with exact product Rust."
+current: "24 Nov scoped exact product Go+Rust TUN QA ARM64 build PASS. Initial nested signing failed due host-before-extension ordering; corrected extension-first then host. Deep strict signature and exact existing QA entitlements PASS. Signed artifact ready, focused Python18 and active release50/preflight PASS. Prior exact-head six CI checks green. Physical iPhone actual production PacketTunnel PID82794 active on recheck, so no QA installation or VPN mutation performed. Scoped TUN HTTP test not executed. Provider-direct and host-only earlier PASS; production VLESS remains disabled."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "206682cc3243e2d6a952b17bea7d84eb99eda396 (physical provider-local scoped TCP VLESS exact HTTP+independent peer PASS; historical manager preserved, cleanup verified; Python17+50 release/preflight PASS)"
+last_verified_commit: "7559af01 (scope TUN code cb4ea9e3, ARM64 build, corrected deep strict signature + exact lab entitlements, Python18+50 and release preflight PASS; no physical TUN acceptance)"
 test_results:
+  - "24 Nov scoped TUN signed candidate deep strict and exact lab entitlements PASS after correcting nested signing order; 18 focused and 50 release tests, active preflight PASS. Actual product provider active PID82794; no installation or scoped TUN traffic. Previous head 20ff2e4f six CI checks success."
   - "24 Nov v3 scoped provider-local physical VLESS direct SOCKS exact HTTP=true, native stop=true, cleaned=true, independent Mac witness1 bytes2241/2589 TLS complete2015, challenge and response SHA correlated. Before/after historical manager census identical. 17 diagnostics +50 release/preflight PASS; full-route product remains unaccepted."
   - "24 Nov provider-direct v2 ARM64 host+NE build and local signature PASS; read-only physical iPhone manager census confirmed conflict; no VLESS traffic test. 16 focused tests +50 active release/preflight PASS, prior lab restore and no listeners confirmed."
   - "24 Nov product-Go host variant ARM64 build and existing local signature PASS; iPhone exact HTTP true, SOCKS greeting/connect true, Xray stopped true, Mac witness1 bytes2177/2613 complete TLS1951/2177, 12 diagnostic +50 active release/preflight PASS; actual product PacketTunnel still FAIL. Prior head ce52154a six CI checks success."
@@ -523,6 +524,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read docs/APL_IOS_030_VLESS_PROVIDER_DIRECT_2026-11-24.md and .agent/checkpoints/APL-IOS-PROVIDER-DIRECT-20261124.yaml (completed). Do not repeat host-only/provider-only success or r20 unchanged. V3 scoped direct provider exact HTTP PASS with historical native-runtime-review-v1 preserved, no current QA profile, prior lab restored. NEXT: controlled scoped Rust/TUN experiment using exact product archive and Rust library plus same scoped route; test synthetic host HTTP through TUN, independent peer and cleanup. Journal every mutation before/after, preserve old disabled related manager, no production VPN or Apple capabilities, no full default routes unless authorized and tightly bounded. Product VLESS remains disabled pending actual full-route acceptance; PR383 draft, no merge/release without owner."
+resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-PROVIDER-TUN-20261124.yaml. Existing signed scoped QA at native-artifacts/ios-030-provider-scoped-tun-signed-20261124/NativeLabHost.app, corrected nested signing verified; do not rebuild. Current production VPN active (PID82794 observed twice), do not interrupt until separately authorized. On authorization or owner stops it, record baseline and verify OFF before installing lab; preserve historical manager and user profiles, exact scoped independent nonce witness, native drain, remove only owned temporary manager, restore prior lab binary and original product VPN state. No repeated accepted direct-host/provider-only runs. No full default routes, Apple capabilities, merge or publication without owner."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
