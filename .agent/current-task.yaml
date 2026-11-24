@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov 18:52: full-route guarded TCP4/TCP6/UDP4/UDP6 physical PASS; three new separate independent exact receipts, native drain/stop and cleanup verified. Original baseline Нидерланды 2 OFF restored, previous NativeLab restored. Owner deferred Основной, no diagnosis. DNS, negative/fail-closed, WAN/leak, dynamic underlay and product gates remain."
+current: "24 Nov 18:58 DNS wire physical PASS and wrong-key expected rejection PASS; historical census and OFF baseline restored. Established peer loss and independent leak observation outstanding."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -530,6 +530,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-DNS-NEGATIVE-QA-20261124.yaml; DNS wire and negative QA, owner deferred \u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439. Do not repeat accepted TCP/UDP or interrupt active VPN without permission."
+resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-DNS-NEGATIVE-QA-20261124.yaml. DNS wire and wrong-key accepted, no repeat. NEXT established synthetic peer loss with two challenges in same session and independent relay cut evidence; independent leak observation separate. Owner deferred Основной. No production activation or Apple changes."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

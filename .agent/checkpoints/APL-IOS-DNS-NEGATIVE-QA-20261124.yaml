@@ -16,5 +16,8 @@ steps:
     result: "PASS ARM64 signed DNS wire QA, 108 local checks, 87 receipt tests (offline uv); independent DNS wire and wrong-key Mac controls PASS. ARC job quota transient resolved sequentially."
   - step: 3
     action: "Actual device baseline OFF, Нидерланды 2; run DNS wire positive and wrong-key negative sequentially with existing signed candidate and fsynced journal, restore prior lab."
+    result: "PASS DNS wire run 43F42FD4-A7E0-4BDA-BAAB-894CFAAF1CFD and expected wrong-key rejection BF1E03B1-B1FD-4B13-84F5-59E70CEF1281, independently correlated, cleanup and original OFF verified."
+  - step: 4
+    action: "Design and test established peer-loss: two unique challenges in same session with relay cut after first exact receipt, distinct second no delivery, no general leak claim."
     result: pending
-resume_instruction: "Finish DNS wire implementation and tests, then signed QA with independent receipt. Do not repeat accepted protocols. No public resolver forwarding or owner VPN changes."
+resume_instruction: "DNS and wrong-key completed, do not repeat. Implement established synthetic UDP peer-loss test, then separate underlay leak observation with strict filters and positive control."
