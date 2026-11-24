@@ -12,5 +12,8 @@ steps:
     result: "Product source unchanged since r20. Main differences actual runtime driver, descriptor-before-engine, second validation, immediate runner completion, NWPath initial selection and outer owner watcher. Need discriminating actual runner test first."
   - step: 2
     action: "Build isolated product runner QA mode with fixed TCP4 guard; compile actual source files, no owner profile access."
+    result: "ARM64 compile and strict signed lab PASS, 9 targeted +22 focused +50 release checks/preflight PASS. Candidate ios-030-actual-product-runner-signed-20261124/NativeLabHost.app."
+  - step: 3
+    action: "Run one physical actual runner TCP4 positive; exact independent peer and actualProductRunner receipt, restore prior lab."
     result: pending
 resume_instruction: "Finish isolated product runner build/test. Preserve public gate, no product app install, no original proxy diagnosis. No active owner VPN interruption."
