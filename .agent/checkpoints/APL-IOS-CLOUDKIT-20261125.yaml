@@ -1,12 +1,12 @@
 task_id: APL-IOS-CLOUDKIT-20261125
-status: "in_progress"
+status: "blocked"
 goal: "Private CloudKit manual exclusions, existing Apple accounts only; no profile, credential or routing telemetry sync."
 definition_of_done:
   - "Current source local privacy, account expiry, optimistic concurrency and two-client contract tests PASS."
   - "Current source unsigned CloudKit opt-in ARM64 build and host-only entitlement verification."
   - "Existing Apple Developer App ID/container capability, valid matching provisioning, signed private two-instance acceptance with the same existing personal iCloud account; no new accounts or real exclusion overwrites."
   - "No public activation or upload before owner decision."
-last_verified_commit: "3f59ea600fcb00a3e600b0a338a4ae2ae374061c (CloudKit capability/profiles and signed candidate PASS, live pending)"
+last_verified_commit: "03d7c0aadaacb01e6709c475991983ac1c221812 (isolated signed CloudKit QA candidate; no live test)"
 steps:
   - step: 1
     action: "Read existing CloudKit service, acceptance and local profiles."
@@ -28,5 +28,5 @@ steps:
     result: "PASS three downloaded profiles and portal expiry, main previous certificate/device/core entitlement equality, second device portal selection preserved (old file unavailable locally). Strict app/provider and recovery signatures PASS, explicit Development environment, no device or cloud data mutation."
   - step: 7
     action: "Isolated live CloudKit acceptance and two-device conflict evidence."
-    result: pending
-resume_instruction: "ARC only. CloudKit portal activation and three affected profiles regenerated/verified/installed; no repeat. Read docs/APL_IOS_030_CLOUDKIT_EXISTING_ACCOUNT_GATE_2026-11-25.md and child checkpoint. Signed current development candidate and re-signed original recovery app in native-artifacts/ios-030-cloudkit-signed-20261125, exact signed manifest. NEXT prepare bounded isolated development CloudKit record namespace and synthetic local exclusion QA harness; no actual owner record overwrite, no account switch or additional accounts. Recheck device baseline, use refreshed recovery app, test one existing-account client and independent second instance where available; do not claim two-device PASS absent actual evidence. No production schema deploy, public feature activation, merge/upload without separate permission. Final security/licensing/privacy gates remain."
+    result: "BLOCKED live test: original user PacketTunnel active, no permission to interrupt. Isolated signed QA a4e2cec2, 22 Python/preflight, ARM64/strict signatures PASS. No install or cloud request. One physical device, two logical clients planned; physical two-device still pending."
+resume_instruction: "ARC only. Read docs/APL_IOS_030_CLOUDKIT_EXISTING_ACCOUNT_GATE_2026-11-25.md latest isolated live QA section and child checkpoint. Signed isolated CloudKit QA a4e2cec2 ready; 22 Python/preflight, ARM64, strict signature PASS. Original user PacketTunnel PID93742 active at latest check, do not interrupt/install without owner turning off or explicit permission. Once OFF and unlocked follow exact resume protocol, separate synthetic run UUID, no actual cloud record access, cleanup before refreshed recovery app restore. No new accounts, account switch, actual second device claim, production schema deployment, public activation, merge/upload. WAN deferred."
