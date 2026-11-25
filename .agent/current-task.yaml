@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "25 Nov actual containing-app product ticket and owner physical guarded TCP4 PASS; issued/consumed ticket, independent exact witness, native drain and exact QA cleanup true. Original signed APL restored, no QA sockets or active provider. Ordinary UI, WAN/dynamic underlay and CloudKit release gates remain. Owner deferred Основной."
+current: "25 Nov native path selection/revocation offline tests and unsigned ARM64 production build PASS; actual WAN/handoff blocked on authorized controlled public peer and explicit radio switch scope. Existing product LAN/owner-ticket guarded acceptance remains. No device or external service mutation. Ordinary UI, CloudKit and release gates remain."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "51d42fa3b4b8f0983b6cb9e762c899f6cb50f8ea (actual product owner/ticket physical PASS, 84 checks/preflight)"
+last_verified_commit: "efc480647c7851808c3a48fb99b26cf2690fcccc (440 Swift,12 Python, unsigned ARM64 source8fb0ff30)"
 test_results:
+  - "25 Nov actual path policy extraction: 440 Swift,12 Python contracts/preflight PASS; unsigned product ARM64 source8fb0ff30 PASS. Physical WAN/handoff NOT accepted, peer and radio authorization needed. No device changes."
   - "25 Nov actual product owner/ticket physical guarded TCP4 PASS, run 96766205-74AE-4D6F-B5AD-8898D195DFD1, ticketIssued/Consumed true, host98/160, peer2209/2635 witness1, exact hashes, native drain and cleanup true. Original signed app restored. 84 checks/preflight PASS. Intermediate CI 3 success/3 running. No ordinary UI or WAN acceptance."
   - "24 Nov actual containing-app owner QA candidate ARM64 build, exact Go/Rust hash and strict signatures PASS; 12+22+50 local checks/preflight PASS. Physical test blocked device Locked, no installation or user profile changes. Runner syntax only verified."
   - "24 Nov actual product runner isolated guarded TCP4 physical PASS, run DA36CB94-CBE4-4A1A-BD28-E8E345801212, host98/160 peer2241/2613 witness1, exact correlated hashes, product driver drain/stop, cleanup. 9+22+50 and release preflight PASS. Not owner/ticket/UI or unrestricted product acceptance."
@@ -536,6 +537,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-WAN-HANDOFF-20261125.yaml. Test actual physical path policy offline. WAN peer and radio authorization required; no owner proxy diagnosis, no port exposure, no public activation or Apple changes."
+resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-WAN-HANDOFF-20261125.yaml and docs/APL_IOS_030_WAN_HANDOFF_QA_2026-11-25.md. Offline path policy 440 Swift/12 Python PASS, unsigned product ARM64 source8fb0ff30 built. Physical WAN/native handoff blocked: no authorized independent public peer; require approved literal public IPv4 and dedicated port, controlled server egress, explicit temporary radio switching and owner present. Do not rent, expose ports or change owner radios/profiles without approval. Existing LAN and owner-ticket tests accepted, do not repeat. Owner deferred Основной. Once approved, build exact QA-only guard for authorized peer and execute independent Wi-Fi and LTE controls, new sessions and in-session revoke/cleanup; no seamless handoff claim. Ordinary UI and CloudKit gates independent. No Apple changes, upload, merge or public activation."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
