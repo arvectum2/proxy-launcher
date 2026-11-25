@@ -1,5 +1,5 @@
 task_id: APL-IOS-NATIVE-UI-20261125
-status: blocked
+status: in_progress
 goal: "Ordinary native VLESS import, selection, Home connect/disconnect and cleanup, without owner data changes."
 definition_of_done:
   - "Fix native-only Home action/label defect and verify regressions."
@@ -19,4 +19,7 @@ steps:
   - step: 4
     action: "Prepare independent UI automation and physical receipt protocol; verify baseline and run actual UI."
     result: "BLOCKED last iPhone Locked during build-for-testing. Explicit UI XCTest, peer-ready gate, signed app/provider/runner, 18 focused checks/preflight, ARM64 test build and strict signatures PASS. Orchestrator syntax verified, no journal, no execution/device changes."
-resume_instruction: "ARC only (use authorized MacBook SSH route if direct Mac mini temporarily unavailable). Read .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Native-only Home fix offline PASS; signed app/provider/XCTest runner ready, last iPhone state Locked, no device install or mutation. When unlocked verify provider OFF, runner absent and hashes, inspect native-artifacts/ios-030-product-ui-xctest-physical-20261125/journal.jsonl. If absent execute its syntax-checked run.py once; if present resume exact stage/cleanup, never repeat. Require real UI import unselected, explicit selection, peer-ready, Home Connect/Disconnect, independent hash/witness, cleanup and original binary restored. Missing cleanup requires exact QA journal recovery. No original proxy diagnosis, WAN reopening, public activation, Apple changes, merge or upload."
+  - step: 5
+    action: "Unlocked device, direct ARC recovered; prior XCTest runner installed. Preserve runner; use ARC iPhone Mirroring with same signed app and independent peer."
+    result: pending
+resume_instruction: "ARC only. Ordinary UI physical trial via ARC iPhone Mirroring, preserve preexisting XCTest runner. Inspect exact journal in native-artifacts/ios-030-product-ui-xctest-physical-20261125 before any device action. If absent run gui_prepare.py once. If present recover exact stage; no repeat. Independent ready marker only after explicit selection; stop/cleanup and restore exact original app. No public activation or owner proxy diagnosis."

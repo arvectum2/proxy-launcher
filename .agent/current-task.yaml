@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: in_progress
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -539,6 +539,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only (use authorized MacBook SSH route if direct Mac mini temporarily unavailable). Read .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Native-only Home fix offline PASS; signed app/provider/XCTest runner ready, last iPhone state Locked, no device install or mutation. When unlocked verify provider OFF, runner absent and hashes, inspect native-artifacts/ios-030-product-ui-xctest-physical-20261125/journal.jsonl. If absent execute its syntax-checked run.py once; if present resume exact stage/cleanup, never repeat. Require real UI import unselected, explicit selection, peer-ready, Home Connect/Disconnect, independent hash/witness, cleanup and original binary restored. Missing cleanup requires exact QA journal recovery. No original proxy diagnosis, WAN reopening, public activation, Apple changes, merge or upload."
+resume_instruction: "ARC only. Ordinary UI physical trial via ARC iPhone Mirroring, preserve preexisting XCTest runner. Inspect exact journal in native-artifacts/ios-030-product-ui-xctest-physical-20261125 before any device action. If absent run gui_prepare.py once. If present recover exact stage; no repeat. Independent ready marker only after explicit selection; stop/cleanup and restore exact original app. No public activation or owner proxy diagnosis."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
