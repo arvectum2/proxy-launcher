@@ -22,9 +22,43 @@ final class ExclusionCloudKitService {
     private let container: CKContainer
     private var database: CKDatabase { container.privateCloudDatabase }
 
+    private let recordID: CKRecord.ID
+#if APL_CLOUDKIT_LIVE_QA
+    private let syntheticDeviceID: String?
+#endif
     init() {
         container = CKContainer(identifier: Self.containerID)
+        recordID = Self.recordID
+#if APL_CLOUDKIT_LIVE_QA
+        syntheticDeviceID = nil
+#endif
     }
+#if APL_CLOUDKIT_LIVE_QA
+    // A run-scoped synthetic Development record, never the production record.
+    init(qaRunID: UUID, qaDeviceID: UUID) {
+        container = CKContainer(identifier: Self.containerID)
+        recordID = CKRecord.ID(recordName: "qa.manual-exclusions." + qaRunID.uuidString.lowercased())
+        syntheticDeviceID = qaDeviceID.uuidString.lowercased()
+    }
+
+    func qaDeleteSynthetic(expectedAccount: ExclusionCloudAccountReview,
+                           expectedDevices: Set<String>, expectedDomains: [[String]]) async throws {
+        guard syntheticDeviceID != nil, recordID != Self.recordID else {
+            throw ExclusionCloudKitFailure.invalidPayload
+        }
+        guard let (snapshot, _) = try await previewRemote(expectedAccount: expectedAccount),
+              expectedDevices.contains(snapshot.deviceID),
+              expectedDomains.contains(snapshot.manualDomains) else {
+            throw ExclusionCloudKitFailure.invalidPayload
+        }
+        try await requireReview(expectedAccount)
+        _ = try await database.deleteRecord(withID: recordID)
+        try await requireReview(expectedAccount)
+        guard try await previewRemote(expectedAccount: expectedAccount) == nil else {
+            throw ExclusionCloudKitFailure.changedOnServer
+        }
+    }
+#endif
 
     func requireAvailableAccount() async throws {
         let result: (CKAccountStatus, Error?) = await withCheckedContinuation { continuation in
@@ -49,6 +83,11 @@ final class ExclusionCloudKitService {
     }
 
     private func requireReview(_ review: ExclusionCloudAccountReview) async throws {
+#if APL_CLOUDKIT_LIVE_QA
+        guard syntheticDeviceID != nil, recordID != Self.recordID else {
+            throw ExclusionCloudKitFailure.invalidPayload
+        }
+#endif
         let id = try await currentAccountID()
         guard !Task.isCancelled, review.matches(accountID:id,elapsed:ProcessInfo.processInfo.systemUptime) else {
             throw ExclusionCloudKitFailure.changedAccount
@@ -62,7 +101,7 @@ final class ExclusionCloudKitService {
         try await requireReview(expectedAccount)
         let record: CKRecord
         do {
-            record = try await database.record(for: Self.recordID)
+            record = try await database.record(for: recordID)
         } catch {
             if (error as? CKError)?.code == .unknownItem {
                 try await requireReview(expectedAccount)
@@ -71,7 +110,7 @@ final class ExclusionCloudKitService {
             throw error
         }
         try await requireReview(expectedAccount)
-        guard record.recordID == Self.recordID, record.recordType == Self.recordType,
+        guard record.recordID == recordID, record.recordType == Self.recordType,
               let data = record["payload"] as? Data else {
             throw ExclusionCloudKitFailure.invalidPayload
         }
@@ -109,7 +148,7 @@ final class ExclusionCloudKitService {
             guard observedRemoteWasAbsent, expectedRemote == nil else {
                 throw ExclusionCloudKitFailure.changedOnServer
             }
-            record = CKRecord(recordType: Self.recordType, recordID: Self.recordID)
+            record = CKRecord(recordType: Self.recordType, recordID: recordID)
             revision = 1
         }
         try await requireReview(expectedAccount)
@@ -132,9 +171,13 @@ final class ExclusionCloudKitService {
     }
 
     private func deviceID() -> String? {
+#if APL_CLOUDKIT_LIVE_QA
+        return syntheticDeviceID
+#else
         guard let defaults = UserDefaults(suiteName: AppShared.defaultsSuite) else { return nil }
         return ExclusionCloudDeviceIdentity.loadOrCreate(
             read: { defaults.string(forKey: Self.deviceIDKey) },
             write: { defaults.set($0, forKey: Self.deviceIDKey) })
+#endif
     }
 }

@@ -3,7 +3,12 @@ import SwiftUI
 import YandexMobileAds
 #endif
 
-#if APL_PRODUCT_UI_QA
+#if APL_CLOUDKIT_LIVE_QA && APL_CLOUDKIT_ENABLED
+@main
+struct ArvectumProxyLauncherApp: App {
+    var body: some Scene { WindowGroup { CloudKitLiveQAView() } }
+}
+#elseif APL_PRODUCT_UI_QA
 @main
 struct ArvectumProxyLauncherApp: App {
     var body:some Scene {WindowGroup {ProductOrdinaryUIQAView()}}
