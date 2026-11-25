@@ -281,7 +281,7 @@ completed:
 
 
 
-current: "24 Nov actual containing-app owner/ticket QA candidate signed, exact native libs, 84 local checks and release preflight PASS; diagnostic UI/isolated namespace and cleanup compiled, physical acceptance pending device unlock. No device install or mutation. Original user profiles untouched. Owner deferred Основной."
+current: "25 Nov actual containing-app product ticket and owner physical guarded TCP4 PASS; issued/consumed ticket, independent exact witness, native drain and exact QA cleanup true. Original signed APL restored, no QA sockets or active provider. Ordinary UI, WAN/dynamic underlay and CloudKit release gates remain. Owner deferred Основной."
 blocked_on:
   - "24 Nov provider-direct v3 scoped PASS; old native-runtime-review-v1 preserved. Full product r20 failed, isolate Rust/TUN and route effects. No public release authorization."
   - "Owner product scope / public release decision required: original consolidated 0.3.0 spec requested working VLESS Reality and CloudKit private sync, but no accepted product VLESS egress and CloudKit capability still disabled. Shipping the current safe feature subset needs explicit approval, not automatic reinterpretation."
@@ -299,8 +299,9 @@ pending:
   - "Functional Wi-Fi/LTE smoke completed; extended native instrumented handoff deferred by owner. LAN access/route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "e4fbb11ca7389b855fee08fa300bf828cf20170c (signed product owner QA candidate, 84 local checks/preflight)"
+last_verified_commit: "51d42fa3b4b8f0983b6cb9e762c899f6cb50f8ea (actual product owner/ticket physical PASS, 84 checks/preflight)"
 test_results:
+  - "25 Nov actual product owner/ticket physical guarded TCP4 PASS, run 96766205-74AE-4D6F-B5AD-8898D195DFD1, ticketIssued/Consumed true, host98/160, peer2209/2635 witness1, exact hashes, native drain and cleanup true. Original signed app restored. 84 checks/preflight PASS. Intermediate CI 3 success/3 running. No ordinary UI or WAN acceptance."
   - "24 Nov actual containing-app owner QA candidate ARM64 build, exact Go/Rust hash and strict signatures PASS; 12+22+50 local checks/preflight PASS. Physical test blocked device Locked, no installation or user profile changes. Runner syntax only verified."
   - "24 Nov actual product runner isolated guarded TCP4 physical PASS, run DA36CB94-CBE4-4A1A-BD28-E8E345801212, host98/160 peer2241/2613 witness1, exact correlated hashes, product driver drain/stop, cleanup. 9+22+50 and release preflight PASS. Not owner/ticket/UI or unrestricted product acceptance."
   - "24 Nov UDP6 and DNS wire physical loss + independent RVI PASS, OFF physical1/tunnel0 and active physical0/tunnel2 each; exact first receipt and second timeout, zero second witness. Prior lab restored, cleanup PASS. 201 offline checks and signed build already verified. CI 3 success and 3 pending at intermediate head."
@@ -535,6 +536,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Inspect existing private runner journal native-artifacts/ios-030-product-owner-physical-20261124 before any further device action. One physical owner trial, exact hash verified; never repeat. Recover exact QA journal before restoring original app if cleanup blocked."
+resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml and docs/APL_IOS_030_PRODUCT_OWNER_QA_2026-11-24.md. Actual product owner/ticket physical guarded TCP4 PASS, no repeat. NEXT inspect WAN, dynamic underlay and ordinary UI acceptance gates, then CloudKit/release conditions; avoid repeating accepted isolated scenarios. Recheck baseline, no interruption of active user VPN without permission, no owner proxy diagnosis. Original signed APL restored, provider absent. No public gate activation, Apple capability changes, merge or upload without owner decision."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
