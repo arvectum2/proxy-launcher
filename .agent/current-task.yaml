@@ -536,6 +536,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml and docs/APL_IOS_030_PRODUCT_OWNER_QA_2026-11-24.md. Actual product owner/ticket physical guarded TCP4 PASS, no repeat. NEXT inspect WAN, dynamic underlay and ordinary UI acceptance gates, then CloudKit/release conditions; avoid repeating accepted isolated scenarios. Recheck baseline, no interruption of active user VPN without permission, no owner proxy diagnosis. Original signed APL restored, provider absent. No public gate activation, Apple capability changes, merge or upload without owner decision."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-WAN-HANDOFF-20261125.yaml. Test actual physical path policy offline. WAN peer and radio authorization required; no owner proxy diagnosis, no port exposure, no public activation or Apple changes."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

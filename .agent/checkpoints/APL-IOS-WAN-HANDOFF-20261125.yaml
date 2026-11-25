@@ -1,0 +1,16 @@
+task_id: APL-IOS-WAN-HANDOFF-20261125
+status: in_progress
+goal: "WAN and Wi-Fi/cellular native VLESS acceptance with independently witnessed synthetic traffic; validate actual selection and revoke policy."
+definition_of_done:
+  - "Executable deterministic checks of actual physical selection and revoke-on-path-change policy."
+  - "Authorized isolated WAN peer reachable by both underlays, independent positive controls, physical Wi-Fi/cellular trial, bounded non-escape and cleanup."
+  - "Explicitly distinguish fail-closed/reconnect from seamless handoff; no owner proxy or radio mutation without permission."
+last_verified_commit: "dc326fb9 product owner ticket guarded TCP4 physical PASS"
+steps:
+  - step: 1
+    action: "Inspect accepted scope, exact WAN prerequisites and actual runtime path policy."
+    result: "Existing controlled peer is LAN-only; prior owner deferred extended native handoff, no VPS/public port authorized. Current owner revokes on signature change; no transparent migration. Device unlocked, no provider active. CI five green, one running."
+  - step: 2
+    action: "Extract behavior-preserving pure path policy from actual runtime and test selection/revocation."
+    result: pending
+resume_instruction: "Run deterministic Swift tests; do not repeat accepted LAN runs or toggle radios. WAN trial requires authorized reachable independent peer and explicit operator scope."
