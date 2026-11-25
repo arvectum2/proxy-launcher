@@ -5,7 +5,7 @@ definition_of_done:
   - "Fix native-only Home action/label defect and verify regressions."
   - "Actual ordinary UI synthetic import/selection and Home connect/disconnect on iPhone, with guarded exact witness and verified cleanup."
   - "Public gate remains disabled until separately authorized."
-last_verified_commit: "1b1b6bff (WAN explicitly deferred)"
+last_verified_commit: "657dd464cd4c1cbb09c2c23e60cda06e81b53474 (ordinary UI signed QA candidate; offline tests/build PASS)"
 steps:
   - step: 1
     action: "Inspect product UI and storage/manager boundaries."
@@ -15,5 +15,8 @@ steps:
     result: "PASS native-only Home fix ddc96ebf; 443 Swift, 24 focused Python +50 release tests, preflight, unsigned ARM64 Release. No device mutation."
   - step: 3
     action: "Prepare private ordinary UI QA namespace and bounded recovery; use actual ContentView and ProxyImportView."
+    result: "PASS isolated ordinary UI QA source, 26 targeted+50 release tests, preflight, ARM64 build and strict development signature. Signed candidate ios-030-product-ui-qa-signed-20261125/Arvectum Proxy Launcher.app. No device mutation. Physical UI actions/cleanup unverified."
+  - step: 4
+    action: "Prepare independent UI automation and physical receipt protocol; verify baseline and run actual UI."
     result: pending
-resume_instruction: "Finish Home correction and tests; then safe ordinary UI QA. No owner proxy diagnosis or profile writes; no WAN reopening or public activation."
+resume_instruction: "ARC only. Signed ordinary UI candidate ready; no install. Use real UI taps with independent peer and exact journal cleanup, preserve original app. Prefer XCTest to avoid interfering with other Mac GUI work. See docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. WAN deferred, no owner proxy diagnosis or public activation."

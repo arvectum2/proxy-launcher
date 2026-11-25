@@ -282,7 +282,7 @@ completed:
 
 
 
-current: "25 Nov owner closed extended WAN/handoff for current release scope; offline 440 Swift/12 Python and unsigned ARM64 PASS, physical WAN NOT TESTED, deferred until user complaints or suitable infrastructure. Actual product guarded LAN and owner ticket accepted. NEXT ordinary native UI; CloudKit, security/licensing and final release still open. No public activation authorization."
+current: "25 Nov native-only Home action defect fixed ddc96ebf, 443 Swift/74 Python and unsigned production build PASS. Isolated real ordinary UI QA candidate signed, 76 local contracts/preflight PASS. Physical import/selection/Home connect-disconnect/cleanup still pending, no device mutation. WAN deferred."
 blocked_on:
   - "Prior r20 failed; later actual guarded product runner and owner ticket physical TCP4 accepted. Ordinary UI and final production activation decision remain open."
   - "Owner product scope/public release decision remains required. Guarded product VLESS LAN egress accepted, ordinary UI outstanding; CloudKit capability disabled. No automatic partial release or public enablement."
@@ -300,7 +300,7 @@ pending:
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "efc480647c7851808c3a48fb99b26cf2690fcccc (440 Swift,12 Python, unsigned ARM64 source8fb0ff30)"
+last_verified_commit: "657dd464cd4c1cbb09c2c23e60cda06e81b53474 (signed ordinary UI candidate and 443 Swift/76 Python, unsigned product build)"
 test_results:
   - "25 Nov actual path policy extraction: 440 Swift,12 Python contracts/preflight PASS; unsigned product ARM64 source8fb0ff30 PASS. Physical WAN/handoff NOT accepted, peer and radio authorization needed. No device changes."
   - "25 Nov actual product owner/ticket physical guarded TCP4 PASS, run 96766205-74AE-4D6F-B5AD-8898D195DFD1, ticketIssued/Consumed true, host98/160, peer2209/2635 witness1, exact hashes, native drain and cleanup true. Original signed app restored. 84 checks/preflight PASS. Intermediate CI 3 success/3 running. No ordinary UI or WAN acceptance."
@@ -538,6 +538,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml. Native-only Home defect, ordinary UI synthetic acceptance. WAN deferred. No owner profile diagnosis, public activation or Apple changes."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Signed ordinary UI candidate ready, no install. Prepare actual UI tap runner, prefer XCTest to avoid other Mac GUI work; exact synthetic peer correlation and cleanup/restore mandatory. Do not repeat accepted owner/runtime cases or reopen WAN. No owner proxy diagnosis, public activation, Apple changes, merge or upload."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
