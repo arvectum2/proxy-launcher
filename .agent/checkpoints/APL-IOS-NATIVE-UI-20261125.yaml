@@ -1,0 +1,16 @@
+task_id: APL-IOS-NATIVE-UI-20261125
+status: in_progress
+goal: "Ordinary native VLESS import, selection, Home connect/disconnect and cleanup, without owner data changes."
+definition_of_done:
+  - "Fix native-only Home action/label defect and verify regressions."
+  - "Actual ordinary UI synthetic import/selection and Home connect/disconnect on iPhone, with guarded exact witness and verified cleanup."
+  - "Public gate remains disabled until separately authorized."
+last_verified_commit: "1b1b6bff (WAN explicitly deferred)"
+steps:
+  - step: 1
+    action: "Inspect product UI and storage/manager boundaries."
+    result: "Home checks only legacy list: native-only selection incorrectly shows Add proxy and bypasses real toggle. Ordinary model can scan owner proxies; require isolated storage and manager before device QA."
+  - step: 2
+    action: "Correct Home action/label and verify pure policy and product compilation."
+    result: pending
+resume_instruction: "Finish Home correction and tests; then safe ordinary UI QA. No owner proxy diagnosis or profile writes; no WAN reopening or public activation."
