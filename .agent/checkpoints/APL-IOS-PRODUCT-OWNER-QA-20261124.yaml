@@ -1,5 +1,5 @@
 task_id: APL-IOS-PRODUCT-OWNER-QA-20261124
-status: blocked
+status: in_progress
 goal: "Actual containing app and real PacketTunnel, real ProfileStore ticket, VPNController and NativeProductRuntimeOwner; isolated QA storage/manager, guarded TCP4."
 definition_of_done:
   - "QA-only signed containing app, exact product launch/ticket/provider path, no public enablement."
@@ -16,4 +16,7 @@ steps:
   - step: 3
     action: "Sign exact QA candidate and prepare physical runner; verify device safety."
     result: "BLOCKED device locked during compile, latest passcodeRequired true, provider absent. Signed candidate and exact restore binary verified. Runner syntax checked only, not started; no device install/mutation."
+  - step: 4
+    action: "Owner unlocked phone; no active provider; exact QA and restore hashes verified. Run saved physical runner once."
+    result: pending
 resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml and docs/APL_IOS_030_PRODUCT_OWNER_QA_2026-11-24.md. Signed actual containing-app QA ready, build/84 checks/signature PASS, device Locked passcodeRequired true; no install or device mutation. Once unlocked and provider OFF, verify exact signed artifact and restore hashes, inspect native-artifacts/ios-030-product-owner-physical-20261124 for existing journal. If absent, execute its syntax-checked run.py once. If present, resume its actual stage, never repeat. Require actual product ticket consumption, exact TCP independent witness and native drain/cleanup, restore prior app only when safe. If baseline policy/census blocks, do not change owner profiles. No Основной diagnosis, no public VLESS activation, Apple changes, merge or upload. Normal UI/WAN/CloudKit acceptance remains."

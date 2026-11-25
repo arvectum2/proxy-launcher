@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -535,6 +535,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-PRODUCT-OWNER-QA-20261124.yaml and docs/APL_IOS_030_PRODUCT_OWNER_QA_2026-11-24.md. Signed actual containing-app QA ready, build/84 checks/signature PASS, device Locked passcodeRequired true; no install or device mutation. Once unlocked and provider OFF, verify exact signed artifact and restore hashes, inspect native-artifacts/ios-030-product-owner-physical-20261124 for existing journal. If absent, execute its syntax-checked run.py once. If present, resume its actual stage, never repeat. Require actual product ticket consumption, exact TCP independent witness and native drain/cleanup, restore prior app only when safe. If baseline policy/census blocks, do not change owner profiles. No Основной diagnosis, no public VLESS activation, Apple changes, merge or upload. Normal UI/WAN/CloudKit acceptance remains."
+resume_instruction: "ARC only. Inspect existing private runner journal native-artifacts/ios-030-product-owner-physical-20261124 before any further device action. One physical owner trial, exact hash verified; never repeat. Recover exact QA journal before restoring original app if cleanup blocked."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
