@@ -1,11 +1,11 @@
 task_id: APL-IOS-NATIVE-UI-20261125
-status: in_progress
+status: blocked
 goal: "Ordinary native VLESS import, selection, Home connect/disconnect and cleanup, without owner data changes."
 definition_of_done:
   - "Fix native-only Home action/label defect and verify regressions."
   - "Actual ordinary UI synthetic import/selection and Home connect/disconnect on iPhone, with guarded exact witness and verified cleanup."
   - "Public gate remains disabled until separately authorized."
-last_verified_commit: "657dd464cd4c1cbb09c2c23e60cda06e81b53474 (ordinary UI signed QA candidate; offline tests/build PASS)"
+last_verified_commit: "abddf5a6a43199e95a4bd8055911b14c98f377cf (signed UI XCTest candidate, offline checks/build PASS)"
 steps:
   - step: 1
     action: "Inspect product UI and storage/manager boundaries."
@@ -18,5 +18,5 @@ steps:
     result: "PASS isolated ordinary UI QA source, 26 targeted+50 release tests, preflight, ARM64 build and strict development signature. Signed candidate ios-030-product-ui-qa-signed-20261125/Arvectum Proxy Launcher.app. No device mutation. Physical UI actions/cleanup unverified."
   - step: 4
     action: "Prepare independent UI automation and physical receipt protocol; verify baseline and run actual UI."
-    result: pending
-resume_instruction: "ARC only. Signed ordinary UI candidate ready; no install. Use real UI taps with independent peer and exact journal cleanup, preserve original app. Prefer XCTest to avoid interfering with other Mac GUI work. See docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. WAN deferred, no owner proxy diagnosis or public activation."
+    result: "BLOCKED last iPhone Locked during build-for-testing. Explicit UI XCTest, peer-ready gate, signed app/provider/runner, 18 focused checks/preflight, ARM64 test build and strict signatures PASS. Orchestrator syntax verified, no journal, no execution/device changes."
+resume_instruction: "ARC only (use authorized MacBook SSH route if direct Mac mini temporarily unavailable). Read .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Native-only Home fix offline PASS; signed app/provider/XCTest runner ready, last iPhone state Locked, no device install or mutation. When unlocked verify provider OFF, runner absent and hashes, inspect native-artifacts/ios-030-product-ui-xctest-physical-20261125/journal.jsonl. If absent execute its syntax-checked run.py once; if present resume exact stage/cleanup, never repeat. Require real UI import unselected, explicit selection, peer-ready, Home Connect/Disconnect, independent hash/witness, cleanup and original binary restored. Missing cleanup requires exact QA journal recovery. No original proxy diagnosis, WAN reopening, public activation, Apple changes, merge or upload."

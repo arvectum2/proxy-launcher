@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -282,7 +282,7 @@ completed:
 
 
 
-current: "25 Nov native-only Home action defect fixed ddc96ebf, 443 Swift/74 Python and unsigned production build PASS. Isolated real ordinary UI QA candidate signed, 76 local contracts/preflight PASS. Physical import/selection/Home connect-disconnect/cleanup still pending, no device mutation. WAN deferred."
+current: "25 Nov native-only Home fixed; 443 Swift/74 Python and unsigned production build PASS. Isolated real UI QA 76 checks/preflight, final peer-ready XCTest candidate 18 focused checks, test build and strict signatures PASS. Last iPhone Locked; no install or physical UI test. Direct ARC unavailable; MacBook SSH route works. WAN deferred."
 blocked_on:
   - "Prior r20 failed; later actual guarded product runner and owner ticket physical TCP4 accepted. Ordinary UI and final production activation decision remain open."
   - "Owner product scope/public release decision remains required. Guarded product VLESS LAN egress accepted, ordinary UI outstanding; CloudKit capability disabled. No automatic partial release or public enablement."
@@ -300,8 +300,9 @@ pending:
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "657dd464cd4c1cbb09c2c23e60cda06e81b53474 (signed ordinary UI candidate and 443 Swift/76 Python, unsigned product build)"
+last_verified_commit: "abddf5a6a43199e95a4bd8055911b14c98f377cf (signed ordinary UI XCTest candidate)"
 test_results:
+  - "25 Nov native-only Home fix ddc96ebf: 443 Swift/74 Python/preflight, unsigned ARM64 PASS. Private UI QA 76 contracts, later 18 focused, build-for-testing/strict app/runner signatures PASS. Physical UI NOT TESTED: Locked, no installation. Orchestrator prepared. ARC via MacBook SSH accessible."
   - "25 Nov actual path policy extraction: 440 Swift,12 Python contracts/preflight PASS; unsigned product ARM64 source8fb0ff30 PASS. Physical WAN/handoff NOT accepted, peer and radio authorization needed. No device changes."
   - "25 Nov actual product owner/ticket physical guarded TCP4 PASS, run 96766205-74AE-4D6F-B5AD-8898D195DFD1, ticketIssued/Consumed true, host98/160, peer2209/2635 witness1, exact hashes, native drain and cleanup true. Original signed app restored. 84 checks/preflight PASS. Intermediate CI 3 success/3 running. No ordinary UI or WAN acceptance."
   - "24 Nov actual containing-app owner QA candidate ARM64 build, exact Go/Rust hash and strict signatures PASS; 12+22+50 local checks/preflight PASS. Physical test blocked device Locked, no installation or user profile changes. Runner syntax only verified."
@@ -538,6 +539,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Signed ordinary UI candidate ready, no install. Prepare actual UI tap runner, prefer XCTest to avoid other Mac GUI work; exact synthetic peer correlation and cleanup/restore mandatory. Do not repeat accepted owner/runtime cases or reopen WAN. No owner proxy diagnosis, public activation, Apple changes, merge or upload."
+resume_instruction: "ARC only (use authorized MacBook SSH route if direct Mac mini temporarily unavailable). Read .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Native-only Home fix offline PASS; signed app/provider/XCTest runner ready, last iPhone state Locked, no device install or mutation. When unlocked verify provider OFF, runner absent and hashes, inspect native-artifacts/ios-030-product-ui-xctest-physical-20261125/journal.jsonl. If absent execute its syntax-checked run.py once; if present resume exact stage/cleanup, never repeat. Require real UI import unselected, explicit selection, peer-ready, Home Connect/Disconnect, independent hash/witness, cleanup and original binary restored. Missing cleanup requires exact QA journal recovery. No original proxy diagnosis, WAN reopening, public activation, Apple changes, merge or upload."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
