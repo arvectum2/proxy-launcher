@@ -1,11 +1,11 @@
 task_id: APL-IOS-NATIVE-UI-20261125
-status: in_progress
+status: completed
 goal: "Ordinary native VLESS import, selection, Home connect/disconnect and cleanup, without owner data changes."
 definition_of_done:
   - "Fix native-only Home action/label defect and verify regressions."
   - "Actual ordinary UI synthetic import/selection and Home connect/disconnect on iPhone, with guarded exact witness and verified cleanup."
   - "Public gate remains disabled until separately authorized."
-last_verified_commit: "abddf5a6a43199e95a4bd8055911b14c98f377cf (signed UI XCTest candidate, offline checks/build PASS)"
+last_verified_commit: "b9b7e8c20282db4ed21e486f829ee8b03bd3e328 (actual ordinary UI physical PASS and cleanup; 18 focused checks/preflight PASS)"
 steps:
   - step: 1
     action: "Inspect product UI and storage/manager boundaries."
@@ -21,5 +21,5 @@ steps:
     result: "BLOCKED last iPhone Locked during build-for-testing. Explicit UI XCTest, peer-ready gate, signed app/provider/runner, 18 focused checks/preflight, ARM64 test build and strict signatures PASS. Orchestrator syntax verified, no journal, no execution/device changes."
   - step: 5
     action: "Unlocked device, direct ARC recovered; prior XCTest runner installed. Preserve runner; use ARC iPhone Mirroring with same signed app and independent peer."
-    result: pending
-resume_instruction: "ARC only. Ordinary UI physical trial via ARC iPhone Mirroring, preserve preexisting XCTest runner. Inspect exact journal in native-artifacts/ios-030-product-ui-xctest-physical-20261125 before any device action. If absent run gui_prepare.py once. If present recover exact stage; no repeat. Independent ready marker only after explicit selection; stop/cleanup and restore exact original app. No public activation or owner proxy diagnosis."
+    result: "PASS run E9D04F1B-112F-4B62-B013-1599AF81F0A0 via actual ARC Mirroring taps: import unselected, explicit selection, exact peer-ready, Home start/stop once, ticket consumed, exact TCP98/160, peer witness1, cleanup true, original signed app restored, existing runner preserved. No QA provider/listeners. No XCTest execution claim."
+resume_instruction: "Completed; no repeat. Parent next CloudKit private opt-in and final security/licensing/privacy/release gates. WAN deferred."
