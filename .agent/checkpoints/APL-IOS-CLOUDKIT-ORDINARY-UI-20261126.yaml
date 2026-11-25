@@ -1,5 +1,5 @@
 task_id: APL-IOS-CLOUDKIT-ORDINARY-UI-20261126
-status: blocked
+status: in_progress
 goal: "Accept actual CloudKit UI without touching owner exclusions or active VPN."
 definition_of_done:
   - "Real view uses same production local save adapter; isolated QA uses synthetic data only."
@@ -9,4 +9,4 @@ steps:
   - "Read real view, accepted live QA and current device state; active owner tunnel."
   - "Signed ordinary screen QA source 449ae5ce, 17 contracts/preflight, ARM64 and strict signature PASS; original active VPN, physical test not run."
   - "Backup previous physical evidence reconciled; 73 current tests PASS, no repeat needed."
-resume_instruction: "ARC only. Owner standing scope decision in AGENTS.md governs. Signed ordinary CloudKit UI QA ready (docs/APL_IOS_030_CLOUDKIT_ORDINARY_UI_QA_2026-11-26.md); 17 contracts/preflight, ARM64, strict signature PASS. Original owner VPN active at last census; await authorization to interrupt, then actual UI/cleanup/restore. Reuse accepted 19 Nov backup physical evidence and 73 current tests; do not repeat. Same-account second physical device unavailable; request explicit scope decision if not available. Prepare exact unified VLESS+CloudKit release activation/signed acceptance after owner scope decision; no App Store submission without explicit permission. No WAN reopening."
+resume_instruction: "ARC only. Owner authorized temporary VPN interruption; Home Disconnect confirmed Netherlands 2 preserved and provider OFF. Inspect native-artifacts/ios-030-cloudkit-ui-physical-20261126 journal before any device action. Resume exact UI steps, cleanup and restore previous active VPN. Do not repeat or access owner cloud record."
