@@ -282,7 +282,7 @@ completed:
 
 
 
-current: "25 Nov CloudKit signed isolated live QA candidate a4e2cec2 prepared, 22 Python/preflight and ARM64/strict signatures PASS. Existing owner PacketTunnel active; no install or live cloud request until owner stops VPN or authorizes temporary interruption. Physical two-device acceptance pending."
+current: "25 Nov CloudKit live private Development exchange PASS on one iPhone with two independent service instances; stale conflict and cleanup verified. Original signed app and active Netherlands 2 VPN restored. Physical second-device and ordinary CloudKit UI pending; continue independent final release review. No public activation."
 blocked_on:
   - "Prior r20 failed; later actual guarded product runner and owner ticket physical TCP4 accepted. Ordinary UI and final production activation decision remain open."
   - "Owner product scope/public release decision remains required. Guarded product VLESS LAN egress accepted, ordinary UI outstanding; CloudKit capability disabled. No automatic partial release or public enablement."
@@ -300,8 +300,9 @@ pending:
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "03d7c0aadaacb01e6709c475991983ac1c221812 (isolated signed CloudKit QA candidate)"
+last_verified_commit: "328125a516f273227e6014e5de00b687c76e926b (CloudKit live exchange and original VPN restoration PASS)"
 test_results:
+  - "25 Nov actual CloudKit Development exchange 7AE47813-1358-44D7-A42C-AB4008A2CA31 PASS all receipt flags, two logical clients/one physical device, stale rejected and exact cleanup. Original APL and active Netherlands 2 VPN restored. 22 focused Python/preflight PASS. Physical second device and ordinary UI remain pending; no production deployment."
   - "25 Nov isolated CloudKit live QA source a4e2cec2: 22 Python/preflight, ARM64 build and strict Development signature PASS. Original VPN active; physical test NOT RUN; no install or CloudKit mutation."
   - "25 Nov CloudKit App ID capability and exact container saved, 3 affected profiles regenerated and installed, signed Development candidate and refreshed recovery strict signatures PASS. Portal valid; live cloud/two-device acceptance pending. No new accounts or certs."
   - "25 Nov CloudKit: 18 Swift/14 Python/preflight PASS; exact current unsigned opt-in ARM64 source d80dfe77 PASS. No local CloudKit provisioning; one paired iPhone; explicit capability/profile approval required. No additional accounts or external mutation; live acceptance NOT TESTED."
@@ -543,6 +544,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Owner authorized temporary VPN interruption; actual Home Disconnect tapped, selected profile Netherlands 2 preserved. Provider process census OFF. Continue one isolated CloudKit live run; inspect private artifact journal before every retry, verify exact signed candidate/recovery, never restore over unresolved cloud journal. No actual exclusion record, account switch, production schema deployment, public activation or upload."
+resume_instruction: "ARC only. Read latest physical CloudKit evidence in docs/APL_IOS_030_CLOUDKIT_EXISTING_ACCOUNT_GATE_2026-11-25.md. Real Development private CloudKit exchange run 7AE47813-1358-44D7-A42C-AB4008A2CA31 PASS with two logical clients on one physical iPhone; stale rejection, exact payload, deletion and original app/active Netherlands 2 VPN restored. Do not repeat. Second physical iOS device with same existing iCloud account and ordinary CloudKit UI acceptance still pending; no new accounts/sign-in change, do not interrupt active VPN without separate permission. Continue independent final security/licensing/privacy/source and CI review while awaiting second device. No production schema deploy, public activation, merge or upload without decision. WAN explicitly deferred."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

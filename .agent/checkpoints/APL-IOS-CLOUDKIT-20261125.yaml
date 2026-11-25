@@ -1,12 +1,12 @@
 task_id: APL-IOS-CLOUDKIT-20261125
-status: "in_progress"
+status: "blocked"
 goal: "Private CloudKit manual exclusions, existing Apple accounts only; no profile, credential or routing telemetry sync."
 definition_of_done:
   - "Current source local privacy, account expiry, optimistic concurrency and two-client contract tests PASS."
   - "Current source unsigned CloudKit opt-in ARM64 build and host-only entitlement verification."
   - "Existing Apple Developer App ID/container capability, valid matching provisioning, signed private two-instance acceptance with the same existing personal iCloud account; no new accounts or real exclusion overwrites."
   - "No public activation or upload before owner decision."
-last_verified_commit: "03d7c0aadaacb01e6709c475991983ac1c221812 (isolated signed CloudKit QA candidate; no live test)"
+last_verified_commit: "328125a516f273227e6014e5de00b687c76e926b (real CloudKit Development exchange PASS, original VPN restored)"
 steps:
   - step: 1
     action: "Read existing CloudKit service, acceptance and local profiles."
@@ -28,5 +28,8 @@ steps:
     result: "PASS three downloaded profiles and portal expiry, main previous certificate/device/core entitlement equality, second device portal selection preserved (old file unavailable locally). Strict app/provider and recovery signatures PASS, explicit Development environment, no device or cloud data mutation."
   - step: 7
     action: "Isolated live CloudKit acceptance and two-device conflict evidence."
-    result: "BLOCKED live test: original user PacketTunnel active, no permission to interrupt. Isolated signed QA a4e2cec2, 22 Python/preflight, ARM64/strict signatures PASS. No install or cloud request. One physical device, two logical clients planned; physical two-device still pending."
-resume_instruction: "ARC only. Owner authorized temporary VPN interruption; actual Home Disconnect tapped, selected profile Netherlands 2 preserved. Provider process census OFF. Continue one isolated CloudKit live run; inspect private artifact journal before every retry, verify exact signed candidate/recovery, never restore over unresolved cloud journal. No actual exclusion record, account switch, production schema deployment, public activation or upload."
+    result: "PASS actual CloudKit Development private exchange, two logical clients on one physical iPhone; exact revisions, stale conflict, cleanup and original app/VPN restoration. Physical second device and ordinary UI not yet accepted."
+  - step: 8
+    action: "Physical second-device and ordinary CloudKit UI acceptance."
+    result: "BLOCKED second suitable paired iOS device with same existing iCloud account unavailable; ordinary UI not physically tested. No new accounts."
+resume_instruction: "ARC only. Read latest physical CloudKit evidence in docs/APL_IOS_030_CLOUDKIT_EXISTING_ACCOUNT_GATE_2026-11-25.md. Real Development private CloudKit exchange run 7AE47813-1358-44D7-A42C-AB4008A2CA31 PASS with two logical clients on one physical iPhone; stale rejection, exact payload, deletion and original app/active Netherlands 2 VPN restored. Do not repeat. Second physical iOS device with same existing iCloud account and ordinary CloudKit UI acceptance still pending; no new accounts/sign-in change, do not interrupt active VPN without separate permission. Continue independent final security/licensing/privacy/source and CI review while awaiting second device. No production schema deploy, public activation, merge or upload without decision. WAN explicitly deferred."
