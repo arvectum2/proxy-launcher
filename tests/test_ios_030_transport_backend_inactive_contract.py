@@ -53,7 +53,11 @@ def test_isolated_host_only_bounded_explicit_owned_manager():
     assert 'URL(string:"http://"+address+":39883/"+value)' in host
     assert 'completionHandler(nil)' in host
     assert 'item.removeFromPreferences()' in host
-    assert '.onAppear' not in host and '.onDemandRules' not in host
+    assert '.onAppear' not in host
+    # A read-only empty-rules assertion strengthens the guard; never configure rules.
+    assert host.count('.onDemandRules') == 1
+    assert '(item.onDemandRules ?? []).isEmpty' in host
+    assert '.onDemandRules =' not in host and '.onDemandRules=' not in host
     assert 'NativeLabHost' not in (IOS / "project.yml").read_text()
 
 

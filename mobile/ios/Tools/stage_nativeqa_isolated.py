@@ -22,7 +22,22 @@ def replace_once(path, old, new):
 def stage(root):
     shared = root / "Shared/AppShared.swift"
     s = shared.read_text()
-    assert s.count(PRODUCT) == 5 and TEAM + "." + PRODUCT + ".shared" in s
+    # Allow only the reviewed product and private QA namespace literals.
+    # A new occurrence must be reviewed, not silently accepted.
+    expected = {
+        "group." + PRODUCT: 1,
+        PRODUCT + ".PacketTunnel": 1,
+        PRODUCT + ".synthetic-ui-qa.": 1,
+        PRODUCT + ".synthetic-owner-qa.": 1,
+        PRODUCT + ".": 1,
+        PRODUCT + ".synthetic-ui-qa.credentials": 1,
+        PRODUCT + ".credentials": 1,
+        TEAM + "." + PRODUCT + ".shared": 1,
+    }
+    import collections
+    import re
+    observed = collections.Counter(x for x in re.findall(r'"([^"]+)"', s) if PRODUCT in x)
+    assert observed == expected and s.count(PRODUCT) == sum(expected.values())
     shared.write_text(s.replace(PRODUCT, LAB))
     project = root / "project.yml"
     replace_once(project, "PRODUCT_BUNDLE_IDENTIFIER: " + PRODUCT + "\n", "PRODUCT_BUNDLE_IDENTIFIER: " + LAB + "\n")

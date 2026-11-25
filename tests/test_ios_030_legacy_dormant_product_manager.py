@@ -49,4 +49,11 @@ def test_native_product_start_remains_strict_and_no_cross_manager_repair():
     assert "ownsProductManager(readback,owner:owner)" in product
     assert "store.issueNativeProductLaunch(selection,owner:owner)" in product
     assert "legacyManagersExcludingDormantProduct" not in product
-    assert "removeFromPreferences" not in section("private func legacyManagersExcludingDormantProduct", "private func prepareProductManager")
+    block=section("private func legacyManagersExcludingDormantProduct", "private func prepareProductManager")
+    ordinary, marker, qa = block.partition("#if APL_PRODUCT_OWNER_QA")
+    assert marker and qa.rstrip().endswith("#endif")
+    assert "removeFromPreferences" not in ordinary
+    assert "owned.allSatisfy({productManagerMatchesOwner($0,owner:owner)})" in qa
+    assert "for item in owned {try await item.removeFromPreferences()}" in qa
+    assert qa.count("removeFromPreferences")==1
+    assert "APL_PRODUCT_OWNER_QA" not in (IOS/"project.yml").read_text()

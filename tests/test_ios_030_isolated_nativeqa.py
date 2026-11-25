@@ -40,6 +40,17 @@ def test_isolated_stage(tmp_path):
     assert "FileManager.default.removeItem(at:url)" in lib and "session.previewTransfer(NativeImportTransfer(records))" in lib
 
 
+def test_unknown_product_namespace_is_rejected(tmp_path):
+    root=tmp_path/"ios"
+    (root/"Shared").mkdir(parents=True)
+    shared=root/"Shared/AppShared.swift"
+    shared.write_text((IOS/"Shared/AppShared.swift").read_text()+'\nlet unexpected = "'+PRODUCT+'.new"\n')
+    before=shared.read_bytes()
+    with pytest.raises(AssertionError):
+        stage(root)
+    assert shared.read_bytes()==before
+
+
 
 def profile(ident):
     return {"Entitlements":{"application-identifier":TEAM+"."+ident,
