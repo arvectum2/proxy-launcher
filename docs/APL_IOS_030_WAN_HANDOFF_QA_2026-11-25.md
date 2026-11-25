@@ -15,3 +15,7 @@ Extracted NativePhysicalPathPolicy into SharedCore and connected both actual NWP
 Physical WAN and native handoff remain BLOCKED on controlled peer and explicit radio scope. The unit tests are not an independent hardware receipt. Ordinary UI, private CloudKit two-device acceptance and final release remain separate gates. No Apple changes, merge, upload or public activation.
 
 Unsigned ARM64 Release build with existing production flags and pinned Go/Rust archives succeeded at source 8fb0ff30; no QA flags or CloudKit activation. Artifact and hashes in native-artifacts/ios-030-wan-path-policy-release-20261125/path-policy-stage.json. Not installed, signed or physically accepted. No radio, device, proxy, account or public endpoint changes.
+
+## Owner scope decision — 25 November 2026
+
+Extended physical WAN/handoff is CLOSED / DEFERRED for this release by owner: no WAN server available or planned. NOT TESTED, not PASS. Reopen on relevant user complaints or availability of suitable controlled infrastructure. The preceding BLOCKED statement is historical; offline receipts and reopening procedure remain valid. No VPS procurement or port exposure. Other security, privacy, UI, CloudKit and release gates remain; no authorization to enable VLESS or publish.

@@ -1,9 +1,10 @@
 task_id: APL-IOS-WAN-HANDOFF-20261125
-status: blocked
+status: "completed"
 goal: "WAN and Wi-Fi/cellular native VLESS acceptance with independently witnessed synthetic traffic; validate actual selection and revoke policy."
+scope_decision: "25 Nov 2026: owner explicitly closes extended native WAN/Wi-Fi/LTE acceptance for the current release scope; no server available or planned. Physical WAN/handoff NOT TESTED (deferred, not PASS). Reopen upon user complaints about WAN/network switching OR availability of suitable controlled infrastructure. No VPS or public port now. Other security, privacy, UI, CloudKit and final release gates remain; no authorization to publish or activate VLESS."
 definition_of_done:
   - "Executable deterministic checks of actual physical selection and revoke-on-path-change policy."
-  - "Authorized isolated WAN peer reachable by both underlays, independent positive controls, physical Wi-Fi/cellular trial, bounded non-escape and cleanup."
+  - "Current release: document explicit owner deferral of physical WAN/handoff, missing evidence and reopening triggers; no physical PASS."
   - "Explicitly distinguish fail-closed/reconnect from seamless handoff; no owner proxy or radio mutation without permission."
 last_verified_commit: "efc480647c7851808c3a48fb99b26cf2690fcccc (440 Swift,12 Python, unsigned ARM64 source8fb0ff30)"
 steps:
@@ -15,5 +16,5 @@ steps:
     result: "PASS 5 new Swift path policy tests, full suite440, 12 Python contracts, release preflight and unsigned ARM64 product build source8fb0ff30. Behavior-preserving extraction; no seamless handoff implementation."
   - step: 3
     action: "Controlled public WAN peer and physical Wi-Fi/LTE tests."
-    result: "BLOCKED: existing peer LAN-only, no authorized external server or explicit current radio-switch scope. No device or external service mutations."
-resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-WAN-HANDOFF-20261125.yaml and docs/APL_IOS_030_WAN_HANDOFF_QA_2026-11-25.md. Offline path policy 440 Swift/12 Python PASS, unsigned product ARM64 source8fb0ff30 built. Physical WAN/native handoff blocked: no authorized independent public peer; require approved literal public IPv4 and dedicated port, controlled server egress, explicit temporary radio switching and owner present. Do not rent, expose ports or change owner radios/profiles without approval. Existing LAN and owner-ticket tests accepted, do not repeat. Owner deferred Основной. Once approved, build exact QA-only guard for authorized peer and execute independent Wi-Fi and LTE controls, new sessions and in-session revoke/cleanup; no seamless handoff claim. Ordinary UI and CloudKit gates independent. No Apple changes, upload, merge or public activation."
+    result: "DEFERRED BY OWNER 25 Nov: no WAN server now or planned. Physical test not performed; reopen on user complaints or suitable infrastructure. No device or external service mutations."
+resume_instruction: "Closed for current scope by owner; reopen only on user complaints or suitable controlled infrastructure. Use the existing acceptance protocol in docs/APL_IOS_030_WAN_HANDOFF_QA_2026-11-25.md. Parent next ordinary native UI, CloudKit and release gates."

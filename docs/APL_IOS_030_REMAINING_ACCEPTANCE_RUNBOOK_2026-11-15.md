@@ -27,3 +27,7 @@ S1 is simulator-only and may be completed independently if the simulator launch 
 ## Receipt format
 
 Record case ID, timestamp, exact source commit, artifact and inputs SHA-256, environment and scoped capability, expected/actual nonsecret counters, independent positive and negative controls, cleanup/baseline result, result PASS/FAIL/BLOCKED, and unresolved limitations. Never collect or store raw keys, passwords, full user profile data, cloud account ID, or network payload in these receipts. A skipped or unavailable prerequisite is BLOCKED, not PASS. The canonical checkpoint remains in_progress until the actual Definition of Done is satisfied.
+
+## Scope override — 25 November 2026
+
+Owner closes extended physical WAN/handoff for this release: N2 and the extended WAN/handoff portion of N1 are deferred, NOT TESTED, not mandatory current-scope blockers. Reopen on relevant user complaints or controlled WAN infrastructure becoming available. All other N1 and release requirements remain applicable. See APL_IOS_030_WAN_HANDOFF_QA_2026-11-25.md.

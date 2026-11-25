@@ -179,3 +179,7 @@ review flags, 337 Python +14 subtests PASS. Not a containing Release build.
 ### 17 November — exact product read-only reconciliation
 
 Exact production Go dependency graph 696 vs historical 697 packages: only AWG tun/tuntest removed, no new packages or changed module identities, go.mod and go.sum byte-identical. Exact signed App Store IPA SHA256 matched receipt, version 0.3.0(49), 64/64 localization directories present, 322 .strings resources. Native persistent profile screen uses RU/EN language branch with English fallback; full new native UI localization not established. Private product source-review kit staging was rejected and not executed; no tool or kit created. Legacy physical HTTPS acceptance remains PASS; exact native physical acceptance outstanding. No publication or device change in this reconciliation.
+
+## Owner scope update — 25 November 2026
+
+Extended native WAN/handoff is closed for the current release as deferred, not physical PASS. No server exists or is planned. Reopen on user complaints or suitable controlled infrastructure. Other release gates unchanged; no activation or publication authorization.
