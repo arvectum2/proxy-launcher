@@ -1,0 +1,17 @@
+task_id: APL-IOS-CLOUDKIT-20261125
+status: in_progress
+goal: "Private CloudKit manual exclusions, existing Apple accounts only; no profile, credential or routing telemetry sync."
+definition_of_done:
+  - "Current source local privacy, account expiry, optimistic concurrency and two-client contract tests PASS."
+  - "Current source unsigned CloudKit opt-in ARM64 build and host-only entitlement verification."
+  - "Existing Apple Developer App ID/container capability, valid matching provisioning, signed private two-instance acceptance with the same existing personal iCloud account; no new accounts or real exclusion overwrites."
+  - "No public activation or upload before owner decision."
+last_verified_commit: "bdf0382d ordinary VLESS UI physical PASS"
+steps:
+  - step: 1
+    action: "Read existing CloudKit service, acceptance and local profiles."
+    result: "No new account required in principle. Existing four APL development/distribution profiles lack CloudKit/container entitlement; development host lists one device. No Apple account or capability changes."
+  - step: 2
+    action: "Verify current contract and stage current unsigned CloudKit candidate."
+    result: "18 Swift (12 contracts + 6 two-client simulation), 14 Python, release preflight PASS. Stage/build next."
+resume_instruction: "ARC only. Existing accounts only. Stage unsigned opt-in, preserve release gate; get explicit approval of App ID/container/provisioning changes before external mutation. No real iCloud data, sign-out, credentials, or other device registration without approval."

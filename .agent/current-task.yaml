@@ -540,6 +540,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read completed .agent/checkpoints/APL-IOS-NATIVE-UI-20261125.yaml and docs/APL_IOS_030_ORDINARY_NATIVE_UI_QA_2026-11-25.md. Ordinary native VLESS UI physical guarded LAN PASS; import unselected, explicit selection, actual Home connect/disconnect, independent exact receipt and cleanup accepted. Original signed app restored, existing XCTest runner preserved. No repeat. WAN/handoff explicitly deferred until user complaints or controlled infrastructure. NEXT inspect private CloudKit opt-in/two-device and remaining security/licensing/privacy/release gates; complete safe offline work, do not change Apple capabilities/profiles, activate public VLESS, merge or upload without separate owner authorization. No diagnosis of Основной."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-CLOUDKIT-20261125.yaml. Existing accounts only, CloudKit capability/profile prerequisite; current offline verification and unsigned staging. No external Apple changes without specific approval, no public enablement."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
