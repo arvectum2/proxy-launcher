@@ -39,3 +39,17 @@ def test_actual_screens_and_user_action_evidence():
     assert 'qaRemoveEmptyCatalog()' in v and 'qaUIClearIsolatedPreferences()' in v
     assert '"--apl-authorized-product-ui-cleanup"' in v
     assert 'releaseAuthorized":false' in v
+
+
+def test_physical_ui_runner_waits_for_independent_peer():
+    v=source("App/ProductOrdinaryUIQAView.swift")
+    x=source("Tests/UITests/PhysicalProductOrdinaryUIQATests.swift")
+    assert "value.runID==context.input.runID,value.ready" in v
+    assert "selected && !peerReady" in v
+    assert 'selected,peerReady,model.qaUIToggleStarts==1' in v
+    assert 'APL_RUN_EXPLICIT_PRODUCT_UI_QA && !targetEnvironment(simulator)' in x
+    for token in ('review.tap()','save.tap()','select.tap()','confirm.tap()','connect.tap()','stop.tap()','clean.tap()'):
+        assert token in x
+    assert x.index('Peer ready — tap Home Connect')<x.index('connect.tap()')
+    assert x.index('Receipt PASS — tap Home Disconnect')<x.index('stop.tap()',x.index('Receipt PASS — tap Home Disconnect'))
+    assert 'APL_RUN_EXPLICIT_PRODUCT_UI_QA' not in source("project.yml")

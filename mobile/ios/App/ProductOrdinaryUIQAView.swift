@@ -22,6 +22,7 @@ import CryptoKit
     static let domain="ru.arvectum.proxylauncher.ios.synthetic-ui-prefs"
     static var dir:URL {FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]}
     static var journalURL:URL {dir.appendingPathComponent("apl-product-ui-qa-journal.json")}
+    static var peerReadyURL:URL {dir.appendingPathComponent("apl-product-ui-qa-peer-ready.json")}
     static var resultURL:URL {dir.appendingPathComponent("apl-product-ui-qa-result.json")}
     static func write(_ receipt:[String:Any]) {
         if let bytes=try? JSONSerialization.data(withJSONObject:receipt,options:.sortedKeys) {
@@ -36,7 +37,8 @@ import CryptoKit
         let url=dir.appendingPathComponent("apl-product-ui-qa-input.json")
         let attrs=try url.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey,.fileSizeKey])
         guard attrs.isRegularFile==true,attrs.isSymbolicLink==false,(1...8192).contains(attrs.fileSize ?? 0),
-            !FileManager.default.fileExists(atPath:journalURL.path) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+            !FileManager.default.fileExists(atPath:journalURL.path),
+            !FileManager.default.fileExists(atPath:peerReadyURL.path) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         let bytes=try Data(contentsOf:url)
         guard bytes.count<=8192 else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         let input=try JSONDecoder().decode(Input.self,from:bytes)
@@ -94,6 +96,7 @@ import CryptoKit
         store.qaUIClearIsolatedPreferences()
         guard store.qaUIStoreIsEmpty() else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         UserDefaults(suiteName:domain)?.removePersistentDomain(forName:domain)
+        if FileManager.default.fileExists(atPath:peerReadyURL.path) {try FileManager.default.removeItem(at:peerReadyURL)}
         try FileManager.default.removeItem(at:journalURL)
     }
 }
@@ -133,6 +136,7 @@ import CryptoKit
     @State private var showImport=true
     @State private var imported=false
     @State private var selected=false
+    @State private var peerReady=false
     @State private var witnessStarted=false
     @State private var exact=false
     @State private var connected=false
@@ -156,7 +160,7 @@ import CryptoKit
                             .disabled(busy || model.vpn.isConnectedOrConnecting || model.vpn.status == .disconnecting)
                     }.padding(6)
                     ContentView()
-                        .disabled(busy)
+                        .disabled(busy || (selected && !peerReady))
                         .environmentObject(model)
                         .defaultAppStorage(context.preferences)
                 }
@@ -167,6 +171,7 @@ import CryptoKit
                 }
                 .onChange(of:model.nativeLibraryOverview){_ in refreshEvidence()}
                 .onChange(of:model.vpn.status){_ in Task{await observeVPN()}}
+                .task(id:selected){if selected {await waitForPeer()}}
             }
         }
         .onAppear{publish()}
@@ -175,7 +180,7 @@ import CryptoKit
         ProductUIQA.write([
             "runID":context.input.runID.uuidString,
             "actualOrdinaryUI":true,"importedUnselected":imported,
-            "selectedExplicitly":selected,"homeStarts":model.qaUIToggleStarts,
+            "selectedExplicitly":selected,"peerReady":peerReady,"homeStarts":model.qaUIToggleStarts,
             "homeStops":model.qaUIToggleStops,"connected":connected,
             "ticketConsumed":ticketConsumed,"exactWitness":exact,
             "disconnectedByHome":disconnectedByHome,"cleaned":cleaned,
@@ -193,7 +198,7 @@ import CryptoKit
                     guard imported,selection.reference==ref,snapshot.selected==ref,
                         selection.nonce==snapshot.selectionNonce else{throw NativeCredentialReceiver.Failure.invalidIdentity}
                     selected=true
-                    if !connected{banner="Selected — close import sheets and tap Home Connect"}
+                    if !connected && !peerReady{banner="Selected — waiting for independent peer"}
                 } else if snapshot.selected==nil {
                     imported=true;banner="Imported — select the VLESS row"
                 }
@@ -201,13 +206,32 @@ import CryptoKit
             publish()
         }catch{failure=true;banner="QA evidence invalid; cleanup required";publish()}
     }
+    private func waitForPeer()async {
+        guard !peerReady,!failure,!cleaned else{return}
+        struct Ready:Decodable {let runID:UUID;let ready:Bool}
+        let deadline=Date().addingTimeInterval(35)
+        while !Task.isCancelled && Date()<deadline && !cleaned {
+            if FileManager.default.fileExists(atPath:ProductUIQA.peerReadyURL.path) {
+                do {
+                    let attrs=try ProductUIQA.peerReadyURL.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey,.fileSizeKey])
+                    guard attrs.isRegularFile==true,attrs.isSymbolicLink==false,(1...512).contains(attrs.fileSize ?? 0) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+                    let value=try JSONDecoder().decode(Ready.self,from:Data(contentsOf:ProductUIQA.peerReadyURL))
+                    guard value.runID==context.input.runID,value.ready else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+                    try FileManager.default.removeItem(at:ProductUIQA.peerReadyURL)
+                    peerReady=true;banner="Peer ready — tap Home Connect";publish();return
+                }catch{failure=true;banner="Peer marker invalid";publish();return}
+            }
+            do{try await Task.sleep(nanoseconds:500_000_000)}catch{return}
+        }
+        if !Task.isCancelled && !cleaned {failure=true;banner="Peer unavailable — QA Cleanup";publish()}
+    }
     private func observeVPN()async {
         guard !cleaned,!failure else{return}
         if model.vpn.status == .connected && !witnessStarted {
             witnessStarted=true
             do {
                 refreshEvidence()
-                guard !failure,imported,selected,model.qaUIToggleStarts==1,
+                guard !failure,imported,selected,peerReady,model.qaUIToggleStarts==1,
                     model.qaUIToggleStops==0,model.vpn.qaLaunch?.ticket.purpose == .productStart else{throw NativeCredentialReceiver.Failure.invalidIdentity}
                 connected=true
                 ticketConsumed=try NativeCredentialKeychain(purpose:.handoff).handoffAccountsForValidation().isEmpty

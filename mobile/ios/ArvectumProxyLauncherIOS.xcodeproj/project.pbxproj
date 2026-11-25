@@ -18,6 +18,7 @@
 		0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
 		0A7E1E94C6F7C44A05EAE588 /* SmartFlowRoutingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */; };
 		0B6DA474EAA2172857BA559D /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
+		0B9A014D550DF6D23A514559 /* PhysicalProductOrdinaryUIQATests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760F51015BAE9E044D3F5CA3 /* PhysicalProductOrdinaryUIQATests.swift */; };
 		0C1394221D3D806A769EF08B /* NativeTunnelRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */; };
 		0C2FADD9A379E9A407602A29 /* NativeCredentialRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9369FC5EF32F2948046AFB2 /* NativeCredentialRecord.swift */; };
 		0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */; };
@@ -543,6 +544,7 @@
 		74C5FFBC0F502771EB771D97 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		74CDA8105FE1E8BB12D9E935 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		751E6300F0328159413E5DFF /* ProfileBackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackupView.swift; sourceTree = "<group>"; };
+		760F51015BAE9E044D3F5CA3 /* PhysicalProductOrdinaryUIQATests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalProductOrdinaryUIQATests.swift; sourceTree = "<group>"; };
 		763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngineHandoff.swift; sourceTree = "<group>"; };
 		76A7B3DE8859653E562DA32B /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/NativeProfiles.strings; sourceTree = "<group>"; };
 		76FF1E86EDCFD16D0565622F /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
@@ -952,6 +954,7 @@
 				CB05015E437CC3A716B8540F /* NativeBatchReviewUITests.swift */,
 				29D682428918BF049732235B /* NativeFilesReviewUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
+				760F51015BAE9E044D3F5CA3 /* PhysicalProductOrdinaryUIQATests.swift */,
 				31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */,
 				23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */,
 				F1466211D399BCFEA6B1A63C /* PhysicalUpgradeReadOnlyUITests.swift */,
@@ -1492,6 +1495,7 @@
 				CB8311324C7EA2F5E6BD1C70 /* NativeBatchReviewUITests.swift in Sources */,
 				8B586C5DB8D44F16109974C0 /* NativeFilesReviewUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
+				0B9A014D550DF6D23A514559 /* PhysicalProductOrdinaryUIQATests.swift in Sources */,
 				532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */,
 				8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */,
 				57BAAE35E7C2B77B580887E8 /* PhysicalUpgradeReadOnlyUITests.swift in Sources */,
