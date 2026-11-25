@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -284,7 +284,7 @@ completed:
 
 
 
-current: "26 Nov physical ordinary CloudKit screen PASS with synthetic local adapter and real Development cloud; prior app and active VPN restored. One iPhone only. Final unified release scope, signed candidate and integration remain."
+current: "26 Nov owner-approved unified 0.3.0(49) source1acf654d; VLESS+CloudKit activated in exact signed staged archive, both AppStore/Development IPA exports and signatures PASS. Final signed upgrade smoke, main integration, source/notice delivery, production schema and submission pending authorization. Second device deferred."
 blocked_on:
   - "Actual guarded VLESS runner, owner/ticket and ordinary UI physical LAN accepted; final public activation decision remains."
   - "VLESS guarded LAN ordinary UI accepted; CloudKit capability/profiles enabled and private Development exchange accepted; ordinary CloudKit UI/second device and production schema remain. Public activation decision required."
@@ -293,7 +293,7 @@ blocked_on:
   - "CloudKit ordinary UI physical test and second device scope; no owner credential export."
   - "Production security/licensing and CloudKit private two-device require their own accepted proof and owner supervision. Extended physical WAN/handoff is deferred by owner, not passed."
 pending:
-  - "Ordinary CloudKit UI with synthetic exclusions and cleanup PASS; second physical device same account pending."
+  - "Ordinary CloudKit UI accepted; second physical device deferred by owner, not tested."
   - "After owner scope decision, verify exact latest GitHub checks, choose public release scope, consider required licensing/source notices, then request explicit App Store Connect upload/submission approval and perform only authorized actions. Existing signed IPA can be reused if runtime unchanged."
   - "Native WG synthetic LAN transport/DNS acceptance completed. Extended WAN/handoff for native protocols deferred by owner until user complaints or suitable infrastructure."
   - "Unsigned engineering audit complete; remaining source/notice delivery, exact-head CI and final signed acceptance."
@@ -302,8 +302,9 @@ pending:
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "CloudKit same-account second device and final upgrade smoke; previous physical encrypted backup cycle already accepted and 73 current tests PASS."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "432ab9374e3426b1da0904d8ab892cd1bedb3fd0 (ordinary CloudKit physical UI PASS)"
+last_verified_commit: "9e5e007f10e734d58147fd842f66b9e583dde932 (both unified IPAs verified)"
 test_results:
+  - "26 Nov exact unified signed archive and two IPA exports PASS, source1acf654d, 443 Swift/464 Python/87 subtests, profile/entitlement/Mach-O UUID and preflight verified; 411+15 private inventory files. Final upgrade smoke not run; no device mutation/upload."
   - "26 Nov ordinary CloudKit UI FC281705-63AB-45E4-B7A0-EDF95B3B2E76 PASS actual taps and live cloud, isolated local adapter, exact cleanup, original app and active VPN restored; one physical device only."
   - "26 Nov 17 CloudKit contracts/preflight, ARM64 and signed ordinary screen QA PASS. 73 backup-focused Swift PASS, 19 Nov physical positive/negative+cleanup accepted. No device install or cloud mutation."
   - "25 Nov exact unsigned audit: 443 Swift/462 Python/87 subtests and release preflight PASS, ARM64 source afd7ace6, Go11/Rust214 link-map entries, 26 manifests unchanged. 3 old QA contracts fixed at a726889b. Release not cleared. No device mutation."
@@ -549,6 +550,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-030-UNIFIED-FINAL-20261126.yaml. Owner approved unified VLESS+CloudKit release activation and final signed build, second-device deferred. Preserve running VPN, no repeat of accepted tests, no production schema mutation/merge/upload without separate authorization. Follow AGENTS.md."
+resume_instruction: "ARC only. Read docs/APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md and child checkpoint. Exact unified signed source1acf654d, both IPA export/strict signature/CloudKit environment/preflight PASS; no repeat build. Next final signed Development in-place upgrade smoke with explicit temporary VPN interruption authorization and refreshed restore app, preserve selected profile, then exact integration review/CI and owner-approved public source/notice delivery, production schema deployment and App Store submission. Second physical device and WAN deferred. Follow AGENTS.md. No upload/main merge without explicit authorization."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
