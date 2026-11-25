@@ -32,6 +32,32 @@ enum IOSAppRoutingMode: String, CaseIterable, Identifiable {
 }
 
 final class ProfileStore {
+#if APL_PRODUCT_UI_QA
+    private enum Key {
+        static let profiles = "qa_ordinary_ui.profiles.v1"
+        static let organization = "qa_ordinary_ui.profile_organization.v1"
+        static let quality = "qa_ordinary_ui.profile_quality.v1"
+        static let selectedProfileID = "qa_ordinary_ui.selected_profile_id"
+        static let automaticSelection = "qa_ordinary_ui.automatic_selection"
+        static let primaryProfileID = "qa_ordinary_ui.primary_profile_id"
+        static let restorePolicy = "qa_ordinary_ui.restore_policy"
+        static let exclusions = "qa_ordinary_ui.site_exclusions"
+        static let manualExclusions = "qa_ordinary_ui.manual_site_exclusions.v2"
+        static let smartGraph = "qa_ordinary_ui.smart_dependency_graph.v1"
+        static let automaticSiteExpansion = "qa_ordinary_ui.automatic_site_expansion.v1"
+        static let adaptiveLearning = "qa_ordinary_ui.smart_route_evidence.v1"
+        static let lastAutoProfileID = "qa_ordinary_ui.last_auto_profile_id"
+        static let recentlyFailedProfileID = "qa_ordinary_ui.recently_failed_profile_id"
+        static let recentlyFailedAt = "qa_ordinary_ui.recently_failed_at"
+        static let lastFailoverAt = "qa_ordinary_ui.last_failover_at"
+        static let iosAppRoutingMode = "qa_ordinary_ui.ios_app_routing_mode"
+        static let nativeProductOwner = "qa_ordinary_ui.native_product_owner.v1"
+        static let nativeProductSelection = "qa_ordinary_ui.native_product_selection.v1"
+        static let all = [profiles, organization, quality, selectedProfileID, automaticSelection, primaryProfileID, restorePolicy, exclusions, manualExclusions, smartGraph, automaticSiteExpansion, adaptiveLearning, lastAutoProfileID, recentlyFailedProfileID, recentlyFailedAt, lastFailoverAt, iosAppRoutingMode, nativeProductOwner, nativeProductSelection]
+    }
+    func qaUIStoreIsEmpty()->Bool {Key.all.allSatisfy{defaults.object(forKey:$0)==nil}}
+    func qaUIClearIsolatedPreferences() {for key in Key.all {defaults.removeObject(forKey:key)}}
+#else
     private enum Key {
         static let profiles = "profiles.v1"
         static let organization = "profile_organization.v1"
@@ -60,6 +86,8 @@ final class ProfileStore {
 #endif
         static let iosAppRoutingMode = "ios_app_routing_mode"
     }
+
+#endif
 
     private let defaults: UserDefaults
     private let encoder = JSONEncoder()

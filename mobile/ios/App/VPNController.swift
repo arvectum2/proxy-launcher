@@ -77,8 +77,13 @@ final class VPNController: ObservableObject {
 #if APL_NATIVE_PRODUCT_RUNTIME
                 if try await prepareProductManager() {refreshStatus();return}
 #endif
+#if APL_PRODUCT_UI_QA
+                // Ordinary startup must not create a legacy manager in this lane.
+                manager=nil;refreshStatus()
+#else
                 manager = try await loadOrCreateManager()
                 refreshStatus()
+#endif
             }
         } catch {
             detail = ProxyFailureReason.safeDisplay(
@@ -285,7 +290,10 @@ final class VPNController: ObservableObject {
     #endif
 
 #if APL_NATIVE_PRODUCT_RUNTIME
-    #if APL_PRODUCT_OWNER_QA
+    #if APL_PRODUCT_UI_QA
+    private static let productConfigurationName="APL Native Product Synthetic UI QA"
+    private(set) var qaLaunch:ProfileStore.ProductLaunch?
+    #elseif APL_PRODUCT_OWNER_QA
     private static let productConfigurationName="APL Native Product Synthetic QA"
     private(set) var qaLaunch:ProfileStore.ProductLaunch?
     #else

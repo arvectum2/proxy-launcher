@@ -9,7 +9,7 @@ def test_namespace_and_release_isolation():
     assert 'APL Native Product Synthetic QA' in source("App/VPNController.swift")
     assert 'APL_PRODUCT_OWNER_QA' not in source("project.yml")
     assert "'APL_PRODUCT_OWNER_QA'" in source("Tools/stage_ios_030_release_candidate.py")
-    assert '#if APL_PRODUCT_OWNER_QA\n@main' in source("App/ArvectumProxyLauncherApp.swift")
+    assert '#elseif APL_PRODUCT_OWNER_QA\n@main' in source("App/ArvectumProxyLauncherApp.swift")
 def test_exact_ticket_and_transport_path():
     p=source("App/ProductOwnerQAView.swift")
     assert 'try await vpn.connect()' in p

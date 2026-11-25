@@ -38,8 +38,13 @@ enum ProxySubscriptionStoreError: Error {
 /// Unlike source-only signed managed manifests, this is user-approved
 /// manual or explicitly opted-in foreground refresh; it never rewrites profiles or changes the active VPN.
 final class ProxySubscriptionStore {
+    #if APL_PRODUCT_UI_QA
+    private static let metadataKey = "qa_ordinary_ui.proxy_subscriptions.v1"
+    private static let service = "ru.arvectum.proxylauncher.ios.synthetic-ui-qa.subscription"
+    #else
     private static let metadataKey = "proxy_subscriptions.v1"
     private static let service = "ru.arvectum.proxylauncher.ios.subscription.source.v1"
+    #endif
     private static let maxSaved = 12
     private let defaults: UserDefaults
 

@@ -44,6 +44,7 @@
 		1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		2116633C9FAC4573C24C7E78 /* NativeAutomaticImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E51202BDBA5888B7E6B243 /* NativeAutomaticImport.swift */; };
 		21B8BD7485A20FA97AA0EB10 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
+		220679FC6FFBB23935953664 /* ProductOrdinaryUIQAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59446B8FD76B73782ACE800 /* ProductOrdinaryUIQAView.swift */; };
 		223402984B9C755CE6B9357D /* PrivacyDetails.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FEE8CC7ABE21CB78AB07E5E /* PrivacyDetails.strings */; };
 		24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		265A8F49C43D1A01B9268895 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */; };
@@ -838,6 +839,7 @@
 		F5419CC30EAAD00A1DFF9D5C /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		F551E0A0F6293F6337E24BBA /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/SmartExclusions.strings"; sourceTree = "<group>"; };
 		F58D1F2D461D37494D7C09FE /* hy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hy; path = hy.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		F59446B8FD76B73782ACE800 /* ProductOrdinaryUIQAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductOrdinaryUIQAView.swift; sourceTree = "<group>"; };
 		F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportBackendContract.swift; sourceTree = "<group>"; };
 		F682DF9092D1F371B56D6CE8 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLayoutProbe.swift; sourceTree = "<group>"; };
@@ -1121,6 +1123,7 @@
 				C54EC389905ECC8C8E1E33C5 /* NativeProfileReviewLabView.swift */,
 				1DA8201D40F35234585B067E /* NativeRuntimeReviewQAView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
+				F59446B8FD76B73782ACE800 /* ProductOrdinaryUIQAView.swift */,
 				EF20A6876B9C5689B4501810 /* ProductOwnerQAView.swift */,
 				0E65F6FC66967039D32722A9 /* ProfileBackupUX.swift */,
 				751E6300F0328159413E5DFF /* ProfileBackupView.swift */,
@@ -1588,6 +1591,7 @@
 				89147259BFDEAE36EB6B638B /* NativeWireGuardRuntimeConfig.swift in Sources */,
 				5599D7A0AEA9FD389088114C /* OwnedNativeControlSlot.swift in Sources */,
 				6505267B8F563DB2F6BE254C /* PrivacyDisclosureView.swift in Sources */,
+				220679FC6FFBB23935953664 /* ProductOrdinaryUIQAView.swift in Sources */,
 				E55594FD212352DC199C2DA9 /* ProductOwnerQAView.swift in Sources */,
 				3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */,
 				0DE07E70231418DFAB188C90 /* ProfileBackupRestorePlan.swift in Sources */,

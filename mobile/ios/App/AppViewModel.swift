@@ -451,7 +451,15 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    #if APL_PRODUCT_UI_QA
+    private(set) var qaUIToggleStarts=0
+    private(set) var qaUIToggleStops=0
+    #endif
     func toggleVPN() async {
+        #if APL_PRODUCT_UI_QA
+        if vpn.isConnectedOrConnecting {qaUIToggleStops+=1}
+        else {qaUIToggleStarts+=1}
+        #endif
         errorMessage = nil
         if vpn.isConnectedOrConnecting {
             vpn.disconnect()
