@@ -12,5 +12,8 @@ steps:
     result: "Home checks only legacy list: native-only selection incorrectly shows Add proxy and bypasses real toggle. Ordinary model can scan owner proxies; require isolated storage and manager before device QA."
   - step: 2
     action: "Correct Home action/label and verify pure policy and product compilation."
+    result: "PASS native-only Home fix ddc96ebf; 443 Swift, 24 focused Python +50 release tests, preflight, unsigned ARM64 Release. No device mutation."
+  - step: 3
+    action: "Prepare private ordinary UI QA namespace and bounded recovery; use actual ContentView and ProxyImportView."
     result: pending
 resume_instruction: "Finish Home correction and tests; then safe ordinary UI QA. No owner proxy diagnosis or profile writes; no WAN reopening or public activation."
