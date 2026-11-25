@@ -20,18 +20,7 @@ import Network
     private var completion:((Error?)->Void)?
     private var timeout:Task<Void,Never>?
     private var monitor:NWPathMonitor?
-    private var baseline:PathSignature?
-    private struct PathSignature:Equatable {
-        let status:Network.NWPath.Status
-        let interfaces:[String]
-        let expensive:Bool
-        let constrained:Bool
-        init(_ path:Network.NWPath){
-            status=path.status
-            interfaces=path.availableInterfaces.map{$0.name+":"+String(describing:$0.type)+":"+String(path.usesInterfaceType($0.type))}.sorted()
-            expensive=path.isExpensive;constrained=path.isConstrained
-        }
-    }
+    private var pathSession=NativePhysicalPathPolicy.Session()
     private func error(_ code:Int)->NSError{NSError(domain:"APLNativeRuntimeReview",code:code)}
     private func finish(_ failure:Error?){let reply=completion;completion=nil;reply?(failure)}
     func start(provider:NEPacketTunnelProvider,options:[String:NSObject]?,completionHandler:@escaping(Error?)->Void)async{
@@ -136,11 +125,13 @@ import Network
 #endif
             let watcher=NWPathMonitor();monitor=watcher
             watcher.pathUpdateHandler={[weak self,weak provider] path in
-                let signature=PathSignature(path)
+                let signature=NativePhysicalPathPolicy.Signature(
+                    satisfied:path.status == .satisfied,
+                    interfaces:path.availableInterfaces.map{$0.name+":"+String(describing:$0.type)+":"+String(path.usesInterfaceType($0.type))},
+                    expensive:path.isExpensive,constrained:path.isConstrained)
                 Task{@MainActor in
                     guard let self,let provider,!self.retired else{return}
-                    if signature.status != .satisfied || (self.baseline != nil && self.baseline != signature){self.invalidate(provider:provider,code:4)}
-                    else{self.baseline=signature}
+                    if !self.pathSession.observe(signature){self.invalidate(provider:provider,code:4)}
                 }
             }
             watcher.start(queue:DispatchQueue(label:"apl.native.review.path"))

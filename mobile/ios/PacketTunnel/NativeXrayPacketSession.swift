@@ -149,10 +149,10 @@ private final class NativeVLESSPhysicalPathReceipt: @unchecked Sendable {
             let receipt = NativeVLESSPhysicalPathReceipt(monitor: monitor, continuation: continuation)
             monitor.pathUpdateHandler = { path in
                 guard path.status == .satisfied else { return }
-                let names = Set(path.availableInterfaces.filter {
+                let names = path.availableInterfaces.filter {
                     ($0.type == .wifi || $0.type == .cellular) && path.usesInterfaceType($0.type)
-                }.map(\.name))
-                receipt.finish(names.count == 1 ? names.first : nil)
+                }.map(\.name)
+                receipt.finish(NativePhysicalPathPolicy.uniqueInterface(satisfied:true,eligibleNames:names))
             }
             queue.asyncAfter(deadline: .now() + 4) { receipt.finish(nil) }
             monitor.start(queue: queue)
