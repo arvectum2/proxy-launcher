@@ -544,6 +544,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read latest physical CloudKit evidence in docs/APL_IOS_030_CLOUDKIT_EXISTING_ACCOUNT_GATE_2026-11-25.md. Real Development private CloudKit exchange run 7AE47813-1358-44D7-A42C-AB4008A2CA31 PASS with two logical clients on one physical iPhone; stale rejection, exact payload, deletion and original app/active Netherlands 2 VPN restored. Do not repeat. Second physical iOS device with same existing iCloud account and ordinary CloudKit UI acceptance still pending; no new accounts/sign-in change, do not interrupt active VPN without separate permission. Continue independent final security/licensing/privacy/source and CI review while awaiting second device. No production schema deploy, public activation, merge or upload without decision. WAN explicitly deferred."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-030-FINAL-AUDIT-20261125.yaml; CloudKit two-logical-client live PASS, ordinary UI/second physical device pending. WAN deferred. Keep active owner VPN untouched. Immutable unsigned artifact and offline audit; no ads changes, publication, public activation or production CloudKit schema deployment."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
