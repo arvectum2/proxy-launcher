@@ -1,5 +1,5 @@
 task_id: APL-IOS-CLOUDKIT-20261125
-status: "blocked"
+status: completed
 goal: "Private CloudKit manual exclusions, existing Apple accounts only; no profile, credential or routing telemetry sync."
 definition_of_done:
   - "Current source local privacy, account expiry, optimistic concurrency and two-client contract tests PASS."
@@ -32,4 +32,7 @@ steps:
   - step: 8
     action: "Physical second-device and ordinary CloudKit UI acceptance."
     result: "BLOCKED second suitable paired iOS device with same existing iCloud account unavailable; ordinary UI physical PASS with synthetic local adapter. No new accounts."
-resume_instruction: "Actual Development exchange and ordinary UI with synthetic local adapter PASS; no repeat. Physical second device same account unavailable, actual production save/reconnect separate. Await owner scope decision; no new account or production deployment without approval."
+  - step: 9
+    action: "Owner scope decision"
+    result: "One physical iPhone and two logical clients accepted for current release; second physical device deferred, not PASS."
+resume_instruction: "Completed for owner-approved scope. 26 Nov second physical device deferred to subsequent release; not tested. Actual production save/reconnect not claimed. No repeat of accepted Development exchange or ordinary synthetic UI."

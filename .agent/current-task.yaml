@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "26 Nov owner approved final unified 0.3.0 scope including VLESS Reality and CloudKit; second physical same-account device explicitly deferred to later update, not tested. Actual one-device two-client and ordinary UI evidence accepted for this scope."
   - "26 Nov owner reaffirmed AGENTS.md standing decision; closed owner scope is not an active release gate. Continue technical acceptance without reopening."
   - "25 Nov 2026: owner explicitly closes extended native WAN/Wi-Fi/LTE acceptance for the current release scope; no server available or planned. Physical WAN/handoff NOT TESTED (deferred, not PASS). Reopen upon user complaints about WAN/network switching OR availability of suitable controlled infrastructure. No VPS or public port now. Other security, privacy, UI, CloudKit and final release gates remain; no authorization to publish or activate VLESS."
   - "24 Nov provider-direct v3 physical exact HTTP PASS and historical manager conflict resolved non-destructively; pre/post census identical, prior lab restored and synthetic keys/listeners removed. Dedicated checkpoint completed."
@@ -548,6 +549,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Follow AGENTS.md owner decision. Physical ordinary CloudKit screen PASS FC281705-63AB-45E4-B7A0-EDF95B3B2E76 actual cloud and synthetic local adapter; original app and Netherlands 2 VPN restored. Backup accepted 19 Nov, VLESS LAN accepted, WAN deferred. One physical iPhone only. Next prepare explicit production activation/build plan and exact signed upgrade smoke, confirm second-device scope and public VLESS/CloudKit activation before changing gate/schema; do not repeat accepted tests. No merge/upload without explicit approval."
+resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-030-UNIFIED-FINAL-20261126.yaml. Owner approved unified VLESS+CloudKit release activation and final signed build, second-device deferred. Preserve running VPN, no repeat of accepted tests, no production schema mutation/merge/upload without separate authorization. Follow AGENTS.md."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
