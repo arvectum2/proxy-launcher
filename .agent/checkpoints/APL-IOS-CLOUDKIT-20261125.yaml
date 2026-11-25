@@ -1,5 +1,5 @@
 task_id: APL-IOS-CLOUDKIT-20261125
-status: "blocked"
+status: "in_progress"
 goal: "Private CloudKit manual exclusions, existing Apple accounts only; no profile, credential or routing telemetry sync."
 definition_of_done:
   - "Current source local privacy, account expiry, optimistic concurrency and two-client contract tests PASS."
@@ -20,4 +20,7 @@ steps:
   - step: 4
     action: "Owner explicitly approved existing App ID CloudKit/container and affected provisioning regeneration, no additional accounts or certificates."
     result: "Owner approval recorded. Existing Apple Development and Apple Distribution identities valid. Safari portal redirects to sign-in; BLOCKED on owner authentication. No external mutations."
-resume_instruction: "ARC only. Owner approved existing App ID iCloud/CloudKit capability/container and affected profile regeneration on 25 Nov. Safari on Mac mini redirected Apple Developer portal to idmsa.apple.com sign-in; await owner authentication in existing company account. No account/certificates/capabilities/profiles changed. After sign-in verify LLC ARVECTUM team and exact host App ID, inspect current capabilities/container, enable only approved CloudKit and regenerate affected host profiles preserving unrelated entitlements and existing certificates. Verify signed isolated development candidate; no actual user exclusion overwrite, no public schema deployment/activation/upload. No new accounts."
+  - step: 5
+    action: "Activate exact existing host capability via authorized MacBook Safari."
+    result: "Container created and saved, App ID change confirmed. Three affected host profiles Invalid; regeneration pending."
+resume_instruction: "ARC only. Authorized Safari MacBook session confirmed LLC ARVECTUM. Created exact iCloud.ru.arvectum.proxylauncher.ios container, enabled iCloud with CloudKit support and one container for exact iOS host App ID, confirmed Save. Profiles portal now shows Invalid for APL App Store, APL Development, APL Development Anastasia 20260928; regenerate these affected existing profiles preserving original certificates/devices and names; no PacketTunnel/macOS changes. Verify downloaded profile entitlements before installing or signing. No new accounts or certs, no production schema deployment or upload."
