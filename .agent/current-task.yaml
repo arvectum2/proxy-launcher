@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -541,6 +541,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-CLOUDKIT-20261125.yaml and docs/APL_IOS_030_CLOUDKIT_EXISTING_ACCOUNT_GATE_2026-11-25.md. 18 Swift/14 Python/preflight and exact current unsigned CloudKit ARM64 PASS. Existing Apple accounts suffice, four profiles lack CloudKit; only one paired physical iPhone. Await explicit permission to modify existing App ID iCloud capability/container and regenerate affected profiles (old profiles invalidated). No new account, sign-out, credential change, other capability changes, public activation, production schema deployment, merge or upload. On approval inspect existing container and permissions first; verify exact profile/entitlements, then isolated development synthetic two-instance acceptance with same existing personal account, preserving real exclusion record. Other release security/licensing/privacy review may proceed independently."
+resume_instruction: "ARC only. Owner approved existing App ID CloudKit capability/container and affected profile regeneration. Inspect portal and existing container first; preserve unrelated capabilities, no new certificates or accounts, no public activation/schema deployment or upload. Continue .agent/checkpoints/APL-IOS-CLOUDKIT-20261125.yaml."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
