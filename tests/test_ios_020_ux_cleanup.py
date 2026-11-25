@@ -14,7 +14,8 @@ class UXCleanup(unittest.TestCase):
         self.assertIn('ProgressView()',control)
         self.assertNotIn('stop.circle.fill',control)
         self.assertNotIn('arrow.right.circle.fill',control)
-        self.assertIn('Image(systemName: model.profiles.isEmpty',control)
+        self.assertIn('Image(systemName: offersAddFromHome',control)
+        self.assertIn('if offersAddFromHome',control)
         self.assertIn('.frame(height: 70)',control)
         self.assertNotIn('Text(AppL10n.tr(qaStatusTitle))',control)
     def test_profiles_manage_in_one_card_without_repeated_selector(self):

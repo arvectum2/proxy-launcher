@@ -456,16 +456,18 @@ struct ContentView: View {
         model.vpn.status == .reasserting
     }
 
+    private var hasHomeTarget:Bool {model.hasHomeTarget(preview:qaProfile)}
+    private var offersAddFromHome:Bool {model.offersAddFromHome(preview:qaProfile)}
     private var homeConnectControl: some View {
         Button {
-            if model.profiles.isEmpty && !qaProfile && !model.vpn.isConnectedOrConnecting {
+            if offersAddFromHome {
                 showNewProfile = true
             } else {
                 Task { await model.toggleVPN() }
             }
         } label: {
             HStack(spacing: 14) {
-                Image(systemName: model.profiles.isEmpty && !qaProfile && !model.vpn.isConnectedOrConnecting
+                Image(systemName: offersAddFromHome
                     ? "plus.circle.fill" : "power")
                     .font(.system(size: 24, weight: .bold))
                     .accessibilityHidden(true)
@@ -500,7 +502,7 @@ struct ContentView: View {
         .disabled(!model.vpn.canToggle)
         .homeMeasured("primaryAction")
         .accessibilityLabel(AppL10n.tr(qaActionTitle))
-        .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+        .accessibilityHint(offersAddFromHome
             ? "Открыть создание первого прокси"
             : model.vpn.isConnectedOrConnecting
                 ? "Отключить системный прокси-туннель"
@@ -510,7 +512,7 @@ struct ContentView: View {
     private var homeProfileControl: some View {
         Group {
 #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-            HomeNativeLibraryMenu(model:model,canAdd:model.profiles.isEmpty && !qaProfile,onAdd:{showNewProfile=true},proxyMenu:profileSelectionMenu,label:homeProfileLabel(model.profiles.isEmpty && !qaProfile ? AppL10n.tr("Добавить прокси") : (qaProfile ? "QA Proxy":model.selectedLabel)))
+            HomeNativeLibraryMenu(model:model,canAdd:model.profiles.isEmpty && !qaProfile,onAdd:{showNewProfile=true},proxyMenu:profileSelectionMenu,label:homeProfileLabel(!hasHomeTarget ? AppL10n.tr("Добавить прокси") : (qaProfile ? "QA Proxy":model.selectedLabel)))
 #else
             if model.profiles.isEmpty && !qaProfile {
                 Button { showNewProfile = true } label: {
@@ -584,14 +586,14 @@ struct ContentView: View {
                 .accessibilityElement(children: .combine)
             }
             Button {
-                if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+                if offersAddFromHome {
                     showNewProfile = true
                 } else {
                     Task { await model.toggleVPN() }
                 }
             } label: {
                 HStack(spacing: compact ? 8 : 14) {
-                    Image(systemName: model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                    Image(systemName: offersAddFromHome
                         ? "plus.circle.fill" : "power")
                         .font(.system(size: compact ? 20 : 25, weight: .bold))
                         .accessibilityHidden(true)
@@ -621,7 +623,7 @@ struct ContentView: View {
             .disabled(!model.vpn.canToggle)
             .homeMeasured("primaryAction")
             .accessibilityLabel(AppL10n.tr(qaActionTitle))
-            .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+            .accessibilityHint(offersAddFromHome
                 ? "Открыть создание первого прокси"
                 : model.vpn.isConnectedOrConnecting
                     ? "Отключить системный прокси-туннель"
@@ -640,11 +642,11 @@ struct ContentView: View {
                 .minimumScaleFactor(0.7)
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Brand.mintLight)
-            Text(model.profiles.isEmpty && !qaProfile ? AppL10n.tr("Прокси пока нет") : (qaProfile ? "QA Proxy" : model.selectedLabel))
+            Text(!hasHomeTarget ? AppL10n.tr("Прокси пока нет") : (qaProfile ? "QA Proxy" : model.selectedLabel))
                 .font(compact ? .subheadline.weight(.semibold) : .title3.weight(.semibold))
                 .foregroundStyle(Brand.text)
                 .lineLimit(1)
-            if model.profiles.isEmpty && !qaProfile {
+            if !hasHomeTarget {
                 Text(AppL10n.tr("Нет прокси"))
                     .font(.footnote)
                     .foregroundStyle(Brand.softGray)
@@ -795,14 +797,14 @@ struct ContentView: View {
         Button {
             model.selectAuto()
         } label: {
-            Label("Авто", systemImage: model.automaticSelection ? "checkmark.circle.fill" : "circle")
+            Label("Авто", systemImage: (!model.nativeSelectionPresent && model.automaticSelection) ? "checkmark.circle.fill" : "circle")
         }
         ForEach(model.profiles) { profile in
             Button {
                 model.select(profile)
             } label: {
                 Label(profile.name,
-                      systemImage: (!model.automaticSelection && model.selectedProfileID == profile.id)
+                      systemImage: (!model.nativeSelectionPresent && !model.automaticSelection && model.selectedProfileID == profile.id)
                         ? "checkmark.circle.fill" : "circle")
             }
         }
@@ -874,7 +876,7 @@ struct ContentView: View {
     }
 
     private var primaryActionTitle: String {
-        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+        if offersAddFromHome {
             return "Добавить прокси"
         }
         switch model.vpn.status {

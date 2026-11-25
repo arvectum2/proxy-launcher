@@ -92,7 +92,10 @@ def test_two_ads_and_connect_off_is_outlined():
     assert 'ProgressView()' in control
     assert 'stop.circle.fill' not in control
     assert 'arrow.right.circle.fill' not in control
-    assert 'Image(systemName: model.profiles.isEmpty' in control
+    assert 'Image(systemName: offersAddFromHome' in control
+    assert 'if offersAddFromHome {' in control
+    assert 'model.toggleVPN()' in control
+    assert 'model.offersAddFromHome(preview:qaProfile)' in home
     assert 'ProgressView()' in control
     assert '.frame(height: 70)' in control
     assert 'Text(AppL10n.tr(qaActionTitle))' in control

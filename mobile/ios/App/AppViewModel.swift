@@ -107,6 +107,27 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    // An unreadable native selection is still an intent: do not silently
+    // present or launch a legacy fallback. The actual ticket gate rejects it.
+    var nativeSelectionPresent:Bool {
+#if APL_NATIVE_PRODUCT_RUNTIME && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        do {return try store.nativeProductSelection() != nil}
+        catch {return true}
+#else
+        return false
+#endif
+    }
+
+    func hasHomeTarget(preview:Bool)->Bool {
+        HomeConnectionProfilePolicy.hasTarget(legacyCount:profiles.count,
+            nativeSelectionPresent:nativeSelectionPresent,preview:preview)
+    }
+    func offersAddFromHome(preview:Bool)->Bool {
+        HomeConnectionProfilePolicy.offersAdd(legacyCount:profiles.count,
+            nativeSelectionPresent:nativeSelectionPresent,preview:preview,
+            active:vpn.isConnectedOrConnecting || vpn.status == .disconnecting)
+    }
+
     var selectedLabel: String {
 #if APL_NATIVE_PRODUCT_RUNTIME && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
         do {
