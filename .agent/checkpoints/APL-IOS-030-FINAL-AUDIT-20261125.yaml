@@ -1,16 +1,16 @@
 task_id: APL-IOS-030-FINAL-AUDIT-20261125
-status: in_progress
+status: completed
 goal: "Reconcile exact current release sources, binary linkage, dependency/privacy evidence and outstanding release decisions; no publication."
 definition_of_done:
   - "Current immutable unsigned ARM64 containing app and provider build, exact source/flags/archive/link maps and privacy manifests verified."
   - "Run current release regression and relevant security/backup/privacy contracts."
   - "Explicitly classify residual license/source delivery, SDK/privacy, CloudKit ordinary UI/second-device, final product scope and publication gates; no false release clearance."
-last_verified_commit: "802e466d live CloudKit exchange PASS; original active VPN restored"
+last_verified_commit: "167c28bc2ff99019f8c24f7ce5945b82699f068d (final engineering audit; release not cleared)"
 steps:
   - step: 1
     action: "Read release gate, exact dependency records and current CI; review Apple's current guidelines."
     result: "Current private CloudKit runtime accepted; ordinary UI/second device pending. Public VLESS gate still off. Old privacy.html contradicts current ads SDK declarations; Apple 5.4 material unresolved. Existing no-tproxy exact DNS graph unchanged from reviewed Rust 141-component inventory; Go 696 product packages, historical 697 coverage. PR383 draft."
   - step: 2
     action: "Build current immutable unsigned candidate with CloudKit opt-in and existing VLESS hold, link maps; verify exact evidence."
-    result: pending
-resume_instruction: "ARC only. Preserve owner active VPN. No production schema, public gates, ad policy, account changes, publication or merge. Audit current unsigned artifact, not historical lab receipts."
+    result: "PASS immutable unsigned ARM64 source afd7ace6; provider Go11/Rust214 members, host none; 26 manifests identical, QA flags absent. 443 Swift/462 Python/87 subtests/preflight PASS; 3 initial failures fixed. Privacy/Apple 5.4, source delivery, CloudKit UI/second device, backup and final PR/release gates open."
+resume_instruction: "Completed audit, no repeat. Parent continue independent acceptance; privacy/monetization and public gates require owner decision."

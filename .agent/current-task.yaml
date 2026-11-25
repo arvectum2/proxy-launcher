@@ -282,26 +282,28 @@ completed:
 
 
 
-current: "25 Nov CloudKit live private Development exchange PASS on one iPhone with two independent service instances; stale conflict and cleanup verified. Original signed app and active Netherlands 2 VPN restored. Physical second-device and ordinary CloudKit UI pending; continue independent final release review. No public activation."
+current: "25 Nov final engineering audit complete: 443 Swift/462 Python/87 subtests, exact unsigned ARM64 with CloudKit opt-in/VLESS hold and link maps PASS. Actual public policy conflicts with ads SDK declarations; privacy/5.4 and owner decision unresolved. Ordinary CloudKit UI/second device, backup, source delivery, PR and production gates pending. Active VPN untouched."
 blocked_on:
-  - "Prior r20 failed; later actual guarded product runner and owner ticket physical TCP4 accepted. Ordinary UI and final production activation decision remain open."
-  - "Owner product scope/public release decision remains required. Guarded product VLESS LAN egress accepted, ordinary UI outstanding; CloudKit capability disabled. No automatic partial release or public enablement."
+  - "Actual public privacy policy denies advertising/SDKs contrary to actual iOS and SDK declarations. Owner monetization decision or version-specific vendor/Apple assessment resolving VPN rule 5.4, accurate public policy and privacy labels required. Do not disable RSYA without approval."
+  - "Actual guarded VLESS runner, owner/ticket and ordinary UI physical LAN accepted; final public activation decision remains."
+  - "VLESS guarded LAN ordinary UI accepted; CloudKit capability/profiles enabled and private Development exchange accepted; ordinary CloudKit UI/second device and production schema remain. Public activation decision required."
   - "Owner approved connected iPhone physical QA and temporary Wi-Fi switching on 17.11; validated independent synthetic test inputs/controlled peers and stable UI remain required. No separate install/signing or owner credential export authorization implied."
   - "Production native acceptance still requires applicable route/DNS behavior, packaging/license/security and protocol coverage. Extended physical WAN/handoff explicitly deferred; no general no-leak or seamless-switch claim."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
   - "Production security/privacy/licensing and CloudKit private two-device require their own accepted proof and owner supervision. Extended physical WAN/handoff is deferred by owner, not passed."
 pending:
-  - "Ordinary native VLESS UI acceptance with exact synthetic inputs, release gate isolation, preserved owner profile baseline and cleanup."
+  - "Ordinary CloudKit UI acceptance with isolated synthetic exclusions and cleanup; second physical device same account pending."
   - "After owner scope decision, verify exact latest GitHub checks, choose public release scope, consider required licensing/source notices, then request explicit App Store Connect upload/submission approval and perform only authorized actions. Existing signed IPA can be reused if runtime unchanged."
   - "Native WG synthetic LAN transport/DNS acceptance completed. Extended WAN/handoff for native protocols deferred by owner until user complaints or suitable infrastructure."
-  - "Check exact-head PR383 CI and preserve accepted signed/staging artifacts. Review production security, source notices/licensing/privacy and release version/source consistency."
+  - "Unsigned engineering audit complete; remaining source/notice delivery, privacy/5.4, public policy/labels, exact-head CI and final signed acceptance."
   - "Review remaining applicable provider-owned underlay/route/DNS and MTU/QUIC policy; extended physical WAN/handoff deferred, not PASS."
   - "Broader AWG versions/interoperability and packaging/provenance/license/security; extended WAN switching deferred."
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "328125a516f273227e6014e5de00b687c76e926b (CloudKit live exchange and original VPN restoration PASS)"
+last_verified_commit: "167c28bc2ff99019f8c24f7ce5945b82699f068d (final engineering audit, unsigned ARM64 PASS, release not cleared)"
 test_results:
+  - "25 Nov exact unsigned audit: 443 Swift/462 Python/87 subtests and release preflight PASS, ARM64 source afd7ace6, Go11/Rust214 link-map entries, 26 manifests unchanged. 3 old QA contracts fixed at a726889b. Public policy/SDK discrepancy verified; release not cleared. No device mutation."
   - "25 Nov actual CloudKit Development exchange 7AE47813-1358-44D7-A42C-AB4008A2CA31 PASS all receipt flags, two logical clients/one physical device, stale rejected and exact cleanup. Original APL and active Netherlands 2 VPN restored. 22 focused Python/preflight PASS. Physical second device and ordinary UI remain pending; no production deployment."
   - "25 Nov isolated CloudKit live QA source a4e2cec2: 22 Python/preflight, ARM64 build and strict Development signature PASS. Original VPN active; physical test NOT RUN; no install or CloudKit mutation."
   - "25 Nov CloudKit App ID capability and exact container saved, 3 affected profiles regenerated and installed, signed Development candidate and refreshed recovery strict signatures PASS. Portal valid; live cloud/two-device acceptance pending. No new accounts or certs."
@@ -544,6 +546,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Continue .agent/checkpoints/APL-IOS-030-FINAL-AUDIT-20261125.yaml; CloudKit two-logical-client live PASS, ordinary UI/second physical device pending. WAN deferred. Keep active owner VPN untouched. Immutable unsigned artifact and offline audit; no ads changes, publication, public activation or production CloudKit schema deployment."
+resume_instruction: "ARC only. Read .agent/checkpoints/APL-IOS-030-FINAL-AUDIT-20261125.yaml and docs/APL_IOS_030_FINAL_AUDIT_2026-11-25.md. Final engineering audit 443 Swift/462 Python/87 subtests, exact unsigned ARM64 link maps/privacy PASS; no repeat. NEXT safe offline ordinary CloudKit UI acceptance preparation, then approved physical second-device/backup migration where available. Active owner Netherlands 2 VPN untouched; do not interrupt without separate permission. Material release blocker: actual public privacy policy denies advertising/SDKs; SDK manifests declare collection/tracking, Apple 5.4 assessment/owner monetization decision and accurate policy/labels needed. Preserve RSYA until decision, no publication/production schema/public activation/merge/upload. Exact PR integration and source delivery/legal gates remain. WAN deferred."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
