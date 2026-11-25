@@ -11,7 +11,7 @@ def test_product_gate_is_release_only_and_keeps_two_physical_witnessed_transport
     gate = s.split("enum NativeProductTransportGate {", 1)[1].split("/// Immutable versioned record", 1)[0]
     assert "case .wireGuard,.amneziaWG1:return true" in gate
     assert "case .vlessReality:" in gate
-    assert "#if APL_NATIVE_PRODUCT_RUNTIME && !APL_VLESS_PHYSICAL_QA" in gate and "return false" in gate
+    assert "#if APL_NATIVE_PRODUCT_RUNTIME && !APL_VLESS_PHYSICAL_QA && !APL_VLESS_RELEASE_ACCEPTED" in gate and "return false" in gate
     assert "#else\n            return true" in gate
     candidate = s.split("func compileFullTunnelCandidate", 1)[1].split("struct Endpoint", 1)[0]
     assert "guard NativeProductTransportGate.allowsConnection(reference.kind)" in candidate
@@ -44,3 +44,13 @@ def test_offline_vless_format_and_local_qa_are_still_available():
     assert "NativeProfileBackupCodec" in src("SharedCore/NativeCredentialCatalog.swift")
     assert "VLESS Reality" in src("App/NativePersistentProfilesView.swift")
     assert "APL_NATIVE_PRODUCT_RUNTIME" in src("Tools/stage_ios_030_release_candidate.py")
+
+def test_release_flag_is_explicit_in_both_targets_and_not_qa():
+    stage = src("Tools/stage_ios_030_release_candidate.py")
+    assert "parser.add_argument('--vless', action='store_true'" in stage
+    assert "if a.vless and not a.cloudkit:" in stage
+    assert "app_flags = APP_FLAGS + (' APL_CLOUDKIT_ENABLED' if a.cloudkit else '') + (' APL_VLESS_RELEASE_ACCEPTED' if a.vless else '')" in stage
+    assert "tun_flags = TUN_FLAGS + (' APL_VLESS_RELEASE_ACCEPTED' if a.vless else '')" in stage
+    assert "('PacketTunnel',tun_flags)" in stage
+    assert "'APL_VLESS_PHYSICAL_QA'" in stage
+    assert "APL_VLESS_RELEASE_ACCEPTED" not in src("project.yml")

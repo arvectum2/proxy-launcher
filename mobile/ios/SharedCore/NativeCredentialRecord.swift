@@ -8,9 +8,9 @@ enum NativeProductTransportGate {
         switch kind {
         case .wireGuard,.amneziaWG1:return true
         case .vlessReality:
-#if APL_NATIVE_PRODUCT_RUNTIME && !APL_VLESS_PHYSICAL_QA
-            // Production remains fail-closed until exact physical underlay
-            // and independent end-to-end VLESS receipt are accepted.
+#if APL_NATIVE_PRODUCT_RUNTIME && !APL_VLESS_PHYSICAL_QA && !APL_VLESS_RELEASE_ACCEPTED
+            // Default remains fail-closed. The explicit release staging flag
+            // is separate from the synthetic physical QA lane.
             return false
 #else
             return true
