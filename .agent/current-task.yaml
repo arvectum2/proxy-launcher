@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -282,7 +282,7 @@ completed:
 
 
 
-current: "25 Nov CloudKit existing-account gate: 18 Swift/14 Python/preflight and current unsigned ARM64 opt-in PASS; no new accounts needed. Four local profiles lack capability, only one paired physical iPhone. Await informed approval of existing App ID/container and profile regeneration, then isolated private live acceptance. No external mutation. WAN deferred, ordinary VLESS UI accepted."
+current: "25 Nov owner approved CloudKit existing App ID/container and affected provisioning changes; existing development/distribution identities valid. Apple Developer requires sign-in, awaiting owner authentication. No external mutations. Local CloudKit tests and unsigned candidate accepted."
 blocked_on:
   - "Prior r20 failed; later actual guarded product runner and owner ticket physical TCP4 accepted. Ordinary UI and final production activation decision remain open."
   - "Owner product scope/public release decision remains required. Guarded product VLESS LAN egress accepted, ordinary UI outstanding; CloudKit capability disabled. No automatic partial release or public enablement."
@@ -541,6 +541,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Owner approved existing App ID CloudKit capability/container and affected profile regeneration. Inspect portal and existing container first; preserve unrelated capabilities, no new certificates or accounts, no public activation/schema deployment or upload. Continue .agent/checkpoints/APL-IOS-CLOUDKIT-20261125.yaml."
+resume_instruction: "ARC only. Owner approved existing App ID iCloud/CloudKit capability/container and affected profile regeneration on 25 Nov. Safari on Mac mini redirected Apple Developer portal to idmsa.apple.com sign-in; await owner authentication in existing company account. No account/certificates/capabilities/profiles changed. After sign-in verify LLC ARVECTUM team and exact host App ID, inspect current capabilities/container, enable only approved CloudKit and regenerate affected host profiles preserving unrelated entitlements and existing certificates. Verify signed isolated development candidate; no actual user exclusion overwrite, no public schema deployment/activation/upload. No new accounts."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
