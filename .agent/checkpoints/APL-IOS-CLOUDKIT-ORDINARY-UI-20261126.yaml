@@ -1,12 +1,13 @@
 task_id: APL-IOS-CLOUDKIT-ORDINARY-UI-20261126
-status: in_progress
+status: completed
 goal: "Accept actual CloudKit UI without touching owner exclusions or active VPN."
 definition_of_done:
   - "Real view uses same production local save adapter; isolated QA uses synthetic data only."
   - "Verify compile, contracts, signed candidate and actual explicit UI steps with cleanup."
-last_verified_commit: "bf3fdeb719fe77cac400012da9cb99d51ac81dab"
+last_verified_commit: "432ab9374e3426b1da0904d8ab892cd1bedb3fd0"
 steps:
   - "Read real view, accepted live QA and current device state; active owner tunnel."
   - "Signed ordinary screen QA source 449ae5ce, 17 contracts/preflight, ARM64 and strict signature PASS; original active VPN, physical test not run."
   - "Backup previous physical evidence reconciled; 73 current tests PASS, no repeat needed."
-resume_instruction: "ARC only. Owner authorized temporary VPN interruption; Home Disconnect confirmed Netherlands 2 preserved and provider OFF. Inspect native-artifacts/ios-030-cloudkit-ui-physical-20261126 journal before any device action. Resume exact UI steps, cleanup and restore previous active VPN. Do not repeat or access owner cloud record."
+  - "Actual ordinary UI physical run FC281705-63AB-45E4-B7A0-EDF95B3B2E76 PASS, synthetic local adapter, actual cloud upload/read/preview/apply/cleanup; original app and active VPN restored."
+resume_instruction: "Completed. Do not repeat. Physical second device and actual AppViewModel save/reconnect distinct from synthetic UI acceptance."
