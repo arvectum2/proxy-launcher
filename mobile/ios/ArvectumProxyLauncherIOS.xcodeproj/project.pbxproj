@@ -175,6 +175,7 @@
 		951D250C1BF60644C19BFBDB /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */; };
 		99FD1F7DA6F75945EA94003C /* ProfileLibraryBulkActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64828C70BD24B80F7B56D31 /* ProfileLibraryBulkActionsView.swift */; };
+		9A0063C0E326276279645EE1 /* CloudKitOrdinaryUIQAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC90B850DCBBCA5B23158A0 /* CloudKitOrdinaryUIQAView.swift */; };
 		9A08D8FD8C32C6CCEDA5A29E /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */; };
 		9A5CA5C40BDD0C7792720546 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87885BE6123FF783E8126F72 /* AppViewModel.swift */; };
 		9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611C8DA174BECA86752E2F06 /* ProxyImportView.swift */; };
@@ -534,6 +535,7 @@
 		6CAD359663968418AE5252EB /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/PrivacyDetails.strings; sourceTree = "<group>"; };
 		6CBC4424DF9BF1666491F9D0 /* RSYABannerPhysicalUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSYABannerPhysicalUITests.swift; sourceTree = "<group>"; };
 		6CF789F184DAB8FE71B872AF /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		6EC90B850DCBBCA5B23158A0 /* CloudKitOrdinaryUIQAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitOrdinaryUIQAView.swift; sourceTree = "<group>"; };
 		70419422C2B9C02B9F2B4D3B /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		7076E4AC5D0DF5C2B96500BE /* mr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mr; path = mr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		70776A50FF9ABEA1C7A9CC15 /* tg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tg; path = tg.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -1113,6 +1115,7 @@
 				649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */,
 				896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */,
 				FEDF67E74C2AC7B508269292 /* CloudKitLiveQAView.swift */,
+				6EC90B850DCBBCA5B23158A0 /* CloudKitOrdinaryUIQAView.swift */,
 				E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */,
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
 				FB9D17156516E6D8FC309D9B /* EqualHeightDashboardLayout.swift */,
@@ -1557,6 +1560,7 @@
 				1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */,
 				FB52493F346AB26C8062A06D /* BrandTheme.swift in Sources */,
 				6BD8DB84F25E2F0D70FD14B5 /* CloudKitLiveQAView.swift in Sources */,
+				9A0063C0E326276279645EE1 /* CloudKitOrdinaryUIQAView.swift in Sources */,
 				34CD6470BEFF653586184B90 /* CompactSettingsView.swift in Sources */,
 				B793CF633E29DAB897F62F8F /* ConnectionPressurePolicy.swift in Sources */,
 				11464251962C1B3FA454A316 /* ContentView.swift in Sources */,

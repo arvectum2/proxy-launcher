@@ -3,8 +3,15 @@ import SwiftUI
 
 /// Manual-only private iCloud sync. Visible only when the App ID, container,
 /// entitlement and two-device acceptance gates enable APL_CLOUDKIT_ENABLED.
-struct ExclusionCloudSyncView: View {
-    @ObservedObject var model: AppViewModel
+@MainActor protocol ExclusionCloudLocalModel: ObservableObject {
+    var manualExclusions: [String] { get }
+    var smartGraph: SmartExclusionGraph { get }
+    func saveExclusions(_ raw: [String], graph: SmartExclusionGraph?) async -> Bool
+}
+extension AppViewModel: ExclusionCloudLocalModel {}
+
+@MainActor struct ExclusionCloudSyncView<Model: ExclusionCloudLocalModel>: View {
+    @ObservedObject var model: Model
     let onApplied: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var busy = false
@@ -17,7 +24,19 @@ struct ExclusionCloudSyncView: View {
     @State private var difference: ManualExclusionChange?
     @State private var status: String?
     @State private var confirmUpload = false
-    private let cloud = ExclusionCloudKitService()
+    private let cloud: ExclusionCloudKitService
+    init(model: Model, onApplied: @escaping () -> Void) {
+        self.model = model
+        self.onApplied = onApplied
+        self.cloud = ExclusionCloudKitService()
+    }
+#if APL_CLOUDKIT_LIVE_QA
+    init(model: Model, qaCloud: ExclusionCloudKitService, onApplied: @escaping () -> Void) {
+        self.model = model
+        self.onApplied = onApplied
+        self.cloud = qaCloud
+    }
+#endif
 
     var body: some View {
         NavigationView {
@@ -26,6 +45,7 @@ struct ExclusionCloudSyncView: View {
                     Text("Только ручные домены. Пароли, профили и настройки VPN в iCloud не отправляются.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Button("Проверить iCloud") { Task { await inspect() } }
+                            .accessibilityIdentifier("cloud.inspect")
                         .disabled(busy)
                     if busy { ProgressView() }
                 }
@@ -37,9 +57,11 @@ struct ExclusionCloudSyncView: View {
                             ForEach(difference.toAdd, id: \.self) { Text("+ " + $0) }
                             ForEach(difference.toRemove, id: \.self) { Text("− " + $0) }
                             Button("Применить удалённый список") { Task { await apply() } }
+                            .accessibilityIdentifier("cloud.apply")
                                 .disabled(busy)
                         }
                         Button("Сохранить мои исключения в iCloud") { confirmUpload = true }
+                            .accessibilityIdentifier("cloud.upload")
                             .disabled(busy)
                     }
                 }
@@ -52,6 +74,7 @@ struct ExclusionCloudSyncView: View {
             .confirmationDialog("Заменить список в личной базе iCloud?",
                                 isPresented: $confirmUpload, titleVisibility: .visible) {
                 Button("Подтвердить загрузку") { Task { await upload() } }
+                            .accessibilityIdentifier("cloud.confirm")
                 Button("Отмена", role: .cancel) {}
             } message: {
                 Text("Другие устройства не меняют VPN автоматически: загрузка списка требует отдельного подтверждения.")

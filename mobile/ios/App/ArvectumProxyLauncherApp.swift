@@ -6,7 +6,14 @@ import YandexMobileAds
 #if APL_CLOUDKIT_LIVE_QA && APL_CLOUDKIT_ENABLED
 @main
 struct ArvectumProxyLauncherApp: App {
-    var body: some Scene { WindowGroup { CloudKitLiveQAView() } }
+    var body: some Scene {
+        WindowGroup {
+            if ProcessInfo.processInfo.arguments.contains("--apl-authorized-cloudkit-ui-qa") ||
+                ProcessInfo.processInfo.arguments.contains("--apl-authorized-cloudkit-ui-recovery") {
+                CloudKitOrdinaryUIQAView()
+            } else { CloudKitLiveQAView() }
+        }
+    }
 }
 #elseif APL_PRODUCT_UI_QA
 @main
