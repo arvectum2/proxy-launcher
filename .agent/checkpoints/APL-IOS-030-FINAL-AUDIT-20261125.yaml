@@ -13,4 +13,4 @@ steps:
   - step: 2
     action: "Build current immutable unsigned candidate with CloudKit opt-in and existing VLESS hold, link maps; verify exact evidence."
     result: "PASS immutable unsigned ARM64 source afd7ace6; provider Go11/Rust214 members, host none; 26 manifests identical, QA flags absent. 443 Swift/462 Python/87 subtests/preflight PASS; 3 initial failures fixed. Privacy/Apple 5.4, source delivery, CloudKit UI/second device, backup and final PR/release gates open."
-resume_instruction: "Completed audit, no repeat. Parent continue independent acceptance; privacy/monetization and public gates require owner decision."
+resume_instruction: "Completed; do not repeat. AGENTS.md standing owner scope decision governs; continue technical acceptance."
