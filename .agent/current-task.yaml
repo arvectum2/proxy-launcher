@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: in_progress
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -286,7 +286,7 @@ completed:
 
 
 
-current: "26 Nov final signed upgrade smoke PASS; integration branch ready, protected main checks pending; notices prepared; Apple draft/47 locales and official validation PASS; upload initiated once; CloudKit Dashboard needs owner sign-in."
+current: "26 Nov PR383 merged main954a88f0, 21/21 CI PASS, Apple VALID build49 attached; Public Pages ZIP byte-identical SHA256 46f5e4b395e60f71e39d3c47947bf14b973c8ee13df195789dcf7557de7daad5. CloudKit authenticated on MacBook, GUI temporarily unavailable due user activity; production schema and review remain."
 blocked_on:
   - "Actual guarded VLESS runner, owner/ticket and ordinary UI physical LAN accepted; final public activation decision remains."
   - "VLESS guarded LAN ordinary UI accepted; CloudKit capability/profiles enabled and private Development exchange accepted; ordinary CloudKit UI/second device and production schema remain. Public activation decision required."
@@ -304,7 +304,7 @@ pending:
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "CloudKit same-account second device and final upgrade smoke; previous physical encrypted backup cycle already accepted and 73 current tests PASS."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "9e5e007f10e734d58147fd842f66b9e583dde932 (both unified IPAs verified)"
+last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged, all 21 checks passed, exact signed runtime tree)"
 test_results:
   - "26 Nov exact unified signed archive and two IPA exports PASS, source1acf654d, 443 Swift/464 Python/87 subtests, profile/entitlement/Mach-O UUID and preflight verified; 411+15 private inventory files. Final upgrade smoke not run; no device mutation/upload."
   - "26 Nov ordinary CloudKit UI FC281705-63AB-45E4-B7A0-EDF95B3B2E76 PASS actual taps and live cloud, isolated local adapter, exact cleanup, original app and active VPN restored; one physical device only."
@@ -552,6 +552,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read docs/APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md latest morning section. Owner authorized final operations, signed upgrade smoke PASS, final Development app installed and VPN OFF baseline restored. PR383 ready against main; exact mobile/ios same as signed source, normal protected checks pending. Public notices archive staged; after merge verify public Pages exact bytes. Apple0.3.0 draft and 47 notes verified, Apple validation PASS. SINGLE upload job 12480b35-d5d6-4607-90c4-432d40aad928 started; inspect receipt and Apple build49 GET before any retry, no duplicate. CloudKit Dashboard MacBook requires owner sign-in (no management token). No production deployment or review submission yet; resume after authentication, verify production schema, main merge/Pages, processed build and metadata, then attach and submit within existing authorization. No new accounts, no closed-scope reopening."
+resume_instruction: "ARC only. Owner authorized final release cycle. PR383 MERGED via protected checks (21/21 SUCCESS) at main954a88f08aaccc35a9493eaea149826b7a120b75, signed runtime tree unchanged vs1acf654d. Public Pages ZIP byte-identical SHA256 46f5e4b395e60f71e39d3c47947bf14b973c8ee13df195789dcf7557de7daad5. Apple build49 VALID attached to version0.3.0 PREPARE_FOR_SUBMISSION; all 47 notes, 94 screenshots and reviewer notes verified. NEVER reupload/recreate or repeat accepted tests. MacBook CloudKit Dashboard authenticated exact team VML75VY94V; concurrent Safari user activity interrupted GUI, do not steal focus or enable JavaScript from Apple Events. When MacBook CloudKit tab free, inspect exact container Development schema, deploy and verify Production, confirm public Pages ZIP if pending. Check actual Apple build49 export-compliance requirements, do not fabricate declaration. Then submit within existing owner authorization; verify Apple review state and checkpoint completed only when confirmed. Main merged, do not reopen PR383 or mutate production beyond approved scope. No new accounts, no closed-scope reopening."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
