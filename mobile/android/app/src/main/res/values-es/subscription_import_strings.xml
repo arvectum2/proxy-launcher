@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_subscription_import">Suscripción HTTPS</string>
+    <string name="apl_subscription_notice">Descarga única de la lista del servidor indicado. La URL no se guarda. Los perfiles solo se añaden tras confirmar.</string>
+    <string name="apl_subscription_download">Descargar</string>
+    <string name="apl_subscription_loading">Descargando lista…</string>
+</resources>

@@ -12,7 +12,7 @@ JSON = (BASE / "model/StructuredJsonReader.kt").read_text()
 
 class StructuredContract(unittest.TestCase):
     def test_existing_preview_and_file_guard(self):
-        editor = MAIN.split("private fun showBatchImport()",1)[1].split("private fun showImportFailure()",1)[0]
+        editor = MAIN.split("private fun showBatchImport()",1)[1].split("private fun showSubscriptionInput()",1)[0]
         worker = MAIN.split("private fun importSelectedTextFile(",1)[1].split("private fun chooseQrImage()",1)[0]
         self.assertIn("ProxyStructuredImport.parseBatch(input.text.toString())", editor)
         self.assertIn("FLAG_SECURE", editor)

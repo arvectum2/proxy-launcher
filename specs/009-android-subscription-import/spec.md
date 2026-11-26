@@ -1,0 +1,5 @@
+# APL-ANDROID-SUBSCRIPTION-IMPORT-20261126
+- S1: Explicit one-time HTTPS URL from user, max 2048 UTF-8 bytes; public DNS hostname, port 443, no userinfo or fragment. Query token allowed, never log or persist it. Block special-use DNS and non-public resolved addresses; transport must enforce policy on actual connected address, not only a preflight lookup. Reject redirects, no proxy, default platform TLS verification, bounded deadlines/size.
+- S2: Strict UTF-8, 256000 bytes, ordinary TXT/JSON/XML/CSV or standard Base64 wrapping thereof; all-or-nothing, max 200 records, no unsupported native protocol subset.
+- S3: User action only, masked URL field, existing disconnected preview/Save, append-only dedupe. No saved subscription/token, background polling or automatic replacement; repeat manual download permitted. Managed refresh and backup separate.
+- S4: Synthetic policy/body/transport failure tests, Android CI and separate device acceptance; no real supplier tokens, external test traffic or release.

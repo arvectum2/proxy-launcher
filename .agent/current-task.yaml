@@ -1,21 +1,22 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-STRUCTURED-IMPORT-20261126
+task_id: APL-ANDROID-SUBSCRIPTION-IMPORT-20261126
 status: in_progress
-goal: "Offline structured JSON/XML/CSV import using existing explicit preview/save."
+goal: "Explicit one-time HTTPS subscription download and preview of ordinary proxies."
 definition_of_done:
-  - "Bounded strict parsers and shared validator; no DTD/external entity; 256000 UTF-8 bytes, 200 records; all-or-nothing."
-  - "Existing masked input and document picker, preview/save boundary; exact-head Android CI and protected integration; device acceptance separate."
+  - "Strict public HTTPS source and DNS route policy, default TLS, bounded response, no redirect or persistent URL; explicit preview/Save."
+  - "Local tests, exact-head Android CI, dependency review and protected integration; real-device network acceptance separate."
 completed:
-  - "PR392 exact head 4a45368f 15/15 CI PASS, merged 005307c939971e9bfb5fe58ccf96be420d6d55a1; GitVerse main verified same. Prior checkpoint archived."
-  - "Spec Kit 008, strict nonrecursive JSON, bounded CSV quoting, SAX XML with DTD/entity rejection, ordinary proxy validator and batch UI integration; source 739694728f32a0351acc9dfccc2d587e6a8d596a. 40 resource sets."
-current: "Local checks PASS; full Android CI pending."
+  - "PR393 exact head e762c17c 15/15 CI PASS, merged d8a2c0f0109cb4b287e471c0977b218a833f337e, GitVerse main verified. Prior checkpoint archived."
+  - "Spec Kit 009: URL and public DNS policy, pinned OkHttp/Okio transport, plain/Base64 decoding, masked UI, cancellable worker and existing preview. Rebased source 1ae72fb2ca25b3d973e1362e1379386bb30fe094."
+current: "Local synthetic tests passed; full Android CI and dependency security review pending."
 pending:
-  - "Verify exact-head build/lint/unit and packaging, fix failures and merge through normal protection. Verify GitVerse mirror."
-  - "Device acceptance for document providers, preview/cancel/dedupe/secure storage, QR camera/share still separate; no hardware connected."
-  - "Next: bounded manual HTTPS subscription import/update, encrypted backup, native transports by roadmap. No production release."
-last_verified_commit: "739694728f32a0351acc9dfccc2d587e6a8d596a"
+  - "Verify exact-head PR build/lint/unit and packaging, review new dependencies for known vulnerabilities, fix actual failures and integrate after green checks."
+  - "Real Android DNS/TLS/cancel/device and picker/storage/QR acceptance separate; no real subscription tokens or provider traffic tested."
+  - "Next: saved HTTPS subscription URLs in secure storage, explicit refresh/replacement review and rollback; encrypted backup, native transports. No production release."
+last_verified_commit: "1ae72fb2ca25b3d973e1362e1379386bb30fe094 (rebased local-tested tree)"
 test_results:
-  - "JUnit 30/30, 20 unique Python source contracts, AAPT2 all resources, git diff check PASS."
-  - "Strict integer JSON port, proxy/proxies XML root, standard XML attribute whitespace normalization, valid legacy TXT precedence for ambiguous CSV. Device Android SAX and picker acceptance not yet verified."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-structured-import-20261126 branch feat/android-structured-import-20261126. Verify exact-head structured import PR CI, fix and merge after green. Next manual HTTPS subscriptions. No production signing, release, RuStore resubmission, iOS reupload or real credential testing."
+  - "36/36 JVM tests, 23 unique Python source contracts, AAPT2 and git diff check PASS. Synthetic DNS, HTTP response and bounds/cancel tests only."
+  - "OkHttp 4.12.0 and Okio JVM 3.6.0 Maven SHA-1 matched, SHA-256 pinned, licenses packaged; comprehensive vulnerability review pending."
+  - "Five translations; remaining locales English fallback. No saved URL or automatic replacement."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-subscription-import-20261126 branch feat/android-subscription-import-20261126. Verify exact-head PR CI and dependency security review, fix and merge after green. No production signing, release, iOS reupload, RuStore resubmission or real credentials."

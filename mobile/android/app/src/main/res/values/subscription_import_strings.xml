@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_subscription_import">Подписка HTTPS</string>
+    <string name="apl_subscription_notice">Однократная загрузка списка с указанного сервера. Адрес не сохраняется. Полученные профили добавляются только после подтверждения.</string>
+    <string name="apl_subscription_download">Загрузить</string>
+    <string name="apl_subscription_loading">Загрузка списка…</string>
+</resources>

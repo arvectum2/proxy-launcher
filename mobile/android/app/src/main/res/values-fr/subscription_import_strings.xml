@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_subscription_import">Abonnement HTTPS</string>
+    <string name="apl_subscription_notice">Télécharger une fois la liste du serveur indiqué. L’URL n’est pas enregistrée. Les profils ne sont ajoutés qu’après confirmation.</string>
+    <string name="apl_subscription_download">Télécharger</string>
+    <string name="apl_subscription_loading">Téléchargement de la liste…</string>
+</resources>

@@ -8,7 +8,7 @@ STORE = (BASE / "storage/SecureProfileStore.kt").read_text()
 
 class BatchImportContract(unittest.TestCase):
     def test_preview_and_explicit_save_boundary(self):
-        editor = ACTIVITY.split("private fun showBatchImport()",1)[1].split("private fun showImportFailure()",1)[0]
+        editor = ACTIVITY.split("private fun showBatchImport()",1)[1].split("private fun showSubscriptionInput()",1)[0]
         preview = ACTIVITY.split("private fun showBatchPreview(",1)[1].split("private fun importSelectedTextFile(",1)[0]
         self.assertIn("ProxyStructuredImport.parseBatch", editor)
         self.assertIn("FLAG_SECURE", editor)

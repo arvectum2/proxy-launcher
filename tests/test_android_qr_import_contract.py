@@ -15,7 +15,7 @@ class QrImportContract(unittest.TestCase):
         self.assertIn('implementation("com.google.zxing:core:3.5.4")', GRADLE)
         self.assertIn('strictly("3.5.4")', GRADLE)
         self.assertIn("71de5d89341b5fcf5dd89da7f44e84d825d0e084cdf3ec77c9abe26b0f0ceb13", GRADLE)
-        self.assertIn("dependsOn(generateBrandingResources, verifyZxingCore)", GRADLE)
+        self.assertIn("dependsOn(generateBrandingResources, verifyZxingCore, verifySubscriptionArtifacts)", GRADLE)
         for name in ("LICENSE", "NOTICE"):
             self.assertTrue((APP / "src/main/assets/licenses/zxing" / name).stat().st_size > 0)
 

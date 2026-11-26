@@ -206,13 +206,34 @@ val verifyZxingCore = tasks.register("verifyZxingCore") {
     }
 }
 
+val subscriptionArtifacts = mapOf(
+    "com.squareup.okhttp3:okhttp:4.12.0" to "b1050081b14bb7a3a7e55a4d3ef01b5dcfabc453b4573a4fc019767191d5f4e0",
+    "com.squareup.okio:okio-jvm:3.6.0" to "67543f0736fc422ae927ed0e504b98bc5e269fda0d3500579337cb713da28412",
+).map { (artifact, digest) ->
+    configurations.detachedConfiguration(dependencies.create(artifact)).apply { isTransitive = false } to digest
+}
+val verifySubscriptionArtifacts = tasks.register("verifySubscriptionArtifacts") {
+    subscriptionArtifacts.forEach { (config, _) -> inputs.files(config) }
+    doLast {
+        subscriptionArtifacts.forEach { (config, expected) ->
+            val actual = MessageDigest.getInstance("SHA-256").digest(config.singleFile.readBytes())
+                .joinToString("") { "%02x".format(it.toInt() and 255) }
+            check(actual == expected) { "Subscription dependency SHA-256 mismatch" }
+        }
+    }
+}
+
 tasks.named("preBuild").configure {
-    dependsOn(generateBrandingResources, verifyZxingCore)
+    dependsOn(generateBrandingResources, verifyZxingCore, verifySubscriptionArtifacts)
 }
 
 dependencies {
     implementation("androidx.core:core:1.15.0")
     implementation("com.google.zxing:core:3.5.4") { version { strictly("3.5.4") } }
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") { version { strictly("4.12.0") } }
+    constraints {
+        implementation("com.squareup.okio:okio-jvm:3.6.0") { version { strictly("3.6.0") } }
+    }
     add("publicImplementation", "com.yandex.android:mobileads:8.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")

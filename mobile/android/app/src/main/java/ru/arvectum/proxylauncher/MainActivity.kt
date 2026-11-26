@@ -53,6 +53,8 @@ import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyImport
 import ru.arvectum.proxylauncher.model.ProxyBatchImport
 import ru.arvectum.proxylauncher.model.ProxyStructuredImport
+import ru.arvectum.proxylauncher.model.ProxySubscriptionImport
+import ru.arvectum.proxylauncher.importing.ProxySubscriptionFetch
 import ru.arvectum.proxylauncher.model.ImportedProxy
 import ru.arvectum.proxylauncher.model.ProxyQrExport
 import ru.arvectum.proxylauncher.importing.ProxyQrImageReader
@@ -100,6 +102,10 @@ class MainActivity : Activity() {
     private var batchFilePending = false
     private var qrImagePending = false
     private var batchFileReadInProgress = false
+    private var subscriptionFetch: ProxySubscriptionFetch? = null
+    private var subscriptionDialog: AlertDialog? = null
+    private var subscriptionProgress: AlertDialog? = null
+    private lateinit var subscriptionButton: Button
     private lateinit var batchImportButton: Button
     private lateinit var qrImportButton: Button
     private lateinit var qrExportButton: Button
@@ -214,6 +220,7 @@ class MainActivity : Activity() {
 
     override fun onPause() {
         cameraUiResumed = false
+        cancelSubscription()
         qrCameraDialog?.close()
         qrExportDialog?.dismiss()
         qrExportDialog = null
@@ -740,6 +747,10 @@ class MainActivity : Activity() {
         }
         panel.addView(qrCameraButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         panel.addView(qrExportButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
+        subscriptionButton = brandSmallButton(getString(R.string.apl_subscription_import), ButtonTone.GHOST).apply {
+            setOnClickListener { showSubscriptionInput() }
+        }
+        panel.addView(subscriptionButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         return panel
     }
 
@@ -1368,7 +1379,7 @@ class MainActivity : Activity() {
 
     private fun canBatchImport(): Boolean =
         !isFinishing && !isDestroyed && currentState == ProxyVpnService.STATE_DISCONNECTED &&
-            !switchInProgress && !batchFileReadInProgress && !batchFilePending && !qrImagePending &&
+            !switchInProgress && !batchFileReadInProgress && !batchFilePending && !qrImagePending && subscriptionFetch == null &&
             !qrCameraPermissionPending && qrCameraPermissionOutcome == null && qrCameraDialog == null && poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED
 
     private fun showBatchImport() {
@@ -1426,6 +1437,87 @@ class MainActivity : Activity() {
                 showBatchPreview(items)
             }
         }
+    }
+
+    private fun showSubscriptionInput() {
+        if (!cameraUiResumed || !canBatchImport()) return
+        val input = EditText(this).apply {
+            hint = "https://"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
+            setSingleLine(true)
+            isSaveEnabled = false
+            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            imeOptions = imeOptions or android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+            filters = arrayOf(android.text.InputFilter.LengthFilter(ProxySubscriptionImport.MAX_URL_BYTES + 1))
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.apl_subscription_import)
+            .setMessage(R.string.apl_subscription_notice)
+            .setView(input)
+            .setNegativeButton(R.string.apl_cancel_8fbe9, null)
+            .setPositiveButton(R.string.apl_subscription_download, null)
+            .create()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        subscriptionDialog = dialog
+        dialog.setOnDismissListener {
+            input.text.clear()
+            if (subscriptionDialog === dialog) subscriptionDialog = null
+        }
+        dialog.show()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (!cameraUiResumed || !canBatchImport()) return@setOnClickListener
+            val raw = input.text.toString()
+            if (ProxySubscriptionImport.source(raw) == null) {
+                input.error = getString(R.string.apl_import_proxy_invalid)
+                return@setOnClickListener
+            }
+            val fetch = runCatching { ProxySubscriptionFetch(raw) }.getOrNull()
+            if (fetch == null) { input.error = getString(R.string.apl_import_proxy_invalid); return@setOnClickListener }
+            dialog.dismiss()
+            startSubscription(fetch)
+        }
+    }
+
+    private fun startSubscription(fetch: ProxySubscriptionFetch) {
+        if (!cameraUiResumed || !canBatchImport()) { fetch.cancel(); return }
+        subscriptionFetch = fetch
+        val progress = AlertDialog.Builder(this)
+            .setMessage(R.string.apl_subscription_loading)
+            .setNegativeButton(R.string.apl_cancel_8fbe9, null)
+            .create()
+        progress.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        subscriptionProgress = progress
+        progress.setOnDismissListener {
+            if (subscriptionFetch === fetch) cancelSubscription()
+        }
+        progress.show()
+        updateProfileControls()
+        Thread {
+            val items = fetch.load()
+            mainHandler.post {
+                if (subscriptionFetch !== fetch) return@post
+                subscriptionFetch = null
+                subscriptionProgress = null
+                progress.dismiss()
+                if (isFinishing || isDestroyed) return@post
+                updateProfileControls()
+                if (!cameraUiResumed || !canBatchImport()) return@post
+                if (items == null) showImportFailure() else showBatchPreview(items)
+            }
+        }.apply { isDaemon = true }.start()
+    }
+
+    private fun cancelSubscription() {
+        val active = subscriptionFetch
+        subscriptionFetch = null
+        active?.cancel()
+        subscriptionDialog?.dismiss()
+        subscriptionDialog = null
+        subscriptionProgress?.dismiss()
+        subscriptionProgress = null
+        if (!isFinishing && !isDestroyed && ::profileSelectorShell.isInitialized) updateProfileControls()
     }
 
     private fun showImportFailure() {
@@ -2204,6 +2296,7 @@ class MainActivity : Activity() {
         currentState = state
         if (state != ProxyVpnService.STATE_DISCONNECTED) qrExportDialog?.dismiss()
         if (state != ProxyVpnService.STATE_DISCONNECTED) {
+            cancelSubscription()
             qrCameraPermissionPending = false
             qrCameraPermissionOutcome = null
             qrCameraDialog?.close()
@@ -2319,6 +2412,10 @@ class MainActivity : Activity() {
         if (::batchImportButton.isInitialized) {
             batchImportButton.isEnabled = canBatchImport()
             batchImportButton.alpha = if (batchImportButton.isEnabled) 1f else 0.5f
+        }
+        if (::subscriptionButton.isInitialized) {
+            subscriptionButton.isEnabled = canBatchImport()
+            subscriptionButton.alpha = if (subscriptionButton.isEnabled) 1f else 0.5f
         }
         if (::qrImportButton.isInitialized) {
             qrImportButton.isEnabled = canBatchImport()
