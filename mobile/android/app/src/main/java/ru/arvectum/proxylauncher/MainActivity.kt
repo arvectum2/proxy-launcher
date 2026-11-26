@@ -52,6 +52,7 @@ import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyImport
 import ru.arvectum.proxylauncher.model.ProxyBatchImport
 import ru.arvectum.proxylauncher.model.ImportedProxy
+import ru.arvectum.proxylauncher.model.ProxyQrExport
 import ru.arvectum.proxylauncher.importing.ProxyQrImageReader
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
@@ -97,6 +98,8 @@ class MainActivity : Activity() {
     private var batchFileReadInProgress = false
     private lateinit var batchImportButton: Button
     private lateinit var qrImportButton: Button
+    private lateinit var qrExportButton: Button
+    private var qrExportDialog: AlertDialog? = null
 
     private val proxyTypes = listOf(
         ProxyType.AUTO,
@@ -195,6 +198,12 @@ class MainActivity : Activity() {
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         startProfileHealthScan()
+    }
+
+    override fun onPause() {
+        qrExportDialog?.dismiss()
+        qrExportDialog = null
+        super.onPause()
     }
 
     override fun onStop() {
@@ -707,6 +716,10 @@ class MainActivity : Activity() {
             addView(batchImportButton, LinearLayout.LayoutParams(0, dp(44), 1f))
             addView(qrImportButton, LinearLayout.LayoutParams(0, dp(44), 1f).apply { leftMargin = dp(6) })
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        qrExportButton = brandSmallButton(getString(R.string.apl_qr_export_show), ButtonTone.GHOST).apply {
+            setOnClickListener { currentProfileId?.let(::confirmQrExport) }
+        }
+        panel.addView(qrExportButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         return panel
     }
 
@@ -1495,6 +1508,95 @@ class MainActivity : Activity() {
         }.apply { isDaemon = true }.start()
     }
 
+    private fun canExportQr(profileId: String): Boolean =
+        canBatchImport() && currentSelectionKey() == profileId && currentProfileId == profileId
+
+    private fun confirmQrExport(profileId: String) {
+        if (!canExportQr(profileId)) return
+        val metadata = runCatching { store.listProfiles().firstOrNull { it.id == profileId } }.getOrNull()
+        if (metadata == null || metadata.type == ProxyType.AUTO) {
+            showQrExportFailure()
+            return
+        }
+        qrExportDialog?.dismiss()
+        val confirmation = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.apl_qr_export_confirm))
+            .setMessage(getString(R.string.apl_qr_export_warning))
+            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+            .setPositiveButton(getString(R.string.apl_qr_export_show)) { _, _ ->
+                if (canExportQr(profileId)) displaySavedQr(profileId)
+            }.create()
+        confirmation.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        qrExportDialog = confirmation
+        confirmation.setOnDismissListener {
+            if (qrExportDialog === confirmation) qrExportDialog = null
+        }
+        confirmation.show()
+    }
+
+    private fun showQrExportFailure() {
+        if (isFinishing || isDestroyed) return
+        AlertDialog.Builder(this).setMessage(getString(R.string.apl_qr_export_failed))
+            .setPositiveButton(android.R.string.ok, null).show()
+    }
+
+    private fun displaySavedQr(profileId: String) {
+        if (!canExportQr(profileId)) return
+        val matrix = runCatching {
+            val saved = store.loadProfile(profileId) ?: return@runCatching null
+            ProxyQrExport.matrix(saved.profile, saved.password)
+        }.getOrNull()
+        if (matrix == null) {
+            showQrExportFailure()
+            return
+        }
+        val maxSide = minOf(1024, dp(300), resources.displayMetrics.widthPixels - dp(64),
+            resources.displayMetrics.heightPixels - dp(180))
+        val scale = maxSide / matrix.width
+        if (scale < 2) {
+            showQrExportFailure()
+            return
+        }
+        val side = matrix.width * scale
+        val pixels = IntArray(side * side) { i ->
+            if (matrix.get((i % side) / scale, (i / side) / scale)) Color.BLACK else Color.WHITE
+        }
+        val bitmap = try {
+            android.graphics.Bitmap.createBitmap(pixels, side, side, android.graphics.Bitmap.Config.ARGB_8888)
+        } finally { pixels.fill(0) }
+        val image = ImageView(this).apply {
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.CENTER
+            contentDescription = getString(R.string.apl_qr_export_image)
+            isSaveEnabled = false
+        }
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+            addView(image, LinearLayout.LayoutParams(side, side))
+            addView(TextView(this@MainActivity).apply {
+                text = getString(R.string.apl_qr_export_warning)
+                textSize = 13f
+                gravity = Gravity.CENTER
+                setPadding(0, dp(10), 0, 0)
+            })
+        }
+        val display = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.apl_qr_export_show))
+            .setView(ScrollView(this).apply { addView(container) })
+            .setPositiveButton(android.R.string.ok, null)
+            .create()
+        display.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        qrExportDialog = display
+        display.setOnDismissListener {
+            image.setImageDrawable(null)
+            bitmap.recycle()
+            if (qrExportDialog === display) qrExportDialog = null
+        }
+        display.show()
+    }
+
     private fun showProfileEditor(profileId: String?) {
         if (switchInProgress) return
         val creating = profileId == null
@@ -1963,6 +2065,7 @@ class MainActivity : Activity() {
 
     private fun renderState(state: String, detail: String?) {
         currentState = state
+        if (state != ProxyVpnService.STATE_DISCONNECTED) qrExportDialog?.dismiss()
         val displayDetail = compactConnectionDetail(state, detail)
 
         connectionDetail.text = displayDetail
@@ -2078,6 +2181,11 @@ class MainActivity : Activity() {
         if (::qrImportButton.isInitialized) {
             qrImportButton.isEnabled = canBatchImport()
             qrImportButton.alpha = if (qrImportButton.isEnabled) 1f else 0.5f
+        }
+        if (::qrExportButton.isInitialized) {
+            val enabled = currentProfileId?.let(::canExportQr) == true
+            qrExportButton.isEnabled = enabled
+            qrExportButton.alpha = if (enabled) 1f else 0.5f
         }
         newProfileButton.isEnabled = creatable
         newProfileButton.alpha = if (creatable) 1f else 0.5f

@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-QR-EXPORT-20261126
+status: in_progress
+goal: "Explicit ephemeral on-screen Android QR export of saved ordinary proxy, compatible with iOS."
+definition_of_done:
+  - "iOS envelope exact-field roundtrip, strict rejection and bounded QR matrix."
+  - "Explicit disclosure before credential read, secure ephemeral view, dismissal on pause/state change, no external share or storage."
+  - "Exact-head Android CI PASS and protected merge; separate physical acceptance before release."
+completed:
+  - "PR389 exact head a7843ddc 15/15 CI PASS, merged 2614136ee8c2e9b01a7664f3e6d80ced68ff69fe. GitVerse main verified; previous checkpoint archived completed."
+  - "Spec Kit 005; QR export codec and confirmation UI implemented, source 79a87d102a7b82f2149de6a979e58fbc8fd638dd."
+  - "Actual synthetic Kotlin-generated envelope accepted by existing iOS Swift parser, exact name/IPv6/type/port/user/password."
+current: "Local checks passed; full Android CI pending."
+pending:
+  - "Check exact-head build/lint/unit and APK packaging; fix real failures and integrate after green checks."
+  - "Physical device QR display/scan both directions, lifecycle dismissal, explicit consent/cancellation and secure storage QA; no device attached. Do not claim PASS."
+  - "Next scoped stage: on-device camera QR scanner with permission/lifecycle, then external share and structured formats/subscriptions. No production release."
+last_verified_commit: "79a87d102a7b82f2149de6a979e58fbc8fd638dd"
+test_results:
+  - "Kotlin JUnit 16/16 PASS; 11 unique Python contracts PASS; AAPT2 all resources PASS; Kotlin -> actual Swift parser synthetic PASS; git diff --check PASS."
+  - "12 locale sets reuse existing iOS QR warning translation, remaining sets use English fallback. No device QA or full Gradle result yet."
+resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-export-20261126 branch feat/android-qr-export-20261126. Verify exact-head PR CI, fix and integrate through normal protection. Next camera. No iOS reupload, RuStore resubmission, production signing or physical device mutation."

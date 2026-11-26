@@ -1,22 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-QR-IMAGE-20261126
+task_id: APL-ANDROID-QR-EXPORT-20261126
 status: in_progress
-goal: "Android QR image import with ordinary proxy and iOS Share envelope compatibility."
+goal: "Explicit ephemeral on-screen Android QR export of saved ordinary proxy, compatible with iOS."
 definition_of_done:
-  - "Bounded offline QR image decode, pinned dependency and license, exactly one decoded supported QR, existing explicit preview/save only."
-  - "Picker and disconnected guard; local tests and exact-head Android CI; protected PR integration. Device QA separate, no new release."
+  - "iOS envelope exact-field roundtrip, strict rejection and bounded QR matrix."
+  - "Explicit disclosure before credential read, secure ephemeral view, dismissal on pause/state change, no external share or storage."
+  - "Exact-head Android CI PASS and protected merge; separate physical acceptance before release."
 completed:
-  - "PR388 exact head fe126098 15/15 CI PASS, merged 12654068b42d3691f3ee78a9d72e8f6b1bd369a6; prior checkpoint completed."
-  - "Spec Kit 004; ZXing 3.5.4 SHA-256 pinned; upstream license and notice packaged; bounded PNG/JPEG/WebP reader, QR-only decoder and iOS envelope, image picker and existing preview boundary. Source 593b43ae74faa2ba4affe5f3571a1f3b2a083540."
-current: "Source/local checks passed; exact-head Android CI pending."
+  - "PR389 exact head a7843ddc 15/15 CI PASS, merged 2614136ee8c2e9b01a7664f3e6d80ced68ff69fe. GitVerse main verified; previous checkpoint archived completed."
+  - "Spec Kit 005; QR export codec and confirmation UI implemented, source 79a87d102a7b82f2149de6a979e58fbc8fd638dd."
+  - "Actual synthetic Kotlin-generated envelope accepted by existing iOS Swift parser, exact name/IPv6/type/port/user/password."
+current: "Local checks passed; full Android CI pending."
 pending:
-  - "Verify CI build/lint/unit and APK packaging, including verifyZxingCore, fix errors and integrate after green checks."
-  - "Isolated device picker and real iOS-to-Android QR transfer, cancellation, secure storage readback, both import flows; no device connected. Do not claim physical PASS."
-  - "Next scoped stage: camera QR and QR export (with explicit disclosure), then structured files and subscriptions. No production distribution change."
-last_verified_commit: "593b43ae74faa2ba4affe5f3571a1f3b2a083540"
+  - "Check exact-head build/lint/unit and APK packaging; fix real failures and integrate after green checks."
+  - "Physical device QR display/scan both directions, lifecycle dismissal, explicit consent/cancellation and secure storage QA; no device attached. Do not claim PASS."
+  - "Next scoped stage: on-device camera QR scanner with permission/lifecycle, then external share and structured formats/subscriptions. No production release."
+last_verified_commit: "79a87d102a7b82f2149de6a979e58fbc8fd638dd"
 test_results:
-  - "Kotlin 2.0.21 direct compile with API 35 Android image reader, JUnit 13/13 PASS, Python contracts 8/8 PASS, git diff check PASS."
-  - "Maven Central SHA-1 verified, local JAR SHA-256 71de5d89341b5fcf5dd89da7f44e84d825d0e084cdf3ec77c9abe26b0f0ceb13; full Gradle build pending."
-  - "No Android hardware connected; synthetic QR roundtrip incl. iOS-format envelope, not physical interoperability."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-image-20261126 branch feat/android-qr-image-20261126. Verify exact-head PR CI; fix and integrate through protected merge. No iOS reupload, RuStore resubmission, production signing or physical device mutation. Preserve earlier acceptance limitations."
+  - "Kotlin JUnit 16/16 PASS; 11 unique Python contracts PASS; AAPT2 all resources PASS; Kotlin -> actual Swift parser synthetic PASS; git diff --check PASS."
+  - "12 locale sets reuse existing iOS QR warning translation, remaining sets use English fallback. No device QA or full Gradle result yet."
+resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-export-20261126 branch feat/android-qr-export-20261126. Verify exact-head PR CI, fix and integrate through normal protection. Next camera. No iOS reupload, RuStore resubmission, production signing or physical device mutation."

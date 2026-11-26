@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-QR-IMAGE-20261126
-status: in_progress
+status: completed
 goal: "Android QR image import with ordinary proxy and iOS Share envelope compatibility."
 definition_of_done:
   - "Bounded offline QR image decode, pinned dependency and license, exactly one decoded supported QR, existing explicit preview/save only."
@@ -9,14 +9,10 @@ definition_of_done:
 completed:
   - "PR388 exact head fe126098 15/15 CI PASS, merged 12654068b42d3691f3ee78a9d72e8f6b1bd369a6; prior checkpoint completed."
   - "Spec Kit 004; ZXing 3.5.4 SHA-256 pinned; upstream license and notice packaged; bounded PNG/JPEG/WebP reader, QR-only decoder and iOS envelope, image picker and existing preview boundary. Source 593b43ae74faa2ba4affe5f3571a1f3b2a083540."
-current: "Source/local checks passed; exact-head Android CI pending."
-pending:
-  - "Verify CI build/lint/unit and APK packaging, including verifyZxingCore, fix errors and integrate after green checks."
-  - "Isolated device picker and real iOS-to-Android QR transfer, cancellation, secure storage readback, both import flows; no device connected. Do not claim physical PASS."
-  - "Next scoped stage: camera QR and QR export (with explicit disclosure), then structured files and subscriptions. No production distribution change."
-last_verified_commit: "593b43ae74faa2ba4affe5f3571a1f3b2a083540"
+current: "Source integration complete: PR389 merged 2614136ee8c2e9b01a7664f3e6d80ced68ff69fe; device QA deferred, not PASS."
+pending: []
+last_verified_commit: "a7843ddc80142f6f49b1f417ac97f19cd4f5024a exact head; merge 2614136ee8c2e9b01a7664f3e6d80ced68ff69fe"
 test_results:
-  - "Kotlin 2.0.21 direct compile with API 35 Android image reader, JUnit 13/13 PASS, Python contracts 8/8 PASS, git diff check PASS."
-  - "Maven Central SHA-1 verified, local JAR SHA-256 71de5d89341b5fcf5dd89da7f44e84d825d0e084cdf3ec77c9abe26b0f0ceb13; full Gradle build pending."
-  - "No Android hardware connected; synthetic QR roundtrip incl. iOS-format envelope, not physical interoperability."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-image-20261126 branch feat/android-qr-image-20261126. Verify exact-head PR CI; fix and integrate through protected merge. No iOS reupload, RuStore resubmission, production signing or physical device mutation. Preserve earlier acceptance limitations."
+  - "15/15 exact-head CI PASS; both Android build/lint/unit checks. Prior JUnit 13/13, Python 8/8."
+  - "No connected Android hardware; real image picker and cross-device acceptance pending."
+resume_instruction: "Source integration completed; continue QR export then camera. Device QA before release."
