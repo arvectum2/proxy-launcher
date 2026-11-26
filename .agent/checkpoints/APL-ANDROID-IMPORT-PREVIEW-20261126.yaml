@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-IMPORT-PREVIEW-20261126
-status: in_progress
+status: completed
 goal: "Android parity stage A: bounded ordinary proxy import with explicit preview in new-profile editor."
 definition_of_done:
   - "Strict ordinary proxy URI/supplier parsing; explicit preview, secure existing Save only, no auto-VPN or background clipboard."
@@ -11,13 +11,10 @@ completed:
   - "PR386 merged dd3bf74ebd31c2d2f4d02d5a8293035123d9ec3c; local main and GitVerse verified. iOS 0.3.0 WAITING_FOR_REVIEW, AFTER_APPROVAL."
   - "RuStore latest known rejection 06.10 under 2.12/12.1. Current official rules reviewed; no unchanged resubmission. Android GitHub baseline 0.1.38 unaffected."
   - "Spec Kit 002; pure Kotlin parser, editor preview, 40 localized resource sets, synthetic unit and source tests committed 612e094889e5e5e90d2f6245b926247f4af8fc8d."
-current: "Source/local checks passed; exact-head Android CI and emulator/physical UI evidence pending."
-pending:
-  - "Inspect exact-head CI Android build/lint/unit tests and fix real failures; merge via normal protection only after green checks."
-  - "UI smoke on available isolated emulator/physical Android; do not uninstall production app or alter credentials. If unavailable record limitation and defer device gate without claiming PASS."
-  - "Next Android parity slice: batch/file/QR import; first scope and tests, no release or distribution changes."
-last_verified_commit: "612e094889e5e5e90d2f6245b926247f4af8fc8d"
+current: "Engineering/source integration completed: PR387 merged 36077609c5b0c0e74832d729fb7c8f9fa88335b2; device smoke remains separately deferred, not PASS."
+pending: []
+last_verified_commit: "9ab7634fdac4687cb4da9624e1e77c1cdedcc48a (exact PR head); merge 36077609c5b0c0e74832d729fb7c8f9fa88335b2"
 test_results:
-  - "Kotlin 2.0.21 direct JVM compile and JUnit 4/4 PASS; Python contract 2/2 PASS; AAPT2 all resources PASS; git diff --check PASS."
-  - "Exact Gradle 8.9 absent locally; full Android CI required. ADB reports no connected devices. Local translations not independently reviewed by native speakers."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-import-preview-20261126, branch feat/android-import-preview-20261126. Read checkpoint and exact-head PR CI, continue verification and fix failures. No reupload iOS, no RuStore submission, no version/signing/production changes. Continue engineering independently of Apple review."
+  - "13/13 exact-head CI PASS, including two Android builds and lint/unit tests. Local JUnit 4/4, Python 2/2, AAPT2 PASS."
+  - "No connected Android device; device acceptance not claimed. No production release."
+resume_instruction: "Completed source integration; run isolated UI smoke when available before release. Continue APL-ANDROID-BATCH-IMPORT-20261126. No reupload or signing."

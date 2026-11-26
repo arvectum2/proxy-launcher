@@ -50,6 +50,8 @@ import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyImport
+import ru.arvectum.proxylauncher.model.ProxyBatchImport
+import ru.arvectum.proxylauncher.model.ImportedProxy
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
@@ -88,6 +90,10 @@ class MainActivity : Activity() {
     private var profilePopup: PopupWindow? = null
     private var appExclusionLoadingDialog: AlertDialog? = null
     @Volatile private var healthScanInProgress = false
+    private var batchImportGeneration = 0
+    private var batchFilePending = false
+    private var batchFileReadInProgress = false
+    private lateinit var batchImportButton: Button
 
     private val proxyTypes = listOf(
         ProxyType.AUTO,
@@ -687,6 +693,10 @@ class MainActivity : Activity() {
             ),
         )
 
+        batchImportButton = brandSmallButton(getString(R.string.apl_import_proxy_link) + " · TXT", ButtonTone.GHOST).apply {
+            setOnClickListener { showBatchImport() }
+        }
+        panel.addView(batchImportButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         return panel
     }
 
@@ -1313,6 +1323,133 @@ class MainActivity : Activity() {
     private fun selectedChoice(): ProfileChoice? =
         profileChoices.firstOrNull { it.key == currentSelectionKey() }
 
+    private fun canBatchImport(): Boolean =
+        !isFinishing && !isDestroyed && currentState == ProxyVpnService.STATE_DISCONNECTED &&
+            !switchInProgress && !batchFileReadInProgress && poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED
+
+    private fun showBatchImport() {
+        if (!canBatchImport()) return
+        batchImportGeneration++
+        val input = EditText(this).apply {
+            hint = "host:port"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
+            minLines = 3
+            maxLines = 6
+            isSaveEnabled = false
+            if (Build.VERSION.SDK_INT >= 26) {
+                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                imeOptions = imeOptions or android.view.inputmethod.EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+            }
+            filters = arrayOf(android.text.InputFilter.LengthFilter(ProxyBatchImport.MAX_BYTES + 1))
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.apl_import_proxy_link))
+            .setView(input)
+            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+            .setNeutralButton("TXT") { _, _ ->
+                if (canBatchImport()) {
+                    batchFilePending = true
+                    try {
+                        startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "text/plain"
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }, BATCH_FILE_REQUEST)
+                    } catch (_: Exception) {
+                        batchFilePending = false
+                        showImportFailure()
+                    }
+                }
+            }
+            .setPositiveButton(getString(R.string.apl_import_proxy_preview), null)
+            .create()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        dialog.setOnDismissListener { input.text.clear() }
+        dialog.show()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val items = ProxyBatchImport.parse(input.text.toString())
+            if (items == null || !canBatchImport()) {
+                input.error = getString(R.string.apl_import_proxy_invalid)
+            } else {
+                dialog.dismiss()
+                showBatchPreview(items)
+            }
+        }
+    }
+
+    private fun showImportFailure() {
+        if (!isFinishing && !isDestroyed) AlertDialog.Builder(this)
+            .setMessage(getString(R.string.apl_import_proxy_invalid))
+            .setPositiveButton(android.R.string.ok, null).show()
+    }
+
+    private fun showBatchPreview(items: List<ImportedProxy>) {
+        if (!canBatchImport()) return
+        val preview = runCatching { ProxyBatchImport.preview(items, store.listProfiles()) }.getOrNull()
+        if (preview == null) {
+            showImportFailure()
+            return
+        }
+        // No credentials or supplier-supplied labels are shown in this summary.
+        val summary = getString(R.string.apl_profiles_30c61) + ": ${items.size}\n" +
+            getString(R.string.apl_import_proxy_link) + ": ${preview.items.size}" +
+            preview.items.joinToString(separator = "\n", prefix = "\n\n") { item ->
+                val endpoint = if (':' in item.host) "[${item.host}]" else item.host
+                "${item.type.name} · $endpoint:${item.port}"
+            }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.apl_import_proxy_preview))
+            .setMessage(summary)
+            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+            .setPositiveButton(getString(R.string.apl_save_b4d30), null)
+            .create()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        dialog.show()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        val save = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        save.isEnabled = preview.items.isNotEmpty()
+        save.setOnClickListener {
+            if (!canBatchImport()) {
+                dialog.dismiss()
+                showImportFailure()
+                return@setOnClickListener
+            }
+            try {
+                val selection = currentSelectionKey()
+                val count = store.appendImportedProfiles(preview.items)
+                refreshProfileChoices(selection)
+                renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_import_proxy_link) + ": $count")
+                dialog.dismiss()
+            } catch (_: Exception) {
+                dialog.dismiss()
+                refreshProfileChoices(currentSelectionKey())
+                AlertDialog.Builder(this).setMessage(getString(R.string.apl_failed_to_save_profile_securely_c836f))
+                    .setPositiveButton(android.R.string.ok, null).show()
+            }
+        }
+    }
+
+    private fun importSelectedTextFile(uri: android.net.Uri) {
+        if (!canBatchImport()) return
+        val generation = ++batchImportGeneration
+        batchFileReadInProgress = true
+        updateProfileControls()
+        Thread {
+            val items = runCatching {
+                contentResolver.openInputStream(uri)?.use(ProxyBatchImport::readText)?.let(ProxyBatchImport::parse)
+            }.getOrNull()
+            mainHandler.post {
+                batchFileReadInProgress = false
+                if (isFinishing || isDestroyed) return@post
+                updateProfileControls()
+                if (generation != batchImportGeneration || !canBatchImport()) return@post
+                if (items == null) showImportFailure() else showBatchPreview(items)
+            }
+        }.apply { isDaemon = true }.start()
+    }
+
     private fun showProfileEditor(profileId: String?) {
         if (switchInProgress) return
         val creating = profileId == null
@@ -1745,6 +1882,12 @@ class MainActivity : Activity() {
     @Deprecated("Legacy result API keeps the zero-dependency dogfood client small")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == BATCH_FILE_REQUEST) {
+            val expected = batchFilePending
+            batchFilePending = false
+            if (expected && resultCode == RESULT_OK) data?.data?.let(::importSelectedTextFile)
+            return
+        }
         if (requestCode != VPN_REQUEST) return
         if (resultCode == RESULT_OK) {
             connectVpn()
@@ -1875,6 +2018,10 @@ class MainActivity : Activity() {
             currentState != ProxyVpnService.STATE_DISCONNECTING && !switchInProgress
         profileSelectorShell.alpha = if (profileSelectorShell.isEnabled) 1f else 0.58f
 
+        if (::batchImportButton.isInitialized) {
+            batchImportButton.isEnabled = canBatchImport()
+            batchImportButton.alpha = if (batchImportButton.isEnabled) 1f else 0.5f
+        }
         newProfileButton.isEnabled = creatable
         newProfileButton.alpha = if (creatable) 1f else 0.5f
 
@@ -2061,6 +2208,7 @@ class MainActivity : Activity() {
             ProxyVpnService.STATE_CONNECTED,
             ProxyVpnService.STATE_ERROR,
         )
+        private const val BATCH_FILE_REQUEST = 7203
         private val creatableStates = editableStates + ProxyVpnService.STATE_CONNECTED
     }
 }
