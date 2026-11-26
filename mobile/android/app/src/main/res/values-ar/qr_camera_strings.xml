@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">مسح رمز QR</string>
+    <string name="apl_qr_camera_denied">تم رفض الوصول إلى الكاميرا</string>
+    <string name="apl_qr_camera_unavailable">الكاميرا غير متوفرة</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">QR কোড স্ক্যান করুন</string>
+    <string name="apl_qr_camera_denied">ক্যামেরা অ্যাক্সেস অস্বীকার করা হয়</string>
+    <string name="apl_qr_camera_unavailable">ক্যামেরা অনুপলব্ধ</string>
+</resources>

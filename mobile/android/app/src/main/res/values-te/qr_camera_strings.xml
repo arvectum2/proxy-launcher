@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">QR కోడ్‌ని స్కాన్ చేయండి</string>
+    <string name="apl_qr_camera_denied">కెమెరా యాక్సెస్ నిరాకరించబడింది</string>
+    <string name="apl_qr_camera_unavailable">కెమెరా అందుబాటులో లేదు</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Changanua msimbo wa QR</string>
+    <string name="apl_qr_camera_denied">Ufikiaji wa kamera umekataliwa</string>
+    <string name="apl_qr_camera_unavailable">Kamera haipatikani</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">סרוק קוד QR</string>
+    <string name="apl_qr_camera_denied">הגישה למצלמה נדחתה</string>
+    <string name="apl_qr_camera_unavailable">המצלמה אינה זמינה</string>
+</resources>

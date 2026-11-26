@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Naskenujte kód QR</string>
+    <string name="apl_qr_camera_denied">Přístup ke kameře je odepřen</string>
+    <string name="apl_qr_camera_unavailable">Kamera není k dispozici</string>
+</resources>

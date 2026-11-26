@@ -24,7 +24,7 @@ class QrExportContract(unittest.TestCase):
             self.assertNotIn(forbidden, consent + display)
 
     def test_display_disposal(self):
-        self.assertIn("override fun onPause() {\n        qrExportDialog?.dismiss()", ACTIVITY)
+        self.assertIn("qrExportDialog?.dismiss()", ACTIVITY.split("override fun onPause() {",1)[1].split("override fun onStop()",1)[0])
         self.assertIn("if (state != ProxyVpnService.STATE_DISCONNECTED) qrExportDialog?.dismiss()", ACTIVITY)
         self.assertIn("image.setImageDrawable(null)", ACTIVITY)
         self.assertIn("bitmap.recycle()", ACTIVITY)

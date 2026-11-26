@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Digitalizar o código QR</string>
+    <string name="apl_qr_camera_denied">O acesso à câmara foi negado</string>
+    <string name="apl_qr_camera_unavailable">A câmara não está disponível</string>
+</resources>

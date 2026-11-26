@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">QR kodunu tarayın</string>
+    <string name="apl_qr_camera_denied">Kamera erişimi reddedildi</string>
+    <string name="apl_qr_camera_unavailable">Kamera kullanılamıyor</string>
+</resources>

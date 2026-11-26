@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">掃描QR碼</string>
+    <string name="apl_qr_camera_denied">相機訪問被拒絕</string>
+    <string name="apl_qr_camera_unavailable">相機不可用</string>
+</resources>

@@ -21,7 +21,7 @@ class QrImportContract(unittest.TestCase):
 
     def test_qr_uses_only_explicit_picker_and_preview(self):
         picker = ACTIVITY.split("private fun chooseQrImage()", 1)[1].split("private fun importSelectedQrImage(", 1)[0]
-        worker = ACTIVITY.split("private fun importSelectedQrImage(", 1)[1].split("private fun showProfileEditor(", 1)[0]
+        worker = ACTIVITY.split("private fun importSelectedQrImage(", 1)[1].split("private fun requestQrCamera()", 1)[0]
         self.assertIn("if (!canBatchImport()) return", picker)
         self.assertIn("Intent.ACTION_OPEN_DOCUMENT", picker)
         self.assertIn('arrayOf("image/png", "image/jpeg", "image/webp")', picker)
@@ -32,7 +32,8 @@ class QrImportContract(unittest.TestCase):
         for forbidden in ("appendImportedProfiles", "connectVpn()", "takePersistableUriPermission", "Log."):
             self.assertNotIn(forbidden, picker + worker)
         manifest = (APP / "src/main/AndroidManifest.xml").read_text()
-        self.assertNotIn("android.permission.CAMERA", manifest)
+        self.assertNotIn("Manifest.permission.CAMERA", picker + worker)
+        self.assertIn('android:name="android.hardware.camera" android:required="false"', manifest)
         self.assertNotIn("arvectum-proxy", manifest)
 
     def test_decode_bounds_and_no_implicit_navigation(self):

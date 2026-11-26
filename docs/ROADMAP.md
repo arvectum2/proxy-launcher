@@ -20,7 +20,7 @@
 | Astra Linux DEB | v0.2.16 | PAUSED; Astra SE 1.8/Fly physical PASS сохранён |
 | RED OS RPM | v0.2.16 | PAUSED; RED OS 8.0.3/KDE physical PASS сохранён |
 | Linux AppImage x86_64 | v0.2.16 | PAUSED; пакет опубликован |
-| Android GitHub | android-v0.1.38 (39) | ACTIVE: одиночный, пакетный/TXT, QR-импорт в main; QR-экспорт в разработке |
+| Android GitHub | android-v0.1.38 (39) | ACTIVE: одиночный, пакетный/TXT, QR-импорт и QR-экспорт в main; сканирование камерой в разработке |
 | Android RuStore | Не подтверждена | Последний известный отказ 0.1.38 (39) от 06.10, пп. 2.12/12.1; повторной подачи нет |
 
 Источники: App Store Connect API 26.11, GitHub Releases, [финальный iOS протокол](APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md). GitHub/GitVerse main при проверке 954a88f08aaccc35a9493eaea149826b7a120b75. Версии каналов независимы.
@@ -40,7 +40,8 @@
 - [x] APL-ANDROID-IMPORT-PREVIEW-20261126: PR #387, exact-head 9ab7634f, 13/13 CI (две Android сборки), merged 36077609. Исходниковая интеграция завершена, устройство не проверено; публичный APK 0.1.38 неизменён.
 - [x] APL-ANDROID-BATCH-IMPORT-20261126: PR #388 exact-head fe126098, 15/15 CI, merged 12654068. Пакетный/TXT импорт интегрирован, device/storage QA отдельно.
 - [x] APL-ANDROID-QR-IMAGE-20261126: [Spec Kit 004](../specs/004-android-qr-image/spec.md), PR #389 exact-head a7843ddc, 15/15 CI, merged 2614136e. PNG/JPEG/WebP, iOS Share envelope; device QA отдельно.
-- [ ] APL-ANDROID-QR-EXPORT-20261126: [Spec Kit 005](../specs/005-android-qr-export/spec.md), показ QR сохранённого обычного прокси после явного подтверждения раскрытия данных, iOS-compatible envelope, local Kotlin→actual Swift parser PASS; Android CI и физический обмен отдельно. Камера и внешняя отправка QR — самостоятельные этапы.
+- [x] APL-ANDROID-QR-EXPORT-20261126: PR #390 exact-head 7bca391c, 15/15 CI, merged bf443090; Kotlin→Swift parser PASS, физический обмен отдельно.
+- [ ] APL-ANDROID-QR-CAMERA-20261126: [Spec Kit 006](../specs/006-android-qr-camera/spec.md), Camera2, явное разрешение, bounded YUV, локальное распознавание, закрытие capture при pause/cancel, существующий preview/Save. Local tests PASS; CI и физическая камера отдельно.
 - [ ] Далее QR, структурированные форматы, подписки, backup, протоколы. Последний известный отказ RuStore 06.10 по 2.12/12.1; без повторной подачи неизменённого APK.
 - Разработка Android возобновлена по шагам; публикация и подпись новых версий не разрешены автоматически. Остальные платформы остаются в согласованной очереди.
 
