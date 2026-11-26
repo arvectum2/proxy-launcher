@@ -10,7 +10,7 @@ class BatchImportContract(unittest.TestCase):
     def test_preview_and_explicit_save_boundary(self):
         editor = ACTIVITY.split("private fun showBatchImport()",1)[1].split("private fun showImportFailure()",1)[0]
         preview = ACTIVITY.split("private fun showBatchPreview(",1)[1].split("private fun importSelectedTextFile(",1)[0]
-        self.assertIn("ProxyBatchImport.parse", editor)
+        self.assertIn("ProxyStructuredImport.parseBatch", editor)
         self.assertIn("FLAG_SECURE", editor)
         self.assertIn("input.text.clear()", editor)
         self.assertNotIn("appendImportedProfiles", editor)
@@ -24,9 +24,10 @@ class BatchImportContract(unittest.TestCase):
 
     def test_file_import_uses_bounded_worker_and_no_persistent_permission(self):
         self.assertIn("Intent.ACTION_OPEN_DOCUMENT", ACTIVITY)
-        self.assertIn("type = \"text/plain\"", ACTIVITY)
+        self.assertIn('type = "*/*"', ACTIVITY)
+        self.assertIn('"text/plain"', ACTIVITY)
         self.assertNotIn("takePersistableUriPermission", ACTIVITY)
-        worker = ACTIVITY.split("private fun importSelectedTextFile(",1)[1].split("private fun showProfileEditor(",1)[0]
+        worker = ACTIVITY.split("private fun importSelectedTextFile(",1)[1].split("private fun chooseQrImage()",1)[0]
         self.assertIn("Thread {", worker)
         self.assertIn("use(ProxyBatchImport::readText)", worker)
         self.assertIn("generation != batchImportGeneration", worker)

@@ -64,7 +64,7 @@ object ProxyImport {
     private fun decode(raw: String): String =
         URLDecoder.decode(raw.replace("+", "%2B"), "UTF-8")
 
-    private fun item(rawHost: String, portText: String, type: ProxyType,
+    internal fun item(rawHost: String, portText: String, type: ProxyType,
                      user: String, pass: String, label: String): ImportedProxy? {
         if (portText.isEmpty() || portText.any { it !in '0'..'9' }) return null
         val port = portText.toIntOrNull()?.takeIf { it in 1..65535 } ?: return null

@@ -42,7 +42,8 @@
 - [x] APL-ANDROID-QR-IMAGE-20261126: [Spec Kit 004](../specs/004-android-qr-image/spec.md), PR #389 exact-head a7843ddc, 15/15 CI, merged 2614136e. PNG/JPEG/WebP, iOS Share envelope; device QA отдельно.
 - [x] APL-ANDROID-QR-EXPORT-20261126: PR #390 exact-head 7bca391c, 15/15 CI, merged bf443090; Kotlin→Swift parser PASS, физический обмен отдельно.
 - [x] APL-ANDROID-QR-CAMERA-20261126: PR #391 exact-head 0924b179, 15/15 CI, merged b0d6d056. Camera2, explicit permission, bounded YUV, preview/Save; физическая камера отдельно.
-- [ ] APL-ANDROID-QR-SHARE-20261126: [Spec Kit 007](../specs/007-android-qr-share/spec.md), системное меню Android после повторного согласия, PNG только в памяти, ограниченный read-only URI с TTL 5 минут. Local checks PASS; CI/OS/device отдельно.
+- [x] APL-ANDROID-QR-SHARE-20261126: PR #392 exact-head 4a45368f, 15/15 CI, merged 005307c9. System chooser, repeat consent, memory-only PNG and expiring read-only URI; physical chooser QA separately.
+- [ ] APL-ANDROID-STRUCTURED-IMPORT-20261126: [Spec Kit 008](../specs/008-android-structured-import/spec.md), bounded JSON/XML/CSV, field aliases, strict validation, no DTD/external entities, existing preview/Save. Local checks PASS; Android CI and device gate separately.
 - [ ] Далее QR, структурированные форматы, подписки, backup, протоколы. Последний известный отказ RuStore 06.10 по 2.12/12.1; без повторной подачи неизменённого APK.
 - Разработка Android возобновлена по шагам; публикация и подпись новых версий не разрешены автоматически. Остальные платформы остаются в согласованной очереди.
 
