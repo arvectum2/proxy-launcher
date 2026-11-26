@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-MANAGED-REFRESH-ROLLBACK
+status: in_progress
+goal: "Explicit subscription-owned profile changes and reversible configuration update."
+definition_of_done:
+  - "Ownership-scoped planner, conflict/selection/source/baseline/expiry guards, encrypted inverse journal."
+  - "Transactional real profile storage, explicit managed-mode/rollback UI, ownership assignment and detachment, commit failure restoration, exact-head CI and protected integration."
+  - "Device Keystore, network/lifecycle/rollback fault acceptance before release; previous configuration is not last-known-good until tested."
+completed:
+  - "PR395 exact head a32c2cd4 15/15 CI PASS, merged f9ac3f6b5ff02c0c8c854f57e4751f69d2453295; GitVerse main verified; prior checkpoint archived."
+  - "Spec Kit 011; pure ManagedSubscriptionRefresh with one-shot review, precise selection state, owner boundaries and inverse; ManagedRollbackJournal encrypted bounded changed rows and post-state fingerprint; rebased source 8c2f4c7dbb7e4a21e4b096f5cbe15f9febd43df0."
+current: "Core local checks PASS; gate core exact-head CI before enabling live profile mutation."
+pending:
+  - "Verify core PR exact-head Android build/lint/unit, fix failures and merge after all required checks PASS. Keep entire managed feature in_progress after core merge."
+  - "Next scoped implementation: SecureProfileStore transaction adapter, persistent owner assignment only on explicit managed import, detach on manual edit/source removal, atomic affected-key commit of encrypted profiles and rollback journal, exact stale checks and failure restoration. Preserve raw/effective selection and cross-process disconnected guard. No adoption of legacy profiles. Add synthetic storage failure tests."
+  - "Integrate explicit managed review/apply/rollback controls, verify actual store/UI CI; physical Keystore/network/rollback fault/lifecycle acceptance separately. Existing additive mode unchanged; no background polling."
+  - "Before release: device acceptance and full resolved dependency graph review; then backup/native transports per roadmap."
+last_verified_commit: "8c2f4c7dbb7e4a21e4b096f5cbe15f9febd43df0 (rebased local-tested tree)"
+test_results:
+  - "51/51 JVM tests including 10 new pure planner/journal tests; 30 unique Python source contracts; git diff check PASS."
+  - "Software-key AES-GCM only; no actual Keystore or transactional profile mutation. New core not wired to runtime/storage/UI. Full Android CI pending."
+resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-managed-refresh-20261126 branch feat/android-managed-refresh-20261126. Verify exact-head core PR CI and integrate when green, then implement store/UI/fault tests per Spec Kit 011. Do not mark full feature completed until storage/UI CI. No production signing, release, real profiles/tokens or destructive actions."
