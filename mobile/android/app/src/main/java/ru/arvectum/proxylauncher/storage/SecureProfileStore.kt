@@ -12,6 +12,10 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
+import ru.arvectum.proxylauncher.model.ManagedProfileState
+import ru.arvectum.proxylauncher.model.ManagedRollbackJournal
+import ru.arvectum.proxylauncher.model.ManagedSubscriptionRefresh
+import ru.arvectum.proxylauncher.model.SavedSubscription
 import ru.arvectum.proxylauncher.model.ImportedProxy
 import ru.arvectum.proxylauncher.model.ProxyBatchImport
 import ru.arvectum.proxylauncher.model.ProxyProfile
@@ -26,6 +30,128 @@ data class ResolvedProxyProfile(
 
 class SecureProfileStore(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+
+    // Managed mutation is deliberately not reachable from UI until the process and device gate.
+    private val managedBackend = object : ManagedPreferenceBackend {
+        override fun read(): Map<String,Any> = prefs.all.mapValues { (_, value) ->
+            when (value) {
+                is Set<*> -> value.toSet()
+                null -> error("Unexpected null preference")
+                else -> value
+            }
+        }
+
+        override fun commit(patch: Map<String,Any?>): Boolean {
+            val editor = prefs.edit()
+            for ((key,value) in patch) when (value) {
+                null -> editor.remove(key)
+                is String -> editor.putString(key,value)
+                is Int -> editor.putInt(key,value)
+                is Set<*> -> {
+                    require(value.all { it is String })
+                    editor.putStringSet(key,value.map { it as String }.toSet())
+                }
+                else -> error("Unsupported managed preference value")
+            }
+            return editor.commit()
+        }
+    }
+
+    private val managedTransaction = ManagedPreferenceTransaction(managedBackend)
+
+    /** Conservative preliminary process guard, not a cross-process lock. No caller in production yet. */
+    private fun managedProcessIdle(): Boolean {
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) return false
+        val manager = appContext.getSystemService(android.app.ActivityManager::class.java) ?: return false
+        val processes = manager.runningAppProcesses ?: return false
+        val own = processes.filter { it.uid == android.os.Process.myUid() }
+        return own.any { it.pid == android.os.Process.myPid() && it.processName == appContext.packageName } &&
+            own.none { it.processName == appContext.packageName + ":vpn" }
+    }
+
+    private fun managedJournalKey(allowCreate: Boolean): SecretKey {
+        val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        (ks.getKey(MANAGED_JOURNAL_ALIAS,null) as? SecretKey)?.let { return it }
+        check(allowCreate) { "Managed journal key unavailable" }
+        return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore").apply {
+            init(KeyGenParameterSpec.Builder(MANAGED_JOURNAL_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setKeySize(256).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(true).build())
+        }.generateKey()
+    }
+
+    private fun existingCredentialKey(): SecretKey {
+        val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        return ks.getKey(KEY_ALIAS,null) as? SecretKey ?: error("Profile key unavailable")
+    }
+
+    @Synchronized
+    internal fun prepareManagedRefresh(source: SavedSubscription, items: List<ImportedProxy>, selected: String?,
+                                       allowed: () -> Boolean): ManagedSubscriptionRefresh? {
+        if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
+        return runCatching {
+            val snapshot = ManagedPreferenceSchema.snapshot(managedBackend.read(),selected)
+            ManagedSubscriptionRefresh.prepare(source,items,snapshot,android.os.SystemClock::elapsedRealtime,
+                { row,item ->
+                    val secret = row.encryptedCredential
+                    if (secret == null) item.username.isEmpty() && item.password.isEmpty()
+                    else decrypt(secret, existingCredentialKey()) == item.password
+                })
+        }.getOrNull()
+    }
+
+    @Synchronized
+    internal fun applyManagedRefresh(review: ManagedSubscriptionRefresh, source: SavedSubscription?, selected: String?,
+                                     allowed: () -> Boolean): ManagedPreferenceTransaction.Outcome {
+        val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
+        if (!gate()) { review.cancel(); return ManagedPreferenceTransaction.Outcome.STALE }
+        val raw = managedBackend.read()
+        val before = ManagedPreferenceSchema.snapshot(raw,selected)
+        val key by lazy {
+            if (before.rows.any { it.encryptedCredential != null }) existingCredentialKey() else getOrCreateKey()
+        }
+        val txn = review.confirm(source,before,gate()) { _,item ->
+            if (item.username.isEmpty()) null else {
+                val chars = item.password.toCharArray()
+                try { encrypt(chars,key) } finally { chars.fill(Char.MIN_VALUE) }
+            }
+        } ?: return ManagedPreferenceTransaction.Outcome.STALE
+        // Reject loss/corruption of the previous journal rather than silently discarding it.
+        val previousJournal = raw[ManagedPreferenceSchema.JOURNAL]
+        val journalKey = managedJournalKey(previousJournal == null)
+        if (previousJournal != null) ManagedRollbackJournal.open(previousJournal as String,journalKey)
+        // Verify each previous affected ciphertext is decryptable before it becomes rollback evidence.
+        for (row in before.rows) if (row.profile.id in txn.changedIds && row.encryptedCredential != null)
+            decrypt(row.encryptedCredential,existingCredentialKey())
+        val journal = ManagedRollbackJournal.from(txn).seal(journalKey)
+        val patch = ManagedPreferenceSchema.patch(raw,before,txn.after,txn.source.id,journal)
+        return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+    }
+
+    @Synchronized
+    internal fun rollbackManagedRefresh(source: SavedSubscription?, selected: String?,
+                                        allowed: () -> Boolean): ManagedPreferenceTransaction.Outcome {
+        val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
+        if (!gate() || source == null) return ManagedPreferenceTransaction.Outcome.STALE
+        val raw = managedBackend.read()
+        val encoded = raw[ManagedPreferenceSchema.JOURNAL] as? String ?: return ManagedPreferenceTransaction.Outcome.STALE
+        val before = ManagedPreferenceSchema.snapshot(raw,selected)
+        val journal = ManagedRollbackJournal.open(encoded,managedJournalKey(false))
+        val after = journal.restore(source,before,gate()) ?: return ManagedPreferenceTransaction.Outcome.STALE
+        // Verify old encrypted credentials still decrypt under the existing key before restoring.
+        for (row in after.rows) if (row.encryptedCredential != null) decrypt(row.encryptedCredential,existingCredentialKey())
+        val patch = ManagedPreferenceSchema.patch(raw,before,after,source.id,null)
+        return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+    }
+
+    private fun recordManagedOutcome(outcome: ManagedPreferenceTransaction.Outcome): ManagedPreferenceTransaction.Outcome {
+        if (outcome == ManagedPreferenceTransaction.Outcome.RECOVERY_REQUIRED) managedRecoveryRequired = true
+        return outcome
+    }
+
 
     init {
         // Friend builds could persist a temporary gateway selection. Public builds
@@ -387,14 +513,14 @@ class SecureProfileStore(context: Context) {
         }
     }
 
-    private fun decrypt(encoded: String): String {
+    private fun decrypt(encoded: String, key: SecretKey = getOrCreateKey()): String {
         val parts = encoded.split(':', limit = 2)
         require(parts.size == 2) { "Invalid encrypted credential format" }
         val iv = Base64.decode(parts[0], Base64.NO_WRAP)
         val ciphertext = Base64.decode(parts[1], Base64.NO_WRAP)
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(128, iv))
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, iv))
             val plaintext = cipher.doFinal(ciphertext)
             try {
                 plaintext.toString(Charsets.UTF_8)
@@ -448,5 +574,7 @@ class SecureProfileStore(context: Context) {
         private const val LEGACY_GATEWAY_RECOVERY_ATTEMPT = "free_recovery_attempt_count"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
+        private const val MANAGED_JOURNAL_ALIAS = "ru.arvectum.proxylauncher.managed_rollback.v1"
+        @Volatile private var managedRecoveryRequired = false
     }
 }

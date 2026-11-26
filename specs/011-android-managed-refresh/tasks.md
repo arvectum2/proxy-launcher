@@ -1,8 +1,11 @@
 # Tasks
-- [x] M1/M2 pure ownership and change planner (ownership is only modeled, not persisted)
+- [x] M1/M2 pure ownership and change planner (PR396 merged, 15/15 CI)
 - [x] M3 one-shot review and inverse plan (pure core)
 - [x] M4 encrypted bounded journal codec and synthetic restore tests
-- [ ] Integrate ownership assignment/detach, exact-state store adapter, transactional profile and journal commit/failure recovery, explicit UI and rollback
-- [ ] Exact-head CI for core; protected integration, later full storage/UI CI and separate real-device gate
+- [x] Storage sub-stage: strict preference snapshot, affected-key patch, SecureProfileStore adapter, synchronous commit + readback and simulated fault recovery (source, no UI activation)
+- [ ] Storage exact-head CI and protected merge
+- [ ] Durable recovery marker across process restart and actual cross-process exclusion; verify default/VPN process lifecycle, no stale cache; process enumeration alone is not a lock
+- [ ] Ownership detach on manual edit/source removal, explicit managed review/apply/rollback UI; safe handling of implicit primary and first import, no adoption of legacy rows
+- [ ] Real-device Keystore, storage failure, crash recovery, network/lifecycle acceptance and full storage/UI CI before release
 
-Local: JVM 51/51, including 10 new methods for managed review and AES-GCM journal; 30 unique Python source contracts, git diff check PASS. This PR intentionally has no live profile writes or user-facing managed mode. No previous configuration has been established as working by a connectivity test. Journal stores only changed rows and exact post-state fingerprint; software-key tests only. Before enabling storage, verify process/lifecycle guard, actual Keystore, commit failure and recovery. Existing additive subscriptions remain unchanged.
+Local: JVM 61/61 including 10 new preference transaction/fault tests; 33 unique Python source contracts; actual SecureProfileStore source compiled against API35; git diff check PASS. Mock backend validates false/partial/lying commit, restore, stale state, gate loss and foreign-key preservation, not physical disk durability. SharedPreferences readback checks in-memory view, not ACID/fsync proof. Recovery latch currently only in-process; durable recovery and mutually exclusive tunnel start/mutation gate required before activation. Guard conservatively rejects changes to effective primary, including rollback of a first import if it became implicit primary. No real profiles changed. Existing additive mode unchanged.

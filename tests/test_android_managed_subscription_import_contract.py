@@ -1,4 +1,4 @@
-"""Pure core contract only; managed apply/rollback is intentionally not wired to storage/UI yet."""
+"""Pure core contract; managed apply/rollback is intentionally not wired to UI yet."""
 from pathlib import Path
 import unittest
 
@@ -33,6 +33,6 @@ class ManagedRefreshContract(unittest.TestCase):
         for fragment in ('SharedPreferences','android.content','startActivity','connectVpn','ProxySubscriptionFetch','Log.'):
             self.assertNotIn(fragment,PLAN+JOURNAL)
         for fragment in ('ManagedSubscriptionRefresh','ManagedRollbackJournal'):
-            self.assertNotIn(fragment,MAIN+STORE)
+            self.assertNotIn(fragment,MAIN)
 
 if __name__=='__main__': unittest.main()
