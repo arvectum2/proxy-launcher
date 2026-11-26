@@ -1,21 +1,22 @@
 task_id: APL-IOS-030-UNIFIED-FINAL-20261126
-status: in_progress
+status: "completed"
 goal: "Owner-approved unified 0.3.0 (49): WG, AWG, VLESS Reality, private CloudKit."
 definition_of_done:
   - "Explicit release-only VLESS activation, CloudKit host-only, no QA flags, all relevant tests and pinned builds."
   - "Exact signed App Store and Development artifacts; verify entitlements, version, binary hashes, upgrade smoke."
   - "Reconcile final source/notice delivery and integration; production CloudKit schema and submission separately controlled."
 completed:
+  - "26 Nov owner approved temporary France removal. Apple API before/after exact availability diff FRA only, 174 remaining. App Store Connect standard external encryption / France No saved, build accepted. Actual review submission 562055ee-19ca-4462-823c-da6c7e04ab57 WAITING_FOR_REVIEW confirmed via UI and API; version0.3.0 build49, VALID, AFTER_APPROVAL."
   - "26 Nov CloudKit Production deployed, explicit confirmation and production payload BYTES schema verified; Pages ZIP verified. Actual Add for Review blocked on export documentation; no declaration or territory change."
   - "26 Nov PR383 merged at 954a88f0 after 21/21 successful GitHub checks; exact mobile/ios unchanged. Apple49 VALID attached, all 47 notes/94 screenshots and review notes verified."
   - "26 Nov final signed upgrade smoke PASS, actual selected legacy connect/disconnect and original OFF state. Main integrated in release branch; exact runtime tree unchanged, Spec Kit 9 tests PASS. Notices ZIP prepared. Apple draft and 47 notes verified; official validation PASS. Upload journaled once."
   - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
   - "Signed archive and both local IPA exports, exact identity, profile, entitlement and matching Mach-O UUID PASS. 443 Swift/464 Python/87 subtests; 411 private kit and 15 Go files rehashed. Main dry-run single roadmap conflict. No device mutation."
   - "Owner confirmed combined scope and deferral of second physical CloudKit device to subsequent update; prior real Development two-client/ordinary UI on one iPhone accepted. WAN/handoff remains deferred."
-current: "26 Nov CloudKit Production deployed and schema verified; main/Pages/Apple build VALID. Add for Review blocked by actual missing export compliance documents; France currently available. Owner decision/documentation required."
-remaining:
-  - "Resolve actual encryption export compliance with owner decision/documentation; submit and verify review state."
-last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged runtime; CloudKit Production verified; review not submitted)"
+current: "26 Nov iOS 0.3.0 (49) submitted and independently verified WAITING_FOR_REVIEW, AFTER_APPROVAL. France removed at owner request; other 174 territories unchanged. CloudKit Production deployed, main merged, 21/21 CI and public notices verified. Engineering and submission complete; actual public release awaits Apple."
+remaining: []
+last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged exact runtime; App Store submission verified)"
 test_results:
+  - "26 Nov final Apple submission verified: WAITING_FOR_REVIEW, build49 VALID, AFTER_APPROVAL; exact France-only territory diff. No remaining engineering blocker. Apple approval/publication pending externally."
   - "Prior accepted VLESS guarded LAN and CloudKit private Development receipts; 443 Swift / 462 Python / 87 subtests before UI adapter."
-resume_instruction: "ARC only. Owner explicitly authorized temporary France removal. Snapshot all 175 territories saved; remove FRA only and verify every other territory unchanged. Then accurately answer encryption form and submit existing VALID build49, verify review state; no reupload. Production CloudKit and main/Pages already verified."
+resume_instruction: "Completed engineering and authorized submission. Do not rebuild, reupload, resubmit, restore France or repeat accepted work. Apple WAITING_FOR_REVIEW; AFTER_APPROVAL automatic release. Monitor existing review status read-only; if rejected, investigate specific Apple feedback as a new task. Revisit France only after applicable documentation and owner approval. Second physical device and WAN deferred by owner."

@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: in_progress
+status: "completed"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -9,9 +9,10 @@ definition_of_done:
   - "Verify existing profiles, Keychain, backup, Smart3 routing and production ads/localizations remain intact."
   - "Do not enable Smart4 production DIRECT, native FIN draft, unsupported VLESS/Reality/WireGuard/AmneziaWG or CloudKit entitlement without their physical/architecture/security gates."
   - "Perform real migration and release QA on safe test device where available; create signed candidate only if all prerequisite approvals and validations pass."
-  - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
+  - "Submit one consolidated iOS App Store release after signed/physical QA and explicit product gates; verify accepted submission and automatic release after Apple approval. Publication itself depends on Apple review."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "26 Nov owner approved temporary France removal. Apple API before/after exact availability diff FRA only, 174 remaining. App Store Connect standard external encryption / France No saved, build accepted. Actual review submission 562055ee-19ca-4462-823c-da6c7e04ab57 WAITING_FOR_REVIEW confirmed via UI and API; version0.3.0 build49, VALID, AFTER_APPROVAL."
   - "26 Nov CloudKit Production deployed, explicit confirmation and production payload BYTES schema verified; Pages ZIP verified. Actual Add for Review blocked on export documentation; no declaration or territory change."
   - "26 Nov final signed upgrade smoke PASS, actual selected legacy connect/disconnect and original OFF state. Main integrated in release branch; exact runtime tree unchanged, Spec Kit 9 tests PASS. Notices ZIP prepared. Apple draft and 47 notes verified; official validation PASS. Upload journaled once."
   - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
@@ -287,26 +288,12 @@ completed:
 
 
 
-current: "26 Nov CloudKit Production deployed and schema verified; main/Pages/Apple build VALID. Add for Review blocked by actual missing export compliance documents; France currently available. Owner decision/documentation required."
-blocked_on:
-  - "Actual guarded VLESS runner, owner/ticket and ordinary UI physical LAN accepted; final public activation decision remains."
-  - "VLESS guarded LAN ordinary UI accepted; CloudKit capability/profiles enabled and private Development exchange accepted; ordinary CloudKit UI/second device and production schema remain. Public activation decision required."
-  - "Owner approved connected iPhone physical QA and temporary Wi-Fi switching on 17.11; validated independent synthetic test inputs/controlled peers and stable UI remain required. No separate install/signing or owner credential export authorization implied."
-  - "Production native acceptance still requires applicable route/DNS behavior, packaging/license/security and protocol coverage. Extended physical WAN/handoff explicitly deferred; no general no-leak or seamless-switch claim."
-  - "CloudKit ordinary UI physical test and second device scope; no owner credential export."
-  - "Production security/licensing and CloudKit private two-device require their own accepted proof and owner supervision. Extended physical WAN/handoff is deferred by owner, not passed."
-pending:
-  - "Ordinary CloudKit UI accepted; second physical device deferred by owner, not tested."
-  - "After owner scope decision, verify exact latest GitHub checks, choose public release scope, consider required licensing/source notices, then request explicit App Store Connect upload/submission approval and perform only authorized actions. Existing signed IPA can be reused if runtime unchanged."
-  - "Native WG synthetic LAN transport/DNS acceptance completed. Extended WAN/handoff for native protocols deferred by owner until user complaints or suitable infrastructure."
-  - "Unsigned engineering audit complete; remaining source/notice delivery, exact-head CI and final signed acceptance."
-  - "Review remaining applicable provider-owned underlay/route/DNS and MTU/QUIC policy; extended physical WAN/handoff deferred, not PASS."
-  - "Broader AWG versions/interoperability and packaging/provenance/license/security; extended WAN switching deferred."
-  - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
-  - "CloudKit same-account second device and final upgrade smoke; previous physical encrypted backup cycle already accepted and 73 current tests PASS."
-  - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged runtime; CloudKit Production verified; review not submitted)"
+current: "26 Nov iOS 0.3.0 (49) submitted and independently verified WAITING_FOR_REVIEW, AFTER_APPROVAL. France removed at owner request; other 174 territories unchanged. CloudKit Production deployed, main merged, 21/21 CI and public notices verified. Engineering and submission complete; actual public release awaits Apple."
+blocked_on: []
+pending: []
+last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged exact runtime; App Store submission verified)"
 test_results:
+  - "26 Nov final Apple submission verified: WAITING_FOR_REVIEW, build49 VALID, AFTER_APPROVAL; exact France-only territory diff. No remaining engineering blocker. Apple approval/publication pending externally."
   - "26 Nov exact unified signed archive and two IPA exports PASS, source1acf654d, 443 Swift/464 Python/87 subtests, profile/entitlement/Mach-O UUID and preflight verified; 411+15 private inventory files. Final upgrade smoke not run; no device mutation/upload."
   - "26 Nov ordinary CloudKit UI FC281705-63AB-45E4-B7A0-EDF95B3B2E76 PASS actual taps and live cloud, isolated local adapter, exact cleanup, original app and active VPN restored; one physical device only."
   - "26 Nov 17 CloudKit contracts/preflight, ARM64 and signed ordinary screen QA PASS. 73 backup-focused Swift PASS, 19 Nov physical positive/negative+cleanup accepted. No device install or cloud mutation."
@@ -553,6 +540,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Owner explicitly authorized temporary France removal. Snapshot all 175 territories saved; remove FRA only and verify every other territory unchanged. Then accurately answer encryption form and submit existing VALID build49, verify review state; no reupload. Production CloudKit and main/Pages already verified."
+resume_instruction: "Completed engineering and authorized submission. Do not rebuild, reupload, resubmit, restore France or repeat accepted work. Apple WAITING_FOR_REVIEW; AFTER_APPROVAL automatic release. Monitor existing review status read-only; if rejected, investigate specific Apple feedback as a new task. Revisit France only after applicable documentation and owner approval. Second physical device and WAN deferred by owner."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
