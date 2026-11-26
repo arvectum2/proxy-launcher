@@ -3,6 +3,7 @@ package ru.arvectum.proxylauncher.model
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.LuminanceSource
 import com.google.zxing.ResultMetadataType
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.multi.qrcode.QRCodeMultiReader
@@ -59,8 +60,12 @@ object ProxyQrImport {
     fun decodePixels(width: Int, height: Int, pixels: IntArray): List<ImportedProxy>? {
         if (width !in 1..MAX_DECODED_SIDE || height !in 1..MAX_DECODED_SIDE ||
             pixels.size.toLong() != width.toLong() * height) return null
+        return decodeLuminance(RGBLuminanceSource(width, height, pixels))
+    }
+
+    internal fun decodeLuminance(source: LuminanceSource): List<ImportedProxy>? {
         return try {
-            val image = BinaryBitmap(HybridBinarizer(RGBLuminanceSource(width, height, pixels)))
+            val image = BinaryBitmap(HybridBinarizer(source))
             val results = QRCodeMultiReader().decodeMultiple(image, mapOf(DecodeHintType.TRY_HARDER to true))
             val result = results.singleOrNull() ?: return null
             // ZXing's structured-append merge produces an empty point list.
