@@ -5,6 +5,12 @@ import json
 from pathlib import Path
 import tarfile
 
+import importlib.util as _pytest_import_util
+import unittest as _pytest_unittest
+
+# These fixtures run in the dedicated iOS pytest CI lane, not unittest-only Windows builds.
+if _pytest_import_util.find_spec("pytest") is None:
+    raise _pytest_unittest.SkipTest("pytest-only iOS contract; run the iOS pytest CI lane")
 import pytest
 
 SCRIPT=Path(__file__).resolve().parents[1]/'mobile/ios/Tools/export_rust_notice_gap_evidence.py'

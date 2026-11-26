@@ -2,6 +2,7 @@
 
 Run: python3 -m unittest discover -s tests -p test_ios_appearance_contract.py
 """
+import json
 import pathlib
 import unittest
 
@@ -38,10 +39,12 @@ class IOSAppearanceContractTests(unittest.TestCase):
     def test_release_version_and_project_consistent(self):
         yml = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
-        self.assertIn('MARKETING_VERSION: "0.2.0"', yml)
-        self.assertIn('CURRENT_PROJECT_VERSION: "48"', yml)
-        self.assertEqual(pbx.count('MARKETING_VERSION = 0.2.0;'), 2)
-        self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 48;'), 2)
+        active = json.loads((IOS / "Config/active-development.json").read_text(encoding="utf-8"))
+        version, build = active["marketing_version"], active["build_number"]
+        self.assertIn(f'MARKETING_VERSION: "{version}"', yml)
+        self.assertIn(f'CURRENT_PROJECT_VERSION: "{build}"', yml)
+        self.assertEqual(pbx.count(f'MARKETING_VERSION = {version};'), 2)
+        self.assertEqual(pbx.count(f'CURRENT_PROJECT_VERSION = {build};'), 2)
 
     def test_ads_enabled_in_release_only_main_app(self):
         config = (IOS / "project.yml").read_text(encoding="utf-8")
