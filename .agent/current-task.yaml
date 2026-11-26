@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: in_progress
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -553,6 +553,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Owner authorized final release; main954a88f0 merged 21/21 CI and Pages ZIP verified. CloudKit Production exact container deployed and payload BYTES independently confirmed; no repeat. Apple build49 VALID attached, Add for Review rejected missing encryption export compliance; form preview external standard algorithms + France Yes requires documentation. France currently available confirmed Apple v2 API. BLOCKED pending owner decision on France distribution or applicable export declaration documentation/classification. No false exemption, no country change without explicit authorization. No reupload, recreate, account change or reopen closed scope. After documented lawful classification and any approved territory change, verify build compliance and submit, confirm actual review state and mark completed."
+resume_instruction: "ARC only. Owner explicitly authorized temporary France removal. Snapshot all 175 territories saved; remove FRA only and verify every other territory unchanged. Then accurately answer encryption form and submit existing VALID build49, verify review state; no reupload. Production CloudKit and main/Pages already verified."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

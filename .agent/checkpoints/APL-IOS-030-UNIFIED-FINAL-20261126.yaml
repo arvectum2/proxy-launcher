@@ -1,5 +1,5 @@
 task_id: APL-IOS-030-UNIFIED-FINAL-20261126
-status: "blocked"
+status: in_progress
 goal: "Owner-approved unified 0.3.0 (49): WG, AWG, VLESS Reality, private CloudKit."
 definition_of_done:
   - "Explicit release-only VLESS activation, CloudKit host-only, no QA flags, all relevant tests and pinned builds."
@@ -18,4 +18,4 @@ remaining:
 last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged runtime; CloudKit Production verified; review not submitted)"
 test_results:
   - "Prior accepted VLESS guarded LAN and CloudKit private Development receipts; 443 Swift / 462 Python / 87 subtests before UI adapter."
-resume_instruction: "ARC only. Owner authorized final release; main954a88f0 merged 21/21 CI and Pages ZIP verified. CloudKit Production exact container deployed and payload BYTES independently confirmed; no repeat. Apple build49 VALID attached, Add for Review rejected missing encryption export compliance; form preview external standard algorithms + France Yes requires documentation. France currently available confirmed Apple v2 API. BLOCKED pending owner decision on France distribution or applicable export declaration documentation/classification. No false exemption, no country change without explicit authorization. No reupload, recreate, account change or reopen closed scope. After documented lawful classification and any approved territory change, verify build compliance and submit, confirm actual review state and mark completed."
+resume_instruction: "ARC only. Owner explicitly authorized temporary France removal. Snapshot all 175 territories saved; remove FRA only and verify every other territory unchanged. Then accurately answer encryption form and submit existing VALID build49, verify review state; no reupload. Production CloudKit and main/Pages already verified."
