@@ -1,23 +1,22 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-IMPORT-PREVIEW-20261126
+task_id: APL-ANDROID-BATCH-IMPORT-20261126
 status: in_progress
-goal: "Android parity stage A: bounded ordinary proxy import with explicit preview in new-profile editor."
+goal: "Bounded Android batch text/TXT import, explicit preview and deduplicated secure insertion."
 definition_of_done:
-  - "Strict ordinary proxy URI/supplier parsing; explicit preview, secure existing Save only, no auto-VPN or background clipboard."
-  - "Unit tests, source/resource checks and exact-head Android CI PASS; record device acceptance separately."
-  - "Protected PR integration; no version/signing/distribution change."
+  - "Strict bounded text/file parse, all-or-nothing validation, duplicate filtering, no raw secret errors."
+  - "Disconnected-only preview and explicit Save; revalidate duplicates, stage encrypted new profiles and preserve selection/priority."
+  - "Exact-head Android CI PASS and protected merge; separate device acceptance before release. No version/signing/distribution changes."
 completed:
-  - "PR386 merged dd3bf74ebd31c2d2f4d02d5a8293035123d9ec3c; local main and GitVerse verified. iOS 0.3.0 WAITING_FOR_REVIEW, AFTER_APPROVAL."
-  - "RuStore latest known rejection 06.10 under 2.12/12.1. Current official rules reviewed; no unchanged resubmission. Android GitHub baseline 0.1.38 unaffected."
-  - "Spec Kit 002; pure Kotlin parser, editor preview, 40 localized resource sets, synthetic unit and source tests committed 612e094889e5e5e90d2f6245b926247f4af8fc8d."
-current: "Source/local checks passed; exact-head Android CI and emulator/physical UI evidence pending."
+  - "Single import PR387 exact head 9ab7634f 13/13 CI PASS, merged 36077609c5b0c0e74832d729fb7c8f9fa88335b2; GitVerse main verified. Archive previous checkpoint."
+  - "Spec Kit 003; batch parser/reader, dedupe, secure store staging and UI paste/TXT picker/preview implemented; roadmap updated, source commit 4861ec5d53ce6d61f3c4bd47cff6735ed66e8171."
+current: "Local parser and boundary checks PASS; exact-head Android CI and isolated device UI/storage QA pending."
 pending:
-  - "Inspect exact-head CI Android build/lint/unit tests and fix real failures; merge via normal protection only after green checks."
-  - "UI smoke on available isolated emulator/physical Android; do not uninstall production app or alter credentials. If unavailable record limitation and defer device gate without claiming PASS."
-  - "Next Android parity slice: batch/file/QR import; first scope and tests, no release or distribution changes."
-last_verified_commit: "612e094889e5e5e90d2f6245b926247f4af8fc8d"
+  - "Check exact-head CI; fix concrete errors, rerun, update checkpoint and integrate protected PR after green checks."
+  - "When isolated emulator available, verify picker/preview/cancel/duplicate/Keystore readback and disconnected-state guard for single+batch. No physical device connected; do not claim device PASS."
+  - "Next scoped parity step: QR import then structured files, subscriptions, backup and protocols."
+last_verified_commit: "4861ec5d53ce6d61f3c4bd47cff6735ed66e8171"
 test_results:
-  - "Kotlin 2.0.21 direct JVM compile and JUnit 4/4 PASS; Python contract 2/2 PASS; AAPT2 all resources PASS; git diff --check PASS."
-  - "Exact Gradle 8.9 absent locally; full Android CI required. ADB reports no connected devices. Local translations not independently reviewed by native speakers."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-import-preview-20261126, branch feat/android-import-preview-20261126. Read checkpoint and exact-head PR CI, continue verification and fix failures. No reupload iOS, no RuStore submission, no version/signing/production changes. Continue engineering independently of Apple review."
+  - "Kotlin 2.0.21 direct JVM compilation and JUnit 8/8 PASS (single + batch); Python source/resource contracts 5/5 PASS; git diff --check PASS."
+  - "No Android hardware connected; local full Gradle 8.9 not available. CI required. SharedPreferences one staged commit plus best-effort rollback, not a database ACID guarantee. Real storage fault and UI tests pending."
+resume_instruction: "ARC only; worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-batch-import-20261126, branch feat/android-batch-import-20261126. Check exact-head PR CI; continue verification, fix and integrate after PASS. No iOS reupload, RuStore submission, production signing, VPN or real credentials. Preserve previous release scope."
