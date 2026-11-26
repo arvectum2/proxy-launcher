@@ -12,7 +12,7 @@ CODEC = (BASE / "model/ProxyQrExport.kt").read_text()
 class QrExportContract(unittest.TestCase):
     def test_consent_before_secret_read(self):
         consent = ACTIVITY.split("private fun confirmQrExport(",1)[1].split("private fun showQrExportFailure(",1)[0]
-        display = ACTIVITY.split("private fun displaySavedQr(",1)[1].split("private fun showProfileEditor(",1)[0]
+        display = ACTIVITY.split("private fun displaySavedQr(",1)[1].split("private fun confirmQrShare(",1)[0]
         self.assertIn("if (!canExportQr(profileId)) return", consent)
         self.assertIn("apl_qr_export_warning", consent)
         self.assertNotIn("store.loadProfile", consent)

@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_share_send">Share QR code</string>
+    <string name="apl_qr_share_warning">The QR contains the proxy address, username and password. The recipient and selected app can keep a copy. Share only with trusted recipients.</string>
+</resources>
