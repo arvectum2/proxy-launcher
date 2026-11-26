@@ -2,22 +2,22 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-MANAGED-REFRESH-ROLLBACK
 status: in_progress
-goal: "Managed subscription ownership, transactional profile updates and explicit reversible configuration change."
+goal: "Managed subscription ownership, transactional updates, durable crash recovery and explicit rollback."
 definition_of_done:
-  - "Pure planner and encrypted journal, strict snapshot and affected-key storage with fault recovery."
-  - "Durable recovery marker, mutual exclusion with VPN process, ownership attach/detach, safe explicit UI apply/rollback; exact-head CI and protected integration."
-  - "Actual Keystore, storage crash/failure and lifecycle/device acceptance separately before release."
+  - "Pure planner/encrypted journal, strict snapshot/transaction, persistent recovery evidence and mutually exclusive default/VPN process access."
+  - "Actual Android persistent verifier, explicit abandoned-operation recovery, attach/detach and review/apply/rollback UI; exact-head CI and protected integration."
+  - "Real device Keystore, storage failure, process crash, VPN lifecycle and network acceptance separately before release."
 completed:
-  - "PR396 exact-head b2590216 15/15 CI PASS, merged 4822ec87ff6bd0997e7b85d1b81c4761620ca159; GitVerse main verified."
-  - "Storage source 17a9df0daccb4769908ad269562f202ee8abd246: ManagedPreferenceSchema, ManagedPreferenceTransaction, SecureProfileStore adapter, separate Keystore journal key, verify old ciphertext, affected-key commit and readback, simulated rollback failure latch. No runtime/UI caller."
-current: "Storage adapter local checks PASS, exact-head CI pending. Full managed feature remains in_progress."
+  - "PR396 and PR397 exact-head 15/15 CI PASS each; PR397 merged 122ab9053776a3d1c45fbf09a675d90c600656ba; GitVerse mirror verified."
+  - "Crash gate source 174f9465bf5591d80b1dc6f0e4daccb8fe00feb4 (rebased identical tested tree): stable OS lock, per-JVM reservation, durable pending marker, coordination with preference transaction and injected durable verifier; independent JVM forced exit tests."
+current: "Crash gate core local checks PASS; exact-head CI pending; full feature in_progress."
 pending:
-  - "Verify storage PR exact-head Android build/lint/unit, fix actual failures, merge only after green."
-  - "Implement durable recovery marker surviving app restart and mutual exclusion with actual VPN process startup/teardown. Process enumeration alone is not a lock; SharedPreferences cache readback is not disk proof. Verify crash windows and non-reentrant acquisition."
-  - "Explicit managed ownership attach/detach including manual edits and source deletion, review/apply/rollback UI, safe implicit primary and first-import rollback policy. No adoption of legacy rows. Preserve existing additive import."
-  - "Full storage/UI CI and separate real device Keystore/crash/network/lifecycle acceptance before release. Full dependency graph audit before release; next backup/native transports."
-last_verified_commit: "17a9df0daccb4769908ad269562f202ee8abd246"
+  - "Verify crash gate PR exact-head CI build/lint/unit and merge only after all required checks PASS."
+  - "Actual Android disk verifier (do not rely on SharedPreferences cache), explicit abandoned marker recovery protocol with authenticated evidence, mandatory default/VPN process participation before any profile preference read/write, retained process/cache handling; Android device crash and lock acceptance. Do not enable live mutation until these gates pass."
+  - "Ownership detach on manual edit/source deletion; safe implicit primary/first-import rollback, explicit managed review/apply/rollback UI. Existing additive import unchanged."
+  - "Full storage/UI CI and physical device acceptance; full dependency graph audit before release; next backup/native transports."
+last_verified_commit: "174f9465bf5591d80b1dc6f0e4daccb8fe00feb4"
 test_results:
-  - "61/61 JVM including 10 new preference schema/transaction/fault methods, 33 unique Python source contracts, actual SecureProfileStore Kotlin compilation against Android API35, git diff check PASS."
-  - "Mock backend only. No real profile writes, actual Android durable disk recovery, cross-process exclusion or UI acceptance. Recovery latch only process-lifetime. Conservative effective-primary protection can reject first import rollback."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-managed-storage-20261126 branch feat/android-managed-storage-20261126. Verify exact-head storage PR CI, fix/merge after green, then durable crash marker and VPN mutual exclusion, detach and UI per Spec Kit 011. Do not activate live managed operations before safety gates. No real credentials, release, iOS reupload, RuStore resubmission or destructive device operations."
+  - "72/72 JVM tests (11 new), 36 unique Python source contracts, Kotlin/API35 source compile, git diff check PASS. Independent JVM lock contention, repeat local attempt, forced child termination and persistent pending marker verified on macOS disposable test directory."
+  - "Injected disk verifier only; Android SharedPreferences on-disk verification, power-loss durability and VPN process participation not verified. Abandoned marker blocks; does not automatically recover. No live profile writes."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-managed-crash-gate-20261126 branch feat/android-managed-crash-gate-20261126. Check exact-head crash gate PR CI, fix and merge after green, then Android persistent verifier and actual VPN participant/exact recovery per Spec Kit 011. No live managed activation before safety gates; no real tokens, production signing/release, iOS reupload or RuStore resubmission."
