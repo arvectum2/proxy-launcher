@@ -1,0 +1,21 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-QR-CAMERA-20261126
+status: in_progress
+goal: "Native Android QR camera scanner, offline, explicit permission and guarded preview."
+definition_of_done:
+  - "Bounded strided luminance adapter, QR-only local decoder, permission and lifecycle UI; no persistence before explicit Save."
+  - "Exact-head Android build/lint/unit CI PASS, protected PR integration; hardware camera/transfer acceptance separate. No release change."
+completed:
+  - "PR390 exact head 7bca391c 15/15 CI PASS after GitVerse verification retry; merged bf443090f2c2b93e73a2061ad5113767505a042c; prior checkpoint completed."
+  - "Spec Kit 006; bounded YUV decoder, native Camera2 dialog, explicit runtime permission, one-shot result and cleanup, 40 camera locale sets. Source fb5aab2a0597bb4d83d541a16ccc743fe65b97bd after rebase to current main."
+current: "Local checks passed; exact-head Android CI pending."
+pending:
+  - "Check exact-head build/lint/unit and packaging, fix any failures and integrate through normal protection."
+  - "Physical camera grant/deny, orientation, timeout, cancellation, lifecycle resource release and cross-device QR/secure storage readback; no Android device connected."
+  - "Next: external QR share if appropriate, then bounded structured JSON/XML/CSV import, subscriptions, backups, native protocols. No production release."
+last_verified_commit: "fb5aab2a0597bb4d83d541a16ccc743fe65b97bd"
+test_results:
+  - "Kotlin 2.0.21 JVM 19/19 PASS, native scanner class compiled against API35 with resource ID stub, 14 unique Python source contracts PASS, AAPT2 all resources PASS, git diff check PASS."
+  - "Full Android app Gradle CI and actual camera/device QA not yet verified; GitVerse main mirror was still prior SHA immediately after merge."
+resume_instruction: "ARC only, active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-camera-20261126 branch feat/android-qr-camera-20261126. Check exact-head PR CI, fix and merge after required checks PASS. Verify GitVerse main mirror. Do not reupload iOS, submit RuStore, change production version/signing or access actual device camera without authorization."
