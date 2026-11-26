@@ -49,6 +49,7 @@ import java.util.UUID
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
+import ru.arvectum.proxylauncher.model.ProxyImport
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
@@ -1336,13 +1337,18 @@ class MainActivity : Activity() {
             background = roundedSurface(WHITE, null, 22f)
         }
 
-        outer.addView(TextView(this).apply {
+        val titleRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        titleRow.addView(TextView(this).apply {
             text = if (existing == null) getString(R.string.apl_new_proxy_29c0e) else getString(R.string.apl_edit_profile_4bc58)
             textSize = 20f
             setTextColor(NAVY)
             setTypeface(typeface, Typeface.BOLD)
             includeFontPadding = false
-        })
+        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        outer.addView(titleRow)
 
         val fields = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -1393,6 +1399,45 @@ class MainActivity : Activity() {
                 topMargin = dp(3)
             },
         )
+
+        if (creating) {
+            titleRow.addView(brandSmallButton(getString(R.string.apl_import_proxy_link), ButtonTone.GHOST).apply {
+                setOnClickListener {
+                    val input = EditText(this@MainActivity).apply {
+                        hint = "http://proxy.example.com:8080"
+                        inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        isSaveEnabled = false
+                        if (Build.VERSION.SDK_INT >= 26) {
+                            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                        }
+                        filters = arrayOf(android.text.InputFilter.LengthFilter(ProxyImport.MAX_INPUT + 1))
+                    }
+                    val preview = AlertDialog.Builder(this@MainActivity)
+                        .setTitle(getString(R.string.apl_import_proxy_link))
+                        .setView(input)
+                        .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+                        .setPositiveButton(getString(R.string.apl_import_proxy_preview), null)
+                        .create()
+                    preview.setOnDismissListener { input.text.clear() }
+                    preview.show()
+                    preview.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    preview.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        val item = ProxyImport.parse(input.text.toString())
+                        if (item == null) {
+                            input.error = getString(R.string.apl_import_proxy_invalid)
+                            return@setOnClickListener
+                        }
+                        nameField.setText(item.name)
+                        hostField.setText(item.host)
+                        portField.setText(item.port.toString())
+                        usernameField.setText(item.username)
+                        passwordField.setText(item.password)
+                        typeSpinner.setSelection(proxyTypes.indexOf(item.type))
+                        preview.dismiss()
+                    }
+                }
+            }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(44)))
+        }
 
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
         val primaryCheck = CheckBox(this).apply {
@@ -1563,6 +1608,7 @@ class MainActivity : Activity() {
         dialog.setCanceledOnTouchOutside(true)
         dialog.show()
         dialog.window?.apply {
+            addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             attributes = attributes.apply { dimAmount = 0.62f }

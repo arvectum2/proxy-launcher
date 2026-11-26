@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">आयात</string>
+    <string name="apl_import_proxy_preview">पूर्वावलोकन</string>
+    <string name="apl_import_proxy_invalid">अमान्य या असमर्थित प्रॉक्सी लिंक</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">దిగుమతి</string>
+    <string name="apl_import_proxy_preview">మునుజూపు</string>
+    <string name="apl_import_proxy_invalid">చెల్లని లేదా మద్దతులేని ప్రాక్సీ లింక్</string>
+</resources>

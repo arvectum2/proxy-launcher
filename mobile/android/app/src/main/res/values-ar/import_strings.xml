@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">استيراد</string>
+    <string name="apl_import_proxy_preview">معاينة</string>
+    <string name="apl_import_proxy_invalid">رابط وكيل غير صالح أو غير مدعوم</string>
+</resources>

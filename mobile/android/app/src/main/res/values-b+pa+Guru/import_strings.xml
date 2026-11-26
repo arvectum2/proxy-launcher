@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">ਆਯਾਤ</string>
+    <string name="apl_import_proxy_preview">ਪੂਰਵਦਰਸ਼ਨ</string>
+    <string name="apl_import_proxy_invalid">ਅਵੈਧ ਜਾਂ ਅਸਮਰਥਿਤ ਪ੍ਰੌਕਸੀ ਲਿੰਕ</string>
+</resources>

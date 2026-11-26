@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">匯入</string>
+    <string name="apl_import_proxy_preview">預覽</string>
+    <string name="apl_import_proxy_invalid">無效或不支援的代理連結</string>
+</resources>

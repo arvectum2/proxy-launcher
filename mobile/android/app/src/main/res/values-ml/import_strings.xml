@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">ഇറക്കുമതി</string>
+    <string name="apl_import_proxy_preview">പ്രിവ്യൂ</string>
+    <string name="apl_import_proxy_invalid">അസാധുവായതോ പിന്തുണയ്ക്കാത്തതോ ആയ പ്രോക്സി ലിങ്ക്</string>
+</resources>

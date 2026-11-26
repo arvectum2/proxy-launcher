@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">가져오기</string>
+    <string name="apl_import_proxy_preview">미리보기</string>
+    <string name="apl_import_proxy_invalid">잘못되었거나 지원되지 않는 프록시 링크</string>
+</resources>

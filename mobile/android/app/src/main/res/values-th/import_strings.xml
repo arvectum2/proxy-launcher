@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">นำเข้า</string>
+    <string name="apl_import_proxy_preview">ดูตัวอย่าง</string>
+    <string name="apl_import_proxy_invalid">ลิงก์พร็อกซีไม่ถูกต้องหรือไม่รองรับ</string>
+</resources>

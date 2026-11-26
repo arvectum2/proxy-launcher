@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">Import</string>
+    <string name="apl_import_proxy_preview">Preview</string>
+    <string name="apl_import_proxy_invalid">Invalid or unsupported proxy link</string>
+</resources>

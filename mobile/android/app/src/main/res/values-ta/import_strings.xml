@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">இறக்குமதி</string>
+    <string name="apl_import_proxy_preview">முன்னோட்டம்</string>
+    <string name="apl_import_proxy_invalid">தவறான அல்லது ஆதரிக்கப்படாத ப்ராக்ஸி இணைப்பு</string>
+</resources>

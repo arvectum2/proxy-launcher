@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">Εισαγωγή</string>
+    <string name="apl_import_proxy_preview">Προεπισκόπηση</string>
+    <string name="apl_import_proxy_invalid">Μη έγκυρος ή μη υποστηριζόμενος σύνδεσμος διακομιστή μεσολάβησης</string>
+</resources>
