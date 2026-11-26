@@ -5,3 +5,6 @@
 
 ## Storage sub-stage
 Use a strict immutable preference snapshot and affected-key compare-and-commit patch, with injectable backend and fault tests. Persist ownership and encrypted journal with profile changes in the same commit. No UI activation until the separate-process VPN exclusion and source deletion/detach workflow are verified. SharedPreferences commit plus best-effort verified restoration is not a database ACID guarantee.
+
+## Crash gate sub-stage
+Use a stable never-deleted lock inode, nonblocking exclusive OS lock, durable marker created before any managed preference mutation, cleared only after verified durable outcome. Any abandoned or malformed marker blocks normal acquisition; explicit recovery must be separately designed, never infer success from in-memory readback. Test child JVM termination and independent process contention in disposable directories. VPN service integration must acquire before opening preferences and account for retained process/cache after service teardown. No activation until actual device acceptance.
