@@ -52,6 +52,7 @@ import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyImport
 import ru.arvectum.proxylauncher.model.ProxyBatchImport
+import ru.arvectum.proxylauncher.model.ProxyStructuredImport
 import ru.arvectum.proxylauncher.model.ImportedProxy
 import ru.arvectum.proxylauncher.model.ProxyQrExport
 import ru.arvectum.proxylauncher.importing.ProxyQrImageReader
@@ -720,7 +721,7 @@ class MainActivity : Activity() {
             ),
         )
 
-        batchImportButton = brandSmallButton(getString(R.string.apl_import_proxy_link) + " · TXT", ButtonTone.GHOST).apply {
+        batchImportButton = brandSmallButton(getString(R.string.apl_import_proxy_link) + " · TXT/CSV", ButtonTone.GHOST).apply {
             setOnClickListener { showBatchImport() }
         }
         qrImportButton = brandSmallButton(getString(R.string.apl_import_proxy_link) + " · QR", ButtonTone.GHOST).apply {
@@ -1388,15 +1389,20 @@ class MainActivity : Activity() {
         }
         val dialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.apl_import_proxy_link))
+            .setMessage("TXT · CSV · JSON · XML")
             .setView(input)
             .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
-            .setNeutralButton("TXT") { _, _ ->
+            .setNeutralButton(R.string.apl_import_choose_file) { _, _ ->
                 if (canBatchImport()) {
                     batchFilePending = true
                     try {
                         startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                             addCategory(Intent.CATEGORY_OPENABLE)
-                            type = "text/plain"
+                            type = "*/*"
+                            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
+                                "text/plain", "text/csv", "text/tab-separated-values",
+                                "application/csv", "application/json", "text/json", "application/xml", "text/xml",
+                                "application/octet-stream"))
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }, BATCH_FILE_REQUEST)
                     } catch (_: Exception) {
@@ -1412,7 +1418,7 @@ class MainActivity : Activity() {
         dialog.show()
         dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val items = ProxyBatchImport.parse(input.text.toString())
+            val items = ProxyStructuredImport.parseBatch(input.text.toString())
             if (items == null || !canBatchImport()) {
                 input.error = getString(R.string.apl_import_proxy_invalid)
             } else {
@@ -1475,13 +1481,13 @@ class MainActivity : Activity() {
     }
 
     private fun importSelectedTextFile(uri: android.net.Uri) {
-        if (!canBatchImport()) return
+        if (!canBatchImport() || uri.scheme != "content") return
         val generation = ++batchImportGeneration
         batchFileReadInProgress = true
         updateProfileControls()
         Thread {
             val items = runCatching {
-                contentResolver.openInputStream(uri)?.use(ProxyBatchImport::readText)?.let(ProxyBatchImport::parse)
+                contentResolver.openInputStream(uri)?.use(ProxyBatchImport::readText)?.let(ProxyStructuredImport::parseBatch)
             }.getOrNull()
             mainHandler.post {
                 batchFileReadInProgress = false
