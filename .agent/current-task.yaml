@@ -1,21 +1,21 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-QR-CAMERA-20261126
+task_id: APL-ANDROID-QR-SHARE-20261126
 status: in_progress
-goal: "Native Android QR camera scanner, offline, explicit permission and guarded preview."
+goal: "User-confirmed QR PNG sharing through Android chooser with ephemeral memory-only URI."
 definition_of_done:
-  - "Bounded strided luminance adapter, QR-only local decoder, permission and lifecycle UI; no persistence before explicit Save."
-  - "Exact-head Android build/lint/unit CI PASS, protected PR integration; hardware camera/transfer acceptance separate. No release change."
+  - "Second explicit consent, non-exported readonly provider, expiring per-URI grant, no files or clipboard."
+  - "Local tests and exact-head Android CI, protected merge; device grant/chooser/transfer acceptance separately."
 completed:
-  - "PR390 exact head 7bca391c 15/15 CI PASS after GitVerse verification retry; merged bf443090f2c2b93e73a2061ad5113767505a042c; prior checkpoint completed."
-  - "Spec Kit 006; bounded YUV decoder, native Camera2 dialog, explicit runtime permission, one-shot result and cleanup, 40 camera locale sets. Source fb5aab2a0597bb4d83d541a16ccc743fe65b97bd after rebase to current main."
-current: "Local checks passed; exact-head Android CI pending."
+  - "Spec Kit 007; bounded memory payload, expiry/replacement, seekable provider, explicit confirmation and system chooser, source commit 62c2cb52a581474b34fa5e37634395a9802564b6."
+  - "Parent PR391 exact head 0924b179b09543b8661eef4773f570eb37c86a07 has 14/15 checks green including both Android build/lint/unit; installer pending."
+current: "Share source and local checks passed; awaiting parent integration before new PR."
 pending:
-  - "Check exact-head build/lint/unit and packaging, fix any failures and integrate through normal protection."
-  - "Physical camera grant/deny, orientation, timeout, cancellation, lifecycle resource release and cross-device QR/secure storage readback; no Android device connected."
-  - "Next: external QR share if appropriate, then bounded structured JSON/XML/CSV import, subscriptions, backups, native protocols. No production release."
-last_verified_commit: "fb5aab2a0597bb4d83d541a16ccc743fe65b97bd"
+  - "Check parent PR391 exact head and all CI, merge only after green. Rebase local share commits on actual main; archive camera checkpoint completed and update roadmap. Push PR and verify exact-head Android CI."
+  - "Device: camera lifecycle, QR chooser recipient access/expiry/replacement and cross-device transfer remain unverified. No production release."
+  - "Next: structured JSON/XML/CSV import, subscriptions, backup and transports."
+last_verified_commit: "62c2cb52a581474b34fa5e37634395a9802564b6"
 test_results:
-  - "Kotlin 2.0.21 JVM 19/19 PASS, native scanner class compiled against API35 with resource ID stub, 14 unique Python source contracts PASS, AAPT2 all resources PASS, git diff check PASS."
-  - "Full Android app Gradle CI and actual camera/device QA not yet verified; GitVerse main mirror was still prior SHA immediately after merge."
-resume_instruction: "ARC only, active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-camera-20261126 branch feat/android-qr-camera-20261126. Check exact-head PR CI, fix and merge after required checks PASS. Verify GitVerse main mirror. Do not reupload iOS, submit RuStore, change production version/signing or access actual device camera without authorization."
+  - "JUnit 23/23 PASS, 17 unique Python source contracts PASS, provider compile against API35, AAPT2 and git diff check PASS."
+  - "Five warning languages, English fallback elsewhere. Recipient may retain copy; OS-cached data cannot be recalled. Actual OS URI grant behavior not tested on device."
+resume_instruction: "ARC only. Local worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-share-20261126, branch feat/android-qr-share-20261126. Parent PR391 is canonical active until merged. Do not recreate share work or push before parent integration. Rebase and open share PR after green parent. No production signing, release or real QR disclosure."
