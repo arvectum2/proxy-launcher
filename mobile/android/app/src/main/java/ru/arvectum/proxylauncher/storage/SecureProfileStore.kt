@@ -6,11 +6,14 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import java.security.KeyStore
 import java.util.Locale
+import java.util.UUID
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
+import ru.arvectum.proxylauncher.model.ImportedProxy
+import ru.arvectum.proxylauncher.model.ProxyBatchImport
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.ApplicationExclusionPolicy
@@ -70,6 +73,51 @@ class SecureProfileStore(context: Context) {
                 .putBoolean(KEY_AUTO_SELECTION, false)
         }
         check(editor.commit()) { "Failed to persist proxy profile" }
+    }
+
+    /** UI-only disconnected import. Existing profiles, selection and priority are untouched. */
+    @Synchronized
+    fun appendImportedProfiles(items: List<ImportedProxy>): Int {
+        require(items.size in 1..ProxyBatchImport.MAX_ENTRIES)
+        ensureLegacyProfileIndexed()
+        check(ProxyBatchImport.preview(items, listProfiles()).skipped == 0) {
+            "Import preview is stale"
+        }
+        val originalIds = profileIds()
+        val ids = originalIds.toMutableSet()
+        val key by lazy { getOrCreateKey() }
+        val staged = items.map { item ->
+            val id = "profile-${UUID.randomUUID()}"
+            check(ids.add(id)) { "Profile identity collision" }
+            val secret = if (item.username.isNotEmpty()) {
+                val chars = item.password.toCharArray()
+                try { encrypt(chars, key) } finally { chars.fill(Char.MIN_VALUE) }
+            } else null
+            Triple(id, item, secret)
+        }
+        val editor = prefs.edit().putStringSet(KEY_PROFILE_IDS, ids)
+        for ((id, item, secret) in staged) {
+            editor.putString(profileKey(id, "name"), item.name)
+                .putString(profileKey(id, "host"), item.host)
+                .putInt(profileKey(id, "port"), item.port)
+                .putString(profileKey(id, "type"), item.type.name)
+                .putString(profileKey(id, "username"), item.username.takeIf { it.isNotEmpty() })
+                .putString(profileKey(id, "password_ref"), secret?.let { "android-keystore:$id" })
+            if (secret != null) editor.putString(secretKey(id), secret)
+        }
+        if (!editor.commit()) {
+            // SharedPreferences may update memory even on disk failure. Attempt bounded rollback.
+            val rollback = prefs.edit().putStringSet(KEY_PROFILE_IDS, originalIds)
+            for ((id, _, _) in staged) {
+                for (field in listOf("name", "host", "port", "type", "username", "password_ref")) {
+                    rollback.remove(profileKey(id, field))
+                }
+                rollback.remove(secretKey(id))
+            }
+            check(rollback.commit()) { "Import storage recovery failed" }
+            error("Import storage failed")
+        }
+        return staged.size
     }
 
     fun listProfiles(): List<ProxyProfile> {
@@ -325,9 +373,9 @@ class SecureProfileStore(context: Context) {
         )
     }
 
-    private fun encrypt(value: CharArray): String {
+    private fun encrypt(value: CharArray, key: SecretKey = getOrCreateKey()): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+        cipher.init(Cipher.ENCRYPT_MODE, key)
         val plaintext = String(value).toByteArray(Charsets.UTF_8)
         return try {
             val ciphertext = cipher.doFinal(plaintext)

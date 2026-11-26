@@ -20,7 +20,7 @@
 | Astra Linux DEB | v0.2.16 | PAUSED; Astra SE 1.8/Fly physical PASS сохранён |
 | RED OS RPM | v0.2.16 | PAUSED; RED OS 8.0.3/KDE physical PASS сохранён |
 | Linux AppImage x86_64 | v0.2.16 | PAUSED; пакет опубликован |
-| Android GitHub | android-v0.1.38 (39) | PAUSED; production APK опубликован 07.10 |
+| Android GitHub | android-v0.1.38 (39) | ACTIVE: импорт одного прокси в main; пакетный/TXT импорт в разработке |
 | Android RuStore | Не перепроверена | Последний кандидат 0.1.38 (39); ручной выпуск после модерации, текущий статус неизвестен |
 
 Источники: App Store Connect API 26.11, GitHub Releases, [финальный iOS протокол](APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md). GitHub/GitVerse main при проверке 954a88f08aaccc35a9493eaea149826b7a120b75. Версии каналов независимы.
@@ -34,6 +34,13 @@
 - [ ] После выпуска: QR двух iPhone/камера/Share/VoiceOver, CloudKit два физических клиента и реальный save/reconnect. Production cloud exchange не проверен; native WAN/handoff отложен владельцем, не PASS.
 - [ ] P1: Smart4 original-flow/независимый DIRECT/PROXY receipt, shared IP/IPv6/UDP/QUIC/path-change; production DIRECT только после приёмки. Native FIN #314 отдельно, после физической регрессии. Сверить открытые iOS PR с merged runtime, исключить дубли.
 - [ ] P2: bounded автоматическое обновление подписок, дополнительные протоколы по спросу, редактура локализаций. Францию возвращать только после нужной документации и решения владельца.
+
+### 26.11 — Android parity, возобновление по команде владельца
+
+- [x] APL-ANDROID-IMPORT-PREVIEW-20261126: PR #387, exact-head 9ab7634f, 13/13 CI (две Android сборки), merged 36077609. Исходниковая интеграция завершена, устройство не проверено; публичный APK 0.1.38 неизменён.
+- [ ] APL-ANDROID-BATCH-IMPORT-20261126: [Spec Kit 003](../specs/003-android-batch-import/spec.md), bounded text/TXT 200 профилей/256000 bytes, preview/dedupe/secure insertion, disconnected only. Source/local tests PASS; Android CI и устройство отдельно.
+- [ ] Далее QR, структурированные форматы, подписки, backup, протоколы. Последний известный отказ RuStore 06.10 по 2.12/12.1; без повторной подачи неизменённого APK.
+- Разработка Android возобновлена по шагам; публикация и подпись новых версий не разрешены автоматически. Остальные платформы остаются в согласованной очереди.
 
 ### Предлагаемая межплатформенная очередь после снятия паузы
 

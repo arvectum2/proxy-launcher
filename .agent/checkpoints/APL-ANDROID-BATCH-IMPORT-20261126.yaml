@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-BATCH-IMPORT-20261126
+status: in_progress
+goal: "Bounded Android batch text/TXT import, explicit preview and deduplicated secure insertion."
+definition_of_done:
+  - "Strict bounded text/file parse, all-or-nothing validation, duplicate filtering, no raw secret errors."
+  - "Disconnected-only preview and explicit Save; revalidate duplicates, stage encrypted new profiles and preserve selection/priority."
+  - "Exact-head Android CI PASS and protected merge; separate device acceptance before release. No version/signing/distribution changes."
+completed:
+  - "Single import PR387 exact head 9ab7634f 13/13 CI PASS, merged 36077609c5b0c0e74832d729fb7c8f9fa88335b2; GitVerse main verified. Archive previous checkpoint."
+  - "Spec Kit 003; batch parser/reader, dedupe, secure store staging and UI paste/TXT picker/preview implemented; roadmap updated, source commit 4861ec5d53ce6d61f3c4bd47cff6735ed66e8171."
+current: "Local parser and boundary checks PASS; exact-head Android CI and isolated device UI/storage QA pending."
+pending:
+  - "Check exact-head CI; fix concrete errors, rerun, update checkpoint and integrate protected PR after green checks."
+  - "When isolated emulator available, verify picker/preview/cancel/duplicate/Keystore readback and disconnected-state guard for single+batch. No physical device connected; do not claim device PASS."
+  - "Next scoped parity step: QR import then structured files, subscriptions, backup and protocols."
+last_verified_commit: "4861ec5d53ce6d61f3c4bd47cff6735ed66e8171"
+test_results:
+  - "Kotlin 2.0.21 direct JVM compilation and JUnit 8/8 PASS (single + batch); Python source/resource contracts 5/5 PASS; git diff --check PASS."
+  - "No Android hardware connected; local full Gradle 8.9 not available. CI required. SharedPreferences one staged commit plus best-effort rollback, not a database ACID guarantee. Real storage fault and UI tests pending."
+resume_instruction: "ARC only; worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-batch-import-20261126, branch feat/android-batch-import-20261126. Check exact-head PR CI; continue verification, fix and integrate after PASS. No iOS reupload, RuStore submission, production signing, VPN or real credentials. Preserve previous release scope."
