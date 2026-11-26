@@ -7,3 +7,6 @@ Csatlakoztasd iPhone-odat a saját proxykiszolgálódhoz, egyszerű vezérlésse
 • A proxyadatok a készüléken maradnak, a jelszavak a Kulcskarikában
 
 Saját proxyszerver szükséges; az APL nem biztosít szervereket.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

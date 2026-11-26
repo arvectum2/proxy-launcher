@@ -20,6 +20,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private let engineQueue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tun2proxy")
+    private let engineExitGate = TunnelEngineExitGate()
     private let policy = FailoverPolicy()
     private let probe = ProxyProbe()
     private let telemetry = TelemetryStore()
@@ -34,7 +35,20 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var lastPrimaryRecoveryProbeAt: Date?
     private var switching = false
     private var stopping = false
+    private var rejectedNativeWithoutLegacy = false
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+    @MainActor private lazy var syntheticOwner=NativeSyntheticProviderOwner()
+#endif
+#if APL_NATIVE_PROVIDER_INTEGRATION && ((DEBUG && APL_NATIVE_PRODUCT_RUNTIME_REVIEW) || APL_NATIVE_PRODUCT_RUNTIME)
+    @MainActor private lazy var productRuntimeOwner=NativeProductRuntimeOwner()
+#endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+    // Never mix legacy Rust ownership and product ownership in one provider
+    // instance, even if an OS stop returned before native resources drained.
+    private let productionLane=NativeProductProviderLane()
+#endif
 #if DEBUG
+    private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
     private var qaTracePublicIPv4Only = false
     private var qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime
@@ -44,9 +58,85 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+        Task { @MainActor in await syntheticOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+        return
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+        return
+#else
+        // Route reserved native starts before touching legacy state, telemetry,
+        // settings, timers, or profile selection. Never fall back on rejection.
+        let configuration=(protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
+#if APL_NATIVE_PRODUCT_RUNTIME
+        if NativeProductStartRequest.inspect(configuration:configuration,options:options,enabled:true) != nil {
+            guard productionLane.reserveNative() else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+            Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+            return
+        }
+#if APL_PRODUCT_OWNER_QA
+        // This temporary signed binary must not start an owner legacy VPN.
+        completionHandler(NSError(domain:"APLNativeStart",code:1));return
+#endif
+#endif
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+        let validationEnabled=true
+#else
+        let validationEnabled=false
+#endif
+        switch NativeProviderStartRequest.inspect(configuration:configuration,options:options,validationEnabled:validationEnabled) {
+        case .legacy:
+            // A broken native manager must not be silently interpreted as a proxy.
+            guard protocolConfiguration.serverAddress != "APL Native Product" else {
+                if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+                completionHandler(NSError(domain:"APLNativeStart",code:1));return
+            }
+#if APL_NATIVE_PRODUCT_RUNTIME
+            guard productionLane.reserveLegacy() else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+#endif
+            rejectedNativeWithoutLegacy=false
+        case .denied:
+            if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+            completionHandler(NSError(domain:"APLNativeStart",code:1));return
+        case .validation(let request):
+            if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+            // Explicit credential validation only. No runtime driver or routes.
+            // A successful credential check must still fail NE startup.
+            guard startTask==nil,active==nil else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+            do {
+                let validationStore=try ProfileStore()
+                guard try validationStore.nativeValidationPolicyIsEmpty() else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+#if APL_NATIVE_UNIFIED_GO_CANDIDATE
+                switch request.expected.reference.kind.provider {
+                case .rustXray:
+                    try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeXrayRuntimeDriver.shared.validate)
+                case .standaloneAWG:
+                    try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeAWGValidationDriver.validate)
+                default:throw NativeCredentialReceiver.Failure.providerMismatch
+                }
+#elseif APL_NATIVE_XRAY_CANDIDATE
+                guard request.expected.reference.kind.provider == .rustXray else{throw NativeCredentialReceiver.Failure.providerMismatch}
+                let driver=NativeXrayRuntimeDriver.shared
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:driver.validate)
+#elseif APL_NATIVE_AWG_CANDIDATE
+                guard request.expected.reference.kind.provider == .standaloneAWG else{throw NativeCredentialReceiver.Failure.providerMismatch}
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeAWGValidationDriver.validate)
+#else
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff())
+#endif
+                completionHandler(NSError(domain:"APLNativeStart",code:2))
+            } catch {completionHandler(NSError(domain:"APLNativeStart",code:1))}
+#else
+            _=request
+            completionHandler(NSError(domain:"APLNativeStart",code:1))
+#endif
+            return
+        }
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
+        let qaSession = qaCallbackGate.begin()
         let stopAfter = (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue ?? 0
         // Only a bounded signed Debug hardware test may observe anonymous
         // per-flow CONNECT results. This flag never changes routing.
@@ -68,8 +158,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         if qaScopedDirect,
            (options?["qaResetDirectAfterSeconds"] as? NSNumber)?.intValue == 17 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 17) { [weak self] in
-                guard let self, !self.stopping else { return }
-                SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+                guard let self else { return }
+                self.qaCallbackGate.performIfCurrent(qaSession) {
+                    guard !self.stopping else { return }
+                    SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+                }
             }
         }
 #endif
@@ -79,12 +172,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             (value.intValue == 95 && qaScopedDirect &&
              (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + value.doubleValue) { [weak self] in
-                guard let self, !self.stopping else { return }
-                // Last-resort safety net if the UI test / wireless debug link
-                // is interrupted by the VPN network route. Cancellation
-                // returns the device to its previous disconnected state.
-                self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
-                    userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+                guard let self else { return }
+                self.qaCallbackGate.performIfCurrent(qaSession) {
+                    guard !self.stopping else { return }
+                    // Generation check and cancellation are serialized with
+                    // stop/start: a stale test timer cannot cancel a new VPN.
+                    self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
+                        userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+                }
             }
         }
 #endif
@@ -141,13 +236,36 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 completionHandler(error)
             }
         }
+#endif
     }
 
     override func stopTunnel(
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+        Task { @MainActor in await syntheticOwner.stop(provider:self);completionHandler() }
+        return
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
+        return
+#else
+#if APL_NATIVE_PRODUCT_RUNTIME
+        if productionLane.isNative {
+            Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
+            return
+        }
+#endif
+        if rejectedNativeWithoutLegacy && startTask==nil && active==nil {
+            completionHandler();return
+        }
+#if DEBUG
+        // A queued callback from this test must not fire after a new start.
+        qaCallbackGate.invalidate()
+#endif
         stopping = true
+        // Planned stop invalidates the runner before its native return.
+        engineExitGate.invalidate()
         startTask?.cancel()
         startTask = nil
         lastPrimaryRecoveryProbeAt = nil
@@ -169,7 +287,23 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         active = nil
         completionHandler()
+#endif
     }
+
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await syntheticOwner.message(messageData,provider:self)) }
+    }
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
+    }
+#elseif APL_NATIVE_PRODUCT_RUNTIME
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        guard productionLane.isNative else{completionHandler?(nil);return}
+        Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
+    }
+#endif
 
     private func selectProxy() async throws -> PreparedProxy {
         guard let store else { throw tunnelError("Общее хранилище недоступно") }
@@ -300,23 +434,35 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 qaDirectTTLSeconds: directTTL,
                 qaTracePublicIPv4Only: qaFlowTrace)
         }
+        let runGeneration = engineExitGate.begin()
         engineQueue.async { [weak self] in
-            guard let self, !self.stopping else { return }
+            guard let self, self.engineExitGate.isRunning(runGeneration) else { return }
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)
             }
-            guard !self.stopping else { return }
-            if result != 0 {
+            guard self.engineExitGate.markUnexpectedExit(runGeneration) else { return }
+            // Even native exit code zero is unexpected while VPN is active.
+            // A queued cancellation must not affect an intentional replacement.
+            DispatchQueue.main.async { [weak self] in
+                guard let self,
+                      self.engineExitGate.shouldCancelTunnel(runGeneration) else { return }
                 self.telemetry.append(TunnelEvent(
                     type: "engine stopped",
                     profileName: prepared.storedProfile.name,
                     detail: "tun2proxy code \(result)"
+                ))
+                self.cancelTunnelWithError(NSError(
+                    domain: "APL.PacketTunnelEngine", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Packet engine stopped unexpectedly"]
                 ))
             }
         }
         try await Task.sleep(nanoseconds: 350_000_000)
         try Task.checkCancellation()
         guard !stopping else { throw CancellationError() }
+        guard engineExitGate.isRunning(runGeneration) else {
+            throw tunnelError("Пакетный движок завершился до подключения")
+        }
     }
 
     private func resetConnectionPressurePolicy() {
@@ -440,6 +586,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             // A blocking tun2proxy runner owns engineQueue until it exits.
             // Waiting for the queue barrier prevents starting a replacement
             // while the old runner is still draining its virtual DNS sockets.
+            engineExitGate.invalidate()
             try await TunnelEngineHandoff.stopAndDrain(engineQueue: engineQueue) {
                 _ = tun2proxy_stop()
             }

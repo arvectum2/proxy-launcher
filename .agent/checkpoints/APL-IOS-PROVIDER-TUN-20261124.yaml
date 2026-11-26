@@ -1,0 +1,84 @@
+task_id: APL-IOS-PROVIDER-TUN-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: completed
+goal: "Isolate exact product Rust/TUN forwarding under scoped routes after provider-direct PASS"
+definition_of_done:
+  - "Verified product Go and Rust archives, fixed scoped route, synthetic destination only"
+  - "One actual host HTTP request through TUN; independent correlated peer witness; native drain and exact cleanup"
+  - "Compare against provider-direct PASS, document result, preserve old disabled profile and original lab app"
+baseline_commit: 68f07478
+baseline: "Provider-direct v3 PASS; old runtime-review manager preserved, new profile absent; original APL OFF, NativeLab restored"
+steps:
+  - step: 1
+    action: "Inspect exact product startOwned handoff and Rust archive"
+    result: "Rust SHA256 6aea76be103f0266c54d10e049f6b9a231cc8ccaf25c59c89003bafe61b2ae16 equals product stage manifest; exactDNS=true; fixed /32 route"
+  - step: 2
+    action: "Prepare distinct compile-time scoped Rust/TUN lab mode; no default routes or DNS capture"
+    result: "Committed cb4ea9e3; ARM64 host and extension build PASS; focused Python18 PASS"
+  - step: 3
+    action: "Sign and install scoped variant using existing exact QA profiles; inspect before creating any manager"
+    result: "Initial signing failed before install: host sealed nested extension before extension was signed. Extension signature itself valid. Production PacketTunnel currently running (PID82794); no phone mutation."
+  - step: 4
+    action: "Re-sign exact QA extension first, then host; verify offline. Do not install or start QA while production VPN active."
+    result: "PASS: extension then host signed with existing exact QA profiles; deep strict verification and lab entitlement checks passed. Signed host SHA256 bb53857c97849d228e311c3324e50ebcfe395a8ecd6582e916810d0c533b29d3, extension SHA256 83d1e18d72792f3423ea9ca414d10d8fef262569761edd57d8712219288608a1. Python18+50 and release preflight PASS. Production provider PID82794 still present; no installation or VPN mutation."
+  - step: 5
+    action: "Owner explicitly authorized temporary VPN interruption; baseline APL 0.3.0(49), selected Основной, connected, provider PID82794. Stop via product UI; restore same profile ON after QA."
+    result: "OFF confirmed visually (Основной selected, Connect button) and provider process absent."
+  - step: 6
+    action: "Install signed scoped QA in place; inspect and prepare only the owned lab manager."
+    result: "Signed lab installed; read-only census one known dormant historical manager, no owned or active other manager."
+  - step: 7
+    action: "Prepare one explicitly owned test manager with VPN OFF; preserve historical manager."
+    result: "prepared=true connected=false; run b91ce716-e5fb-416b-8e28-a09139d8a292"
+  - step: 8
+    action: "Run one scoped host HTTP request through Rust/TUN with independent synthetic peer; drain and remove owned manager."
+    run_id: AFE8730D-6E80-4E8E-9EF9-34FA10205C14
+    result: "Device connected=true, Rust started=true, host HTTP=false, Rust drain=true, native stop=true, cleaned=true; independent peer positive control true, physical accepts=0 and witness=0, run IDs and challenge hash matched. Result negative."
+  - step: 9
+    action: "Post-test read-only manager census, restore previous lab binary and reconnect original Основной."
+    result: "Post-census identical, own manager removed; previous NativeLab restored, synthetic inputs scrubbed, no listeners. Original Основной selected but two reconnect attempts timed out; Activity UI TIMEOUT twice, provider absent. Restoration NOT complete."
+  - step: 10
+    action: "Recheck original VPN and device availability without editing profiles."
+    result: "Provider absent; Mirroring reports iPhone in Use. No further reconnect or profile mutation."
+  - step: 11
+    action: "Offline bounded TUN telemetry and host URL error instrumentation; no installation until restoration."
+    result: "PASS: instrumented ARM64 build, 20 focused +50 release tests, release preflight. First build missing Rust header; rebuilt with verified prior scoped Lib. Signed extension then host, strict verification and entitlement check PASS. Candidate stored off-device; no hardware trial."
+  - step: 12
+    action: "Recheck iPhone availability and original VPN."
+    result: "Mirroring still reports iPhone in Use; no provider observed. Original recovery incomplete; owner needs to lock phone while USB attached. No further VPN or profile changes."
+  - step: 13
+    action: "Owner locked phone; inspect original and perform targeted built-in check plus independent Mac unauthenticated endpoint control."
+    result: "Mirroring available, VPN OFF, Основной selected. Targeted one-profile scan TIMEOUT. Mac direct TCP succeeded, unauthenticated HTTP CONNECT returned 407 in 123ms. Safari example.com rendered without VPN. Original credentials unchanged; authenticated service from iPhone not proven."
+  - step: 14
+    action: "One bounded normal reconnection of the original selected profile after independently confirming general Internet and upstream protocol response. No profile edits or fallback selection."
+    result: "Third original reconnect returned TIMEOUT at 14:21; provider absent. iPhone Safari direct proxy URL returned Proxy Authentication Required. Both devices can reach HTTP proxy; authenticated CONNECT still not verified. No original profile/credential edits."
+  - step: 15
+    action: "Original remains OFF. Owner asked to continue; run one already signed scoped metrics variant, no additional product VPN interruption; preserve historical manager, original profile and prior lab app."
+    result: "Signed metrics candidate installed; read-only census confirms known historical dormant=1, owned=0, other active=0."
+  - step: 16
+    action: "Prepare one owned isolated test manager."
+    result: "Prepared=true connected=false; exact run 190e1689-1e62-4fa9-80c9-f628275134b2."
+  - step: 17
+    action: "Run instrumented scoped synthetic HTTP test; collect coarse counters and independent peer witness."
+    run_id: F28B6AA0-8A8F-4287-B689-3E88D6B30C5C
+    result: "ATS rejected host HTTP stimulus before network I/O (NSURLErrorDomain -1022); descriptor before/after matched, local SOCKS greeting PASS, Rust/native stop and cleanup true; independently correlated zero peer accepts. Invalid stimulus, not a Rust data-plane failure."
+  - step: 18
+    action: "Verify post-census, restore prior lab binary, scrub ephemeral fixtures before corrective test."
+    result: "Post-census exactly matched; prior lab restored in-place, synthetic credentials scrubbed, no QA listeners."
+  - step: 19
+    action: "Correct invalid ATS stimulus using bounded direct TCP to fixed synthetic /32 in separate QA host. No ATS exception, no production change."
+    result: "Bounded raw TCP host, fixed endpoint and nonce, no ATS exception. ARM64 build, strict existing QA signature, parser9 and Python20+50 PASS."
+  - step: 20
+    action: "Install signed corrected raw TCP scoped variant only with provider absent; inspect historical manager."
+    result: "Installed corrected signed QA; read-only census known dormant1, own0, other active0."
+  - step: 21
+    action: "Prepare one owned raw TCP test manager."
+    result: "Prepared=true connected=false; run 0cef71e2-6870-4a83-ba12-98e2a12de163."
+  - step: 22
+    action: "Run corrected bounded raw TCP scoped test with exact independent witness."
+    run_id: 288E0E16-9097-4FCF-AF36-7FC6A3BEC2A3
+    result: "PASS: actual scoped TCP, exact HTTP200, host sent98 received160, TUN fd identity matched, SOCKS greeting, Rust target/TCP/SOCKS logs, native stop/drain and owned cleanup true. Independent peer witness1, relay1, ingress2209/egress2613, exact response hash correlated. Scoped only, not product acceptance."
+  - step: 23
+    action: "Verify historical manager unchanged, restore prior lab binary and remove synthetic private fixtures."
+    result: "PASS: historical manager census identical, prior lab binary restored, temporary keys scrubbed, no test listeners or providers. Original proxy still OFF, separate unresolved recovery."
+resume_instruction: "Scoped TCP DoD complete with correlated physical run 288E0E16-9097-4FCF-AF36-7FC6A3BEC2A3. Do not rerun unchanged; parent task next product-equivalent route transition and original proxy recovery. See scoped TUN doc."

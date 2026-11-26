@@ -7,3 +7,6 @@
 • వివరాలు పరికరంలో, పాస్‌వర్డ్‌లు కీచెయిన్‌లో ఉంటాయి
 
 మీ సొంత ప్రాక్సీ సర్వర్ వివరాలు అవసరం; APL సర్వర్ ఇవ్వదు.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

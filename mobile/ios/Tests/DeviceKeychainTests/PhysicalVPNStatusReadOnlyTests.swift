@@ -24,6 +24,10 @@ final class PhysicalVPNStatusReadOnlyTests: XCTestCase {
         XCTAssertFalse(apl.isEmpty, "Existing APL PacketTunnel preference must be present")
         for manager in apl {
             let status = manager.connection.status
+            if let proto = manager.protocolConfiguration as? NETunnelProviderProtocol {
+                // Boolean route policy only; never log configuration contents.
+                print("APL_VPN_QA_READONLY_ROUTE_POLICY_INCLUDE_ALL_\(proto.includeAllNetworks)_EXCLUDE_LOCAL_\(proto.excludeLocalNetworks)_ENFORCE_\(proto.enforceRoutes)")
+            }
             let isOff = status == .disconnected || status == .invalid
             if isOff { print("APL_VPN_QA_READONLY_OFF_CONFIRMED") }
             else { print("APL_VPN_QA_READONLY_UNEXPECTED_ACTIVE") }

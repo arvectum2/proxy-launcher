@@ -7,3 +7,6 @@ Connecta l’iPhone mitjançant un servidor intermediari propi amb controls senz
 • Les dades queden al dispositiu i les contrasenyes al clauer
 
 Has de configurar el teu servidor intermediari; APL no en proporciona.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

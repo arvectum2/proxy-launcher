@@ -22,8 +22,23 @@ def test_cloudkit_upload_requires_explicit_preview_and_optimistic_lock():
     assert ".ifServerRecordUnchanged" in service
     assert "requiresRemotePreview" in service
     assert "observedRemoteWasAbsent" in service
+    assert 'let reviewedBytes = expectedRemote["payload"] as? Data' in service
+    assert "let reviewedSnapshot = try? ExclusionSyncContract.decode(reviewedBytes)" in service
+    assert "ExclusionSyncContract.remoteUnchanged(" in service
+    assert "expectedRemote.recordType == Self.recordType" in service
     assert "ExclusionSyncContract.encode(localDomains:" in service
     assert 'record["payload"] = data as NSData' in service
+
+
+def test_cloudkit_device_identity_never_silently_rotates():
+    service = (APP / "ExclusionCloudKitService.swift").read_text()
+    core = (IOS / "SharedCore/ExclusionSyncContract.swift").read_text()
+    assert "ExclusionCloudDeviceIdentity.loadOrCreate(" in service
+    assert "guard let defaults = UserDefaults(suiteName:" in service
+    assert "guard let stableDeviceID = deviceID() else" in service
+    assert "throw ExclusionCloudKitFailure.unavailable" in service
+    assert "uuid.uuidString.lowercased() == stored" in core
+    assert "guard read() == created else { return nil }" in core
 
 
 def test_cloudkit_user_consent_and_local_vpn_rollback():
@@ -31,7 +46,11 @@ def test_cloudkit_user_consent_and_local_vpn_rollback():
     exclusions = (APP / "ExclusionsView.swift").read_text()
     assert "confirmUpload = true" in view
     assert "confirmationDialog(" in view
-    assert "await model.saveExclusions(remote.manualDomains, graph: model.smartGraph)" in view
+    assert "await model.saveExclusions(" in view
+    assert "currentRemote.manualDomains, graph: model.smartGraph)" in view
+    assert "ExclusionSyncContract.remoteUnchanged(" in view
+    assert "cloud.previewRemote(expectedAccount:account)" in view
+    assert "ExclusionSyncContract.localUnchanged(" in view
     assert "localAtPreview" in view
     assert "onApplied()" in view
     assert "entries != model.manualExclusions" in exclusions
@@ -48,3 +67,19 @@ def test_cloudkit_no_credentials_or_packet_tunnel_or_background_sync():
     assert "PacketTunnelProvider" not in combined
     assert "CKContainer(identifier:" in service
     assert "manualDomains:" in combined
+
+
+def test_review_bound_to_current_account_and_expiry_even_when_record_absent():
+    service=(APP/'ExclusionCloudKitService.swift').read_text()
+    view=(APP/'ExclusionCloudSyncView.swift').read_text()
+    preview=service.split('func previewRemote(',1)[1].split('func upload(',1)[0]
+    upload=service.split('func upload(',1)[1].split('private func deviceID()',1)[0]
+    assert 'container.userRecordID()' in service
+    assert 'review.matches(accountID:id' in service
+    assert preview.count('requireReview(expectedAccount)') == 3
+    assert '.unknownItem {\n                try await requireReview(expectedAccount)' in preview
+    assert 'previewRemote(expectedAccount:expectedAccount)' in upload
+    assert upload.index('requireReview(expectedAccount)') < upload.index('database.modifyRecords(')
+    assert 'let account = accountAtPreview' in view
+    assert 'accountAtPreview = nil' in view
+    assert 'expectedAccount:account' in view

@@ -7,3 +7,6 @@ Conecte o iPhone a um proxy configurado por você e controle as rotas com facili
 • Dados salvos no aparelho e senha protegida nas Chaves do iOS
 
 Use seu próprio servidor proxy: o APL não fornece nem vende proxies.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

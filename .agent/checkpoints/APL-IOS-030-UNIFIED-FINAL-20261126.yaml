@@ -1,0 +1,20 @@
+task_id: APL-IOS-030-UNIFIED-FINAL-20261126
+status: in_progress
+goal: "Owner-approved unified 0.3.0 (49): WG, AWG, VLESS Reality, private CloudKit."
+definition_of_done:
+  - "Explicit release-only VLESS activation, CloudKit host-only, no QA flags, all relevant tests and pinned builds."
+  - "Exact signed App Store and Development artifacts; verify entitlements, version, binary hashes, upgrade smoke."
+  - "Reconcile final source/notice delivery and integration; production CloudKit schema and submission separately controlled."
+completed:
+  - "26 Nov final signed upgrade smoke PASS, actual selected legacy connect/disconnect and original OFF state. Main integrated in release branch; exact runtime tree unchanged, Spec Kit 9 tests PASS. Notices ZIP prepared. Apple draft and 47 notes verified; official validation PASS. Upload journaled once."
+  - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
+  - "Signed archive and both local IPA exports, exact identity, profile, entitlement and matching Mach-O UUID PASS. 443 Swift/464 Python/87 subtests; 411 private kit and 15 Go files rehashed. Main dry-run single roadmap conflict. No device mutation."
+  - "Owner confirmed combined scope and deferral of second physical CloudKit device to subsequent update; prior real Development two-client/ordinary UI on one iPhone accepted. WAN/handoff remains deferred."
+current: "26 Nov final signed upgrade smoke PASS; integration branch ready, protected main checks pending; notices prepared; Apple draft/47 locales and official validation PASS; upload initiated once; CloudKit Dashboard needs owner sign-in."
+remaining:
+  - "Final signed acceptance, source/notice and integration."
+  - "Production schema and publication."
+last_verified_commit: "9e5e007f10e734d58147fd842f66b9e583dde932 (both unified IPAs verified)"
+test_results:
+  - "Prior accepted VLESS guarded LAN and CloudKit private Development receipts; 443 Swift / 462 Python / 87 subtests before UI adapter."
+resume_instruction: "ARC only. Read docs/APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md latest morning section. Owner authorized final operations, signed upgrade smoke PASS, final Development app installed and VPN OFF baseline restored. PR383 ready against main; exact mobile/ios same as signed source, normal protected checks pending. Public notices archive staged; after merge verify public Pages exact bytes. Apple0.3.0 draft and 47 notes verified, Apple validation PASS. SINGLE upload job 12480b35-d5d6-4607-90c4-432d40aad928 started; inspect receipt and Apple build49 GET before any retry, no duplicate. CloudKit Dashboard MacBook requires owner sign-in (no management token). No production deployment or review submission yet; resume after authentication, verify production schema, main merge/Pages, processed build and metadata, then attach and submit within existing authorization. No new accounts, no closed-scope reopening."

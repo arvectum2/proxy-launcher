@@ -7,3 +7,6 @@ Connectez votre iPhone à votre propre proxy et gérez simplement les connexions
 • Paramètres enregistrés sur l’appareil et mot de passe dans le Trousseau
 
 Indiquez les données de votre proxy : APL ne fournit pas de serveurs proxy.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

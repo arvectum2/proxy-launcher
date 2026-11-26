@@ -3,6 +3,29 @@ import SwiftUI
 import YandexMobileAds
 #endif
 
+#if APL_CLOUDKIT_LIVE_QA && APL_CLOUDKIT_ENABLED
+@main
+struct ArvectumProxyLauncherApp: App {
+    var body: some Scene {
+        WindowGroup {
+            if ProcessInfo.processInfo.arguments.contains("--apl-authorized-cloudkit-ui-qa") ||
+                ProcessInfo.processInfo.arguments.contains("--apl-authorized-cloudkit-ui-recovery") {
+                CloudKitOrdinaryUIQAView()
+            } else { CloudKitLiveQAView() }
+        }
+    }
+}
+#elseif APL_PRODUCT_UI_QA
+@main
+struct ArvectumProxyLauncherApp: App {
+    var body:some Scene {WindowGroup {ProductOrdinaryUIQAView()}}
+}
+#elseif APL_PRODUCT_OWNER_QA
+@main
+struct ArvectumProxyLauncherApp: App {
+    var body:some Scene {WindowGroup {ProductOwnerQAView()}}
+}
+#else
 @main
 struct ArvectumProxyLauncherApp: App {
     @StateObject private var model = AppViewModel()
@@ -10,34 +33,59 @@ struct ArvectumProxyLauncherApp: App {
     @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
     @AppStorage("privacyDisclosureAccepted.v1") private var privacyDisclosureAccepted = false
 
-    init() {
+    @State private var adsStartupCompleted = false
+
+    private var shouldInitializeAds: Bool {
 #if !targetEnvironment(macCatalyst)
-        // Start the SDK before the banner enters the view hierarchy. This
-        // reduces first-impression latency, including on a cold app launch.
+        return IOSAdsConfig.isEnabled
+#else
+        return false
+#endif
+    }
+
+    @MainActor private func startAdsAfterDisclosure() {
+        guard privacyDisclosureAccepted, shouldInitializeAds, !adsStartupCompleted else { return }
+#if !targetEnvironment(macCatalyst)
 #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER") {
-            YandexAds.enableLogging()
-        }
+        YandexAds.enableLogging()
 #endif
         YandexAds.initializeSDK(completionHandler: nil)
 #endif
+        adsStartupCompleted = true
     }
 
     var body: some Scene {
         WindowGroup {
             Group {
-                if privacyDisclosureAccepted {
-                    ContentView()
-                } else {
-                    PrivacyDisclosureView {
-                        privacyDisclosureAccepted = true
-                    }
-                }
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW && APL_NATIVE_RUNTIME_QA_HARNESS && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+                if NativeRuntimeReviewQAView.enabled {NativeRuntimeReviewQAView()}
+                else {ordinaryRoot}
+#else
+                ordinaryRoot
+#endif
             }
-            .environmentObject(model)
             .preferredColorScheme(AppearanceMode(rawValue: appearanceMode)?.colorScheme)
             .environment(\.locale, (AppLanguage(rawValue: appLanguage) ?? .system).locale)
             .environment(\.layoutDirection, ["fa", "ar", "ur", "he"].contains(AppL10n.effectiveLanguage) ? .rightToLeft : .leftToRight)
         }
     }
+    private var ordinaryRoot:some View {
+        Group {
+            if privacyDisclosureAccepted {
+                if !shouldInitializeAds || adsStartupCompleted {
+                    ContentView()
+                } else {
+                    // Do not construct ad views/loaders before the explicit SDK call.
+                    ProgressView().onAppear { startAdsAfterDisclosure() }
+                }
+            } else {
+                PrivacyDisclosureView(appLanguage: $appLanguage) {
+                    privacyDisclosureAccepted = true
+                }
+            }
+        }
+        .environmentObject(model)
+    }
 }
+
+#endif

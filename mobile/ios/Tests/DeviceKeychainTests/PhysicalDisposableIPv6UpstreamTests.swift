@@ -70,13 +70,15 @@ final class PhysicalDisposableIPv6UpstreamTests: XCTestCase {
     /// Probe literal public IPv6 TCP/TLS with explicit certificate hostname.
     /// Unlike VirtualDNS fake IPv4 for DNS names, this sends a native IPv6
     /// destination packet into Network Extension's ::/0 routes.
-    private func nativeIPv6TLS() async -> Bool {
+    private func nativeIPv6TLS(requiredInterface: NWInterface.InterfaceType? = nil) async -> Bool {
         let tls = NWProtocolTLS.Options()
         sec_protocol_options_set_tls_server_name(tls.securityProtocolOptions, "one.one.one.one")
         let destination = NWEndpoint.Host.ipv6(IPv6Address("2606:4700:4700::1111")!)
+        let parameters = NWParameters(tls: tls)
+        if let requiredInterface { parameters.requiredInterfaceType = requiredInterface }
         let connection = NWConnection(
             host: destination, port: NWEndpoint.Port(rawValue: 443)!,
-            using: NWParameters(tls: tls))
+            using: parameters)
         let once = Once()
         return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
             let finish: (Bool) -> Void = { success in
@@ -88,6 +90,10 @@ final class PhysicalDisposableIPv6UpstreamTests: XCTestCase {
             connection.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
+                    if let requiredInterface,
+                       connection.currentPath?.usesInterfaceType(requiredInterface) != true {
+                        finish(false); return
+                    }
                     let request = Data(
                         "GET /cdn-cgi/trace HTTP/1.1\r\nHost: one.one.one.one\r\nConnection: close\r\n\r\n".utf8)
                     connection.send(content: request, completion: .contentProcessed { error in
@@ -298,5 +304,515 @@ final class PhysicalDisposableIPv6UpstreamTests: XCTestCase {
 #endif
     }
 
+
+    /// A positive direct UDP echo followed by NO echo through the temporary
+    /// HTTP CONNECT-only upstream is a bounded leak sentinel, NOT a claim of
+    /// a system-wide DNS/UDP/QUIC kill switch.
+    private func udpEcho(_ address: IPv6Address, port: Network.NWEndpoint.Port) async -> Bool {
+        let connection = NWConnection(
+            host: .ipv6(address), port: port, using: .udp)
+        let token = Data(
+            ("APL030-" + UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()).utf8)
+        let once = Once()
+        return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            let finish: (Bool) -> Void = { success in
+                once.run {
+                    connection.cancel()
+                    cont.resume(returning: success)
+                }
+            }
+            connection.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    connection.send(content: token, completion: .contentProcessed { error in
+                        guard error == nil else { finish(false); return }
+                        connection.receiveMessage { response, _, _, error in
+                            finish(error == nil && response == token)
+                        }
+                    })
+                case .failed, .cancelled:
+                    finish(false)
+                default:
+                    break
+                }
+            }
+            connection.start(queue: DispatchQueue(label: "ru.arvectum.apl.udp-echo-qa"))
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(
+                deadline: .now() + 2.5) { finish(false) }
+        }
+    }
+
+    /// Real, interface-bound underlay control: no system radio toggle,
+    /// no VPN activation, no app profile or Keychain mutation. This is NOT
+    /// an active VPN handoff or TCP socket migration test.
+    func testPhysicalWiFiCellularWiFiPathsWithoutSystemToggle() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real physical Wi-Fi and cellular underlays required")
+#else
+        guard ProcessInfo.processInfo.environment["APL_QA_RADIO_PATH_ENABLE"] == "YES" else {
+            throw XCTSkip("Explicit physical underlay path opt-in required")
+        }
+        _ = try await existingOffTunnel()
+        let sequence: [(String, NWInterface.InterfaceType)] = [
+            ("WIFI_BEFORE", .wifi), ("CELLULAR", .cellular), ("WIFI_AFTER", .wifi)
+        ]
+        var outcomes: [Bool] = []
+        for (phase, interface) in sequence {
+            print("APL_RADIO_PATH_\(phase)_BEGIN_\(Date().timeIntervalSince1970)")
+            let ok = await nativeIPv6TLS(requiredInterface: interface)
+            print("APL_RADIO_PATH_\(phase)_END_\(Date().timeIntervalSince1970)_OK_\(ok)")
+            outcomes.append(ok)
+        }
+        XCTAssertEqual(outcomes, [true, true, true],
+                       "Both actual interface-bound IPv6 HTTPS controls must work")
+#endif
+    }
+
+    // Numeric off-link IPv6 control: bounded DNS query and genuine QUIC
+    // without silently falling back to TCP. A filtered USB RVI capture is
+    // independently required to attribute physical packets (not TUN packets).
+    private func offLinkDNS() async -> Bool {
+        let c = NWConnection(
+            host: .ipv6(IPv6Address("2606:4700:4700::1111")!),
+            port: NWEndpoint.Port(rawValue: 53)!, using: .udp)
+        let id = UInt16.random(in: 1...65535)
+        var query = Data([UInt8(id >> 8), UInt8(id & 255), 1, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+        // A non-sensitive fixed public hostname, AAAA question.
+        query.append(contentsOf: [7])
+        query.append(contentsOf: Array("example".utf8))
+        query.append(contentsOf: [3])
+        query.append(contentsOf: Array("com".utf8))
+        query.append(contentsOf: [0, 0, 28, 0, 1])
+        let wireQuery = query
+        let once = Once()
+        return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            let finish: (Bool) -> Void = { ok in
+                once.run { c.cancel(); cont.resume(returning: ok) }
+            }
+            c.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    c.send(content: wireQuery, completion: .contentProcessed { error in
+                        guard error == nil else { finish(false); return }
+                        c.receiveMessage { data, _, _, error in
+                            guard error == nil, let data, data.count >= 12 else {
+                                finish(false); return
+                            }
+                            finish(data[0] == UInt8(id >> 8) && data[1] == UInt8(id & 255)
+                                   && (data[2] & 0x80) != 0)
+                        }
+                    })
+                case .failed, .cancelled: finish(false)
+                default: break
+                }
+            }
+            c.start(queue: DispatchQueue(label: "ru.arvectum.apl.offlink-dns-qa"))
+            DispatchQueue.global().asyncAfter(deadline: .now() + 3) { finish(false) }
+        }
+    }
+
+    private func offLinkQUIC() async -> Bool {
+        let options = NWProtocolQUIC.Options(alpn: ["h3"])
+        sec_protocol_options_set_tls_server_name(options.securityProtocolOptions, "one.one.one.one")
+        let c = NWConnection(
+            host: .ipv6(IPv6Address("2606:4700:4700::1111")!),
+            port: .https, using: NWParameters(quic: options))
+        let once = Once()
+        return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            let finish: (Bool) -> Void = { ok in
+                once.run { c.cancel(); cont.resume(returning: ok) }
+            }
+            c.stateUpdateHandler = { state in
+                switch state {
+                case .ready: finish(true)
+                case .failed, .cancelled: finish(false)
+                default: break
+                }
+            }
+            c.start(queue: DispatchQueue(label: "ru.arvectum.apl.offlink-quic-qa"))
+            DispatchQueue.global().asyncAfter(deadline: .now() + 4) { finish(false) }
+        }
+    }
+
+    private func offLinkProbeWindow(_ phase: String) async -> (Bool, Bool) {
+        print("APL_OFFLINK_WINDOW_\(phase)_BEGIN_\(Date().timeIntervalSince1970)")
+        async let dns = offLinkDNS()
+        async let quic = offLinkQUIC()
+        let result = await (dns, quic)
+        print("APL_OFFLINK_WINDOW_\(phase)_END_\(Date().timeIntervalSince1970)_DNS_\(result.0)_QUIC_\(result.1)")
+        return result
+    }
+
+    func testBoundedOffLinkDNSAndQUICWithRVIWitness() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical off-link RVI capture required")
+#else
+        guard #available(iOS 17.0, *),
+              ProcessInfo.processInfo.environment["APL_QA_OFFLINK_RVI_ENABLE"] == "YES" else {
+            throw XCTSkip("Explicit off-link RVI witness opt-in required")
+        }
+        let tunnel = try await existingOffTunnel()
+        let direct = await offLinkProbeWindow("BEFORE")
+        // Independent physical packet capture must show both protocols even
+        // if QUIC handshake is blocked by the actual underlay.
+        guard direct.0 || direct.1 else {
+            throw XCTSkip("Neither off-link DNS nor QUIC has a working control; VPN untouched")
+        }
+        let upstream = NWEndpoint.hostPort(
+            host: .init("192.168.1.80"), port: NWEndpoint.Port(rawValue: 18081)!)
+        var lab = ProxyConfiguration(httpCONNECTProxy: upstream)
+        lab.allowFailover = false
+        guard let labOrigin = try? await ipv6Witness(lab),
+              let directOrigin = try? await ipv6Witness(nil), labOrigin != directOrigin else {
+            throw XCTSkip("Independent disposable HTTPS proxy control unavailable")
+        }
+        var started = false
+        var stopJob: DispatchWorkItem?
+        defer {
+            stopJob?.cancel()
+            if started { tunnel.stopVPNTunnel() }
+        }
+        started = true
+        try tunnel.startTunnel(options: [
+            "requestedByUser": NSNumber(value: true),
+            "qaStopAfterSeconds": NSNumber(value: 25),
+            "qaSmart3ProxyHost": "192.168.1.80" as NSString,
+            "qaSmart3ProxyPort": NSNumber(value: 18081)
+        ])
+        let stop = DispatchWorkItem { tunnel.stopVPNTunnel() }
+        stopJob = stop
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 20, execute: stop)
+        var connected = false
+        for attempt in 0..<48 {
+            if tunnel.status == .connected { connected = true; break }
+            if tunnel.status == .invalid || (tunnel.status == .disconnected && attempt >= 16) { break }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        guard connected, (try? await ipv6Witness(nil)) == labOrigin else {
+            XCTFail("Disposable PacketTunnel egress not confirmed; no off-link claim"); return
+        }
+        print("APL_OFFLINK_DISPOSABLE_EGRESS_CONFIRMED")
+        let during = await offLinkProbeWindow("DURING")
+        stopJob?.cancel()
+        tunnel.stopVPNTunnel()
+        var off = false
+        for _ in 0..<40 {
+            if tunnel.status == .disconnected { off = true; break }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard off else { XCTFail("VPN must return OFF"); return }
+        print("APL_OFFLINK_VPN_OFF_CONFIRMED")
+        let after = await offLinkProbeWindow("AFTER")
+        // DNS may be answered by VirtualDNS. Only RVI can distinguish whether
+        // an actual DNS datagram escaped; do not infer leak from DNS answer.
+        XCTAssertFalse(during.1, "Unexpected direct QUIC handshake with HTTP-only lab upstream")
+        XCTAssertTrue((direct.0 && after.0) || (direct.1 && after.1), "Off-link control must recover")
+#endif
+    }
+
+    // RFC 5389 Binding Request, no credentials, no application payload.
+    // The remote responder must return the same 96-bit random transaction ID.
+    private func offLinkSTUNBinding() async -> Bool {
+        let target = NWEndpoint.Host.ipv6(IPv6Address("2606:4700:49::")!)
+        let c = NWConnection(host: target, port: NWEndpoint.Port(rawValue: 3478)!,
+                             using: .udp)
+        let cookie: [UInt8] = [0x21, 0x12, 0xa4, 0x42]
+        let nonce = (0..<12).map { _ in UInt8.random(in: 0...255) }
+        let request = Data([0x00, 0x01, 0, 0] + cookie + nonce)
+        let once = Once()
+        return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            let finish: (Bool) -> Void = { ok in
+                once.run { c.cancel(); cont.resume(returning: ok) }
+            }
+            c.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    c.send(content: request, completion: .contentProcessed { error in
+                        guard error == nil else { finish(false); return }
+                        c.receiveMessage { data, _, _, error in
+                            guard error == nil, let data, data.count >= 20,
+                                  data[0] == 0x01, data[1] == 0x01,
+                                  Array(data[4..<8]) == cookie,
+                                  Array(data[8..<20]) == nonce else {
+                                finish(false); return
+                            }
+                            let length = Int(data[2]) * 256 + Int(data[3])
+                            finish(length >= 4 && length % 4 == 0 && data.count == 20 + length)
+                        }
+                    })
+                case .failed, .cancelled: finish(false)
+                default: break
+                }
+            }
+            c.start(queue: DispatchQueue(label: "ru.arvectum.apl.offlink-stun-qa"))
+            DispatchQueue.global().asyncAfter(deadline: .now() + 3) { finish(false) }
+        }
+    }
+
+    private func stunWindow(_ phase: String) async -> Bool {
+        print("APL_OFFLINK_WINDOW_\(phase)_BEGIN_\(Date().timeIntervalSince1970)")
+        let response = await offLinkSTUNBinding()
+        print("APL_OFFLINK_WINDOW_\(phase)_END_\(Date().timeIntervalSince1970)_STUN_\(response)")
+        return response
+    }
+
+    func testBoundedOffLinkSTUNWithRVIWitness() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical off-link STUN witness required")
+#else
+        guard #available(iOS 17.0, *),
+              ProcessInfo.processInfo.environment["APL_QA_STUN_RVI_ENABLE"] == "YES" else {
+            throw XCTSkip("Explicit off-link STUN RVI opt-in required")
+        }
+        let tunnel = try await existingOffTunnel()
+        guard await stunWindow("BEFORE") else {
+            throw XCTSkip("Public STUN positive control unavailable; VPN untouched")
+        }
+        let upstream = NWEndpoint.hostPort(
+            host: .init("192.168.1.80"), port: NWEndpoint.Port(rawValue: 18081)!)
+        var lab = ProxyConfiguration(httpCONNECTProxy: upstream)
+        lab.allowFailover = false
+        guard let labOrigin = try? await ipv6Witness(lab),
+              let directOrigin = try? await ipv6Witness(nil), labOrigin != directOrigin else {
+            throw XCTSkip("Independent disposable HTTPS proxy unavailable")
+        }
+        var started = false
+        var stopJob: DispatchWorkItem?
+        defer {
+            stopJob?.cancel()
+            if started { tunnel.stopVPNTunnel() }
+        }
+        started = true
+        try tunnel.startTunnel(options: [
+            "requestedByUser": NSNumber(value: true),
+            "qaStopAfterSeconds": NSNumber(value: 25),
+            "qaSmart3ProxyHost": "192.168.1.80" as NSString,
+            "qaSmart3ProxyPort": NSNumber(value: 18081)
+        ])
+        let stop = DispatchWorkItem { tunnel.stopVPNTunnel() }
+        stopJob = stop
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 20, execute: stop)
+        var connected = false
+        for attempt in 0..<48 {
+            if tunnel.status == .connected { connected = true; break }
+            if tunnel.status == .invalid || (tunnel.status == .disconnected && attempt >= 16) { break }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        guard connected, (try? await ipv6Witness(nil)) == labOrigin else {
+            XCTFail("Disposable PacketTunnel egress not confirmed"); return
+        }
+        print("APL_OFFLINK_DISPOSABLE_EGRESS_CONFIRMED")
+        let during = await stunWindow("DURING")
+        // Do not cancel the host safety timer until disconnected.
+        XCTAssertEqual(tunnel.status, .connected,
+                       "Probe window must remain within active tunnel")
+        tunnel.stopVPNTunnel()
+        var off = false
+        for _ in 0..<40 {
+            if tunnel.status == .disconnected { off = true; break }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard off else { XCTFail("VPN must return OFF"); return }
+        stopJob?.cancel()
+        print("APL_OFFLINK_VPN_OFF_CONFIRMED")
+        let after = await stunWindow("AFTER")
+        XCTAssertFalse(during, "Unexpected off-link STUN response under HTTP-only proxy")
+        XCTAssertTrue(after, "Direct public STUN response must recover after VPN OFF")
+#endif
+    }
+
+    private func upstreamFailureTLSWindow(_ phase: String) async -> Bool {
+        print("APL_OFFLINK_WINDOW_\(phase)_BEGIN_\(Date().timeIntervalSince1970)")
+        let ok = await nativeIPv6TLS()
+        // Keep positive-control windows open through capture timestamp
+        // jitter and TCP close; do not artificially widen the loss window.
+        if phase != "DURING" {
+            try? await Task.sleep(nanoseconds: 750_000_000)
+        }
+        print("APL_OFFLINK_WINDOW_\(phase)_END_\(Date().timeIntervalSince1970)_TLS_\(ok)")
+        return ok
+    }
+
+    /// Host orchestrator must terminate ONLY the disposable QA relay after
+    /// the explicit marker and independently attest process exit before the
+    /// DURING window. RVI captures the public literal TCP destination only.
+    func testBoundedDisposableUpstreamFailureWithRVIWitness() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical upstream failure witness required")
+#else
+        guard #available(iOS 17.0, *),
+              ProcessInfo.processInfo.environment["APL_QA_UPSTREAM_CUT_ENABLE"] == "YES" else {
+            throw XCTSkip("Explicit managed disposable upstream cut required")
+        }
+        let tunnel = try await existingOffTunnel()
+        guard await upstreamFailureTLSWindow("BEFORE") else {
+            throw XCTSkip("Public native TLS control unavailable; VPN untouched")
+        }
+        let upstream = NWEndpoint.hostPort(
+            host: .init("192.168.1.80"), port: NWEndpoint.Port(rawValue: 18081)!)
+        var lab = ProxyConfiguration(httpCONNECTProxy: upstream)
+        lab.allowFailover = false
+        guard let labOrigin = try? await ipv6Witness(lab),
+              let directOrigin = try? await ipv6Witness(nil),
+              labOrigin != directOrigin else {
+            throw XCTSkip("Independent disposable HTTPS relay unavailable")
+        }
+        var started = false
+        var stopJob: DispatchWorkItem?
+        defer {
+            stopJob?.cancel()
+            if started { tunnel.stopVPNTunnel() }
+        }
+        started = true
+        try tunnel.startTunnel(options: [
+            "requestedByUser": NSNumber(value: true),
+            "qaStopAfterSeconds": NSNumber(value: 25),
+            "qaSmart3ProxyHost": "192.168.1.80" as NSString,
+            "qaSmart3ProxyPort": NSNumber(value: 18081)
+        ])
+        let stop = DispatchWorkItem { tunnel.stopVPNTunnel() }
+        stopJob = stop
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 20, execute: stop)
+        var connected = false
+        for attempt in 0..<48 {
+            if tunnel.status == .connected { connected = true; break }
+            if tunnel.status == .invalid || (tunnel.status == .disconnected && attempt >= 16) { break }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        guard connected, (try? await ipv6Witness(nil)) == labOrigin,
+              await nativeIPv6TLS() else {
+            XCTFail("Disposable PacketTunnel egress and native TLS must work before cut"); return
+        }
+        print("APL_OFFLINK_DISPOSABLE_EGRESS_CONFIRMED")
+        print("APL_UPSTREAM_CUT_REQUEST_\(Date().timeIntervalSince1970)")
+        // External host supplies its own verified relay-exit epoch. No assumption
+        // that an elapsed sleep alone proves the relay actually stopped.
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        guard tunnel.status == .connected else {
+            XCTFail("VPN not connected at failure window start"); return
+        }
+        let during = await upstreamFailureTLSWindow("DURING")
+        XCTAssertEqual(tunnel.status, .connected,
+                       "Failure probe must remain within the active tunnel")
+        tunnel.stopVPNTunnel()
+        var off = false
+        for _ in 0..<40 {
+            if tunnel.status == .disconnected { off = true; break }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard off else { XCTFail("VPN must return OFF"); return }
+        stopJob?.cancel()
+        print("APL_OFFLINK_VPN_OFF_CONFIRMED")
+        // NE's status can become disconnected before every underlay route
+        // has settled. Give the independently observed direct control its
+        // own recovery window rather than accepting the first fast receipt.
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        let after = await upstreamFailureTLSWindow("AFTER")
+        XCTAssertFalse(during, "Upstream loss must not fall back to direct native TLS")
+        XCTAssertTrue(after, "Direct native TLS must recover after VPN OFF")
+#endif
+    }
+
+    /// Explicit opt-in physical QA. Requires a separate short-lived public
+    /// IPv6 UDP echo server and the known disposable HTTP CONNECT proxy.
+    /// Never tests unknown owner profiles, Keychain or a production VPN path.
+    func testBoundedUDPDirectWitnessBlockedInPacketTunnelAndRestored() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real iPhone and explicit disposable UDP witness required")
+#else
+        guard #available(iOS 17.0, *) else { throw XCTSkip("iOS 17+ QA") }
+        let env = ProcessInfo.processInfo.environment
+        guard env["APL_QA_UDP_ENABLE"] == "YES",
+              let host = env["APL_QA_UDP_WITNESS_IPV6"],
+              let rawPort = env["APL_QA_UDP_WITNESS_PORT"],
+              let portNumber = UInt16(rawPort), portNumber >= 1024,
+              let port = Network.NWEndpoint.Port(rawValue: portNumber),
+              let witness = IPv6Address(host) else {
+            throw XCTSkip("UDP witness opt-in and public IPv6 endpoint not configured")
+        }
+        var numeric = in6_addr()
+        guard host.withCString({ inet_pton(AF_INET6, $0, &numeric) == 1 }),
+              withUnsafeBytes(of: numeric, { bytes in
+                  bytes.count == 16 && (bytes[0] & 0xe0) == 0x20 &&
+                  !(bytes[0] == 0x20 && bytes[1] == 0x01 &&
+                    bytes[2] == 0x0d && bytes[3] == 0xb8)
+              }) else {
+            throw XCTSkip("Witness must be real global unicast IPv6, not LAN/documentation")
+        }
+        let tunnel = try await existingOffTunnel()
+        guard await udpEcho(witness, port: port),
+              await udpEcho(witness, port: port) else {
+            throw XCTSkip("Direct UDP echo control did not succeed twice; VPN untouched")
+        }
+        print("APL_UDP_QA_DIRECT_ECHO_2_OF_2_PASS_OFF")
+
+        let upstream = Network.NWEndpoint.hostPort(
+            host: .init("192.168.1.80"), port: Network.NWEndpoint.Port(rawValue: 18081)!)
+        var labProxy = ProxyConfiguration(httpCONNECTProxy: upstream)
+        labProxy.allowFailover = false
+        let labOrigin: String
+        do {
+            labOrigin = try await ipv6Witness(labProxy)
+        } catch {
+            throw XCTSkip("Disposable HTTP CONNECT upstream not available; VPN untouched")
+        }
+        print("APL_UDP_QA_DISPOSABLE_PROXY_PREFLIGHT_PASS")
+
+        var started = false
+        var stopItem: DispatchWorkItem?
+        defer {
+            stopItem?.cancel()
+            if started { tunnel.stopVPNTunnel() }
+        }
+        started = true
+        try tunnel.startTunnel(options: [
+            "requestedByUser": NSNumber(value: true),
+            "qaStopAfterSeconds": NSNumber(value: 25),
+            "qaSmart3ProxyHost": "192.168.1.80" as NSString,
+            "qaSmart3ProxyPort": NSNumber(value: 18081)
+        ])
+        let stopper = DispatchWorkItem { tunnel.stopVPNTunnel() }
+        stopItem = stopper
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(
+            deadline: .now() + 20, execute: stopper
+        )
+        var connected = false
+        for attempt in 0..<48 {
+            let status = tunnel.status
+            if status == .connected { connected = true; break }
+            if status == .invalid || (status == .disconnected && attempt >= 16) { break }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        guard connected else {
+            XCTFail("PacketTunnel did not connect; independent stop guards armed")
+            return
+        }
+        let viaLab = (try? await ipv6Witness(nil)) == labOrigin
+        guard viaLab else {
+            XCTFail("Real PacketTunnel disposable upstream not confirmed, no UDP claim")
+            return
+        }
+        print("APL_UDP_QA_PACKETTUNNEL_LAB_IPV6_RECEIPT_CONFIRMED")
+        let escaped = await udpEcho(witness, port: port)
+        print("APL_UDP_QA_TUNNEL_UDP_ECHO_RECEIVED_\(escaped)")
+
+        stopItem?.cancel()
+        tunnel.stopVPNTunnel()
+        var off = false
+        for _ in 0..<40 {
+            if tunnel.status == .disconnected { off = true; break }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard off else {
+            XCTFail("VPN did not return to OFF; PacketTunnel kill timer armed")
+            return
+        }
+        print("APL_UDP_QA_PACKETTUNNEL_OFF_CONFIRMED")
+        let restored = await udpEcho(witness, port: port)
+        print("APL_UDP_QA_DIRECT_UDP_RESTORED_\(restored)")
+        XCTAssertFalse(escaped, "Potential original IPv6 UDP bypass: echoed despite HTTP-only PacketTunnel")
+        XCTAssertTrue(restored, "Direct echo must work again after VPN OFF, otherwise inconclusive")
+#endif
+    }
 #endif
 }

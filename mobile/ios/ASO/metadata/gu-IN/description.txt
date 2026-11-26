@@ -7,3 +7,6 @@
 • માહિતી ઉપકરણમાં અને પાસવર્ડ કીચેઇનમાં સચવાય છે
 
 તમારા પોતાના પ્રોક્સી સર્વરની વિગતો આપો; APL સર્વર આપતું નથી.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

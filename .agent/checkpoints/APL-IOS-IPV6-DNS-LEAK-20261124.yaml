@@ -1,0 +1,21 @@
+task_id: APL-IOS-IPV6-DNS-LEAK-20261124
+status: completed
+goal: "Extend established loss and independent RVI controls to UDP6 and synthetic DNS/53."
+definition_of_done:
+  - "Per-protocol positive OFF physical observation and active first receipt, cut, second failed challenge; zero physical target packets, complete RVI."
+  - "Preserve historical manager and restore prior app; document limitations if physical OFF control unavailable."
+last_verified_commit: "1213213f98317dbe98a9ea3951d3235df237f708 (physical IPv6 DNS loss and RVI PASS, 201 offline checks verified previously)"
+steps:
+  - step: 1
+    action: "Recheck canonical state, provider, exact DNS tuple and RVI."
+    result: "No active provider observed. VLESS DNS target differs from WG DNS; use scope-specific target."
+  - step: 2
+    action: "Generalize only isolated loss lane, build and verify."
+    result: "PASS ARM64 signed build, 93 receipt/RVI +22 focused +21 parser +15 guard +50 release/preflight. Signed QA artifact ios-030-provider-full-route-ipv6-dns-loss-signed-20261124/NativeLabHost.app."
+  - step: 3
+    action: "Run UDP6 and DNS OFF controls and established loss sequentially, with independent exact RVI observation; restore prior lab."
+    result: "BLOCKED: signed candidate installed, initial read-only census launch denied Locked/CoreDevice10002, no manager prepared or physical test. Prior NativeLab restored. Mac UDP6/DNS local positive controls PASS, no QA sockets."
+  - step: 4
+    action: "Owner unlocked iPhone; recheck provider absent and no existing RVI; resume existing signed candidate in fresh evidence directory."
+    result: "PASS UDP6 4E2F0011-CCA1-4AFC-9811-F66863C484AF and DNS 73C437AD-EB15-475C-A6B3-C8534180360F, OFF physical1/tunnel0 and active physical0/tunnel2 each, exact first reply and second timeout, no second witness, all RVI complete. Prior lab restored, census identical, no QA sockets/RVI/providers."
+resume_instruction: "Completed; do not repeat. Parent next WAN/dynamic underlay and actual product acceptance, plus CloudKit/release gates."

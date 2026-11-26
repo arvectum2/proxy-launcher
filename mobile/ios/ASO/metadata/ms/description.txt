@@ -7,3 +7,6 @@ Sambungkan iPhone melalui proksi pilihan anda dengan kawalan yang mudah.
 • Tetapan kekal pada peranti dan kata laluan dalam Rantai Kunci
 
 Gunakan pelayan proksi anda sendiri; APL tidak menyediakan pelayan.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

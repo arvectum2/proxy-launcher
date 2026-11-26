@@ -10,5 +10,7 @@
   "required_archive_members": [
     "libxray-apple-cgo/LibXray.xcframework/ios-arm64/libXray.a",
     "libxray-apple-cgo/LibXray.xcframework/ios-arm64_x86_64-simulator/libXray.a"
-  ]
+  ],
+  "tag_object": "71d9d443aa88ff939ab6ce22b82aa4b2adcc4d9f",
+  "source_commit": "5a0f7d8d1c28b34afb5727b04b26a10f6dbac7e3"
 }

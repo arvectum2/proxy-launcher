@@ -1,0 +1,1 @@
+"sdkManifestDisclosure" = "The bundled SDK privacy manifests declare possible processing of device identifiers, advertising data, coarse location, interactions, purchases and diagnostics. The AppMetrica AdSupport manifest also declares tracking. These are SDK declarations, not confirmation of actual data transfers.";

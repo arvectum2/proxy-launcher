@@ -7,3 +7,6 @@ Kết nối iPhone qua proxy do bạn tự cấu hình, dễ dàng quản lý k�
 • Thông tin lưu trên thiết bị, mật khẩu trong Chuỗi khóa
 
 Bạn cần proxy riêng; APL không cung cấp máy chủ proxy.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

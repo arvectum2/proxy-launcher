@@ -7,3 +7,6 @@ Connectez votre iPhone au mandataire de votre choix grâce à des réglages simp
 • Les renseignements de connexion restent sur votre appareil
 
 Utilisez votre propre serveur mandataire; aucun accès proxy n’est fourni.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

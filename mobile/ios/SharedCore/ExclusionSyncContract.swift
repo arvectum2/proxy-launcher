@@ -72,10 +72,69 @@ enum ExclusionSyncContract {
                                      toRemove: localSet.subtracting(remoteSet).sorted())
     }
 
+    /// A user-approved preview is invalidated if the manual list changes.
+    /// Reject malformed/corrupted snapshot data rather than "normalizing"
+    /// it silently into a different approved list.
+    static func localUnchanged(previewed: [String], current: [String]) -> Bool {
+        guard let approved = try? SiteExclusionPolicy.normalizeAll(previewed),
+              approved == previewed,
+              let live = try? SiteExclusionPolicy.normalizeAll(current)
+        else { return false }
+        return live == approved
+    }
+
+    /// The server may have changed on another device after the user's review.
+    /// A same-revision payload with a new CloudKit record tag is still stale.
+    /// Both payload and nonempty change tag must match the approved preview.
+    static func remoteUnchanged(previewed: ManualExclusionSnapshot, current: ManualExclusionSnapshot,
+                                previewTag: String?, currentTag: String?) -> Bool {
+        guard let previewTag, !previewTag.isEmpty,
+              let currentTag, !currentTag.isEmpty
+        else { return false }
+        return previewTag == currentTag && previewed == current
+    }
+
     private static func validDeviceID(_ id: String) -> Bool {
         !id.isEmpty && id.utf8.count <= 64 && id.utf8.allSatisfy {
             ($0 >= 65 && $0 <= 90) || ($0 >= 97 && $0 <= 122) ||
             ($0 >= 48 && $0 <= 57) || $0 == 45 || $0 == 95
         }
     }
+}
+
+/// A CloudKit writer must retain its own stable, local identifier.
+/// Missing storage, malformed persisted state or a failed write denies upload;
+/// silently rotating identity would misattribute a remote revision.
+enum ExclusionCloudDeviceIdentity {
+    static func loadOrCreate(read: () -> String?, write: (String) -> Void) -> String? {
+        if let stored = read() {
+            guard let uuid = UUID(uuidString: stored),
+                  uuid.uuidString.lowercased() == stored else { return nil }
+            return stored
+        }
+        let created = UUID().uuidString.lowercased()
+        write(created)
+        guard read() == created else { return nil }
+        return created
+    }
+}
+
+/// Short-lived account identity proof. Memory only, never encoded or logged.
+struct ExclusionCloudAccountReview: CustomStringConvertible, CustomReflectable {
+    private let accountID: String
+    private let issued: TimeInterval
+    static let lifetime: TimeInterval = 300
+    init(accountID: String, elapsed: TimeInterval) throws {
+        guard Self.valid(accountID), elapsed.isFinite, elapsed >= 0 else {throw ExclusionSyncError.invalid}
+        self.accountID=accountID;self.issued=elapsed
+    }
+    func matches(accountID: String, elapsed: TimeInterval) -> Bool {
+        let age=elapsed-issued
+        return Self.valid(accountID) && accountID == self.accountID && age.isFinite && age >= 0 && age < Self.lifetime
+    }
+    private static func valid(_ id: String) -> Bool {
+        !id.isEmpty && id.utf8.count <= 512 && !id.unicodeScalars.contains{CharacterSet.controlCharacters.contains($0) || CharacterSet.whitespacesAndNewlines.contains($0)}
+    }
+    var description: String {"ExclusionCloudAccountReview(redacted)"}
+    var customMirror: Mirror {Mirror(self,children:[:])}
 }

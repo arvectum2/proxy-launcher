@@ -1,5 +1,12 @@
 # Актуальный срез APL — 11.11.2026
 
+## Постоянное решение владельца (подтверждено 01.11, 15.11 и 16.11.2026)
+
+Сохранять действующую работающую рекламную интеграцию и монетизацию iOS без изменений. Это окончательное продуктовое решение, а не вопрос для повторного согласования. Не инициировать повторные исследования SDK, смену модели монетизации, отключение рекламы или пересмотр уже согласованной конфигурации в ходе обычной разработки. Не включать закрытый вопрос в активные блокеры, отчёты или напоминания владельцу. Возвращаться к нему только по новой прямой команде владельца либо при конкретной новой объективной ошибке, непосредственно препятствующей запрошенному действию. Сохранять прежние технические проверки работоспособности рекламы, не подменять реальные результаты и не заявлять непроверенное соответствие требованиям.
+
+Продолжать активную инженерную задачу по .agent/current-task.yaml; исторические исследовательские документы не отменяют этого решения.
+
+
 **Текущая продуктовая разработка: только iOS.** [Каноническая активная iOS-дорожная карта](APL_ACTIVE_IOS_ROADMAP_2026-11-11.md). Исторические статусы ниже сохранены как доказательства прежних этапов; они не отменяют это решение.
 
 - [x] **macOS App Store 0.2.22 (18) ВЫПУЩЕНА**, подтверждено владельцем 11.11.2026. Не путать с отдельным GitHub/GitVerse desktop v0.2.16.
@@ -9,6 +16,10 @@
 - [ ] **Non-iOS** — продуктовые работы приостановлены до нового решения; прежние roadmap-пункты остаются в истории.
 
 ---
+
+## 16.11.2026 — оставшийся путь до релиза iOS 0.3.0
+
+Актуальный четырёхэтапный план завершения релиза закреплён в [активной iOS-дорожной карте](APL_ACTIVE_IOS_ROADMAP_2026-11-11.md). Приоритет: сохранение ревизии, Release-конфигурация, архив/IPA, финальная приёмка. Статус blocked; не возвращаться к завершённым исходным проверкам.
 
 ## 06.11.2026 — Smart4 DEBUG original-flow: абсолютный TTL (без iPhone)
 
@@ -1137,3 +1148,6 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 ## Completion discipline
 
 Do not substitute CI for physical App Control/Astra/РЕД ОС/mobile-device evidence, detached Russian release evidence for Microsoft native Windows publisher trust, or automation for human/legal decisions. Do not rewrite historical repository identities where they are part of provenance. Do not retarget immutable tags or replace published release assets in place. A documentation-only commit does not create a new product candidate. Current operational references must resolve to `arvectum2/proxy-launcher`.
+
+
+- [x] APL-IOS-030-NATIVE-WAN-HANDOFF: **CLOSED / DEFERRED by owner 25.11.2026**. No WAN server available or planned; not a release blocker for current scope. Physical native WAN/handoff NOT TESTED; offline 440 Swift/12 Python and unsigned ARM64 PASS; earlier legacy smoke is not native security evidence. Reopen on user complaints or suitable controlled infrastructure. No VPS, port exposure, seamless handoff or universal no-leak claim. [Protocol](APL_IOS_030_WAN_HANDOFF_QA_2026-11-25.md).

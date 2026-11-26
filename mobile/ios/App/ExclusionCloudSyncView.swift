@@ -3,12 +3,20 @@ import SwiftUI
 
 /// Manual-only private iCloud sync. Visible only when the App ID, container,
 /// entitlement and two-device acceptance gates enable APL_CLOUDKIT_ENABLED.
-struct ExclusionCloudSyncView: View {
-    @ObservedObject var model: AppViewModel
+@MainActor protocol ExclusionCloudLocalModel: ObservableObject {
+    var manualExclusions: [String] { get }
+    var smartGraph: SmartExclusionGraph { get }
+    func saveExclusions(_ raw: [String], graph: SmartExclusionGraph?) async -> Bool
+}
+extension AppViewModel: ExclusionCloudLocalModel {}
+
+@MainActor struct ExclusionCloudSyncView<Model: ExclusionCloudLocalModel>: View {
+    @ObservedObject var model: Model
     let onApplied: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var busy = false
     @State private var checked = false
+    @State private var accountAtPreview: ExclusionCloudAccountReview?
     @State private var remoteAbsent = false
     @State private var remote: ManualExclusionSnapshot?
     @State private var record: CKRecord?
@@ -16,7 +24,19 @@ struct ExclusionCloudSyncView: View {
     @State private var difference: ManualExclusionChange?
     @State private var status: String?
     @State private var confirmUpload = false
-    private let cloud = ExclusionCloudKitService()
+    private let cloud: ExclusionCloudKitService
+    init(model: Model, onApplied: @escaping () -> Void) {
+        self.model = model
+        self.onApplied = onApplied
+        self.cloud = ExclusionCloudKitService()
+    }
+#if APL_CLOUDKIT_LIVE_QA
+    init(model: Model, qaCloud: ExclusionCloudKitService, onApplied: @escaping () -> Void) {
+        self.model = model
+        self.onApplied = onApplied
+        self.cloud = qaCloud
+    }
+#endif
 
     var body: some View {
         NavigationView {
@@ -25,6 +45,7 @@ struct ExclusionCloudSyncView: View {
                     Text("Только ручные домены. Пароли, профили и настройки VPN в iCloud не отправляются.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Button("Проверить iCloud") { Task { await inspect() } }
+                            .accessibilityIdentifier("cloud.inspect")
                         .disabled(busy)
                     if busy { ProgressView() }
                 }
@@ -36,9 +57,11 @@ struct ExclusionCloudSyncView: View {
                             ForEach(difference.toAdd, id: \.self) { Text("+ " + $0) }
                             ForEach(difference.toRemove, id: \.self) { Text("− " + $0) }
                             Button("Применить удалённый список") { Task { await apply() } }
+                            .accessibilityIdentifier("cloud.apply")
                                 .disabled(busy)
                         }
                         Button("Сохранить мои исключения в iCloud") { confirmUpload = true }
+                            .accessibilityIdentifier("cloud.upload")
                             .disabled(busy)
                     }
                 }
@@ -51,6 +74,7 @@ struct ExclusionCloudSyncView: View {
             .confirmationDialog("Заменить список в личной базе iCloud?",
                                 isPresented: $confirmUpload, titleVisibility: .visible) {
                 Button("Подтвердить загрузку") { Task { await upload() } }
+                            .accessibilityIdentifier("cloud.confirm")
                 Button("Отмена", role: .cancel) {}
             } message: {
                 Text("Другие устройства не меняют VPN автоматически: загрузка списка требует отдельного подтверждения.")
@@ -63,8 +87,11 @@ struct ExclusionCloudSyncView: View {
         busy = true
         defer { busy = false }
         do {
+            checked = false
+            accountAtPreview = nil
             localAtPreview = try SiteExclusionPolicy.normalizeAll(model.manualExclusions)
-            if let (snapshot, version) = try await cloud.previewRemote() {
+            let account = try await cloud.reviewAccount()
+            if let (snapshot, version) = try await cloud.previewRemote(expectedAccount:account) {
                 remote = snapshot
                 record = version
                 remoteAbsent = false
@@ -75,40 +102,79 @@ struct ExclusionCloudSyncView: View {
                 remoteAbsent = true
                 difference = nil
             }
+            accountAtPreview = account
             checked = true
             status = nil
         } catch {
             checked = false
+            accountAtPreview = nil
             status = "Не удалось прочитать iCloud. Проверьте Apple ID, подключение и разрешения."
         }
     }
 
     @MainActor private func apply() async {
-        guard !busy, let remote,
-              (try? SiteExclusionPolicy.normalizeAll(model.manualExclusions)) == localAtPreview else {
+        guard !busy, checked, let account = accountAtPreview, let remote, let expectedRecord = record,
+              ExclusionSyncContract.localUnchanged(
+                previewed: localAtPreview, current: model.manualExclusions) else {
+            checked = false
             status = "Локальные правила изменились — обновите предпросмотр."
             return
         }
         busy = true
-        defer { busy = false }
-        let accepted = await model.saveExclusions(remote.manualDomains, graph: model.smartGraph)
-        if accepted {
-            onApplied()
-            localAtPreview = remote.manualDomains
-            difference = try? ExclusionSyncContract.preview(local: localAtPreview, remote: remote)
-            status = "Правила применены через проверку и восстановление VPN."
-        } else {
-            status = "Не удалось применить список; старые правила сохранены."
+        defer { busy = false; accountAtPreview = nil; checked = false }
+        do {
+            // The other iPhone may have modified its copy after preview.
+            // Re-read instead of applying the silently stale approved list.
+            guard let (currentRemote, currentRecord) = try await cloud.previewRemote(expectedAccount:account),
+                  expectedRecord.recordID == currentRecord.recordID,
+                  ExclusionSyncContract.remoteUnchanged(
+                    previewed: remote, current: currentRemote,
+                    previewTag: expectedRecord.recordChangeTag,
+                    currentTag: currentRecord.recordChangeTag) else {
+                checked = false
+                status = "Облачный список изменился — обновите предпросмотр."
+                return
+            }
+            guard ExclusionSyncContract.localUnchanged(
+                previewed: localAtPreview, current: model.manualExclusions) else {
+                checked = false
+                status = "Локальные правила изменились — обновите предпросмотр."
+                return
+            }
+            let accepted = await model.saveExclusions(
+                currentRemote.manualDomains, graph: model.smartGraph)
+            if accepted {
+                onApplied()
+                localAtPreview = currentRemote.manualDomains
+                difference = try? ExclusionSyncContract.preview(
+                    local: localAtPreview, remote: currentRemote)
+                checked = false // Always re-preview before next cloud mutation.
+                status = "Правила применены через проверку и восстановление VPN."
+            } else {
+                checked = false
+                status = "Не удалось применить список; старые правила сохранены."
+            }
+        } catch {
+            checked = false
+            status = "Не удалось перепроверить iCloud — правила не изменены."
         }
     }
 
     @MainActor private func upload() async {
-        guard checked, !busy else { return }
+        guard checked, !busy, let account = accountAtPreview,
+              ExclusionSyncContract.localUnchanged(
+                previewed: localAtPreview, current: model.manualExclusions) else {
+            checked = false
+            status = "Локальные правила изменились — обновите предпросмотр."
+            return
+        }
         busy = true
-        defer { busy = false }
+        defer { busy = false; accountAtPreview = nil; checked = false }
         do {
-            _ = try await cloud.upload(manualDomains: model.manualExclusions, expectedRemote: record,
-                                       observedRemoteWasAbsent: remoteAbsent)
+            // Use exactly the data reviewed by the user, not a mutable model
+            // list that may differ after pressing "Upload".
+            _ = try await cloud.upload(manualDomains: localAtPreview, expectedRemote: record,
+                                       observedRemoteWasAbsent: remoteAbsent, expectedAccount:account)
             checked = false // Require a fresh preview/changeTag before another upload.
             status = "Список сохранён в личной базе iCloud. Для повторной загрузки обновите предпросмотр."
         } catch {

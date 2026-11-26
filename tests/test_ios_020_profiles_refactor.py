@@ -77,8 +77,8 @@ class ProfilesRefactor(unittest.TestCase):
 
     def test_no_localization_or_release_metadata_rewrites(self):
         project=(ROOT/'mobile/ios/project.yml').read_text(encoding='utf-8')
-        self.assertIn('MARKETING_VERSION: "0.2.0"', project)
-        self.assertIn('CURRENT_PROJECT_VERSION: "48"',project)
+        self.assertIn('MARKETING_VERSION: "0.3.0"', project)
+        self.assertIn('CURRENT_PROJECT_VERSION: "49"',project)
         self.assertIn('YandexMobileAds',project)
         for module in ('ProfilesScreenView.swift','ProfileLibraryFiltersView.swift','ProfileLibraryRowView.swift','ProfileLibraryBulkActionsView.swift'):
             self.assertIn('AppL10n.tr(', (APP/module).read_text(encoding='utf-8'))

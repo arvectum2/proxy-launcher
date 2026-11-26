@@ -7,3 +7,6 @@ Forbind din iPhone via en proxy, du selv konfigurerer, med enkel styring.
 • Proxyoplysninger bliver på enheden, og adgangskoder opbevares i nøgleringen
 
 Du skal bruge din egen proxyserver; APL leverer ikke servere.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

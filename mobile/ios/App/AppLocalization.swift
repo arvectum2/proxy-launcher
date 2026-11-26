@@ -224,8 +224,13 @@ enum AppL10n {
     /// For example, import's «Проверить» means Preview, while the primary
     /// profile action «Проверить» means Check.
     static func tr(_ key: String, table: String) -> String {
+        tr(key, table: table, language: effectiveLanguage)
+    }
+
+    static func tr(_ key: String, table: String, language: String) -> String {
         let missing = "__APL_020_MISSING_TRANSLATION__"
-        for code in [effectiveLanguage, "en"] {
+        let selected = language == "system" ? systemLanguage : language
+        for code in [selected, "en"] {
             guard let path = Bundle.main.path(forResource: code, ofType: "lproj"),
                   let bundle = Bundle(path: path) else { continue }
             let value = bundle.localizedString(forKey: key, value: missing, table: table)

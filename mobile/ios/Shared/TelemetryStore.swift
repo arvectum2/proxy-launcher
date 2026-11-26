@@ -20,7 +20,13 @@ final class TelemetryStore {
     private let defaults = UserDefaults(suiteName: AppShared.defaultsSuite)
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    #if APL_PRODUCT_UI_QA
+    private let key = "qa_ordinary_ui.tunnel_events_v1"
+    #elseif APL_PRODUCT_OWNER_QA
+    private let key = "qa_synthetic_tunnel_events_v1"
+    #else
     private let key = "tunnel_events_v1"
+    #endif
 
     func append(_ event: TunnelEvent) {
         guard let defaults else { return }

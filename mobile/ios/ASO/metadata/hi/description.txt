@@ -7,3 +7,6 @@
 • जानकारी डिवाइस पर रहती है और पासवर्ड कीचेन में सुरक्षित है
 
 प्रॉक्सी सर्वर का विवरण स्वयं दें; APL सर्वर उपलब्ध नहीं कराता।
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

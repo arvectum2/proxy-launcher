@@ -1,0 +1,33 @@
+# Draft replacement of iOS privacy disclosure — NOT approved or published
+
+The repository public policy `docs/privacy.html` dated 28 September 2026 says the apps contain no advertising or analytics SDK. This is contradicted by the iOS resolved dependencies and current unsigned bundle; do not reuse this statement for iOS. The following is a limited draft for legal/technical review, not an effective policy. Android and macOS current distributions must be reviewed separately before any cross-platform statement.
+
+## Русский
+
+Arvectum Proxy Launcher для iOS — локальная сетевая утилита. Пользователь самостоятельно выбирает прокси-сервер. Настройки профилей и локальный журнал сохраняются на устройстве, пароли защищаются системной Связкой ключей. Для работы туннеля трафик направляется через указанный пользователем сервер и к запрошенным сервисам. Такие серверы и сервисы являются независимыми третьими лицами. ООО «Арвектум» не предоставляет промежуточный сервер для данного режима работы. Настоящее описание не распространяется на отдельно подключаемые пользователем сервисы.
+
+В iOS-приложение включены Yandex Mobile Ads SDK и связанные компоненты, в том числе AppMetrica. Манифесты этих SDK декларируют возможную обработку идентификаторов устройства, рекламных данных, приблизительного местоположения, взаимодействий с продуктом, истории покупок и диагностических данных для указанных в манифестах целей. Манифест AppMetrica AdSupport декларирует трекинг. Это сведения из деклараций поставщиков SDK; они сами по себе не устанавливают фактический перечень передач данных в приложении. Код приложения явно инициирует SDK после ознакомления пользователя с экраном конфиденциальности и не добавляет параметры прокси, пароли, доменные исключения или сведения о VPN в создаваемые рекламные запросы. Эта проверка кода не исключает иных действий встроенных SDK.
+
+Перед утверждением необходимо установить фактические категории и цели обработки, получателей, основания, сроки, трансграничные передачи, применимость требований к согласию и порядок реализации прав пользователя. Согласовать точные сведения App Store, правила VPN-приложений Apple и материалы поставщиков SDK; не утверждать отсутствие трекинга или передачи данных без доказательств. Контакт и сведения об операторе должны быть проверены при утверждении.
+
+## English
+
+Arvectum Proxy Launcher for iOS is a local networking utility. The user chooses a proxy server. Profile settings and local diagnostics are stored on the device; passwords are protected by the system Keychain. Tunnel traffic is sent to the user-selected server and requested destinations. Those operators are independent third parties. LLC ARVECTUM does not provide an intermediary server for this mode. This description does not cover separate services selected by the user.
+
+The iOS app includes Yandex Mobile Ads SDK and related components, including AppMetrica. Their bundled privacy manifests declare possible processing of device identifiers, advertising data, coarse location, product interactions, purchase history and diagnostic data for the purposes stated in those manifests. AppMetrica AdSupport declares tracking. These are vendor declarations, not proof of actual transfers by this app. The app's explicit SDK initialization follows acknowledgment of its privacy disclosure, and app-created ad requests do not add proxy parameters, passwords, excluded domains or VPN state. This source review does not rule out other behavior of the embedded SDKs.
+
+Before adoption, verify actual data categories, purposes, recipients, legal bases, retention, international transfers, consent requirements and user rights procedures. Reconcile App Store privacy information, Apple VPN app requirements and applicable SDK terms. Do not claim absence of tracking or transfer without evidence. Verify controller and contact information before approval.
+
+## 25 November — CloudKit addition, subject to final scope and approval
+
+RU: При добровольном использовании синхронизации исключений APL сохраняет только вручную заданные доменные исключения и служебные данные версии списка в частной базе CloudKit текущего личного аккаунта iCloud. Синхронизация запускается явно; перед применением удалённого списка отображаются изменения. Прокси, VPN-профили, пароли, журналы трафика и автоматические исключения в этот список не входят. Для локального использования iCloud не требуется. Служебная запись включает идентификатор экземпляра и номер версии; действия сверяются с текущим аккаунтом. Apple обрабатывает данные iCloud в соответствии со своими условиями. Отдельный сервер или аккаунт ООО «Арвектум» для этой функции не используется.
+
+EN: If the user opts to synchronize exclusions, APL stores only manually specified excluded domains and list-version metadata in the private CloudKit database of the user's current personal iCloud account. Synchronization is explicitly initiated; changes are previewed before applying the remote list. Proxy and VPN profiles, passwords, traffic logs and automatic exclusions are outside this payload. Local use does not require iCloud. Record metadata includes an installation identifier and revision; operations are checked against the reviewed account. Apple processes iCloud data under its own terms. This feature uses no separate LLC ARVECTUM backend or account.
+
+Confirm actual cloud-data management and deletion mechanisms before final adoption; do not promise an unavailable deletion control. Actual Development private exchange accepted on one iPhone; two physical devices and ordinary UI pending. Production schema/public activation not authorized.
+
+## 25 November — public policy and SDK gate
+
+Public URL linked by app https://arvectum2.github.io/proxy-launcher/privacy.html fetched successfully via HTTPS on Mac mini. Response SHA256 304a246fa63cfe2e2685bd8be6ddc80d2b5fa9ad03fb98edb4a0eec8b5ea84b6; English and Russian explicitly deny advertising SDKs/advertising, inconsistent with installed advertising and current candidate. No publication or privacy label writes.
+
+Exact candidate: 26 manifests, seven declare collection, AppMetrica AdSupport declares linked DeviceID tracking. Apple current guideline 5.4 https://developer.apple.com/app-store/review/guidelines/ restricts VPN data use/disclosure to third parties; privacy labels must include third-party partner practices https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy. Static declarations are not actual transmission measurements. Consent/disclosure alone does not resolve the VPN-specific restriction. Preserve mandatory RSYA pending owner decision; obtain version-specific vendor evidence and Apple/legal assessment or consider explicitly approved alternative monetization.

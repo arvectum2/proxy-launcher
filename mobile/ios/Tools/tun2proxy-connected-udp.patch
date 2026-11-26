@@ -1,0 +1,68 @@
+diff --git a/src/lib.rs b/src/lib.rs
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -31,7 +31,6 @@
+ pub use tokio_util::sync::CancellationToken;
+ use tproxy_config::is_private_ip;
+ pub use tun::DEFAULT_MTU;
+-use udp_stream::UdpStream;
+ #[cfg(feature = "udpgw")]
+ use udpgw::{UDPGW_KEEPALIVE_TIME, UDPGW_MAX_CONNECTIONS, UdpGwClientStream, UdpGwResponse};
+
+@@ -137,7 +136,7 @@
+     }
+ }
+
+-async fn create_udp_stream(socket_queue: &Option<Arc<SocketQueue>>, peer: SocketAddr) -> std::io::Result<UdpStream> {
++async fn create_udp_stream(socket_queue: &Option<Arc<SocketQueue>>, peer: SocketAddr) -> std::io::Result<UdpSocket> {
+     match &socket_queue {
+         None => {
+             let bind_addr = match peer {
+@@ -146,12 +145,12 @@
+             };
+             let socket = UdpSocket::bind(bind_addr).await?;
+             socket.connect(peer).await?;
+-            UdpStream::from_tokio(socket, peer).await
++            Ok(socket)
+         }
+         Some(queue) => {
+             let socket = queue.recv_udp(peer.ip().into()).await?;
+             socket.connect(peer).await?;
+-            UdpStream::from_tokio(socket, peer).await
++            Ok(socket)
+         }
+     }
+ }
+@@ -657,7 +656,7 @@
+         }
+     };
+
+-    let mut udp_server = create_udp_stream(&socket_queue, udp_addr).await?;
++    let udp_server = create_udp_stream(&socket_queue, udp_addr).await?;
+
+     let mut buf1 = [0_u8; 4096];
+     let mut buf2 = [0_u8; 4096];
+@@ -684,12 +683,18 @@
+                     UdpHeader::new(0, s5addr).write_to_stream(&mut s5_udp_data)?;
+                     s5_udp_data.extend_from_slice(buf1);
+
+-                    udp_server.write_all(&s5_udp_data).await?;
++                    // A connected UDP socket must use send(), not sendto(peer).
++                    // Darwin returns EISCONN for the latter. One call is one datagram.
++                    if udp_server.send(&s5_udp_data).await? != s5_udp_data.len() {
++                        return Err(std::io::Error::from(ErrorKind::WriteZero).into());
++                    }
+                 } else {
+-                    udp_server.write_all(buf1).await?;
+-                }
+-            }
+-            len = udp_server.read(&mut buf2) => {
++                    if udp_server.send(buf1).await? != buf1.len() {
++                        return Err(std::io::Error::from(ErrorKind::WriteZero).into());
++                    }
++                }
++            }
++            len = udp_server.recv(&mut buf2) => {
+                 let len = len?;
+                 if len == 0 {
+                     break;

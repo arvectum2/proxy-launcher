@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/XTLS/libXray.git",
+  "tag": "v26.11.9",
+  "annotated_tag_object": "71d9d443aa88ff939ab6ce22b82aa4b2adcc4d9f",
+  "source_commit": "5a0f7d8d1c28b34afb5727b04b26a10f6dbac7e3",
+  "go_mod_sha256": "6cae0b0bb7f8fb6718b7e357ce28103161949c803901f7233bd9a8a862f56b02",
+  "go_sum_sha256": "58316bacf36b73b49d1c9e0a127f57e5e96340c444746956bb88b2df606d7e79",
+  "go_toolchain": "go1.27.3",
+  "go_archive": "go1.27.3.darwin-arm64.tar.gz",
+  "go_archive_sha256": "dd3908cf20959d798c1e06ebe5b72213f0505ce01373b40ce3110975a6cd99c2",
+  "go_archive_bytes": 68196737,
+  "validated_ios_source_candidate": {
+    "library_sha256": "811a60e6a3a8e6111fa1dba60045a2b3b0553b3d81c939e36414c7b2dd020df8",
+    "header_sha256": "9d1374d9570ab21bc658efe638dc39eab9e424660d28669e009b8b87821db27c",
+    "platform": "ios-arm64",
+    "minimum_os": "15.0",
+    "scope": "unsigned NativeLab only"
+  }
+}

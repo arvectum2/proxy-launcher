@@ -7,3 +7,6 @@
 • Τα στοιχεία παραμένουν στη συσκευή και οι κωδικοί στο Μπρελόκ
 
 Χρειάζεστε δικό σας διακομιστή proxy· το APL δεν παρέχει διακομιστές.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

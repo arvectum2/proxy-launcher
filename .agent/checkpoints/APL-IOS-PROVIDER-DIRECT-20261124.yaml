@@ -1,0 +1,32 @@
+task_id: APL-IOS-PROVIDER-DIRECT-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: completed
+goal: "Resolve NativeLab manager conflict without deleting existing records; obtain scoped provider-only exact HTTP witness"
+definition_of_done:
+  - "Classify historical manager by exact known configuration and safe inactive state, no credential contents"
+  - "Preserve prior manager or stop if unsafe; isolate new test manager by distinct ownership marker"
+  - "Correlate device and independent peer receipt, then restore prior lab binary and verify cleanup"
+baseline_commit: 3c531de2
+baseline:
+  product: "APL 0.3.0(49), OFF; prior NativeLab 0.2.0(48) retained"
+  previous_evidence: "host-only exact product archive PASS; product r20 HTTP0; provider prepare blocked before traffic"
+  manager_census: "related=1 owned=0 disabled/disconnected, otherActive=0"
+steps:
+  - step: 1
+    action: "Read checkpoint, git, prior source and signing evidence"
+    result: "all six exact-head CI checks success; stage_nativeqa_isolated.py reused NativeLab IDs with product VPNController names, as well as prior AWG/Xray labs"
+  - step: 2
+    action: "Implement read-only historical manager classification and preservation-only scoped coexistence"
+    result: "v3 ARM64 build, 5 tests, offline signatures PASS; on-device inspect classified one native-runtime-review-v1, disabled/disconnected, strict no credential fields"
+  - step: 3
+    action: "Create separately marked provider-direct QA manager; preserve native-runtime-review-v1"
+    result: "prepared=true connected=false; distinct QA manager created, prepare run 982af116-0d5f-4281-8c72-36d22a224afe"
+  - step: 4
+    action: "Run one fixed scoped provider-only TCP HTTP challenge, independently verify Mac and device, clean own manager"
+    result: "device provider exact HTTP=true, Mac independent witness1, challenge and response hashes matched, native stop and owned manager cleanup true"
+    run_id: 3E9EC792-A3E8-44A0-AF01-9CDE0F0724EB
+  - step: 5
+    action: "Verify historical manager preserved; restore prior lab binary; scrub ephemeral inputs"
+    result: "pre/post read-only census identical except runID; related=1 historical runtime-review, owned=0, disabled/disconnected. Prior NativeLab restored; original APL and HTTPS QA retained; no listeners, disposable keys scrubbed"
+resume_instruction: "Completed scoped provider-only comparison; do not repeat it. Proceed to exact product Rust/TUN scoped comparison as distinct stage."
+  # The first build and source test precede the device mutation below.

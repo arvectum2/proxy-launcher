@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Read-only guard against building the obsolete iOS 0.1.42 source as iOS 0.2.
+"""Read-only guard against building a stale iOS source under the active release identity.
 
-Run this before XcodeGen, Swift tests and device builds on the 0.2 feature
-branch. Version bumps require updating the tracked identity manifest too.
+Run this before XcodeGen, Swift tests and device builds. Version bumps
+require updating the tracked identity manifest too.
 No Apple API, signing, VPN, or user-data operations occur here.
 """
 from __future__ import annotations

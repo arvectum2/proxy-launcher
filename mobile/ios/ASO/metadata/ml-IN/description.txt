@@ -7,3 +7,6 @@
 • വിവരങ്ങൾ ഉപകരണത്തിലും പാസ്‌വേഡ് കീചെയിനിലും സൂക്ഷിക്കും
 
 സ്വന്തം പ്രോക്സി സെർവർ ആവശ്യമാണ്; APL സെർവർ നൽകുന്നില്ല.
+
+Developed with the use of Yandex Mobile Ads SDK.
+Developed with the use of Yandex AppMetrica SDK.

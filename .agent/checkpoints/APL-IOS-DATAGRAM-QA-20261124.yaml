@@ -1,0 +1,26 @@
+task_id: APL-IOS-DATAGRAM-QA-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: completed
+goal: "Isolated full-route TCP6, UDP4 and UDP6 physical acceptance; one fixed synthetic tuple per run."
+definition_of_done:
+  - "Strict per-run egress allowlist, exact raw socket challenge, pinned libraries; verified build and tests."
+  - "Three separate physical receipts correlated with independent protocol-specific server and native cleanup."
+  - "No owner VPN interruption without authorization; original proxy diagnosis deferred by owner."
+last_verified_commit: "21ed00f5aebde12ead1626de170e3742414576ec (all three physical PASS, cleanup, 101 tests/preflight PASS)"
+steps:
+  - step: 1
+    action: "Read canonical state and check actual provider."
+    result: "Scoped/full TCP4 complete. Product PacketTunnel PID84658 running; no intervention. Owner deferred Основной."
+  - step: 2
+    action: "Prepare offline multi-protocol isolated QA, one fixed tuple per invocation."
+    result: "PASS ARM64 build, strict signature, 22 focused +50 release +15 parser +14 guard checks. Earlier ARC oversized command rejected without mutation; split commands succeeded."
+  - step: 3
+    action: "Verify existing local independent peer preflight for TCP6/UDP4/UDP6; no device action."
+    result: "PASS TCP6 UDP4 UDP6 independent Mac preflight-only; fresh synthetic fixtures cleaned; no QA TCP listeners. No device mutation."
+  - step: 4
+    action: "Owner authorized all three trials; verify actual baseline before changes."
+    result: "18:48 local: product provider absent, APL UI Connect, selected Нидерланды 2. Baseline OFF; no disconnection necessary. Preserve selected profile and restore OFF. Основной excluded."
+  - step: 5
+    action: "Install signed protocol QA, inspect, then run three sequential isolated cases and restore previous lab binary."
+    result: "PASS all three physical trials; initial launch argument order and devicectl timeout min5 corrected, no prior physical tests repeated. TCP6 A4F9AB5E-7B62-4DC9-B189-E934937904C6; UDP4 B5207BA2-1000-427F-915C-DC92956EBFFE; UDP6 908B9465-E5C5-498D-A993-21C0C166F684. Independent hash/witness1 each, native stop/drain and cleanup true. Final census identical, prior lab restored, no QA sockets/providers, Нидерланды 2 OFF visually confirmed. Private fsynced journal retained."
+resume_instruction: "Completed. Do not repeat accepted TCP4/TCP6/UDP4/UDP6. Parent next isolated DNS and negative/fail-closed QA."

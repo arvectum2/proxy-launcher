@@ -11,7 +11,8 @@ def test_xray_handoff_plan_cannot_mutate_live_packet_tunnel():
     assert "struct XraySocksHandoffPlan" in src
     assert "socks5://127.0.0.1:" in src
     assert "--dns virtual" in src
-    assert "validBypassHost" in src
+    assert "guard dnsBypass.isEmpty else {throw XrayHandoffError.unsupportedBypass}" in src
+    assert '" --dns-bypass' not in src
     assert "XraySocksHandoffPlan" not in packet
     for forbidden in ("CGoInvoke", "SecItem", "UserDefaults", "URLSession",
                       "print(", "NEPacketTunnelProvider", "--experimental-scoped-direct"):

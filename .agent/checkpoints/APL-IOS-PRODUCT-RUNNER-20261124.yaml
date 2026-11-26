@@ -1,0 +1,19 @@
+task_id: APL-IOS-PRODUCT-RUNNER-20261124
+status: completed
+goal: "Isolate actual product NativeXrayPacketSession and NativeXrayRuntimeDriver with real full candidate and dynamic initial NWPath sample in separately signed guarded QA."
+definition_of_done:
+  - "Compile actual product runner/driver and route builder against pinned archives; only explicit isolated QA synthetic guard; public release gate remains off."
+  - "One valid raw TCP physical receipt and independent peer proof plus exact native drain and cleanup; no product profile changes."
+  - "Do not claim product owner/UI/credential launch, unrestricted WAN or handoff acceptance."
+last_verified_commit: "1e4f547f2ffa0041d9ea02fd5aee88c6e27b6b77 (actual runner guarded physical TCP4 PASS; 81 checks/preflight PASS)"
+steps:
+  - step: 1
+    action: "Inspect actual product source and r20, compare accepted lab."
+    result: "Product source unchanged since r20. Main differences actual runtime driver, descriptor-before-engine, second validation, immediate runner completion, NWPath initial selection and outer owner watcher. Need discriminating actual runner test first."
+  - step: 2
+    action: "Build isolated product runner QA mode with fixed TCP4 guard; compile actual source files, no owner profile access."
+    result: "ARM64 compile and strict signed lab PASS, 9 targeted +22 focused +50 release checks/preflight PASS. Candidate ios-030-actual-product-runner-signed-20261124/NativeLabHost.app."
+  - step: 3
+    action: "Run one physical actual runner TCP4 positive; exact independent peer and actualProductRunner receipt, restore prior lab."
+    result: "PASS actual runner TCP4 DA36CB94-CBE4-4A1A-BD28-E8E345801212; exact HTTP200 and independent witness1, actualProductRunner=true, native drain/stop and historical census verified. Previous lab restored, no QA sockets or providers."
+resume_instruction: "Completed; parent next actual product owner/credential/UI launch with synthetic guard and valid raw TCP. Do not repeat accepted runner or r20 unchanged."

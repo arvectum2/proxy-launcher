@@ -14,7 +14,7 @@ spec.loader.exec_module(module)
 
 class IOS020ActiveReleasePreflightTests(unittest.TestCase):
     def test_current_020_source_is_consistent(self):
-        self.assertEqual(module.verify_active_release(ROOT), ("0.2.0", "48"))
+        self.assertEqual(module.verify_active_release(ROOT), ("0.3.0", "49"))
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -51,12 +51,12 @@ class IOS020ActiveReleasePreflightTests(unittest.TestCase):
             module.verify_active_release(self.root)
 
     def test_stale_0142_xcodegen_source_is_rejected(self):
-        self.replace(module.PROJECT_SPEC_PATH, 'MARKETING_VERSION: "0.2.0"', 'MARKETING_VERSION: "0.1.42"')
+        self.replace(module.PROJECT_SPEC_PATH, 'MARKETING_VERSION: "0.3.0"', 'MARKETING_VERSION: "0.1.42"')
         with self.assertRaisesRegex(ValueError, "Stale XcodeGen"):
             module.verify_active_release(self.root)
 
     def test_mismatched_generated_build_is_rejected(self):
-        self.replace(module.XCODE_PROJECT_PATH, "CURRENT_PROJECT_VERSION = 48;", "CURRENT_PROJECT_VERSION = 47;")
+        self.replace(module.XCODE_PROJECT_PATH, "CURRENT_PROJECT_VERSION = 49;", "CURRENT_PROJECT_VERSION = 47;")
         with self.assertRaisesRegex(ValueError, "Stale generated iOS Xcode project build"):
             module.verify_active_release(self.root)
 

@@ -81,6 +81,12 @@ enum IOSAdsConfig {
         labels[AppL10n.effectiveLanguage] ?? labels["en"] ?? "Ad"
     }
 
+#if APL_PRODUCT_UI_QA
+    // Only private physical UI QA, never release staging; no ad requests.
+    static let isEnabled = false
+    static let activeBannerUnitID = demoBannerUnitID
+    static let activeNativeAdUnitID = demoNativeUnitID
+#else
 #if DEBUG
     // Explicit opt-in for local QA. Never contact production RSYA in debug builds.
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER")
@@ -91,6 +97,7 @@ enum IOSAdsConfig {
     static let isEnabled = true
     static let activeBannerUnitID = productionBannerUnitID
     static let activeNativeAdUnitID = nativeAdUnitID
+#endif
 #endif
 }
 

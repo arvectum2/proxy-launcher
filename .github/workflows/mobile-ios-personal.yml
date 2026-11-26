@@ -19,8 +19,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate active iOS source identity
         run: python3 scripts/ios_active_release_preflight.py
-      - name: Active iOS 0.2 source, localization and UI-target contracts
+      - name: Active iOS source, localization and UI-target contracts
         run: python3 -m unittest discover -s tests -p 'test_ios_020_*.py'
+      - name: Synthetic VLESS TLS record diagnostic contract
+        run: python3 -m unittest tests.test_ios_030_vless_tls_record_meter
+      - name: Isolated direct iPhone Xray QA safety contract
+        run: python3 -m unittest tests.test_ios_030_direct_xray_qa_gate
+      - name: Isolated provider-direct VLESS QA safety contract
+        run: python3 -m unittest tests.test_ios_030_provider_direct_qa_gate
+      - name: Full iOS Python contract suite (including pure pytest fixtures)
+        run: |
+          python3 -m venv "$RUNNER_TEMP/apl-ios-pytest"
+          "$RUNNER_TEMP/apl-ios-pytest/bin/python" -m pip install "pytest==9.2.0"
+          "$RUNNER_TEMP/apl-ios-pytest/bin/python" -m pytest tests/test_ios*.py -q
       - name: Core policy tests
         run: swift test --package-path mobile/ios
 

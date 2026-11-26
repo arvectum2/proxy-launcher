@@ -5,6 +5,29 @@ import XCTest
 final class ExclusionSyncContractTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
+    func testCloudDeviceIdentityPersistsAndDoesNotRotate() throws {
+        var stored: String?
+        var writes = 0
+        let read = { stored }
+        let write: (String) -> Void = { stored = $0; writes += 1 }
+        let first = try XCTUnwrap(ExclusionCloudDeviceIdentity.loadOrCreate(read: read, write: write))
+        XCTAssertEqual(UUID(uuidString: first)?.uuidString.lowercased(), first)
+        XCTAssertEqual(ExclusionCloudDeviceIdentity.loadOrCreate(read: read, write: write), first)
+        XCTAssertEqual(writes, 1)
+    }
+
+    func testCloudDeviceIdentityRejectsCorruptOrUnavailableStorage() {
+        for bad in ["", "bogus", "not-a-uuid", String(repeating: "x", count: 512),
+                    "550E8400-E29B-41D4-A716-446655440000"] {
+            var writes = 0
+            XCTAssertNil(ExclusionCloudDeviceIdentity.loadOrCreate(
+                read: { bad }, write: { _ in writes += 1 }))
+            XCTAssertEqual(writes, 0)
+        }
+        XCTAssertNil(ExclusionCloudDeviceIdentity.loadOrCreate(
+            read: { nil }, write: { _ in }))
+    }
+
     func testDeterministicManualOnlyRoundTrip() throws {
         let encoded = try ExclusionSyncContract.encode(
             localDomains: ["www.gosuslugi.ru", "Example.COM", "example.com"],
@@ -50,6 +73,69 @@ final class ExclusionSyncContractTests: XCTestCase {
             revision: 0, at: now))
     }
 
+    func testCloudPreviewGateAcceptsUnchangedLocalAndRemote() throws {
+        let snapshot = try ExclusionSyncContract.decode(
+            ExclusionSyncContract.encode(localDomains: ["z.example", "a.example"],
+                                         deviceID: "iphone_1", revision: 1, at: now),
+            now: now)
+        XCTAssertTrue(ExclusionSyncContract.localUnchanged(
+            previewed: snapshot.manualDomains,
+            current: ["Z.EXAMPLE", "a.example", "z.example"]))
+        XCTAssertTrue(ExclusionSyncContract.remoteUnchanged(
+            previewed: snapshot, current: snapshot,
+            previewTag: "change-tag-1", currentTag: "change-tag-1"))
+    }
+
+    func testCloudPreviewGateFailsClosedWhenLocalEditsOccur() {
+        let approved = ["a.example", "b.example"]
+        XCTAssertFalse(ExclusionSyncContract.localUnchanged(
+            previewed: approved, current: ["a.example"]))
+        XCTAssertFalse(ExclusionSyncContract.localUnchanged(
+            previewed: approved, current: ["a.example", "b.example", "c.example"]))
+        XCTAssertFalse(ExclusionSyncContract.localUnchanged(
+            previewed: approved, current: ["*.example"]))
+        XCTAssertFalse(ExclusionSyncContract.localUnchanged(
+            previewed: ["B.EXAMPLE", "a.example"], current: approved))
+    }
+
+    func testCloudPreviewGateRejectsChangedTagAndReplacedPayload() throws {
+        let first = try ExclusionSyncContract.decode(
+            ExclusionSyncContract.encode(localDomains: ["first.example"],
+                                         deviceID: "device_1", revision: 4, at: now), now: now)
+        let changed = try ExclusionSyncContract.decode(
+            ExclusionSyncContract.encode(localDomains: ["second.example"],
+                                         deviceID: "device_2", revision: 5, at: now), now: now)
+        XCTAssertFalse(ExclusionSyncContract.remoteUnchanged(
+            previewed: first, current: changed,
+            previewTag: "tag-1", currentTag: "tag-1"))
+        XCTAssertFalse(ExclusionSyncContract.remoteUnchanged(
+            previewed: first, current: first,
+            previewTag: "tag-1", currentTag: "tag-2"))
+        XCTAssertFalse(ExclusionSyncContract.remoteUnchanged(
+            previewed: first, current: first,
+            previewTag: nil, currentTag: "tag-1"))
+        XCTAssertFalse(ExclusionSyncContract.remoteUnchanged(
+            previewed: first, current: first,
+            previewTag: "tag-1", currentTag: ""))
+    }
+
+    func testAccountBoundReviewRejectsOtherAccountEvenWithIdenticalRecord() throws {
+        let r=try ExclusionCloudAccountReview(accountID:"test-account-a",elapsed:100)
+        XCTAssertTrue(r.matches(accountID:"test-account-a",elapsed:100))
+        XCTAssertFalse(r.matches(accountID:"test-account-b",elapsed:101))
+        XCTAssertFalse(r.matches(accountID:"",elapsed:101))
+        XCTAssertFalse(String(reflecting:r).contains("test-account-a"))
+        XCTAssertEqual(Mirror(reflecting:r).children.count,0)
+    }
+    func testAccountReviewExpiryAndInvalidClock() throws {
+        let r=try ExclusionCloudAccountReview(accountID:"test-account-a",elapsed:100)
+        XCTAssertTrue(r.matches(accountID:"test-account-a",elapsed:399.99))
+        for t in [400.0,99.0,Double.nan,Double.infinity] {XCTAssertFalse(r.matches(accountID:"test-account-a",elapsed:t))}
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"",elapsed:100))
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"a b",elapsed:100))
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"a",elapsed:-1))
+        XCTAssertThrowsError(try ExclusionCloudAccountReview(accountID:"a",elapsed:.nan))
+    }
     func testRejectsOversizeInvalidDeviceAndFutureTimestamp() throws {
         XCTAssertThrowsError(try ExclusionSyncContract.decode(Data(repeating: 65, count: 16_385)))
         XCTAssertThrowsError(try ExclusionSyncContract.encode(

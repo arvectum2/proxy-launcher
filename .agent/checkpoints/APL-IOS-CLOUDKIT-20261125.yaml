@@ -1,0 +1,38 @@
+task_id: APL-IOS-CLOUDKIT-20261125
+status: completed
+goal: "Private CloudKit manual exclusions, existing Apple accounts only; no profile, credential or routing telemetry sync."
+definition_of_done:
+  - "Current source local privacy, account expiry, optimistic concurrency and two-client contract tests PASS."
+  - "Current source unsigned CloudKit opt-in ARM64 build and host-only entitlement verification."
+  - "Existing Apple Developer App ID/container capability, valid matching provisioning, signed private two-instance acceptance with the same existing personal iCloud account; no new accounts or real exclusion overwrites."
+  - "No public activation or upload before owner decision."
+last_verified_commit: "328125a516f273227e6014e5de00b687c76e926b (real CloudKit Development exchange PASS, original VPN restored)"
+steps:
+  - step: 1
+    action: "Read existing CloudKit service, acceptance and local profiles."
+    result: "No new account required in principle. Existing four APL development/distribution profiles lack CloudKit/container entitlement; development host lists one device. No Apple account or capability changes."
+  - step: 2
+    action: "Verify current contract and stage current unsigned CloudKit candidate."
+    result: "18 Swift (12 contracts + 6 two-client simulation), 14 Python, release preflight PASS. Immutable stage d80dfe77 and unsigned ARM64 BUILD SUCCEEDED, exact manifest recorded."
+  - step: 3
+    action: "Existing App ID iCloud capability and signed live acceptance."
+    result: "BLOCKED pending informed approval of existing App ID modification and affected profile regeneration; only one paired physical iPhone currently observed. No new accounts, external mutation or actual CloudKit operation."
+  - step: 4
+    action: "Owner explicitly approved existing App ID CloudKit/container and affected provisioning regeneration, no additional accounts or certificates."
+    result: "Owner approval recorded. Existing Apple Development and Apple Distribution identities valid. Safari portal redirects to sign-in; BLOCKED on owner authentication. No external mutations."
+  - step: 5
+    action: "Activate exact existing host capability via authorized MacBook Safari."
+    result: "Container created and saved, App ID change confirmed. Three affected host profiles invalidated by Apple; all three subsequently regenerated, verified and installed; portal valid."
+  - step: 6
+    action: "Verify refreshed profiles and sign candidate/recovery."
+    result: "PASS three downloaded profiles and portal expiry, main previous certificate/device/core entitlement equality, second device portal selection preserved (old file unavailable locally). Strict app/provider and recovery signatures PASS, explicit Development environment, no device or cloud data mutation."
+  - step: 7
+    action: "Isolated live CloudKit acceptance and two-device conflict evidence."
+    result: "PASS actual CloudKit Development private exchange, two logical clients on one physical iPhone; exact revisions, stale conflict, cleanup and original app/VPN restoration. Physical second device and ordinary UI accepted on one phone with synthetic local adapter."
+  - step: 8
+    action: "Physical second-device and ordinary CloudKit UI acceptance."
+    result: "BLOCKED second suitable paired iOS device with same existing iCloud account unavailable; ordinary UI physical PASS with synthetic local adapter. No new accounts."
+  - step: 9
+    action: "Owner scope decision"
+    result: "One physical iPhone and two logical clients accepted for current release; second physical device deferred, not PASS."
+resume_instruction: "Completed for owner-approved scope. 26 Nov second physical device deferred to subsequent release; not tested. Actual production save/reconnect not claimed. No repeat of accepted Development exchange or ordinary synthetic UI."

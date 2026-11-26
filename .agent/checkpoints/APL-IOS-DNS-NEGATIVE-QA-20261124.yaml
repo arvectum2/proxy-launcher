@@ -1,0 +1,26 @@
+task_id: APL-IOS-DNS-NEGATIVE-QA-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: completed
+goal: "DNS wire destination preservation, wrong Reality key and established peer-loss negative QA, synthetic-only."
+definition_of_done:
+  - "Independent DNS wire positive control and physical exact response at synthetic UDP/53."
+  - "Wrong-key and established peer-loss physical negative evidence, no receipt for failed challenge, independently verified cleanup."
+  - "No inference of general DNS/leak or product acceptance without separate evidence."
+last_verified_commit: "eb882142dcdcddf77ac7a95801ac213bcfd9b7d3 (DNS wire, wrong key, established UDP4 loss and bounded RVI PASS)"
+steps:
+  - step: 1
+    action: "Read actual checkpoint and inspect DNS routing and witness harness."
+    result: "All TCP/UDP combinations completed; provider absent on recheck. Owner deferred original proxy."
+  - step: 2
+    action: "Implement isolated DNS wire challenge and separate peer control; verify offline before device."
+    result: "PASS ARM64 signed DNS wire QA, 108 local checks, 87 receipt tests (offline uv); independent DNS wire and wrong-key Mac controls PASS. ARC job quota transient resolved sequentially."
+  - step: 3
+    action: "Actual device baseline OFF, Нидерланды 2; run DNS wire positive and wrong-key negative sequentially with existing signed candidate and fsynced journal, restore prior lab."
+    result: "PASS DNS wire run 43F42FD4-A7E0-4BDA-BAAB-894CFAAF1CFD and expected wrong-key rejection BF1E03B1-B1FD-4B13-84F5-59E70CEF1281, independently correlated, cleanup and original OFF verified."
+  - step: 4
+    action: "Design and test established peer-loss: two unique challenges in same session with relay cut after first exact receipt, distinct second no delivery, no general leak claim."
+    result: "ARM64 build and strict signing PASS; 92 receipt/RVI, 22 focused, 21 parser and 15 guard checks PASS. Prepared bounded OFF control and live peer-loss runner."
+  - step: 5
+    action: "Recheck OFF baseline, run one filtered synthetic UDP OFF control and established peer-loss, independently verify peer and RVI; restore prior app."
+    result: "PASS established UDP4 loss 4D0598A8-4FB4-4054-A860-BD399DF01C04; OFF RVI physical1/tun0, active physical0/tun2, complete/no ambiguity. First exact response, relay cut, second sent but timed out, independent second witness0; connected before/after, drain/stop and cleanup verified. Previous lab restored, no QA sockets/RVI/provider."
+resume_instruction: "Completed DNS wire, wrong-key, established UDP4 loss and bounded RVI controls. Parent next IPv6/DNS independent leak controls and WAN/product gates. Do not repeat accepted cases."

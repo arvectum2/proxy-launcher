@@ -11,6 +11,12 @@ struct ProfilesScreenView<Header: View>: View {
     let onImport: () -> Void
     let header: Header
 
+    #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+    @State private var showNativeLibrary = false
+    #endif
+    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    @State private var showPersistentNativeLibrary=false
+    #endif
     @State private var profileSearch = ""
     @State private var profileGroupFilter = "all"
     @State private var pendingGroupIDs: Set<UUID> = []
@@ -31,6 +37,22 @@ struct ProfilesScreenView<Header: View>: View {
                     header
 #endif
                     profileActionButtons
+                    #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+                    Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")){showNativeLibrary=true}
+                        .font(.subheadline.weight(.medium))
+                        .accessibilityIdentifier("profiles.nativeReviewQA")
+                    #endif
+                    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+                    Button {showPersistentNativeLibrary=true} label:{
+                        HStack(alignment:.center,spacing:12){
+                            Image(systemName:"shield.lefthalf.filled").foregroundStyle(Brand.mintLight).accessibilityHidden(true)
+                            Text(NativePersistentProfilesView.title).font(.subheadline.weight(.semibold))
+                            Spacer(minLength:0)
+                            if let count=model.nativeProfileCount {Text(String(count)).font(.caption).foregroundStyle(Brand.softGray)}
+                            Image(systemName:"chevron.right").font(.caption).accessibilityHidden(true)
+                        }.foregroundStyle(Brand.text).padding(14).frame(maxWidth:.infinity,alignment:.leading).background(Brand.surface,in:RoundedRectangle(cornerRadius:12))
+                    }.buttonStyle(.plain).accessibilityIdentifier("profiles.nativeStorageQA")
+                    #endif
                     if model.profiles.isEmpty {
                         VStack(spacing: 10) {
                             Image(systemName: "tray")
@@ -91,6 +113,12 @@ struct ProfilesScreenView<Header: View>: View {
             }
             .keyboardDismissOnSwipeUp()
         }
+        #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+        .sheet(isPresented:$showNativeLibrary){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
+        #endif
+        #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        .sheet(isPresented:$showPersistentNativeLibrary,onDismiss:{model.refreshNativeLibraryOverview()}){NativePersistentProfilesView(model:model)}
+        #endif
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: model.profiles.map(\.id)) { liveIDs in
@@ -199,3 +227,23 @@ struct ProfilesScreenView<Header: View>: View {
     }
 
 }
+
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+@MainActor struct HomeNativeLibraryMenu<ProxyMenu:View,Title:View>:View {
+    @ObservedObject var model:AppViewModel
+    let canAdd:Bool
+    let onAdd:()->Void
+    let proxyMenu:ProxyMenu
+    let label:Title
+    @State private var showLibrary=false
+    var body:some View {
+        Menu {
+            if canAdd {Button(action:onAdd){Label(AppL10n.tr("Добавить прокси"),systemImage:"plus")}}
+            else {proxyMenu}
+            Button {showLibrary=true} label:{Label(NativePersistentProfilesView.title,systemImage:"shield.lefthalf.filled")}
+        } label:{label}
+        .accessibilityLabel(AppL10n.tr("Прокси")+": "+model.selectedLabel)
+        .sheet(isPresented:$showLibrary,onDismiss:{model.refreshNativeLibraryOverview()}){NativePersistentProfilesView(model:model)}
+    }
+}
+#endif

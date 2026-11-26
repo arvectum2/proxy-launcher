@@ -40,6 +40,26 @@ final class AppViewModel: ObservableObject {
     @Published var events: [TunnelEvent] = []
     @Published var errorMessage: String?
 
+    #if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    @Published private(set) var nativeLibraryOverview:NativePersistentProfileSession.State?
+    func refreshNativeLibraryOverview(){
+        // Metadata-only; failure invalidates the previous display, never a fallback selection.
+        nativeLibraryOverview=try? makePersistentNativeLibrary().state()
+    }
+    var nativeProfileCount:Int? {nativeLibraryOverview?.library.rows.count}
+    #if APL_NATIVE_DOMAIN_POLICY_REVIEW
+    func nativeDomainPolicyReview() throws -> NativeDomainPolicyReview {try store.nativeDomainPolicyReview()}
+    #endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+    func activateNativeSelection(_ reference:NativeCredentialRecord.Reference)throws {
+        try store.selectNativeProduct(reference)
+        refreshNativeLibraryOverview()
+    }
+#endif
+    func makePersistentNativeLibrary() -> NativePersistentProfileSession {
+        NativePersistentProfileSession(catalog:store.makeNativeCredentialCatalog(),policy:{ [store] in store.nativeRoutingAdmission() })
+    }
+    #endif
     let vpn = VPNController()
     private let store: ProfileStore
     private let telemetry = TelemetryStore()
@@ -87,7 +107,35 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    // An unreadable native selection is still an intent: do not silently
+    // present or launch a legacy fallback. The actual ticket gate rejects it.
+    var nativeSelectionPresent:Bool {
+#if APL_NATIVE_PRODUCT_RUNTIME && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        do {return try store.nativeProductSelection() != nil}
+        catch {return true}
+#else
+        return false
+#endif
+    }
+
+    func hasHomeTarget(preview:Bool)->Bool {
+        HomeConnectionProfilePolicy.hasTarget(legacyCount:profiles.count,
+            nativeSelectionPresent:nativeSelectionPresent,preview:preview)
+    }
+    func offersAddFromHome(preview:Bool)->Bool {
+        HomeConnectionProfilePolicy.offersAdd(legacyCount:profiles.count,
+            nativeSelectionPresent:nativeSelectionPresent,preview:preview,
+            active:vpn.isConnectedOrConnecting || vpn.status == .disconnecting)
+    }
+
     var selectedLabel: String {
+#if APL_NATIVE_PRODUCT_RUNTIME && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        do {
+            if let selected=try store.nativeProductSelection() {
+                return nativeLibraryOverview?.library.rows.first(where:{$0.reference==selected.reference})?.displayName ?? selected.reference.kind.rawValue
+            }
+        } catch {return "Выберите прокси"}
+#endif
         if automaticSelection { return "Авто" }
         return profiles.first(where: { $0.id == selectedProfileID })?.name ?? "Выберите прокси"
     }
@@ -121,6 +169,9 @@ final class AppViewModel: ObservableObject {
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
         automaticSiteExpansion = store.automaticSiteExpansion
+#if (DEBUG || APL_NATIVE_PRODUCT_RUNTIME) && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        refreshNativeLibraryOverview()
+#endif
 #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-qaSmart3FailureFixture") ||
            ProcessInfo.processInfo.arguments.contains("-qaSmart3ProbeFixture") {
@@ -166,12 +217,18 @@ final class AppViewModel: ObservableObject {
     }
 
     func selectAuto() {
+#if APL_NATIVE_PRODUCT_RUNTIME
+        store.clearNativeProductSelection()
+#endif
         store.automaticSelection = true
         automaticSelection = true
         selectedProfileID = nil
     }
 
     func select(_ profile: ProxyProfile) {
+#if APL_NATIVE_PRODUCT_RUNTIME
+        store.clearNativeProductSelection()
+#endif
         store.selectedProfileID = profile.id
         store.automaticSelection = false
         automaticSelection = false
@@ -394,7 +451,15 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    #if APL_PRODUCT_UI_QA
+    private(set) var qaUIToggleStarts=0
+    private(set) var qaUIToggleStops=0
+    #endif
     func toggleVPN() async {
+        #if APL_PRODUCT_UI_QA
+        if vpn.isConnectedOrConnecting {qaUIToggleStops+=1}
+        else {qaUIToggleStarts+=1}
+        #endif
         errorMessage = nil
         if vpn.isConnectedOrConnecting {
             vpn.disconnect()
@@ -405,6 +470,14 @@ final class AppViewModel: ObservableObject {
             ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA")
 #else
         let ephemeralQA = false
+#endif
+#if APL_NATIVE_PRODUCT_RUNTIME
+        do {
+            if try store.nativeProductSelection() != nil {try await vpn.connect();return}
+        } catch {
+            errorMessage=ProxyFailureReason.safeDisplay(for:error,translate:{AppL10n.tr($0)})
+            return
+        }
 #endif
         guard !profiles.isEmpty || ephemeralQA else {
             errorMessage = "Сначала добавьте хотя бы один прокси"

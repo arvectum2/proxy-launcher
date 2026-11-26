@@ -1,0 +1,30 @@
+task_id: APL-IOS-FULL-ROUTE-QA-20261124
+parent_task: APL-IOS-UNIFIED-RELEASE-20261111
+status: completed
+goal: "Verify full IPv4/IPv6/DNS route transition with previously accepted raw TCP stimulus in isolated QA; synthetic destination only."
+definition_of_done:
+  - "Full product-equivalent OS route shape; dual address unique descriptor; pinned Go/Rust; strict synthetic-only Xray allowlist with blackhole default; no packet capture."
+  - "Build, signature, offline config checks and one physical correlated TCP witness with exact drain and cleanup."
+  - "Document distinction from product release, UDP, WAN and leak acceptance; original profiles intact."
+last_verified_commit: "5b44d55b80e440ad30612016a5ef8a65b44b6368 full-route physical synthetic TCP PASS"
+steps:
+  - step: 1
+    action: "Inspect actual full product settings, scoped receipt, device provider and CI."
+    result: "Scoped checkpoint completed; no active provider observed; full settings IPv4 default, two IPv6 /1, DNS 1.1.1.1 and 8.8.8.8, no exclusions."
+  - step: 2
+    action: "Prepare separate QA build with full route shape, local synthetic-only Xray allowlist and silent native logs."
+    result: "PASS: full route QA separate build, exact dual descriptor, local deny-default Xray + server allowlist, 20s deadline, no general log retention. ARM64 build, signature, Python21+50, parser9 and guard9 checks passed."
+  - step: 3
+    action: "Check product provider absent; install exact signed QA; read-only manager census before prepare."
+    result: "Installed; read-only census known dormant1, own0, other active0."
+  - step: 4
+    action: "Prepare one owned test manager, VPN OFF."
+    result: "Prepared=true connected=false; run 35d86eb1-d675-4763-acef-c2532e8bf8a6."
+  - step: 5
+    action: "Run one bounded full-route synthetic-only raw TCP experiment with independent witness."
+    run_id: CD6264F6-6B5F-4AC4-8F7D-E198E2CE54D3
+    result: "PASS full route synthetic-only TCP: exact HTTP200, host sent98 received160, both descriptor identities matched, Rust drain/Xray stop/owned cleanup true; independent peer relay1/witness1, bytes2145/2613, challenge and response hashes matched."
+  - step: 6
+    action: "Verify post-census, restore prior lab binary, scrub disposable fixtures and verify no active QA provider/listeners."
+    result: "PASS historical manager census identical, prior lab restored, disposable keys scrubbed, no listeners or providers. Original Основной still OFF, separate recovery issue."
+resume_instruction: "Completed full-route guarded TCP4 physical acceptance, run CD6264F6-6B5F-4AC4-8F7D-E198E2CE54D3. Parent next protocol-specific synthetic UDP/TCP6 and DNS/fail-closed QA. Do not repeat accepted TCP4."

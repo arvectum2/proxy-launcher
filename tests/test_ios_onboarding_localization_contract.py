@@ -1,4 +1,5 @@
 """Release contract checks for real iOS RU/EN localization and first-use proxy guide."""
+import json
 import pathlib
 import re
 import unittest
@@ -55,8 +56,10 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
     def test_next_version_and_packaging(self):
         project = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj/project.pbxproj").read_text(encoding="utf-8")
-        self.assertIn('MARKETING_VERSION: "0.2.0"', project)
-        self.assertIn('CURRENT_PROJECT_VERSION: "48"', project)
+        active = json.loads((IOS / "Config/active-development.json").read_text(encoding="utf-8"))
+        version, build = active["marketing_version"], active["build_number"]
+        self.assertIn(f'MARKETING_VERSION: "{version}"', project)
+        self.assertIn(f'CURRENT_PROJECT_VERSION: "{build}"', project)
         self.assertIn('Localizable.strings in Resources', pbx)
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)
