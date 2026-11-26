@@ -64,6 +64,9 @@ import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
+import ru.arvectum.proxylauncher.storage.SecureSubscriptionStore
+import ru.arvectum.proxylauncher.model.SavedSubscription
+import ru.arvectum.proxylauncher.model.SavedSubscriptionReview
 import ru.arvectum.proxylauncher.ui.ProfileActionMetrics
 import ru.arvectum.proxylauncher.ui.ResponsiveUiPolicy
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
@@ -86,6 +89,8 @@ class MainActivity : Activity() {
     private val navigationButtons = linkedMapOf<Destination, TextView>()
     private var currentDestination = Destination.HOME
     private lateinit var store: SecureProfileStore
+    private lateinit var subscriptionStore: SecureSubscriptionStore
+    private var subscriptionReviewDialog: AlertDialog? = null
     private lateinit var poolUiStore: PoolUiStateStore
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -146,6 +151,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = SecureProfileStore(this)
+        subscriptionStore = SecureSubscriptionStore(this)
         poolUiStore = PoolUiStateStore(this)
 
         window.statusBarColor = NAVY
@@ -748,7 +754,7 @@ class MainActivity : Activity() {
         panel.addView(qrCameraButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         panel.addView(qrExportButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         subscriptionButton = brandSmallButton(getString(R.string.apl_subscription_import), ButtonTone.GHOST).apply {
-            setOnClickListener { showSubscriptionInput() }
+            setOnClickListener { showSavedSubscriptions() }
         }
         panel.addView(subscriptionButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         return panel
@@ -1439,7 +1445,63 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun showSubscriptionInput() {
+    private fun trackSubscriptionDialog(dialog: AlertDialog) {
+        subscriptionDialog = dialog
+        dialog.setOnDismissListener {
+            if (subscriptionDialog === dialog) subscriptionDialog = null
+        }
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        dialog.show()
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
+    private fun showSavedSubscriptions() {
+        if (!cameraUiResumed || !canBatchImport()) return
+        val sources = runCatching { subscriptionStore.list() }.getOrElse {
+            showImportFailure()
+            return
+        }
+        val labels = sources.mapIndexed { index, source -> "${index + 1}. ${source.host}" }.toTypedArray()
+        val builder = AlertDialog.Builder(this)
+            .setTitle(R.string.apl_saved_subscriptions)
+            .setNegativeButton(R.string.apl_cancel_8fbe9, null)
+            .setNeutralButton(R.string.apl_subscription_import) { _, _ -> showSubscriptionInput() }
+            .setPositiveButton(R.string.apl_subscription_save_url) { _, _ -> showSubscriptionInput(true) }
+        if (labels.isEmpty()) builder.setMessage(R.string.apl_subscription_empty)
+        else builder.setItems(labels) { _, index -> showSavedSubscriptionActions(sources[index]) }
+        trackSubscriptionDialog(builder.create())
+    }
+
+    private fun showSavedSubscriptionActions(source: SavedSubscription) {
+        if (!cameraUiResumed || !canBatchImport()) return
+        trackSubscriptionDialog(AlertDialog.Builder(this)
+            .setTitle(source.host)
+            .setMessage(R.string.apl_subscription_refresh_notice)
+            .setNegativeButton(R.string.apl_cancel_8fbe9, null)
+            .setNeutralButton(R.string.apl_subscription_remove) { _, _ ->
+                confirmRemoveSubscription(source)
+            }
+            .setPositiveButton(R.string.apl_subscription_download) { _, _ ->
+                if (!cameraUiResumed || !canBatchImport()) return@setPositiveButton
+                val fetch = runCatching { ProxySubscriptionFetch(subscriptionStore.source(source)) }.getOrNull()
+                if (fetch == null) showImportFailure() else startSubscription(fetch, source)
+            }.create())
+    }
+
+    private fun confirmRemoveSubscription(source: SavedSubscription) {
+        if (!cameraUiResumed || !canBatchImport()) return
+        trackSubscriptionDialog(AlertDialog.Builder(this)
+            .setTitle(source.host)
+            .setMessage(R.string.apl_subscription_remove_notice)
+            .setNegativeButton(R.string.apl_cancel_8fbe9, null)
+            .setPositiveButton(R.string.apl_subscription_remove) { _, _ ->
+                if (!cameraUiResumed || !canBatchImport()) return@setPositiveButton
+                if (runCatching { subscriptionStore.remove(source) }.getOrDefault(false)) showSavedSubscriptions()
+                else showImportFailure()
+            }.create())
+    }
+
+    private fun showSubscriptionInput(saveOnly: Boolean = false) {
         if (!cameraUiResumed || !canBatchImport()) return
         val input = EditText(this).apply {
             hint = "https://"
@@ -1452,11 +1514,11 @@ class MainActivity : Activity() {
             filters = arrayOf(android.text.InputFilter.LengthFilter(ProxySubscriptionImport.MAX_URL_BYTES + 1))
         }
         val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.apl_subscription_import)
-            .setMessage(R.string.apl_subscription_notice)
+            .setTitle(if (saveOnly) R.string.apl_subscription_save_url else R.string.apl_subscription_import)
+            .setMessage(if (saveOnly) R.string.apl_subscription_save_notice else R.string.apl_subscription_notice)
             .setView(input)
             .setNegativeButton(R.string.apl_cancel_8fbe9, null)
-            .setPositiveButton(R.string.apl_subscription_download, null)
+            .setPositiveButton(if (saveOnly) R.string.apl_subscription_save_url else R.string.apl_subscription_download, null)
             .create()
         dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         subscriptionDialog = dialog
@@ -1473,6 +1535,15 @@ class MainActivity : Activity() {
                 input.error = getString(R.string.apl_import_proxy_invalid)
                 return@setOnClickListener
             }
+            if (saveOnly) {
+                if (runCatching { subscriptionStore.add(raw) }.isFailure) {
+                    input.error = getString(R.string.apl_failed_to_save_profile_securely_c836f)
+                    return@setOnClickListener
+                }
+                dialog.dismiss()
+                showSavedSubscriptions()
+                return@setOnClickListener
+            }
             val fetch = runCatching { ProxySubscriptionFetch(raw) }.getOrNull()
             if (fetch == null) { input.error = getString(R.string.apl_import_proxy_invalid); return@setOnClickListener }
             dialog.dismiss()
@@ -1480,7 +1551,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun startSubscription(fetch: ProxySubscriptionFetch) {
+    private fun startSubscription(fetch: ProxySubscriptionFetch, source: SavedSubscription? = null) {
         if (!cameraUiResumed || !canBatchImport()) { fetch.cancel(); return }
         subscriptionFetch = fetch
         val progress = AlertDialog.Builder(this)
@@ -1504,7 +1575,10 @@ class MainActivity : Activity() {
                 if (isFinishing || isDestroyed) return@post
                 updateProfileControls()
                 if (!cameraUiResumed || !canBatchImport()) return@post
-                if (items == null) showImportFailure() else showBatchPreview(items)
+                if (items == null) showImportFailure()
+                else if (source == null) showBatchPreview(items)
+                else if (runCatching { subscriptionStore.contains(source) }.getOrDefault(false)) showBatchPreview(items, source)
+                else showImportFailure()
             }
         }.apply { isDaemon = true }.start()
     }
@@ -1517,6 +1591,8 @@ class MainActivity : Activity() {
         subscriptionDialog = null
         subscriptionProgress?.dismiss()
         subscriptionProgress = null
+        subscriptionReviewDialog?.dismiss()
+        subscriptionReviewDialog = null
         if (!isFinishing && !isDestroyed && ::profileSelectorShell.isInitialized) updateProfileControls()
     }
 
@@ -1526,9 +1602,12 @@ class MainActivity : Activity() {
             .setPositiveButton(android.R.string.ok, null).show()
     }
 
-    private fun showBatchPreview(items: List<ImportedProxy>) {
+    private fun showBatchPreview(items: List<ImportedProxy>, source: SavedSubscription? = null) {
         if (!canBatchImport()) return
-        val preview = runCatching { ProxyBatchImport.preview(items, store.listProfiles()) }.getOrNull()
+        val baseline = runCatching { store.listProfiles() }.getOrElse { showImportFailure(); return }
+        val review = if (source != null) SavedSubscriptionReview.prepare(source, items, baseline, android.os.SystemClock::elapsedRealtime) else null
+        if (source != null && review == null) { showImportFailure(); return }
+        val preview = review?.preview ?: runCatching { ProxyBatchImport.preview(items, baseline) }.getOrNull()
         if (preview == null) {
             showImportFailure()
             return
@@ -1549,6 +1628,13 @@ class MainActivity : Activity() {
         dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         dialog.show()
         dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        if (review != null) {
+            subscriptionReviewDialog = dialog
+            dialog.setOnDismissListener {
+                review.cancel()
+                if (subscriptionReviewDialog === dialog) subscriptionReviewDialog = null
+            }
+        }
         val save = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         save.isEnabled = preview.items.isNotEmpty()
         save.setOnClickListener {
@@ -1559,7 +1645,12 @@ class MainActivity : Activity() {
             }
             try {
                 val selection = currentSelectionKey()
-                val count = store.appendImportedProfiles(preview.items)
+                val approved = if (review == null) preview.items else {
+                    val current = source?.takeIf { subscriptionStore.contains(it) }
+                    review.confirm(current, store.listProfiles(), cameraUiResumed)
+                        ?: error("Subscription review expired or changed")
+                }
+                val count = store.appendImportedProfiles(approved)
                 refreshProfileChoices(selection)
                 renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_import_proxy_link) + ": $count")
                 dialog.dismiss()

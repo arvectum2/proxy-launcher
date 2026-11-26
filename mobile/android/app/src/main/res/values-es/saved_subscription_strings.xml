@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_saved_subscriptions">Suscripciones guardadas</string>
+    <string name="apl_subscription_save_url">Guardar URL</string>
+    <string name="apl_subscription_empty">No hay suscripciones guardadas</string>
+    <string name="apl_subscription_refresh_notice">¿Descargar la lista? Solo se propondrán proxys nuevos. Los perfiles y contraseñas existentes no cambiarán.</string>
+    <string name="apl_subscription_remove">Eliminar suscripción</string>
+    <string name="apl_subscription_remove_notice">¿Eliminar la URL guardada? Los proxys importados se conservarán.</string>
+    <string name="apl_subscription_save_notice">La URL se cifrará en este dispositivo. Guardarla no inicia una descarga.</string>
+</resources>

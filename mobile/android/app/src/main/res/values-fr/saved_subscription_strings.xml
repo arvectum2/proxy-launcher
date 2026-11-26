@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_saved_subscriptions">Abonnements enregistrés</string>
+    <string name="apl_subscription_save_url">Enregistrer URL</string>
+    <string name="apl_subscription_empty">Aucun abonnement enregistré</string>
+    <string name="apl_subscription_refresh_notice">Télécharger la liste ? Seuls les nouveaux proxys seront proposés. Les profils et mots de passe existants restent inchangés.</string>
+    <string name="apl_subscription_remove">Supprimer abonnement</string>
+    <string name="apl_subscription_remove_notice">Supprimer l’URL enregistrée ? Les proxys déjà importés seront conservés.</string>
+    <string name="apl_subscription_save_notice">L’URL sera chiffrée sur cet appareil. Aucun téléchargement au moment de l’enregistrement.</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_saved_subscriptions">Saved subscriptions</string>
+    <string name="apl_subscription_save_url">Save URL</string>
+    <string name="apl_subscription_empty">No saved subscriptions</string>
+    <string name="apl_subscription_refresh_notice">Download the list? Only new proxies will be offered. Existing profiles and passwords will not change.</string>
+    <string name="apl_subscription_remove">Remove subscription</string>
+    <string name="apl_subscription_remove_notice">Remove the saved URL? Previously imported proxies will remain.</string>
+    <string name="apl_subscription_save_notice">The URL will be encrypted on this device. Saving does not start a download.</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_saved_subscriptions">Сохранённые подписки</string>
+    <string name="apl_subscription_save_url">Сохранить URL</string>
+    <string name="apl_subscription_empty">Нет сохранённых подписок</string>
+    <string name="apl_subscription_refresh_notice">Загрузить список? Будут предложены только новые прокси. Существующие профили и пароли не изменятся.</string>
+    <string name="apl_subscription_remove">Удалить подписку</string>
+    <string name="apl_subscription_remove_notice">Удалить сохранённый URL? Уже импортированные прокси останутся.</string>
+    <string name="apl_subscription_save_notice">URL будет зашифрован на этом устройстве. Сохранение не запускает загрузку.</string>
+</resources>

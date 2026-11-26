@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-SUBSCRIPTION-IMPORT-20261126
-status: in_progress
+status: completed
 goal: "Explicit one-time HTTPS subscription download and preview of ordinary proxies."
 definition_of_done:
   - "Strict public HTTPS source and DNS route policy, default TLS, bounded response, no redirect or persistent URL; explicit preview/Save."
@@ -9,14 +9,10 @@ definition_of_done:
 completed:
   - "PR393 exact head e762c17c 15/15 CI PASS, merged d8a2c0f0109cb4b287e471c0977b218a833f337e, GitVerse main verified. Prior checkpoint archived."
   - "Spec Kit 009: URL and public DNS policy, pinned OkHttp/Okio transport, plain/Base64 decoding, masked UI, cancellable worker and existing preview. Rebased source 1ae72fb2ca25b3d973e1362e1379386bb30fe094."
-current: "Local synthetic tests passed; full Android CI and dependency security review pending."
-pending:
-  - "Verify exact-head PR build/lint/unit and packaging, review new dependencies for known vulnerabilities, fix actual failures and integrate after green checks."
-  - "Real Android DNS/TLS/cancel/device and picker/storage/QR acceptance separate; no real subscription tokens or provider traffic tested."
-  - "Next: saved HTTPS subscription URLs in secure storage, explicit refresh/replacement review and rollback; encrypted backup, native transports. No production release."
-last_verified_commit: "1ae72fb2ca25b3d973e1362e1379386bb30fe094 (rebased local-tested tree)"
+current: "Source integration complete; PR394 merged 72489d980b1f95c581b1d27413ede879e67b014e. Device acceptance and full graph audit tracked separately."
+pending: []
+last_verified_commit: "b077dc2ae32affbc721af460818bf0321cf96eff exact head; merge 72489d980b1f95c581b1d27413ede879e67b014e"
 test_results:
-  - "36/36 JVM tests, 23 unique Python source contracts, AAPT2 and git diff check PASS. Synthetic DNS, HTTP response and bounds/cancel tests only."
-  - "OkHttp 4.12.0 and Okio JVM 3.6.0 Maven SHA-1 matched, SHA-256 pinned, licenses packaged; comprehensive vulnerability review pending."
-  - "Five translations; remaining locales English fallback. No saved URL or automatic replacement."
-resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-subscription-import-20261126 branch feat/android-subscription-import-20261126. Verify exact-head PR CI and dependency security review, fix and merge after green. No production signing, release, iOS reupload, RuStore resubmission or real credentials."
+  - "15/15 CI PASS; 36 JVM/23 Python, AAPT2. OSV exact Maven coordinates OkHttp4.12.0/Okio3.6.0 no entries (PR394 comment 7187870737), licenses/checksums verified. Full resolved graph audit not performed."
+  - "Real Android DNS/TLS/network acceptance pending."
+resume_instruction: "Source integration completed. Continue saved subscriptions; device and dependency graph review before release."
