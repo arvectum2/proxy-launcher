@@ -1,3 +1,4 @@
+import java.security.MessageDigest
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
@@ -189,12 +190,29 @@ android {
     }
 }
 
+val zxingPinned = configurations.detachedConfiguration(
+    dependencies.create("com.google.zxing:core:3.5.4"),
+).apply { isTransitive = false }
+
+val verifyZxingCore = tasks.register("verifyZxingCore") {
+    inputs.files(zxingPinned)
+    doLast {
+        val jar = zxingPinned.singleFile
+        val digest = MessageDigest.getInstance("SHA-256").digest(jar.readBytes())
+            .joinToString("") { "%02x".format(it.toInt() and 255) }
+        check(digest == "71de5d89341b5fcf5dd89da7f44e84d825d0e084cdf3ec77c9abe26b0f0ceb13") {
+            "ZXing Core dependency SHA-256 mismatch"
+        }
+    }
+}
+
 tasks.named("preBuild").configure {
-    dependsOn(generateBrandingResources)
+    dependsOn(generateBrandingResources, verifyZxingCore)
 }
 
 dependencies {
     implementation("androidx.core:core:1.15.0")
+    implementation("com.google.zxing:core:3.5.4") { version { strictly("3.5.4") } }
     add("publicImplementation", "com.yandex.android:mobileads:8.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
