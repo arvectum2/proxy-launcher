@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">İçe aktar</string>
+    <string name="apl_import_proxy_preview">Önizleme</string>
+    <string name="apl_import_proxy_invalid">Geçersiz veya desteklenmeyen proxy bağlantısı</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">Importálás</string>
+    <string name="apl_import_proxy_preview">Előnézet</string>
+    <string name="apl_import_proxy_invalid">Érvénytelen vagy nem támogatott proxyhivatkozás</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">Impor</string>
+    <string name="apl_import_proxy_preview">Pratinjau</string>
+    <string name="apl_import_proxy_invalid">Tautan proxy tidak valid atau tidak didukung</string>
+</resources>

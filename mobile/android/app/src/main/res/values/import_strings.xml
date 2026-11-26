@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">Импорт</string>
+    <string name="apl_import_proxy_preview">Предпросмотр</string>
+    <string name="apl_import_proxy_invalid">Некорректная или неподдерживаемая ссылка на прокси</string>
+</resources>

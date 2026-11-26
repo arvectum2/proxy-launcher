@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">I-import</string>
+    <string name="apl_import_proxy_preview">Preview</string>
+    <string name="apl_import_proxy_invalid">Di-wasto o hindi suportadong proxy link</string>
+</resources>

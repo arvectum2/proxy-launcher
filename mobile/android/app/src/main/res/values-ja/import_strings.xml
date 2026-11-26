@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">インポート</string>
+    <string name="apl_import_proxy_preview">プレビュー</string>
+    <string name="apl_import_proxy_invalid">無効または未対応のプロキシリンク</string>
+</resources>

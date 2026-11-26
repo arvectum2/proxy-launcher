@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">درآمد کریں</string>
+    <string name="apl_import_proxy_preview">پیش منظر</string>
+    <string name="apl_import_proxy_invalid">غلط یا غیر معاون پراکسی لنک</string>
+</resources>

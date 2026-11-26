@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_import_proxy_link">Import</string>
+    <string name="apl_import_proxy_preview">Ko‘rib chiqish</string>
+    <string name="apl_import_proxy_invalid">Proksi havolasi noto‘g‘ri yoki qo‘llab-quvvatlanmaydi</string>
+</resources>
