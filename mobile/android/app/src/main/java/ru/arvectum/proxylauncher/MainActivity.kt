@@ -56,6 +56,7 @@ import ru.arvectum.proxylauncher.model.ImportedProxy
 import ru.arvectum.proxylauncher.model.ProxyQrExport
 import ru.arvectum.proxylauncher.importing.ProxyQrImageReader
 import ru.arvectum.proxylauncher.importing.ProxyQrCameraDialog
+import ru.arvectum.proxylauncher.importing.ProxyQrShareProvider
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
@@ -1666,6 +1667,7 @@ class MainActivity : Activity() {
         val display = AlertDialog.Builder(this)
             .setTitle(getString(R.string.apl_qr_export_show))
             .setView(ScrollView(this).apply { addView(container) })
+            .setNeutralButton(R.string.apl_qr_share_send, null)
             .setPositiveButton(android.R.string.ok, null)
             .create()
         display.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -1676,6 +1678,54 @@ class MainActivity : Activity() {
             if (qrExportDialog === display) qrExportDialog = null
         }
         display.show()
+        display.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+            if (!cameraUiResumed || !canExportQr(profileId) || !display.isShowing || bitmap.isRecycled) return@setOnClickListener
+            // Replace the QR dialog with a second disclosure confirmation. Do not keep
+            // the rendered secret visible behind a separate, untracked dialog.
+            display.dismiss()
+            confirmQrShare(profileId)
+        }
+    }
+
+    private fun confirmQrShare(profileId: String) {
+        if (!cameraUiResumed || !canExportQr(profileId)) return
+        val confirmation = AlertDialog.Builder(this)
+            .setTitle(R.string.apl_qr_share_send)
+            .setMessage(R.string.apl_qr_share_warning)
+            .setNegativeButton(R.string.apl_cancel_8fbe9, null)
+            .setPositiveButton(R.string.apl_qr_share_send) { _, _ ->
+                if (cameraUiResumed && canExportQr(profileId)) shareSavedQr(profileId)
+            }.create()
+        confirmation.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        qrExportDialog = confirmation
+        confirmation.setOnDismissListener {
+            if (qrExportDialog === confirmation) qrExportDialog = null
+        }
+        confirmation.show()
+    }
+
+    private fun shareSavedQr(profileId: String) {
+        if (!cameraUiResumed || !canExportQr(profileId)) return
+        var bitmap: android.graphics.Bitmap? = null
+        try {
+            val saved = store.loadProfile(profileId) ?: return showQrExportFailure()
+            val matrix = ProxyQrExport.matrix(saved.profile, saved.password) ?: return showQrExportFailure()
+            val scale = minOf(6, 1024 / matrix.width)
+            if (scale < 2) return showQrExportFailure()
+            val side = matrix.width * scale
+            val pixels = IntArray(side * side) { i ->
+                if (matrix.get((i % side) / scale, (i / side) / scale)) Color.BLACK else Color.WHITE
+            }
+            val rendered = try {
+                android.graphics.Bitmap.createBitmap(pixels, side, side, android.graphics.Bitmap.Config.ARGB_8888)
+            } finally { pixels.fill(0) }
+            bitmap = rendered
+            val chooser = ProxyQrShareProvider.prepare(this, rendered) ?: return showQrExportFailure()
+            startActivity(chooser)
+        } catch (_: Exception) {
+            ProxyQrShareProvider.revokeCurrent(this)
+            showQrExportFailure()
+        } finally { bitmap?.recycle() }
     }
 
     private fun showProfileEditor(profileId: String?) {
