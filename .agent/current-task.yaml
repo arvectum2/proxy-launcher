@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "26 Nov final signed upgrade smoke PASS, actual selected legacy connect/disconnect and original OFF state. Main integrated in release branch; exact runtime tree unchanged, Spec Kit 9 tests PASS. Notices ZIP prepared. Apple draft and 47 notes verified; official validation PASS. Upload journaled once."
   - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
   - "26 Nov owner approved final unified 0.3.0 scope including VLESS Reality and CloudKit; second physical same-account device explicitly deferred to later update, not tested. Actual one-device two-client and ordinary UI evidence accepted for this scope."
   - "26 Nov owner reaffirmed AGENTS.md standing decision; closed owner scope is not an active release gate. Continue technical acceptance without reopening."
@@ -285,7 +286,7 @@ completed:
 
 
 
-current: "26 Nov owner-approved unified 0.3.0(49) source1acf654d; VLESS+CloudKit activated in exact signed staged archive, both AppStore/Development IPA exports and signatures PASS. Final signed upgrade smoke, main integration, source/notice delivery, production schema and submission pending authorization. Second device deferred."
+current: "26 Nov final signed upgrade smoke PASS; integration branch ready, protected main checks pending; notices prepared; Apple draft/47 locales and official validation PASS; upload initiated once; CloudKit Dashboard needs owner sign-in."
 blocked_on:
   - "Actual guarded VLESS runner, owner/ticket and ordinary UI physical LAN accepted; final public activation decision remains."
   - "VLESS guarded LAN ordinary UI accepted; CloudKit capability/profiles enabled and private Development exchange accepted; ordinary CloudKit UI/second device and production schema remain. Public activation decision required."
@@ -551,6 +552,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. 26 Nov owner explicitly authorized final upgrade smoke and temporary VPN interruption, main integration, source/notice publication, production CloudKit schema and App Store submission. Verify each gate, do not falsely attest or submit inaccurate information. Existing app and signed restore verified before device mutation; check actual current VPN baseline (device had no provider at first census). Preserve prior state. No new accounts, certs, or WAN/second-device reopening. Follow AGENTS.md."
+resume_instruction: "ARC only. Read docs/APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md latest morning section. Owner authorized final operations, signed upgrade smoke PASS, final Development app installed and VPN OFF baseline restored. PR383 ready against main; exact mobile/ios same as signed source, normal protected checks pending. Public notices archive staged; after merge verify public Pages exact bytes. Apple0.3.0 draft and 47 notes verified, Apple validation PASS. SINGLE upload job 12480b35-d5d6-4607-90c4-432d40aad928 started; inspect receipt and Apple build49 GET before any retry, no duplicate. CloudKit Dashboard MacBook requires owner sign-in (no management token). No production deployment or review submission yet; resume after authentication, verify production schema, main merge/Pages, processed build and metadata, then attach and submit within existing authorization. No new accounts, no closed-scope reopening."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
