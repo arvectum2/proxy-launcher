@@ -1,21 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-ALL-PLATFORMS-20261126
-status: completed
-goal: "Актуализировать общую и iOS дорожные карты после подачи 0.3.0."
+task_id: APL-ANDROID-IMPORT-PREVIEW-20261126
+status: in_progress
+goal: "Android parity stage A: bounded ordinary proxy import with explicit preview in new-profile editor."
 definition_of_done:
-  - "Раздельные статусы публичных версий, исходников, модерации и отложенных gates."
-  - "История, исходные ID, ранее согласованные полномочия и пауза non-iOS сохранены."
-  - "Обе roadmap актуализированы, проверены и зафиксированы в PR #386."
+  - "Strict ordinary proxy URI/supplier parsing; explicit preview, secure existing Save only, no auto-VPN or background clipboard."
+  - "Unit tests, source/resource checks and exact-head Android CI PASS; record device acceptance separately."
+  - "Protected PR integration; no version/signing/distribution change."
 completed:
-  - "ASC API: iOS 0.2.0 READY_FOR_SALE; 0.3.0(49) WAITING_FOR_REVIEW; macOS 0.2.22 READY_FOR_SALE. GitHub desktop v0.2.16, Android android-v0.1.38."
-  - "Обновлены docs/ROADMAP.md и docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md; предложены последовательность возобновления и gates всех платформ."
-  - "Сохранён полный итоговый checkpoint iOS в .agent/checkpoints/APL-IOS-UNIFIED-RELEASE-20261111-FINAL.yaml."
-  - "Обновление документации включено в PR #386; защищённый merge только после CI."
-current: "Документация и локальная проверка завершены; интеграция PR #386 зависит от GitHub CI. iOS ожидает Apple; non-iOS PAUSED."
-pending: []
-last_verified_commit: "8186d3d8fece7d19bbf240384837e64919cb4525 (base); итоговая ревизия в PR #386"
+  - "PR386 merged dd3bf74ebd31c2d2f4d02d5a8293035123d9ec3c; local main and GitVerse verified. iOS 0.3.0 WAITING_FOR_REVIEW, AFTER_APPROVAL."
+  - "RuStore latest known rejection 06.10 under 2.12/12.1. Current official rules reviewed; no unchanged resubmission. Android GitHub baseline 0.1.38 unaffected."
+  - "Spec Kit 002; pure Kotlin parser, editor preview, 40 localized resource sets, synthetic unit and source tests committed 612e094889e5e5e90d2f6245b926247f4af8fc8d."
+current: "Source/local checks passed; exact-head Android CI and emulator/physical UI evidence pending."
+pending:
+  - "Inspect exact-head CI Android build/lint/unit tests and fix real failures; merge via normal protection only after green checks."
+  - "UI smoke on available isolated emulator/physical Android; do not uninstall production app or alter credentials. If unavailable record limitation and defer device gate without claiming PASS."
+  - "Next Android parity slice: batch/file/QR import; first scope and tests, no release or distribution changes."
+last_verified_commit: "612e094889e5e5e90d2f6245b926247f4af8fc8d"
 test_results:
-  - "4 IP/roadmap reconciliation tests PASS; 9 Spec Kit criteria tests PASS; structural source/criterion/task check PASS; new links and git diff --check PASS."
-  - "Нет изменений продуктового кода, сборок, каналов или инфраструктуры."
-resume_instruction: "ARC only. Проверить PR386 и его exact-head CI, интегрировать штатно при PASS; не обходить protection. После merge читать актуальный срез docs/ROADMAP.md. iOS 0.3.0 monitor read-only, не переотправлять. Не активировать paused non-iOS без решения владельца."
+  - "Kotlin 2.0.21 direct JVM compile and JUnit 4/4 PASS; Python contract 2/2 PASS; AAPT2 all resources PASS; git diff --check PASS."
+  - "Exact Gradle 8.9 absent locally; full Android CI required. ADB reports no connected devices. Local translations not independently reviewed by native speakers."
+resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-import-preview-20261126, branch feat/android-import-preview-20261126. Read checkpoint and exact-head PR CI, continue verification and fix failures. No reupload iOS, no RuStore submission, no version/signing/production changes. Continue engineering independently of Apple review."
