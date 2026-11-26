@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_export_confirm">Compartilhar credenciais do proxy?</string>
+    <string name="apl_qr_export_show">Mostrar código QR</string>
+    <string name="apl_qr_export_warning">O código QR contém o endereço, o usuário e a senha do proxy. Compartilhe apenas com pessoas de confiança.</string>
+    <string name="apl_qr_export_failed">Não foi possível criar o código QR</string>
+    <string name="apl_qr_export_image">Código QR para importar um proxy</string>
+</resources>

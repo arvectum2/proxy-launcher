@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_export_confirm">Proxy giriş bilgileri paylaşılsın mı?</string>
+    <string name="apl_qr_export_show">QR kodunu göster</string>
+    <string name="apl_qr_export_warning">QR kodu proxy adresini, kullanıcı adını ve şifreyi içerir. Yalnızca güvendiğiniz kişilerle paylaşın.</string>
+    <string name="apl_qr_export_failed">QR kodu oluşturulamadı</string>
+    <string name="apl_qr_export_image">Proxy içe aktarma QR kodu</string>
+</resources>
