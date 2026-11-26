@@ -52,6 +52,7 @@ import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyImport
 import ru.arvectum.proxylauncher.model.ProxyBatchImport
 import ru.arvectum.proxylauncher.model.ImportedProxy
+import ru.arvectum.proxylauncher.importing.ProxyQrImageReader
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
@@ -92,8 +93,10 @@ class MainActivity : Activity() {
     @Volatile private var healthScanInProgress = false
     private var batchImportGeneration = 0
     private var batchFilePending = false
+    private var qrImagePending = false
     private var batchFileReadInProgress = false
     private lateinit var batchImportButton: Button
+    private lateinit var qrImportButton: Button
 
     private val proxyTypes = listOf(
         ProxyType.AUTO,
@@ -696,7 +699,14 @@ class MainActivity : Activity() {
         batchImportButton = brandSmallButton(getString(R.string.apl_import_proxy_link) + " · TXT", ButtonTone.GHOST).apply {
             setOnClickListener { showBatchImport() }
         }
-        panel.addView(batchImportButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
+        qrImportButton = brandSmallButton(getString(R.string.apl_import_proxy_link) + " · QR", ButtonTone.GHOST).apply {
+            setOnClickListener { chooseQrImage() }
+        }
+        panel.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            addView(batchImportButton, LinearLayout.LayoutParams(0, dp(44), 1f))
+            addView(qrImportButton, LinearLayout.LayoutParams(0, dp(44), 1f).apply { leftMargin = dp(6) })
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         return panel
     }
 
@@ -1325,7 +1335,7 @@ class MainActivity : Activity() {
 
     private fun canBatchImport(): Boolean =
         !isFinishing && !isDestroyed && currentState == ProxyVpnService.STATE_DISCONNECTED &&
-            !switchInProgress && !batchFileReadInProgress && poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED
+            !switchInProgress && !batchFileReadInProgress && !batchFilePending && !qrImagePending && poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED
 
     private fun showBatchImport() {
         if (!canBatchImport()) return
@@ -1439,6 +1449,41 @@ class MainActivity : Activity() {
         Thread {
             val items = runCatching {
                 contentResolver.openInputStream(uri)?.use(ProxyBatchImport::readText)?.let(ProxyBatchImport::parse)
+            }.getOrNull()
+            mainHandler.post {
+                batchFileReadInProgress = false
+                if (isFinishing || isDestroyed) return@post
+                updateProfileControls()
+                if (generation != batchImportGeneration || !canBatchImport()) return@post
+                if (items == null) showImportFailure() else showBatchPreview(items)
+            }
+        }.apply { isDaemon = true }.start()
+    }
+
+    private fun chooseQrImage() {
+        if (!canBatchImport()) return
+        qrImagePending = true
+        try {
+            startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "image/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/png", "image/jpeg", "image/webp"))
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }, QR_IMAGE_REQUEST)
+        } catch (_: Exception) {
+            qrImagePending = false
+            showImportFailure()
+        }
+    }
+
+    private fun importSelectedQrImage(uri: android.net.Uri) {
+        if (!canBatchImport() || uri.scheme != "content") return
+        val generation = ++batchImportGeneration
+        batchFileReadInProgress = true
+        updateProfileControls()
+        Thread {
+            val items = runCatching {
+                contentResolver.openInputStream(uri)?.use(ProxyQrImageReader::read)
             }.getOrNull()
             mainHandler.post {
                 batchFileReadInProgress = false
@@ -1882,10 +1927,18 @@ class MainActivity : Activity() {
     @Deprecated("Legacy result API keeps the zero-dependency dogfood client small")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == QR_IMAGE_REQUEST) {
+            val expected = qrImagePending
+            qrImagePending = false
+            if (expected && resultCode == RESULT_OK) data?.data?.let(::importSelectedQrImage)
+            updateProfileControls()
+            return
+        }
         if (requestCode == BATCH_FILE_REQUEST) {
             val expected = batchFilePending
             batchFilePending = false
             if (expected && resultCode == RESULT_OK) data?.data?.let(::importSelectedTextFile)
+            updateProfileControls()
             return
         }
         if (requestCode != VPN_REQUEST) return
@@ -2021,6 +2074,10 @@ class MainActivity : Activity() {
         if (::batchImportButton.isInitialized) {
             batchImportButton.isEnabled = canBatchImport()
             batchImportButton.alpha = if (batchImportButton.isEnabled) 1f else 0.5f
+        }
+        if (::qrImportButton.isInitialized) {
+            qrImportButton.isEnabled = canBatchImport()
+            qrImportButton.alpha = if (qrImportButton.isEnabled) 1f else 0.5f
         }
         newProfileButton.isEnabled = creatable
         newProfileButton.alpha = if (creatable) 1f else 0.5f
@@ -2209,6 +2266,7 @@ class MainActivity : Activity() {
             ProxyVpnService.STATE_ERROR,
         )
         private const val BATCH_FILE_REQUEST = 7203
+        private const val QR_IMAGE_REQUEST = 7204
         private val creatableStates = editableStates + ProxyVpnService.STATE_CONNECTED
     }
 }

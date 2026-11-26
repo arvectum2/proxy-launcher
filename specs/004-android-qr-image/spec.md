@@ -1,0 +1,5 @@
+# APL-ANDROID-QR-IMAGE-20261126
+- Q1: Explicit document selection of PNG/JPEG/WebP, max 8 MiB encoded, 12 million source pixels, max 2048 pixels per decoded dimension. No APL network request, camera or persistent URI grant.
+- Q2: Pinned ZXing Core 3.5.4 with SHA-256 check and upstream notices. QR only; exactly one successfully decoded non-structured-append QR. Reject zero/multiple decoded codes and unsupported ordinary proxy payload. Accept the iOS arvectum-proxy://import?data= envelope only with a single data parameter and exactly one ordinary proxy. No exported Android deep-link intent. Detection is not a guarantee every symbol in arbitrary photos is detected.
+- Q3: Reuse strict batch parser, disconnected-only preview/explicit Save, dedupe and encrypted storage. No auto-connect or secret logging. Cancel/failure does not save.
+- Q4: Synthetic QR encode/decode tests, malformed/oversize/ambiguous tests, exact-head Android CI. Device gallery picker acceptance separate. Camera scanning, QR export, native transports and releases outside this slice.
