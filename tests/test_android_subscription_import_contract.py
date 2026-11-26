@@ -13,7 +13,7 @@ GRADLE = (APP.parent.parent / 'build.gradle.kts').read_text()
 
 class SubscriptionContract(unittest.TestCase):
     def test_explicit_masked_input_and_preview(self):
-        block = MAIN.split('private fun showSubscriptionInput()',1)[1].split('private fun showImportFailure()',1)[0]
+        block = MAIN.split('private fun showSubscriptionInput(',1)[1].split('private fun showImportFailure()',1)[0]
         self.assertIn('PasswordTransformationMethod',block)
         self.assertIn('FLAG_SECURE',block)
         self.assertIn('isSaveEnabled = false',block)

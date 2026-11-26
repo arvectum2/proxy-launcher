@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_saved_subscriptions">Gespeicherte Abonnements</string>
+    <string name="apl_subscription_save_url">URL speichern</string>
+    <string name="apl_subscription_empty">Keine gespeicherten Abonnements</string>
+    <string name="apl_subscription_refresh_notice">Liste laden? Nur neue Proxys werden vorgeschlagen. Vorhandene Profile und Passwörter bleiben unverändert.</string>
+    <string name="apl_subscription_remove">Abonnement entfernen</string>
+    <string name="apl_subscription_remove_notice">Gespeicherte URL entfernen? Importierte Proxys bleiben erhalten.</string>
+    <string name="apl_subscription_save_notice">Die URL wird auf diesem Gerät verschlüsselt. Speichern startet keinen Download.</string>
+</resources>
