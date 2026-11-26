@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Pindai kode QR</string>
+    <string name="apl_qr_camera_denied">Akses kamera ditolak</string>
+    <string name="apl_qr_camera_unavailable">Kamera tidak tersedia</string>
+</resources>

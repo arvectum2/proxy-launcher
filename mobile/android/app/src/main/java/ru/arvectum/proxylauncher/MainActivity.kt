@@ -1,5 +1,6 @@
 package ru.arvectum.proxylauncher
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
@@ -54,6 +55,7 @@ import ru.arvectum.proxylauncher.model.ProxyBatchImport
 import ru.arvectum.proxylauncher.model.ImportedProxy
 import ru.arvectum.proxylauncher.model.ProxyQrExport
 import ru.arvectum.proxylauncher.importing.ProxyQrImageReader
+import ru.arvectum.proxylauncher.importing.ProxyQrCameraDialog
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
@@ -100,6 +102,11 @@ class MainActivity : Activity() {
     private lateinit var qrImportButton: Button
     private lateinit var qrExportButton: Button
     private var qrExportDialog: AlertDialog? = null
+    private lateinit var qrCameraButton: Button
+    private var qrCameraDialog: ProxyQrCameraDialog? = null
+    private var qrCameraPermissionPending = false
+    private var qrCameraPermissionOutcome: Boolean? = null
+    private var cameraUiResumed = false
 
     private val proxyTypes = listOf(
         ProxyType.AUTO,
@@ -181,7 +188,10 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        cameraUiResumed = true
         reconcileTunnelAfterResume()
+        updateProfileControls()
+        consumeCameraPermission()
     }
 
     override fun onStart() {
@@ -201,12 +211,16 @@ class MainActivity : Activity() {
     }
 
     override fun onPause() {
+        cameraUiResumed = false
+        qrCameraDialog?.close()
         qrExportDialog?.dismiss()
         qrExportDialog = null
         super.onPause()
     }
 
     override fun onStop() {
+        qrCameraPermissionPending = false
+        qrCameraPermissionOutcome = null
         runCatching { unregisterReceiver(stateReceiver) }
         profilePopup?.dismiss()
         profilePopup = null
@@ -719,6 +733,10 @@ class MainActivity : Activity() {
         qrExportButton = brandSmallButton(getString(R.string.apl_qr_export_show), ButtonTone.GHOST).apply {
             setOnClickListener { currentProfileId?.let(::confirmQrExport) }
         }
+        qrCameraButton = brandSmallButton(getString(R.string.apl_qr_camera_scan), ButtonTone.GHOST).apply {
+            setOnClickListener { requestQrCamera() }
+        }
+        panel.addView(qrCameraButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         panel.addView(qrExportButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)))
         return panel
     }
@@ -1348,7 +1366,8 @@ class MainActivity : Activity() {
 
     private fun canBatchImport(): Boolean =
         !isFinishing && !isDestroyed && currentState == ProxyVpnService.STATE_DISCONNECTED &&
-            !switchInProgress && !batchFileReadInProgress && !batchFilePending && !qrImagePending && poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED
+            !switchInProgress && !batchFileReadInProgress && !batchFilePending && !qrImagePending &&
+            !qrCameraPermissionPending && qrCameraPermissionOutcome == null && qrCameraDialog == null && poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED
 
     private fun showBatchImport() {
         if (!canBatchImport()) return
@@ -1506,6 +1525,68 @@ class MainActivity : Activity() {
                 if (items == null) showImportFailure() else showBatchPreview(items)
             }
         }.apply { isDaemon = true }.start()
+    }
+
+    private fun requestQrCamera() {
+        if (!cameraUiResumed || !canBatchImport()) return
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            showQrCameraError(R.string.apl_qr_camera_unavailable)
+            return
+        }
+        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            openQrCamera()
+        } else {
+            qrCameraPermissionPending = true
+            updateProfileControls()
+            try {
+                requestPermissions(arrayOf(Manifest.permission.CAMERA), QR_CAMERA_PERMISSION)
+            } catch (_: Exception) {
+                qrCameraPermissionPending = false
+                updateProfileControls()
+                showQrCameraError(R.string.apl_qr_camera_denied)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != QR_CAMERA_PERMISSION || !qrCameraPermissionPending) return
+        qrCameraPermissionPending = false
+        qrCameraPermissionOutcome = grantResults.singleOrNull() == PackageManager.PERMISSION_GRANTED &&
+            checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        consumeCameraPermission()
+    }
+
+    private fun consumeCameraPermission() {
+        if (!cameraUiResumed) return
+        val granted = qrCameraPermissionOutcome ?: return
+        qrCameraPermissionOutcome = null
+        updateProfileControls()
+        if (!canBatchImport()) return
+        if (granted) openQrCamera() else showQrCameraError(R.string.apl_qr_camera_denied)
+    }
+
+    private fun openQrCamera() {
+        if (!cameraUiResumed || !canBatchImport() ||
+            checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) return
+        val scanner = ProxyQrCameraDialog(this,
+            onClosed = { closed ->
+                if (qrCameraDialog === closed) qrCameraDialog = null
+                if (!isFinishing && !isDestroyed) updateProfileControls()
+            },
+            onResult = { items ->
+                if (cameraUiResumed && canBatchImport()) showBatchPreview(items)
+            },
+            onFailure = { showQrCameraError(R.string.apl_qr_camera_unavailable) })
+        qrCameraDialog = scanner
+        updateProfileControls()
+        scanner.show()
+    }
+
+    private fun showQrCameraError(message: Int) {
+        if (!cameraUiResumed || isFinishing || isDestroyed) return
+        AlertDialog.Builder(this).setMessage(message)
+            .setPositiveButton(android.R.string.ok, null).show()
     }
 
     private fun canExportQr(profileId: String): Boolean =
@@ -2066,6 +2147,11 @@ class MainActivity : Activity() {
     private fun renderState(state: String, detail: String?) {
         currentState = state
         if (state != ProxyVpnService.STATE_DISCONNECTED) qrExportDialog?.dismiss()
+        if (state != ProxyVpnService.STATE_DISCONNECTED) {
+            qrCameraPermissionPending = false
+            qrCameraPermissionOutcome = null
+            qrCameraDialog?.close()
+        }
         val displayDetail = compactConnectionDetail(state, detail)
 
         connectionDetail.text = displayDetail
@@ -2181,6 +2267,10 @@ class MainActivity : Activity() {
         if (::qrImportButton.isInitialized) {
             qrImportButton.isEnabled = canBatchImport()
             qrImportButton.alpha = if (qrImportButton.isEnabled) 1f else 0.5f
+        }
+        if (::qrCameraButton.isInitialized) {
+            qrCameraButton.isEnabled = canBatchImport()
+            qrCameraButton.alpha = if (qrCameraButton.isEnabled) 1f else 0.5f
         }
         if (::qrExportButton.isInitialized) {
             val enabled = currentProfileId?.let(::canExportQr) == true
@@ -2375,6 +2465,7 @@ class MainActivity : Activity() {
         )
         private const val BATCH_FILE_REQUEST = 7203
         private const val QR_IMAGE_REQUEST = 7204
+        private const val QR_CAMERA_PERMISSION = 7205
         private val creatableStates = editableStates + ProxyVpnService.STATE_CONNECTED
     }
 }

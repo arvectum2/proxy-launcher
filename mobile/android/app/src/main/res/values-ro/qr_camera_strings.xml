@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Scanați codul QR</string>
+    <string name="apl_qr_camera_denied">Accesul la cameră este interzis</string>
+    <string name="apl_qr_camera_unavailable">Camera foto nu este disponibilă</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Σάρωση κωδικού QR</string>
+    <string name="apl_qr_camera_denied">Δεν επιτρέπεται η πρόσβαση στην κάμερα</string>
+    <string name="apl_qr_camera_unavailable">Η κάμερα δεν είναι διαθέσιμη</string>
+</resources>

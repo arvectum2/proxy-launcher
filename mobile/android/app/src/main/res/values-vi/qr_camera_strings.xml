@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">Quét mã QR</string>
+    <string name="apl_qr_camera_denied">Quyền truy cập vào máy ảnh bị từ chối</string>
+    <string name="apl_qr_camera_unavailable">Máy ảnh không khả dụng</string>
+</resources>

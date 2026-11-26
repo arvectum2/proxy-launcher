@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">QR 코드 스캔</string>
+    <string name="apl_qr_camera_denied">카메라 액세스가 거부되었습니다</string>
+    <string name="apl_qr_camera_unavailable">카메라를 사용할 수 없습니다</string>
+</resources>

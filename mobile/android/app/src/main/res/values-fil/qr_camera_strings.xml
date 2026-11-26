@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">I-scan ang QR code</string>
+    <string name="apl_qr_camera_denied">Ang pag-access sa camera ay tinanggihan</string>
+    <string name="apl_qr_camera_unavailable">Hindi available ang camera</string>
+</resources>

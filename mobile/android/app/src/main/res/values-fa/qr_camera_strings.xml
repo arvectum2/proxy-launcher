@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_qr_camera_scan">کد QR را اسکن کنید</string>
+    <string name="apl_qr_camera_denied">دسترسی به دوربین ممنوع است</string>
+    <string name="apl_qr_camera_unavailable">دوربین در دسترس نیست</string>
+</resources>
