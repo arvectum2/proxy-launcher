@@ -1,22 +1,22 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-BATCH-IMPORT-20261126
+task_id: APL-ANDROID-QR-IMAGE-20261126
 status: in_progress
-goal: "Bounded Android batch text/TXT import, explicit preview and deduplicated secure insertion."
+goal: "Android QR image import with ordinary proxy and iOS Share envelope compatibility."
 definition_of_done:
-  - "Strict bounded text/file parse, all-or-nothing validation, duplicate filtering, no raw secret errors."
-  - "Disconnected-only preview and explicit Save; revalidate duplicates, stage encrypted new profiles and preserve selection/priority."
-  - "Exact-head Android CI PASS and protected merge; separate device acceptance before release. No version/signing/distribution changes."
+  - "Bounded offline QR image decode, pinned dependency and license, exactly one decoded supported QR, existing explicit preview/save only."
+  - "Picker and disconnected guard; local tests and exact-head Android CI; protected PR integration. Device QA separate, no new release."
 completed:
-  - "Single import PR387 exact head 9ab7634f 13/13 CI PASS, merged 36077609c5b0c0e74832d729fb7c8f9fa88335b2; GitVerse main verified. Archive previous checkpoint."
-  - "Spec Kit 003; batch parser/reader, dedupe, secure store staging and UI paste/TXT picker/preview implemented; roadmap updated, source commit 4861ec5d53ce6d61f3c4bd47cff6735ed66e8171."
-current: "Local parser and boundary checks PASS; exact-head Android CI and isolated device UI/storage QA pending."
+  - "PR388 exact head fe126098 15/15 CI PASS, merged 12654068b42d3691f3ee78a9d72e8f6b1bd369a6; prior checkpoint completed."
+  - "Spec Kit 004; ZXing 3.5.4 SHA-256 pinned; upstream license and notice packaged; bounded PNG/JPEG/WebP reader, QR-only decoder and iOS envelope, image picker and existing preview boundary. Source 593b43ae74faa2ba4affe5f3571a1f3b2a083540."
+current: "Source/local checks passed; exact-head Android CI pending."
 pending:
-  - "Check exact-head CI; fix concrete errors, rerun, update checkpoint and integrate protected PR after green checks."
-  - "When isolated emulator available, verify picker/preview/cancel/duplicate/Keystore readback and disconnected-state guard for single+batch. No physical device connected; do not claim device PASS."
-  - "Next scoped parity step: QR import then structured files, subscriptions, backup and protocols."
-last_verified_commit: "4861ec5d53ce6d61f3c4bd47cff6735ed66e8171"
+  - "Verify CI build/lint/unit and APK packaging, including verifyZxingCore, fix errors and integrate after green checks."
+  - "Isolated device picker and real iOS-to-Android QR transfer, cancellation, secure storage readback, both import flows; no device connected. Do not claim physical PASS."
+  - "Next scoped stage: camera QR and QR export (with explicit disclosure), then structured files and subscriptions. No production distribution change."
+last_verified_commit: "593b43ae74faa2ba4affe5f3571a1f3b2a083540"
 test_results:
-  - "Kotlin 2.0.21 direct JVM compilation and JUnit 8/8 PASS (single + batch); Python source/resource contracts 5/5 PASS; git diff --check PASS."
-  - "No Android hardware connected; local full Gradle 8.9 not available. CI required. SharedPreferences one staged commit plus best-effort rollback, not a database ACID guarantee. Real storage fault and UI tests pending."
-resume_instruction: "ARC only; worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-batch-import-20261126, branch feat/android-batch-import-20261126. Check exact-head PR CI; continue verification, fix and integrate after PASS. No iOS reupload, RuStore submission, production signing, VPN or real credentials. Preserve previous release scope."
+  - "Kotlin 2.0.21 direct compile with API 35 Android image reader, JUnit 13/13 PASS, Python contracts 8/8 PASS, git diff check PASS."
+  - "Maven Central SHA-1 verified, local JAR SHA-256 71de5d89341b5fcf5dd89da7f44e84d825d0e084cdf3ec77c9abe26b0f0ceb13; full Gradle build pending."
+  - "No Android hardware connected; synthetic QR roundtrip incl. iOS-format envelope, not physical interoperability."
+resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-qr-image-20261126 branch feat/android-qr-image-20261126. Verify exact-head PR CI; fix and integrate through protected merge. No iOS reupload, RuStore resubmission, production signing or physical device mutation. Preserve earlier acceptance limitations."
