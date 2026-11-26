@@ -309,3 +309,8 @@ Windows WinDivert/new release, macOS per-app, Android/RuStore, Linux, Proxifier 
 - [x] Владелец подтвердил WireGuard, AmneziaWG, VLESS Reality и CloudKit. Реальная LAN-приёмка VLESS и один физический iPhone с двумя клиентами CloudKit приняты для текущего объёма.
 - [ ] Последующее обновление: синхронизация между двумя физическими устройствами с одним iCloud (не тестировалась); приёмка реального save/reconnect при изменении исключений. WAN/handoff остаётся отложенным по ранее согласованному условию.
 - [ ] Финальная подписанная сборка, проверка обновления, интеграция и публикация; отдельные производственные операции только по полномочиям.
+
+
+## Spec Kit — candidate linkage (2026-11-20)
+
+[Specification](../specs/001-ios-030-roadmap-traceability/spec.md) · [Plan](../specs/001-ios-030-roadmap-traceability/plan.md) · [Integration tasks](../specs/001-ios-030-roadmap-traceability/tasks.md). No status, scope or active queue changes. Existing exact native roadmap remains the authority; the new package tracks the integration and verification work only.
