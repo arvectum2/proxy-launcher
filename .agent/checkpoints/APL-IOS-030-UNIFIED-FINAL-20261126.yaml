@@ -1,21 +1,21 @@
 task_id: APL-IOS-030-UNIFIED-FINAL-20261126
-status: "in_progress"
+status: "blocked"
 goal: "Owner-approved unified 0.3.0 (49): WG, AWG, VLESS Reality, private CloudKit."
 definition_of_done:
   - "Explicit release-only VLESS activation, CloudKit host-only, no QA flags, all relevant tests and pinned builds."
   - "Exact signed App Store and Development artifacts; verify entitlements, version, binary hashes, upgrade smoke."
   - "Reconcile final source/notice delivery and integration; production CloudKit schema and submission separately controlled."
 completed:
+  - "26 Nov CloudKit Production deployed, explicit confirmation and production payload BYTES schema verified; Pages ZIP verified. Actual Add for Review blocked on export documentation; no declaration or territory change."
   - "26 Nov PR383 merged at 954a88f0 after 21/21 successful GitHub checks; exact mobile/ios unchanged. Apple49 VALID attached, all 47 notes/94 screenshots and review notes verified."
   - "26 Nov final signed upgrade smoke PASS, actual selected legacy connect/disconnect and original OFF state. Main integrated in release branch; exact runtime tree unchanged, Spec Kit 9 tests PASS. Notices ZIP prepared. Apple draft and 47 notes verified; official validation PASS. Upload journaled once."
   - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
   - "Signed archive and both local IPA exports, exact identity, profile, entitlement and matching Mach-O UUID PASS. 443 Swift/464 Python/87 subtests; 411 private kit and 15 Go files rehashed. Main dry-run single roadmap conflict. No device mutation."
   - "Owner confirmed combined scope and deferral of second physical CloudKit device to subsequent update; prior real Development two-client/ordinary UI on one iPhone accepted. WAN/handoff remains deferred."
-current: "26 Nov PR383 merged main954a88f0, 21/21 CI PASS, Apple VALID build49 attached; Public Pages ZIP byte-identical SHA256 46f5e4b395e60f71e39d3c47947bf14b973c8ee13df195789dcf7557de7daad5. CloudKit authenticated on MacBook, GUI temporarily unavailable due user activity; production schema and review remain."
+current: "26 Nov CloudKit Production deployed and schema verified; main/Pages/Apple build VALID. Add for Review blocked by actual missing export compliance documents; France currently available. Owner decision/documentation required."
 remaining:
-  - "Verify public Pages source/notice delivery if still building."
-  - "Production schema and publication."
-last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged, all 21 checks passed, exact signed runtime tree)"
+  - "Resolve actual encryption export compliance with owner decision/documentation; submit and verify review state."
+last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged runtime; CloudKit Production verified; review not submitted)"
 test_results:
   - "Prior accepted VLESS guarded LAN and CloudKit private Development receipts; 443 Swift / 462 Python / 87 subtests before UI adapter."
-resume_instruction: "ARC only. Owner authorized final release cycle. PR383 MERGED via protected checks (21/21 SUCCESS) at main954a88f08aaccc35a9493eaea149826b7a120b75, signed runtime tree unchanged vs1acf654d. Public Pages ZIP byte-identical SHA256 46f5e4b395e60f71e39d3c47947bf14b973c8ee13df195789dcf7557de7daad5. Apple build49 VALID attached to version0.3.0 PREPARE_FOR_SUBMISSION; all 47 notes, 94 screenshots and reviewer notes verified. NEVER reupload/recreate or repeat accepted tests. MacBook CloudKit Dashboard authenticated exact team VML75VY94V; concurrent Safari user activity interrupted GUI, do not steal focus or enable JavaScript from Apple Events. When MacBook CloudKit tab free, inspect exact container Development schema, deploy and verify Production, confirm public Pages ZIP if pending. Check actual Apple build49 export-compliance requirements, do not fabricate declaration. Then submit within existing owner authorization; verify Apple review state and checkpoint completed only when confirmed. Main merged, do not reopen PR383 or mutate production beyond approved scope. No new accounts, no closed-scope reopening."
+resume_instruction: "ARC only. Owner authorized final release; main954a88f0 merged 21/21 CI and Pages ZIP verified. CloudKit Production exact container deployed and payload BYTES independently confirmed; no repeat. Apple build49 VALID attached, Add for Review rejected missing encryption export compliance; form preview external standard algorithms + France Yes requires documentation. France currently available confirmed Apple v2 API. BLOCKED pending owner decision on France distribution or applicable export declaration documentation/classification. No false exemption, no country change without explicit authorization. No reupload, recreate, account change or reopen closed scope. After documented lawful classification and any approved territory change, verify build compliance and submit, confirm actual review state and mark completed."

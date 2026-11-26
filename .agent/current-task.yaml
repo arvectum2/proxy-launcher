@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "26 Nov CloudKit Production deployed, explicit confirmation and production payload BYTES schema verified; Pages ZIP verified. Actual Add for Review blocked on export documentation; no declaration or territory change."
   - "26 Nov final signed upgrade smoke PASS, actual selected legacy connect/disconnect and original OFF state. Main integrated in release branch; exact runtime tree unchanged, Spec Kit 9 tests PASS. Notices ZIP prepared. Apple draft and 47 notes verified; official validation PASS. Upload journaled once."
   - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
   - "26 Nov owner approved final unified 0.3.0 scope including VLESS Reality and CloudKit; second physical same-account device explicitly deferred to later update, not tested. Actual one-device two-client and ordinary UI evidence accepted for this scope."
@@ -286,7 +287,7 @@ completed:
 
 
 
-current: "26 Nov PR383 merged main954a88f0, 21/21 CI PASS, Apple VALID build49 attached; Public Pages ZIP byte-identical SHA256 46f5e4b395e60f71e39d3c47947bf14b973c8ee13df195789dcf7557de7daad5. CloudKit authenticated on MacBook, GUI temporarily unavailable due user activity; production schema and review remain."
+current: "26 Nov CloudKit Production deployed and schema verified; main/Pages/Apple build VALID. Add for Review blocked by actual missing export compliance documents; France currently available. Owner decision/documentation required."
 blocked_on:
   - "Actual guarded VLESS runner, owner/ticket and ordinary UI physical LAN accepted; final public activation decision remains."
   - "VLESS guarded LAN ordinary UI accepted; CloudKit capability/profiles enabled and private Development exchange accepted; ordinary CloudKit UI/second device and production schema remain. Public activation decision required."
@@ -304,7 +305,7 @@ pending:
   - "Functional legacy Wi-Fi/LTE smoke completed; extended native instrumented WAN/handoff closed for this scope, reopen only on complaints or suitable infrastructure. LAN route policy remains."
   - "CloudKit same-account second device and final upgrade smoke; previous physical encrypted backup cycle already accepted and 73 current tests PASS."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged, all 21 checks passed, exact signed runtime tree)"
+last_verified_commit: "954a88f08aaccc35a9493eaea149826b7a120b75 (merged runtime; CloudKit Production verified; review not submitted)"
 test_results:
   - "26 Nov exact unified signed archive and two IPA exports PASS, source1acf654d, 443 Swift/464 Python/87 subtests, profile/entitlement/Mach-O UUID and preflight verified; 411+15 private inventory files. Final upgrade smoke not run; no device mutation/upload."
   - "26 Nov ordinary CloudKit UI FC281705-63AB-45E4-B7A0-EDF95B3B2E76 PASS actual taps and live cloud, isolated local adapter, exact cleanup, original app and active VPN restored; one physical device only."
@@ -552,6 +553,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Owner authorized final release cycle. PR383 MERGED via protected checks (21/21 SUCCESS) at main954a88f08aaccc35a9493eaea149826b7a120b75, signed runtime tree unchanged vs1acf654d. Public Pages ZIP byte-identical SHA256 46f5e4b395e60f71e39d3c47947bf14b973c8ee13df195789dcf7557de7daad5. Apple build49 VALID attached to version0.3.0 PREPARE_FOR_SUBMISSION; all 47 notes, 94 screenshots and reviewer notes verified. NEVER reupload/recreate or repeat accepted tests. MacBook CloudKit Dashboard authenticated exact team VML75VY94V; concurrent Safari user activity interrupted GUI, do not steal focus or enable JavaScript from Apple Events. When MacBook CloudKit tab free, inspect exact container Development schema, deploy and verify Production, confirm public Pages ZIP if pending. Check actual Apple build49 export-compliance requirements, do not fabricate declaration. Then submit within existing owner authorization; verify Apple review state and checkpoint completed only when confirmed. Main merged, do not reopen PR383 or mutate production beyond approved scope. No new accounts, no closed-scope reopening."
+resume_instruction: "ARC only. Owner authorized final release; main954a88f0 merged 21/21 CI and Pages ZIP verified. CloudKit Production exact container deployed and payload BYTES independently confirmed; no repeat. Apple build49 VALID attached, Add for Review rejected missing encryption export compliance; form preview external standard algorithms + France Yes requires documentation. France currently available confirmed Apple v2 API. BLOCKED pending owner decision on France distribution or applicable export declaration documentation/classification. No false exemption, no country change without explicit authorization. No reupload, recreate, account change or reopen closed scope. After documented lawful classification and any approved territory change, verify build compliance and submit, confirm actual review state and mark completed."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."
