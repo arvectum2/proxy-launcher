@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: in_progress
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
   - "26 Nov owner approved final unified 0.3.0 scope including VLESS Reality and CloudKit; second physical same-account device explicitly deferred to later update, not tested. Actual one-device two-client and ordinary UI evidence accepted for this scope."
   - "26 Nov owner reaffirmed AGENTS.md standing decision; closed owner scope is not an active release gate. Continue technical acceptance without reopening."
   - "25 Nov 2026: owner explicitly closes extended native WAN/Wi-Fi/LTE acceptance for the current release scope; no server available or planned. Physical WAN/handoff NOT TESTED (deferred, not PASS). Reopen upon user complaints about WAN/network switching OR availability of suitable controlled infrastructure. No VPS or public port now. Other security, privacy, UI, CloudKit and final release gates remain; no authorization to publish or activate VLESS."
@@ -550,6 +551,6 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "ARC only. Read docs/APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md and child checkpoint. Exact unified signed source1acf654d, both IPA export/strict signature/CloudKit environment/preflight PASS; no repeat build. Next final signed Development in-place upgrade smoke with explicit temporary VPN interruption authorization and refreshed restore app, preserve selected profile, then exact integration review/CI and owner-approved public source/notice delivery, production schema deployment and App Store submission. Second physical device and WAN deferred. Follow AGENTS.md. No upload/main merge without explicit authorization."
+resume_instruction: "ARC only. 26 Nov owner explicitly authorized final upgrade smoke and temporary VPN interruption, main integration, source/notice publication, production CloudKit schema and App Store submission. Verify each gate, do not falsely attest or submit inaccurate information. Existing app and signed restore verified before device mutation; check actual current VPN baseline (device had no provider at first census). Preserve prior state. No new accounts, certs, or WAN/second-device reopening. Follow AGENTS.md."
 owner_communication_scope:
   - "Do not reopen settled communications topics in engineering progress reports; keep existing ad integration unchanged and enabled. Continue technical delivery and truthful test reporting."

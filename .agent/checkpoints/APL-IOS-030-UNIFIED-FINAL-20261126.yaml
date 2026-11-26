@@ -1,11 +1,12 @@
 task_id: APL-IOS-030-UNIFIED-FINAL-20261126
-status: blocked
+status: in_progress
 goal: "Owner-approved unified 0.3.0 (49): WG, AWG, VLESS Reality, private CloudKit."
 definition_of_done:
   - "Explicit release-only VLESS activation, CloudKit host-only, no QA flags, all relevant tests and pinned builds."
   - "Exact signed App Store and Development artifacts; verify entitlements, version, binary hashes, upgrade smoke."
   - "Reconcile final source/notice delivery and integration; production CloudKit schema and submission separately controlled."
 completed:
+  - "26 Nov owner authorized final cycle including temporary VPN interruption, main integration, source notice and production schema, App Store review submission."
   - "Signed archive and both local IPA exports, exact identity, profile, entitlement and matching Mach-O UUID PASS. 443 Swift/464 Python/87 subtests; 411 private kit and 15 Go files rehashed. Main dry-run single roadmap conflict. No device mutation."
   - "Owner confirmed combined scope and deferral of second physical CloudKit device to subsequent update; prior real Development two-client/ordinary UI on one iPhone accepted. WAN/handoff remains deferred."
 current: "Exact signed unified candidate ready; final signed upgrade smoke and integration/publication remain."
@@ -15,4 +16,4 @@ remaining:
 last_verified_commit: "9e5e007f10e734d58147fd842f66b9e583dde932 (both unified IPAs verified)"
 test_results:
   - "Prior accepted VLESS guarded LAN and CloudKit private Development receipts; 443 Swift / 462 Python / 87 subtests before UI adapter."
-resume_instruction: "ARC only. Read docs/APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md and child checkpoint. Exact unified signed source1acf654d, both IPA export/strict signature/CloudKit environment/preflight PASS; no repeat build. Next final signed Development in-place upgrade smoke with explicit temporary VPN interruption authorization and refreshed restore app, preserve selected profile, then exact integration review/CI and owner-approved public source/notice delivery, production schema deployment and App Store submission. Second physical device and WAN deferred. Follow AGENTS.md. No upload/main merge without explicit authorization."
+resume_instruction: "ARC only. 26 Nov owner explicitly authorized final upgrade smoke and temporary VPN interruption, main integration, source/notice publication, production CloudKit schema and App Store submission. Verify each gate, do not falsely attest or submit inaccurate information. Existing app and signed restore verified before device mutation; check actual current VPN baseline (device had no provider at first census). Preserve prior state. No new accounts, certs, or WAN/second-device reopening. Follow AGENTS.md."
