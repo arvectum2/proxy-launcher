@@ -58,7 +58,59 @@ class SecureProfileStore(context: Context) {
         }
     }
 
-    private val managedTransaction = ManagedPreferenceTransaction(managedBackend)
+    private val managedGate by lazy {
+        ManagedCrashGate(appContext.noBackupFilesDir.toPath().resolve("managed-profile-gate"))
+    }
+    private val managedDisk by lazy {
+        ManagedPreferenceDiskVerifier(appContext.dataDir.toPath().resolve("shared_prefs").resolve("$PREFS_NAME.xml"))
+    }
+    private val managedTransaction by lazy {
+        ManagedCrashTransaction(managedGate,managedBackend,{ managedEvidenceKey(true) },managedDisk::matches)
+    }
+
+    private fun managedEvidenceKey(allowCreate: Boolean): SecretKey {
+        val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        (ks.getKey(MANAGED_EVIDENCE_ALIAS,null) as? SecretKey)?.let { return it }
+        check(allowCreate) { "Managed evidence key unavailable" }
+        return KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore").apply {
+            init(KeyGenParameterSpec.Builder(MANAGED_EVIDENCE_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setKeySize(256).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(true).build())
+        }.generateKey()
+    }
+
+    /** Read-only classification, never clears an abandoned marker or restores data. */
+    @Synchronized
+    internal fun inspectManagedCrash(allowed: () -> Boolean): ManagedRecoveryEvidence.State {
+        if (!managedProcessIdle() || !allowed()) return ManagedRecoveryEvidence.State.UNKNOWN
+        return managedGate.inspectPending { payload ->
+            if (!managedProcessIdle() || !allowed()) ManagedRecoveryEvidence.State.UNKNOWN
+            else ManagedRecoveryEvidence.open(payload,managedEvidenceKey(false)).classify(managedDisk.readVerified())
+        }
+    }
+
+    // UI is not wired until the VPN process participates in the same lock.
+    private fun verifiedManagedDiskState(): Map<String,Any> {
+        val disk = managedDisk.readVerified()
+        check(managedBackend.read() == disk) { "Cached profiles differ from disk" }
+        return disk
+    }
+
+    @Synchronized
+    internal fun prepareManagedRecoveryReview(allowed: () -> Boolean): ManagedRecoveryReview? =
+        ManagedRecoveryReview.prepare(managedGate,{ managedEvidenceKey(false) },::verifiedManagedDiskState,
+            android.os.SystemClock::elapsedRealtime) { managedProcessIdle() && allowed() }
+
+    @Synchronized
+    internal fun acknowledgeManagedRecovery(review: ManagedRecoveryReview,allowed: () -> Boolean): Boolean {
+        val success=review.confirm(managedGate,{ managedEvidenceKey(false) },::verifiedManagedDiskState) {
+            managedProcessIdle() && allowed()
+        }
+        if (success) managedRecoveryRequired=false
+        return success
+    }
 
     /** Conservative preliminary process guard, not a cross-process lock. No caller in production yet. */
     private fun managedProcessIdle(): Boolean {
@@ -93,13 +145,18 @@ class SecureProfileStore(context: Context) {
                                        allowed: () -> Boolean): ManagedSubscriptionRefresh? {
         if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
         return runCatching {
-            val snapshot = ManagedPreferenceSchema.snapshot(managedBackend.read(),selected)
-            ManagedSubscriptionRefresh.prepare(source,items,snapshot,android.os.SystemClock::elapsedRealtime,
-                { row,item ->
-                    val secret = row.encryptedCredential
-                    if (secret == null) item.username.isEmpty() && item.password.isEmpty()
-                    else decrypt(secret, existingCredentialKey()) == item.password
-                })
+            val lease = managedGate.acquire().lease ?: return null
+            lease.use {
+                val raw = managedBackend.read()
+                if (!managedProcessIdle() || !allowed() || !managedDisk.matches(raw)) return null
+                val snapshot = ManagedPreferenceSchema.snapshot(raw,selected)
+                ManagedSubscriptionRefresh.prepare(source,items,snapshot,android.os.SystemClock::elapsedRealtime,
+                    { row,item ->
+                        val secret = row.encryptedCredential
+                        if (secret == null) item.username.isEmpty() && item.password.isEmpty()
+                        else decrypt(secret, existingCredentialKey()) == item.password
+                    })
+            }
         }.getOrNull()
     }
 
@@ -147,10 +204,16 @@ class SecureProfileStore(context: Context) {
         return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
     }
 
-    private fun recordManagedOutcome(outcome: ManagedPreferenceTransaction.Outcome): ManagedPreferenceTransaction.Outcome {
-        if (outcome == ManagedPreferenceTransaction.Outcome.RECOVERY_REQUIRED) managedRecoveryRequired = true
-        return outcome
-    }
+    private fun recordManagedOutcome(outcome: ManagedCrashTransaction.Outcome): ManagedPreferenceTransaction.Outcome =
+        when (outcome) {
+            ManagedCrashTransaction.Outcome.APPLIED -> ManagedPreferenceTransaction.Outcome.APPLIED
+            ManagedCrashTransaction.Outcome.RESTORED -> ManagedPreferenceTransaction.Outcome.RESTORED
+            ManagedCrashTransaction.Outcome.RECOVERY_REQUIRED -> {
+                managedRecoveryRequired = true
+                ManagedPreferenceTransaction.Outcome.RECOVERY_REQUIRED
+            }
+            else -> ManagedPreferenceTransaction.Outcome.STALE
+        }
 
 
     init {
@@ -575,6 +638,7 @@ class SecureProfileStore(context: Context) {
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
         private const val MANAGED_JOURNAL_ALIAS = "ru.arvectum.proxylauncher.managed_rollback.v1"
+        private const val MANAGED_EVIDENCE_ALIAS = "ru.arvectum.proxylauncher.managed_evidence.v1"
         @Volatile private var managedRecoveryRequired = false
     }
 }

@@ -13,12 +13,12 @@ class ManagedCrashContract(unittest.TestCase):
             self.assertIn(token,GATE)
         self.assertNotIn('Files.delete(lockPath)',GATE)
     def test_marker_before_commit_and_persistent_verification(self):
-        self.assertLess(TX.index('lease.beginMutation()'),TX.index('ManagedPreferenceTransaction(backend).execute'))
+        self.assertLess(TX.index('lease.beginMutation(evidence)'),TX.index('ManagedPreferenceTransaction(backend).execute'))
         self.assertIn('!durable(expected)',TX)
         self.assertIn('lease.resolve { permitted() && durable(verified) }',TX)
         self.assertIn('RECOVERY_REQUIRED -> return@use Outcome.RECOVERY_REQUIRED',TX)
     def test_not_enabled_in_runtime(self):
-        for path in ('MainActivity.kt','storage/SecureProfileStore.kt','tunnel/ProxyVpnService.kt'):
+        for path in ('MainActivity.kt','tunnel/ProxyVpnService.kt'):
             self.assertNotIn('ManagedCrashTransaction(', (BASE/path).read_text())
             self.assertNotIn('ManagedCrashGate(', (BASE/path).read_text())
 if __name__=='__main__': unittest.main()
