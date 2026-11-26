@@ -1,4 +1,4 @@
-# Актуальный срез APL — 11.11.2026
+# Arvectum Proxy Launcher — дорожная карта всех платформ
 
 ## Постоянное решение владельца (подтверждено 01.11, 15.11 и 16.11.2026)
 
@@ -6,6 +6,55 @@
 
 Продолжать активную инженерную задачу по .agent/current-task.yaml; исторические исследовательские документы не отменяют этого решения.
 
+
+## 26.11.2026 — актуальный срез всех платформ
+
+Этот срез имеет приоритет над датированными историческими записями ниже. Статусы исходников, приёмки и публикации разделены. Обновление карты не снимает ранее согласованную паузу разработки non-iOS.
+
+| Платформа / канал | Публичная версия | Состояние и следующий gate |
+|---|---|---|
+| iOS App Store | 0.2.0 (48) | 0.3.0 (49) VALID, WAITING_FOR_REVIEW; AFTER_APPROVAL |
+| macOS App Store | 0.2.22 (18) | READY_FOR_SALE; поддержка |
+| macOS Developer ID DMG arm64/x64 | v0.2.16 | PAUSED; recovery PR #203/#207 и физическая приёмка |
+| Windows x64 Setup/portable | v0.2.16 | PAUSED; WinDivert per-app реализован в main, не в публичном бинарнике |
+| Astra Linux DEB | v0.2.16 | PAUSED; Astra SE 1.8/Fly physical PASS сохранён |
+| RED OS RPM | v0.2.16 | PAUSED; RED OS 8.0.3/KDE physical PASS сохранён |
+| Linux AppImage x86_64 | v0.2.16 | PAUSED; пакет опубликован |
+| Android GitHub | android-v0.1.38 (39) | PAUSED; production APK опубликован 07.10 |
+| Android RuStore | Не перепроверена | Последний кандидат 0.1.38 (39); ручной выпуск после модерации, текущий статус неизвестен |
+
+Источники: App Store Connect API 26.11, GitHub Releases, [финальный iOS протокол](APL_IOS_030_UNIFIED_FINAL_CANDIDATE_2026-11-26.md). GitHub/GitVerse main при проверке 954a88f08aaccc35a9493eaea149826b7a120b75. Версии каналов независимы.
+
+### P0 — iOS: завершение выпуска
+
+- [x] Подписанный единый 0.3.0(49): миграция профилей/Keychain, legacy VPN smoke, 443 Swift, 464 Python, 87 subtests, 21/21 CI, PR #383 merged. WG, AWG1, VLESS Reality, QR/импорт, ручные HTTPS-подписки, encrypted backup и private manual CloudKit входят в согласованный scope.
+- [x] CloudKit Production schema deployed; 47 release-note локалей, 94 скриншота, материалы зависимостей сверены; Франция исключена, остальные 174 территории сохранены.
+- [x] Apple обработала build49 и приняла submission 26.11 08:55 МСК. Не отправлять повторно.
+- [ ] Проверить READY_FOR_SALE и публичный выпуск; при отказе разбирать только конкретную причину.
+- [ ] После выпуска: QR двух iPhone/камера/Share/VoiceOver, CloudKit два физических клиента и реальный save/reconnect. Production cloud exchange не проверен; native WAN/handoff отложен владельцем, не PASS.
+- [ ] P1: Smart4 original-flow/независимый DIRECT/PROXY receipt, shared IP/IPv6/UDP/QUIC/path-change; production DIRECT только после приёмки. Native FIN #314 отдельно, после физической регрессии. Сверить открытые iOS PR с merged runtime, исключить дубли.
+- [ ] P2: bounded автоматическое обновление подписок, дополнительные протоколы по спросу, редактура локализаций. Францию возвращать только после нужной документации и решения владельца.
+
+### Предлагаемая межплатформенная очередь после снятия паузы
+
+| Приоритет | Направление | Следующий проверяемый этап |
+|---|---|---|
+| P1 | Android | Проверить RuStore 0.1.38(39), устранить конкретные замечания; затем матрица parity с iOS: QR, импорт, backup, native transports, subscriptions; Keystore/VpnService и независимый per-app egress |
+| P1 | Windows APL-ROUTE | Сверить #241/#243 и открытые #237/#234/#233; install/portable, физический DIRECT/PROXY, crash/reboot rollback; подготовить отдельный v0.2.17+ |
+| P1 | Windows APL-REL-016 | Обновить PR #161; Authenticode/SmartScreen, поставщик, расходы и ключи по отдельному решению |
+| P1 | macOS | Store: сон/длительные соединения; Direct: #203/#207, arm64/x64, Developer ID/notarization, rollback и сохранность сторонних туннелей |
+| P2 | APL-MAC-PERAPP | Direct feasibility source-app attribution, helpers, DIRECT/PROXY и recovery; Store capability-gated, MDM отдельно |
+| P2 | Linux APL-LNX | DEB/RPM/AppImage, NetworkManager/Fly/KDE, install/update/uninstall и crash/reboot recovery; parity по техническим возможностям |
+| P2 | APL-CONNECT-001 | Межплатформенная feature matrix относительно опубликованных бинарников и iOS 0.3.0; общие форматы, платформенные transport/secure storage; MTProto только Telegram handoff |
+| P2 | APL-PROX-001..005 / APL-QRG-001..006 | Законное black-box исследование Proxifier/QRVPN; собственные split routing/gateway, локальный PoC и правовые/секретные gates |
+| P2 | APL-TRAFFIC-001, ГОСТ, Marketplace | Исследования, архитектурная проверка и отдельное решение; APL-NODE-001/Arvectum Network остаются отложенными |
+| P2 | Реестр ПО / Роспатент | Сохранить dossier v0.2.9, Astra/RED OS evidence, актуальные требования проверять перед подачей; подписание/подача владельцем |
+
+Подробные исходные ID и критерии сохранены ниже; [iOS roadmap](APL_ACTIVE_IOS_ROADMAP_2026-11-11.md), [Proxifier/QRVPN и рынки](APL_IOS_020_GLOBAL_FEATURES_AND_MARKETS_ROADMAP_2026-11-02.md), [Network roadmap](../ARVECTUM_NETWORK_ROADMAP.md).
+
+Текущая операционная задача — наблюдение Apple read-only. Новую разработку non-iOS не активировать без решения владельца. Для следующего этапа: Spec Kit/DoD, exact-SHA evidence, риск-ориентированные тесты, PR/CI, checkpoint. Существующий Watchdog сохраняется. Новые релизы, инфраструктура и расходы не разрешены обновлением карты.
+
+## Исторический срез 11–16.11.2026 (заменён срезом 26.11)
 
 **Текущая продуктовая разработка: только iOS.** [Каноническая активная iOS-дорожная карта](APL_ACTIVE_IOS_ROADMAP_2026-11-11.md). Исторические статусы ниже сохранены как доказательства прежних этапов; они не отменяют это решение.
 

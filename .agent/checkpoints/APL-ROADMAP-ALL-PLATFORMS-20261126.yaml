@@ -1,0 +1,21 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-ALL-PLATFORMS-20261126
+status: completed
+goal: "Актуализировать общую и iOS дорожные карты после подачи 0.3.0."
+definition_of_done:
+  - "Раздельные статусы публичных версий, исходников, модерации и отложенных gates."
+  - "История, исходные ID, ранее согласованные полномочия и пауза non-iOS сохранены."
+  - "Обе roadmap актуализированы, проверены и зафиксированы в PR #386."
+completed:
+  - "ASC API: iOS 0.2.0 READY_FOR_SALE; 0.3.0(49) WAITING_FOR_REVIEW; macOS 0.2.22 READY_FOR_SALE. GitHub desktop v0.2.16, Android android-v0.1.38."
+  - "Обновлены docs/ROADMAP.md и docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md; предложены последовательность возобновления и gates всех платформ."
+  - "Сохранён полный итоговый checkpoint iOS в .agent/checkpoints/APL-IOS-UNIFIED-RELEASE-20261111-FINAL.yaml."
+  - "Обновление документации включено в PR #386; защищённый merge только после CI."
+current: "Документация и локальная проверка завершены; интеграция PR #386 зависит от GitHub CI. iOS ожидает Apple; non-iOS PAUSED."
+pending: []
+last_verified_commit: "8186d3d8fece7d19bbf240384837e64919cb4525 (base); итоговая ревизия в PR #386"
+test_results:
+  - "4 IP/roadmap reconciliation tests PASS; 9 Spec Kit criteria tests PASS; structural source/criterion/task check PASS; new links and git diff --check PASS."
+  - "Нет изменений продуктового кода, сборок, каналов или инфраструктуры."
+resume_instruction: "ARC only. Проверить PR386 и его exact-head CI, интегрировать штатно при PASS; не обходить protection. После merge читать актуальный срез docs/ROADMAP.md. iOS 0.3.0 monitor read-only, не переотправлять. Не активировать paused non-iOS без решения владельца."
