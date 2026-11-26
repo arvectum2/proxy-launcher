@@ -21,3 +21,11 @@ The dependency is isolated behind Arvectum's `ProxyEngineAdapter`; product UI an
 - Maven Central JAR SHA-256: 71de5d89341b5fcf5dd89da7f44e84d825d0e084cdf3ec77c9abe26b0f0ceb13
 - Upstream Maven SHA-1 verified: 955fcd6bcd0723ddfb8ee6ed502d5fdf0e9676a9
 - Local-only QR image decoding; no camera, upload or additional runtime permission.
+
+## OkHttp / Okio
+
+- OkHttp 4.12.0: https://github.com/square/okhttp/tree/parent-4.12.0
+- Okio JVM 3.6.0: https://github.com/square/okio/tree/parent-3.6.0
+- Apache-2.0; upstream LICENSE files packaged in assets/licenses/okhttp and assets/licenses/okio.
+- Maven Central SHA-1 verified against local JARs; pinned SHA-256 in build.gradle.kts.
+- Explicit foreground HTTPS subscription download only; custom DNS filters the actual route addresses, default TLS and hostname verification, no redirect/cookie/proxy/cache.

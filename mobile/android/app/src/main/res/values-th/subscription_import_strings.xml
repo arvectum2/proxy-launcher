@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_subscription_import">HTTPS subscription</string>
+    <string name="apl_subscription_notice">Download a list once from the specified server. The URL is not saved. Profiles are added only after confirmation.</string>
+    <string name="apl_subscription_download">Download</string>
+    <string name="apl_subscription_loading">Downloading list…</string>
+</resources>

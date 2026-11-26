@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="apl_subscription_import">HTTPS-Abonnement</string>
+    <string name="apl_subscription_notice">Liste einmalig vom angegebenen Server laden. Die URL wird nicht gespeichert. Profile werden erst nach Bestätigung hinzugefügt.</string>
+    <string name="apl_subscription_download">Herunterladen</string>
+    <string name="apl_subscription_loading">Liste wird geladen…</string>
+</resources>
