@@ -5,7 +5,11 @@ BASE=Path(__file__).resolve().parents[1]/'mobile/android/app/src/main'
 SRC=BASE/'java/ru/arvectum/proxylauncher'
 class ManagedDialogContract(unittest.TestCase):
     def test_dialog_remains_dormant(self):
-        self.assertNotIn('ManagedReviewDialogs(', (SRC/'MainActivity.kt').read_text())
+        main=(SRC/'MainActivity.kt').read_text()
+        controller=(SRC/'ui/ManagedSubscriptionController.kt').read_text()
+        self.assertIn('const val ENABLED = false',controller)
+        self.assertIn('if (!ManagedSubscriptionActivation.ENABLED) null else ManagedSubscriptionController(',main)
+        self.assertNotIn('ManagedReviewDialogs(',main)
         code=(SRC/'ui/ManagedReviewDialogs.kt').read_text()
         for token in ('session.attach(ticket)','session.permits(ticket)','FLAG_SECURE','positive.isEnabled=!needsConsent','needsConsent && !consent.isChecked','session.invalidate();complete'):
             self.assertIn(token,code)

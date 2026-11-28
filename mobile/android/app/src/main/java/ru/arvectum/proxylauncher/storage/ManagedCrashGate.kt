@@ -212,10 +212,12 @@ internal class ManagedCrashGate(
 }
 
 /** Shared monitor across every store instance in one process, not a cross-process cache fix. */
+internal class ManagedRecoveryRequiredException : IllegalStateException("Profile storage recovery required")
+
 internal object ManagedOrdinaryWriteGuard {
     val monitor = Any()
     fun <T> write(gate: ManagedCrashGate, latched: () -> Boolean, block: () -> T): T = synchronized(monitor) {
-        check(!latched() && gate.ordinaryWritesAllowed()) { "Profile storage recovery required" }
+        if (latched() || !gate.ordinaryWritesAllowed()) throw ManagedRecoveryRequiredException()
         block()
     }
     fun ifAvailable(gate: ManagedCrashGate, latched: () -> Boolean, block: () -> Unit) = synchronized(monitor) {

@@ -34,4 +34,15 @@ class ChangeReviewContract(unittest.TestCase):
             content=(BASE/name).read_text()
             for call in ('prepareManagedRefresh(','prepareManagedRollback(','confirmManagedChange(','managedFetchInput('):
                 self.assertNotIn(call,content)
+    def test_guarded_controller_and_fetch_do_not_fall_back(self):
+        main=(BASE/'MainActivity.kt').read_text()
+        controller=(BASE/'ui/ManagedSubscriptionController.kt').read_text()
+        self.assertIn('const val ENABLED = false',controller)
+        self.assertIn('if (!ManagedSubscriptionActivation.ENABLED) null else ManagedSubscriptionController(',main)
+        self.assertIn('ProxySubscriptionFetch(it.url)',main)
+        self.assertIn('if (managedRequest != null) { managedSubscriptions?.receive(managedRequest,items);return@post }',main)
+        self.assertIn('store.prepareManagedRefresh(catalog,request.input,items,selected())',controller)
+        self.assertIn('if(!dialogs.permits(ticket) || !allowed()) return',controller)
+        self.assertIn('managedSubscriptions?.invalidate()',main)
+        self.assertIn('if(error is ManagedRecoveryRequiredException) R.string.managed_recovery_required else fallback',main)
 if __name__=='__main__': unittest.main()

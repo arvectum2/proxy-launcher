@@ -68,6 +68,8 @@ class SecureProfileStore(context: Context) {
         ManagedCrashTransaction(managedGate,managedBackend,{ managedEvidenceKey(true) },managedDisk::matches)
     }
 
+    internal fun requiresManagedRecovery(): Boolean = managedRecoveryRequired || !managedGate.ordinaryWritesAllowed()
+
     private fun <T> ordinaryWrite(block: () -> T): T =
         ManagedOrdinaryWriteGuard.write(managedGate,{ managedRecoveryRequired },block)
 
