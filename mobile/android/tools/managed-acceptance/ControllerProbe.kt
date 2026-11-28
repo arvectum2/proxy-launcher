@@ -58,6 +58,32 @@ class ControllerProbe:Instrumentation() {
                     check(!controller.isCurrent(pending));controller.receive(pending,items)
                     check(controller.activeDialog==null && outcomes.size==count)
                     report.putString("controller_connection_roundtrip","PASS");controller.invalidate()
+                    stage="owned_edit"
+                    val owned=store.listProfiles().single { it.id!=anchor.id }
+                    val oldProfile=store.loadProfile(owned.id)!!
+                    val disk=ManagedPreferenceDiskVerifier(a.dataDir.toPath().resolve("shared_prefs/apl_mobile_profiles_v1.xml"))
+                    val baseline=disk.readVerified()
+                    fun edit()=store.prepareManagedProfileEdit(catalog,oldProfile,owned.copy(name="Z edited"),"replacement".toCharArray(),null){true}!!
+                    val denied=edit();check(disk.matches(baseline));check(denied.invalidatesRollback)
+                    check(store.confirmManagedOwnership(denied,catalog,{null},{true},false)==ManagedCrashTransaction.Outcome.STALE)
+                    val edit=edit();check(store.confirmManagedOwnership(edit,catalog,{null},{true},true)==ManagedCrashTransaction.Outcome.APPLIED)
+                    check(store.loadProfile(owned.id)?.password=="replacement");check(store.managedOwner(owned.id)==null)
+                    check(store.getPrimaryProfileId()==anchor.id && catalog.contains(source))
+                    check(store.prepareManagedProfileEdit(catalog,oldProfile,owned,"replacement".toCharArray(),null){true}==null)
+                    report.putString("owned_credential_edit","PASS")
+                    stage="owned_delete"
+                    val newItems=listOf(ImportedProxy("delete-fixture.invalid",8082,ProxyType.HTTP,"fixture","delete-secret","Z delete"))
+                    val fresh=store.prepareManagedRefresh(catalog,catalog.managedFetchInput(source)!!,newItems,null){true}!!
+                    check(store.confirmManagedChange(fresh,catalog,{null},{true},false)==ManagedCrashTransaction.Outcome.APPLIED)
+                    val victim=store.listProfiles().single { it.host=="delete-fixture.invalid" }
+                    val victimExpected=store.loadProfile(victim.id)!!
+                    check(store.prepareManagedProfileDelete(catalog,victimExpected,victim.id){true}==null)
+                    val deletion=store.prepareManagedProfileDelete(catalog,victimExpected,null){true}!!
+                    check(deletion.kind==ManagedOwnershipReview.Kind.MANUAL_DELETE && deletion.invalidatesRollback)
+                    check(store.confirmManagedOwnership(deletion,catalog,{null},{true},true)==ManagedCrashTransaction.Outcome.APPLIED)
+                    check(store.loadProfile(victim.id)==null && store.getPrimaryProfileId()==anchor.id && catalog.contains(source))
+                    check(disk.readVerified().keys.none { it.startsWith("profile.${victim.id}.") || it=="secret.${victim.id}" })
+                    report.putString("owned_delete","PASS")
                 } catch(t:Throwable) { failure=t }
             }
         } catch(t:Throwable) { failure=t }

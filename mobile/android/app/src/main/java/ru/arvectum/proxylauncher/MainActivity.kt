@@ -1518,7 +1518,7 @@ class MainActivity : Activity() {
         val managed=managedSubscriptions
         if(managed!=null) {
             syncManagedSession()
-            val labels=intArrayOf(R.string.apl_subscription_download,R.string.managed_rollback_title,R.string.apl_subscription_remove)
+            val labels=intArrayOf(R.string.apl_subscription_download,R.string.managed_rollback_title,R.string.apl_subscription_remove,R.string.apl_delete_profile_b745f)
             trackSubscriptionDialog(AlertDialog.Builder(this).setTitle(source.host)
                 .setItems(labels.map { getString(it) }.toTypedArray()) { _,index ->
                     if(!cameraUiResumed || !canBatchImport()) return@setItems
@@ -1531,6 +1531,7 @@ class MainActivity : Activity() {
                         }
                         1 -> managed.rollback(source)
                         2 -> managed.remove(source)
+                        3 -> showManagedProfileDeletion(source,managed)
                     }
                 }.setNegativeButton(R.string.apl_cancel_8fbe9,null).create())
             return
@@ -1549,6 +1550,31 @@ class MainActivity : Activity() {
             }.create())
     }
 
+    /** Selected/active/priority rows cannot be deleted implicitly. The store checks all protection again. */
+    private fun showManagedProfileDeletion(source:SavedSubscription,managed:ManagedSubscriptionController) {
+        if(!ManagedSubscriptionActivation.ENABLED || !cameraUiResumed || !canBatchImport()) return
+        val choices=runCatching { store.listProfiles().filter { store.managedOwner(it.id)==source.id &&
+            it.id!=currentProfileId && it.id!=store.getActiveProfileId() && it.id!=store.getPrimaryProfileId() } }.getOrElse {
+            showManagedResult(R.string.managed_unavailable);return
+        }
+        if(choices.isEmpty()) { showManagedResult(R.string.managed_stale);return }
+        val labels=choices.map { p ->
+            val name=p.name.filter { !it.isISOControl() && Character.getType(it)!=Character.FORMAT.toInt() }.take(160)
+            val host=p.host.filter { !it.isISOControl() && Character.getType(it)!=Character.FORMAT.toInt() }.take(253)
+            "$name · ${p.type.name} · $host:${p.port}"
+        }.toTypedArray()
+        trackSubscriptionDialog(AlertDialog.Builder(this).setTitle(R.string.apl_delete_profile_b745f)
+            .setItems(labels) { _,index ->
+                if(!cameraUiResumed || !canBatchImport()) return@setItems
+                val profile=choices[index]
+                val current=runCatching { store.loadProfile(profile.id) }.getOrNull()
+                if(current==null || current.profile!=profile || runCatching { store.managedOwner(profile.id) }.getOrNull()!=source.id) {
+                    showManagedResult(R.string.managed_stale);return@setItems
+                }
+                syncManagedSession();managed.delete(current)
+            }.setNegativeButton(R.string.managed_cancel,null).create())
+    }
+
     private fun confirmRemoveSubscription(source: SavedSubscription) {
         if (!cameraUiResumed || !canBatchImport()) return
         trackSubscriptionDialog(AlertDialog.Builder(this)
@@ -1557,6 +1583,10 @@ class MainActivity : Activity() {
             .setNegativeButton(R.string.apl_cancel_8fbe9, null)
             .setPositiveButton(R.string.apl_subscription_remove) { _, _ ->
                 if (!cameraUiResumed || !canBatchImport()) return@setPositiveButton
+                if(!store.additiveSourceRemovalAllowed(source)) {
+                    showManagedResult(if(store.requiresManagedRecovery()) R.string.managed_recovery_required else R.string.managed_unavailable)
+                    return@setPositiveButton
+                }
                 if (runCatching { subscriptionStore.remove(source) }.getOrDefault(false)) showSavedSubscriptions()
                 else showImportFailure()
             }.create())
@@ -2166,8 +2196,14 @@ class MainActivity : Activity() {
                             .setMessage(existing.profile.name)
                             .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
                             .setPositiveButton(getString(R.string.apl_delete_be99b)) { _, _ ->
-                                deleteProfile(existing.profile.id)
-                                dialog.dismiss()
+                                if(managedSubscriptions!=null && store.hasManagedOwner(existing.profile.id)) {
+                                    if(!cameraUiResumed || !canBatchImport()) return@setPositiveButton
+                                    syncManagedSession()
+                                    if(managedSubscriptions?.delete(existing)==true) dialog.dismiss()
+                                } else {
+                                    deleteProfile(existing.profile.id)
+                                    dialog.dismiss()
+                                }
                             }
                             .show()
                     }
@@ -2226,6 +2262,18 @@ class MainActivity : Activity() {
                         username = username,
                     )
 
+                    if(managedSubscriptions!=null && existing!=null && store.hasManagedOwner(id)) {
+                        try {
+                            if(!cameraUiResumed || !canBatchImport() ||
+                                primaryCheck.isChecked != (store.getPrimaryProfileId()==id)) {
+                                hostField.error=getString(R.string.managed_stale)
+                                return@setOnClickListener
+                            }
+                            syncManagedSession()
+                            if(managedSubscriptions?.edit(existing,profile,password)==true) dialog.dismiss()
+                        } finally { password?.fill('\u0000') }
+                        return@setOnClickListener
+                    }
                     try {
                         store.saveProfile(
                             profile,

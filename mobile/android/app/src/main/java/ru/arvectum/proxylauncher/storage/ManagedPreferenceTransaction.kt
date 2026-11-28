@@ -118,6 +118,21 @@ internal object ManagedPreferenceSchema {
         val target = raw.toMutableMap().apply { patch.forEach { (k,v) -> if(v==null) remove(k) else put(k,v) } }
         val after = snapshot(target,before.selection.selected)
         require(after.rows.single { it.profile.id == edited.id } == ManagedProfileRow(edited,null,encryptedCredential))
+        require(effectivePrimary(before) == effectivePrimary(after)) { "Manual edit would change implicit priority" }
+        return patch
+    }
+
+    /** Explicit deletion is deliberately limited to unprotected rows; no hidden selection changes. */
+    fun manualDeletePatch(raw: Map<String,Any>, before: ManagedProfileState, sourceId: String,
+                          profileId: String): Map<String,Any?> {
+        val patch=detachPatch(raw,before,sourceId,profileId).toMutableMap()
+        require(profileId !in before.protectedIds && profileId != effectivePrimary(before))
+        patch[IDS]=before.rows.filterNot { it.profile.id==profileId }.map { it.profile.id }.toSet()
+        fields.forEach { patch[field(profileId,it)]=null }
+        patch[secret(profileId)]=null
+        val target=raw.toMutableMap().apply { patch.forEach { (k,v) -> if(v==null) remove(k) else put(k,v) } }
+        val after=snapshot(target,before.selection.selected)
+        require(before.selection==after.selection && effectivePrimary(before)==effectivePrimary(after))
         return patch
     }
 

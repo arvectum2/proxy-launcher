@@ -242,6 +242,62 @@ class SecureProfileStore(context: Context) {
         }
     }
 
+    /** Display-only ownership hint. Mutation always authenticates catalog and exact durable row again. */
+    internal fun managedOwner(id:String):String? = prefs.getString(profileKey(id,"subscription_owner"),null)
+    internal fun hasManagedOwner(id:String):Boolean = prefs.contains(profileKey(id,"subscription_owner"))
+    /** Downgrade guard for the legacy additive-only removal path, including orphan ownership. */
+    internal fun additiveSourceRemovalAllowed(source:SavedSubscription):Boolean = runCatching {
+        !requiresManagedRecovery() && !prefs.contains(ManagedPreferenceSchema.JOURNAL) &&
+            prefs.all.none { (k,v) -> k.startsWith("profile.") && k.endsWith(".subscription_owner") && v==source.id }
+    }.getOrDefault(false)
+
+
+    @Synchronized
+    internal fun prepareManagedProfileEdit(catalog:SecureSubscriptionStore, expected:ResolvedProxyProfile,
+                                           edited:ProxyProfile, password:CharArray?, selected:String?,
+                                           allowed:()->Boolean):ManagedOwnershipReview? = prepareOwnedProfileReview(catalog,expected,selected,allowed) { raw,source,revision ->
+        require(edited.id==expected.profile.id && edited.host.isNotBlank() && edited.port in 1..65535)
+        require((edited.username==null)==(password==null))
+        val previous=raw[ManagedPreferenceSchema.secret(edited.id)] as? String
+        // Preserve unchanged ciphertext. Never create a new credential key while preparing a review.
+        val encrypted=if(password==null) null else if(previous!=null && expected.password!=null &&
+            password.size==expected.password.length && password.indices.all { password[it]==expected.password[it] }) previous
+            else encrypt(password,existingCredentialKey())
+        val replacement=edited.copy(passwordRef=encrypted?.let { "android-keystore:${edited.id}" })
+        ManagedOwnershipReview.prepare(source,revision,raw,selected,android.os.SystemClock::elapsedRealtime,
+            { managedJournalKey(false) },replacement,encrypted)
+    }
+
+    @Synchronized
+    internal fun prepareManagedProfileDelete(catalog:SecureSubscriptionStore,expected:ResolvedProxyProfile,
+                                             selected:String?,allowed:()->Boolean):ManagedOwnershipReview? =
+        prepareOwnedProfileReview(catalog,expected,selected,allowed) { raw,source,revision ->
+            ManagedOwnershipReview.prepare(source,revision,raw,selected,android.os.SystemClock::elapsedRealtime,
+                { managedJournalKey(false) },deleteId=expected.profile.id)
+        }
+
+    private fun prepareOwnedProfileReview(catalog:SecureSubscriptionStore,expected:ResolvedProxyProfile,selected:String?,
+                                          allowed:()->Boolean,build:(Map<String,Any>,SavedSubscription,String)->ManagedOwnershipReview?):ManagedOwnershipReview? =
+        synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            if(managedRecoveryRequired || !managedProcessIdle() || !allowed()) return@synchronized null
+            runCatching {
+                catalog.withManagedCatalog {
+                    val lease=managedGate.acquire().lease ?: return@withManagedCatalog null
+                    lease.use {
+                        val raw=verifiedManagedDiskState()
+                        val row=ManagedPreferenceSchema.snapshot(raw,selected).rows.singleOrNull { it.profile.id==expected.profile.id }
+                            ?: return@use null
+                        if(row.profile!=expected.profile || row.owner==null) return@use null
+                        if(row.encryptedCredential?.let { decrypt(it,existingCredentialKey()) }!=expected.password) return@use null
+                        val source=catalog.list().singleOrNull { it.id==row.owner } ?: return@use null
+                        val revision=catalog.managedRevision(source) ?: return@use null
+                        if(!managedProcessIdle() || !allowed()) return@use null
+                        build(raw,source,revision)
+                    }
+                }
+            }.getOrNull()
+        }
+
     /** Dormant adapter: caller must cancel on lifecycle/selection change and show rollback-loss warning. */
     @Synchronized
     internal fun prepareManagedOwnership(catalog: SecureSubscriptionStore, source: SavedSubscription,

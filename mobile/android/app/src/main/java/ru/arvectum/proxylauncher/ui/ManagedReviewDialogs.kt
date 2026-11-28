@@ -50,11 +50,23 @@ internal class ManagedReviewDialogs(private val activity: Activity) {
 
     fun ownership(ticket:ManagedReviewSession.Ticket,review:ManagedOwnershipReview,
                   confirm:(Boolean)->ManagedCrashTransaction.Outcome,complete:(Int)->Unit):Boolean {
-        val remove=review.kind==ManagedOwnershipReview.Kind.REMOVE_SOURCE
-        val body=if(remove) activity.getString(R.string.managed_detach_notice,review.detachedCount)
-            else activity.getString(R.string.managed_edit_notice)
-        return show(ticket,if(remove) R.string.managed_detach_title else R.string.managed_edit_title,
-            body,review.invalidatesRollback,review::cancel,confirm,complete)
+        val title=when(review.kind) {
+            ManagedOwnershipReview.Kind.REMOVE_SOURCE -> R.string.managed_detach_title
+            ManagedOwnershipReview.Kind.MANUAL_EDIT -> R.string.managed_edit_title
+            ManagedOwnershipReview.Kind.MANUAL_DELETE -> R.string.managed_remove
+        }
+        val body=when(review.kind) {
+            ManagedOwnershipReview.Kind.REMOVE_SOURCE -> activity.getString(R.string.managed_detach_notice,review.detachedCount)
+            ManagedOwnershipReview.Kind.MANUAL_EDIT -> activity.getString(R.string.managed_edit_notice)
+            ManagedOwnershipReview.Kind.MANUAL_DELETE -> activity.getString(R.string.managed_review_notice)
+        }
+        val target=review.targetProfile?.let { p ->
+            val name=p.name.filter { !it.isISOControl() && Character.getType(it)!=Character.FORMAT.toInt() }.take(160)
+            val host=p.host.filter { !it.isISOControl() && Character.getType(it)!=Character.FORMAT.toInt() }.take(253)
+            val endpoint=if(':' in host) "[$host]" else host
+            "\n\n$name · ${p.type.name} · $endpoint:${p.port}"
+        }.orEmpty()
+        return show(ticket,title,body+target,review.invalidatesRollback,review::cancel,confirm,complete)
     }
 
     fun recovery(ticket:ManagedReviewSession.Ticket,review:ManagedRecoveryReview,

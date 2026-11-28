@@ -3,6 +3,7 @@ package ru.arvectum.proxylauncher.ui
 import android.app.Activity
 import ru.arvectum.proxylauncher.R
 import ru.arvectum.proxylauncher.model.ImportedProxy
+import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.SavedSubscription
 import ru.arvectum.proxylauncher.storage.*
 
@@ -55,6 +56,20 @@ internal class ManagedSubscriptionController(
         val review=store.prepareManagedOwnership(catalog,source,selected(),{ allowed() && dialogs.permits(ticket) })
         if(review==null) { dialogs.invalidate();complete(R.string.managed_stale);return }
         dialogs.ownership(ticket,review,{ consent ->
+            store.confirmManagedOwnership(review,catalog,selected,{ allowed() && dialogs.permits(ticket) },consent)
+        },complete)
+    }
+    fun edit(expected:ResolvedProxyProfile,edited:ProxyProfile,password:CharArray?):Boolean = ownedReview { permit ->
+        store.prepareManagedProfileEdit(catalog,expected,edited,password,selected(),permit)
+    }
+    fun delete(expected:ResolvedProxyProfile):Boolean = ownedReview { permit ->
+        store.prepareManagedProfileDelete(catalog,expected,selected(),permit)
+    }
+    private fun ownedReview(prepare:(()->Boolean)->ManagedOwnershipReview?):Boolean {
+        val ticket=dialogs.begin() ?: return false
+        val review=prepare { allowed() && dialogs.permits(ticket) }
+        if(review==null) { dialogs.invalidate();complete(R.string.managed_stale);return false }
+        return dialogs.ownership(ticket,review,{ consent ->
             store.confirmManagedOwnership(review,catalog,selected,{ allowed() && dialogs.permits(ticket) },consent)
         },complete)
     }

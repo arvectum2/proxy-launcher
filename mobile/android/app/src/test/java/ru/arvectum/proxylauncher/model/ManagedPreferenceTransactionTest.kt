@@ -339,6 +339,37 @@ class ManagedPreferenceTransactionTest {
         assertEquals(ManagedProfileRow(edited,null,"cipher-new"),Schema.snapshot(backend.read(),"owned").rows.single{it.profile.id=="owned"})
     }
 
+    @Test fun reviewedDeleteRemovesOnlyUnprotectedOwnedRow() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        fun review()=ManagedOwnershipReview.prepare(source,"rev",raw,null,{1L},{key},deleteId="owned")!!
+        assertNull(ManagedOwnershipReview.prepare(source,"rev",raw,"owned",{1L},{key},deleteId="owned"))
+        assertNull(ManagedOwnershipReview.prepare(source,"rev",raw+("pool_primary_profile_id" to "owned"),null,{1L},{key},deleteId="owned"))
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review().confirm(tx,{"rev"},{true},false))
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,review().confirm(tx,{"rev"},{true},true))
+        assertEquals(setOf("manual"),backend.values[Schema.IDS]);assertFalse(backend.values.keys.any { it.startsWith("profile.owned.") || it=="secret.owned" })
+        assertEquals(raw.filterKeys { !it.startsWith("profile.owned.") && it!="secret.owned" && it!=Schema.IDS && it!=Schema.JOURNAL },backend.values-Schema.IDS)
+    }
+    @Test fun manualEditCannotChangeImplicitPrimary() {
+        val raw=raw()-"pool_primary_profile_id"
+        val before=Schema.snapshot(raw,null)
+        val edited=before.rows.single { it.profile.id=="owned" }.profile.copy(name="A first")
+        reject { Schema.manualEditPatch(raw,before,owner,edited,"cipher-new") }
+    }
+    @Test fun emptySourceRemovalAuthenticatesAndInvalidatesOnlyItsJournal() = withOwnershipFixture { raw,key,gate ->
+        val detached=raw-"profile.owned.subscription_owner"
+        val backend=Fake(detached){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        fun review()=ManagedOwnershipReview.prepare(source,"rev",detached,null,{1L},{key})!!
+        assertEquals(0,review().detachedCount);assertTrue(review().invalidatesRollback)
+        assertNull(ManagedOwnershipReview.prepare(source,"rev",detached+(Schema.JOURNAL to "bad"),null,{1L},{key}))
+        val foreign=SavedSubscriptionCatalog.metadata("https://other.example.com/list",1)
+        assertFalse(ManagedOwnershipReview.prepare(foreign,"rev",detached,null,{1L},{key})!!.invalidatesRollback)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review().confirm(tx,{"rev"},{true},false){fail("unexpected remove");false})
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,review().confirm(tx,{"rev"},{true},true){true})
+        assertEquals(detached-Schema.JOURNAL,backend.read())
+    }
+
     @Test fun ordinaryWritesRemainAvailableWhileVpnHoldsLeaseWithoutMarker() = withOwnershipFixture { _,_,gate ->
         val lease=gate.acquire().lease!!
         lease.use {

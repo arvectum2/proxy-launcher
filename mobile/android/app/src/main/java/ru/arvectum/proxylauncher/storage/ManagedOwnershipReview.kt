@@ -16,11 +16,12 @@ internal class ManagedOwnershipReview private constructor(
     private val patch: Map<String,Any?>,
     val kind: Kind,
     val detachedCount: Int,
+    val targetProfile: ProxyProfile?,
     val invalidatesRollback: Boolean,
     private val started: Long,
     private val elapsed: () -> Long,
 ) {
-    enum class Kind { REMOVE_SOURCE, MANUAL_EDIT }
+    enum class Kind { REMOVE_SOURCE, MANUAL_EDIT, MANUAL_DELETE }
     private var consumed = false
     override fun toString() = "ManagedOwnershipReview(kind=$kind,count=$detachedCount,invalidatesRollback=$invalidatesRollback)"
     @Synchronized fun cancel() { consumed = true }
@@ -44,18 +45,28 @@ internal class ManagedOwnershipReview private constructor(
         const val TTL_MS=300_000L
         fun prepare(source: SavedSubscription, revision: String, raw: Map<String,Any>, selected: String?,
                     elapsed: () -> Long, journalKey: () -> SecretKey,
-                    edited: ProxyProfile? = null, encryptedCredential: String? = null): ManagedOwnershipReview? = runCatching {
+                    edited: ProxyProfile? = null, encryptedCredential: String? = null, deleteId: String? = null): ManagedOwnershipReview? = runCatching {
             require(revision.isNotEmpty() && revision.length <= 100_000)
             val before = ManagedPreferenceSchema.snapshot(raw,selected)
-            val patch = if (edited == null) ManagedPreferenceSchema.detachPatch(raw,before,source.id)
-                else ManagedPreferenceSchema.manualEditPatch(raw,before,source.id,edited,encryptedCredential)
+            require(edited == null || deleteId == null)
+            val kind=when { edited!=null -> Kind.MANUAL_EDIT; deleteId!=null -> Kind.MANUAL_DELETE; else -> Kind.REMOVE_SOURCE }
+            var patch = when(kind) {
+                Kind.MANUAL_EDIT -> ManagedPreferenceSchema.manualEditPatch(raw,before,source.id,edited!!,encryptedCredential)
+                Kind.MANUAL_DELETE -> ManagedPreferenceSchema.manualDeletePatch(raw,before,source.id,deleteId!!)
+                Kind.REMOVE_SOURCE -> ManagedPreferenceSchema.detachPatch(raw,before,source.id)
+            }
+            // A source can own no current rows after refresh removed its last row, yet have an undo journal.
+            // Authenticate before removal even then; preserve journals belonging to another source when no rows change.
+            if (ManagedPreferenceSchema.JOURNAL in raw) {
+                val journal=ManagedRollbackJournal.open(raw[ManagedPreferenceSchema.JOURNAL] as String,journalKey())
+                if(kind==Kind.REMOVE_SOURCE && journal.belongsTo(source)) patch=patch+(ManagedPreferenceSchema.JOURNAL to null)
+            }
             val loss = ManagedPreferenceSchema.JOURNAL in patch && ManagedPreferenceSchema.JOURNAL in raw
-            if (loss) ManagedRollbackJournal.open(raw[ManagedPreferenceSchema.JOURNAL] as String,journalKey())
             val now = elapsed(); require(now >= 0)
             val frozen = raw.mapValues { (_,v) -> if (v is Set<*>) v.toSet() else v }
             ManagedOwnershipReview(source,revision,selected,frozen,patch.toMap(),
-                if (edited == null) Kind.REMOVE_SOURCE else Kind.MANUAL_EDIT,
-                before.rows.count { it.owner == source.id && (edited == null || it.profile.id == edited.id) },loss,now,elapsed)
+                kind,
+                before.rows.count { it.owner == source.id && (kind == Kind.REMOVE_SOURCE || it.profile.id == (edited?.id ?: deleteId)) },edited ?: before.rows.singleOrNull { it.profile.id==deleteId }?.profile,loss,now,elapsed)
         }.getOrNull()
     }
 }
