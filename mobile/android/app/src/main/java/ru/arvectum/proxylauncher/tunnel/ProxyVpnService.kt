@@ -21,6 +21,8 @@ import android.os.Process
 import android.os.SystemClock
 import java.net.InetAddress
 import ru.arvectum.proxylauncher.MainActivity
+import ru.arvectum.proxylauncher.R
+import ru.arvectum.proxylauncher.ui.ManagedReviewMessages
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
@@ -28,6 +30,9 @@ import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.ResolvedProxyProfile
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
+import ru.arvectum.proxylauncher.storage.ManagedCrashGate
+import ru.arvectum.proxylauncher.storage.ManagedVpnProcessLease
+import ru.arvectum.proxylauncher.storage.managedProfileGate
 
 /**
  * Runs in :vpn, deliberately isolated from the UI process.
@@ -45,6 +50,7 @@ class ProxyVpnService : VpnService() {
     private val failoverPolicy = FailoverPolicy()
     private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var store: SecureProfileStore
+    private var profileGateStatus = ManagedCrashGate.Status.UNAVAILABLE
     private var tunFd: ParcelFileDescriptor? = null
     private var worker: Thread? = null
     private var preflightWorker: Thread? = null
@@ -61,14 +67,28 @@ class ProxyVpnService : VpnService() {
 
     override fun onCreate() {
         super.onCreate()
-        store = SecureProfileStore(this)
-        engine = Tun2ProxyEngineAdapter()
         ensureNotificationChannel()
+        // Never open a SharedPreferences cache before acquiring the process lease.
+        profileGateStatus = runCatching { ManagedVpnProcessLease.enter(managedProfileGate(this)) }
+            .getOrDefault(ManagedCrashGate.Status.UNAVAILABLE)
+        if (profileGateStatus == ManagedCrashGate.Status.ACQUIRED) {
+            store = SecureProfileStore(this)
+            engine = Tun2ProxyEngineAdapter()
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = super.onBind(intent)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (profileGateStatus != ManagedCrashGate.Status.ACQUIRED) {
+            // A startForegroundService caller still needs foreground acknowledgement.
+            if (intent?.action != ACTION_DISCONNECT) startForegroundCompat(getString(R.string.managed_vpn_unavailable))
+            publishState(STATE_ERROR, getString(ManagedReviewMessages.vpnDenied(profileGateStatus)))
+            stopForegroundCompat()
+            stopSelf(startId)
+            terminateVpnProcess()
+            return START_NOT_STICKY
+        }
         when (intent?.action) {
             ACTION_DISCONNECT -> {
                 store.clearVpnProcessRestartPending()
@@ -95,13 +115,21 @@ class ProxyVpnService : VpnService() {
     }
 
     override fun onRevoke() {
+        if (profileGateStatus != ManagedCrashGate.Status.ACQUIRED) {
+            stopSelf()
+            terminateVpnProcess()
+            return
+        }
         store.clearVpnProcessRestartPending()
         stopTunnel(TunnelStopOrigin.SYSTEM_REVOKE)
     }
 
     override fun onDestroy() {
-        stopAutoMonitor()
-        if (!stopping) shutdownEngineSilently()
+        if (profileGateStatus == ManagedCrashGate.Status.ACQUIRED) {
+            stopAutoMonitor()
+            if (!stopping) shutdownEngineSilently()
+        }
+        // Do not release the profile lease here: a retained process retains its cache.
         super.onDestroy()
     }
 

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">更新訂閱</string>
+    <string name="managed_rollback_title">復原更新</string>
+    <string name="managed_detach_title">移除訂閱</string>
+    <string name="managed_edit_title">解除設定檔關聯</string>
+    <string name="managed_recovery_title">儲存空間復原</string>
+    <string name="managed_confirm">確認</string>
+    <string name="managed_cancel">取消</string>
+    <string name="managed_add">新增</string>
+    <string name="managed_update">修改</string>
+    <string name="managed_remove">移除</string>
+    <string name="managed_replace_journal">我了解先前的更新將無法再復原。</string>
+    <string name="managed_review_notice">請檢查變更。確認在五分鐘後或狀態變更時失效。</string>
+    <string name="managed_detach_notice">設定檔會保留在此裝置上。要解除關聯的設定檔數：%1$d。</string>
+    <string name="managed_edit_notice">編輯後的設定檔將不再由訂閱管理。</string>
+    <string name="managed_recovery_before">先前的狀態已驗證。確認後將解除封鎖，不會變更設定檔。</string>
+    <string name="managed_recovery_after">新狀態已驗證。確認後將解除封鎖，不會變更設定檔。</string>
+    <string name="managed_applied">變更已儲存。</string>
+    <string name="managed_stale">狀態已變更或確認已逾期。請重新預覽。</string>
+    <string name="managed_restored">寫入未完成。先前的狀態已復原。</string>
+    <string name="managed_busy">儲存空間忙碌中。請中斷連線並重新預覽。</string>
+    <string name="managed_unavailable">儲存空間無法使用。變更尚未確認。</string>
+    <string name="managed_recovery_required">必須檢查儲存空間復原。檢查前請勿重複操作。</string>
+    <string name="managed_followup_uncertain">設定檔仍保持解除關聯。訂閱移除尚未確認。請檢查目錄，不要自動重試。</string>
+    <string name="managed_vpn_unavailable">VPN 無法使用</string>
+    <string name="managed_vpn_busy">VPN 無法使用：儲存空間忙碌中。</string>
+    <string name="managed_vpn_pending">VPN 無法使用：需要復原儲存空間。</string>
+    <string name="managed_vpn_storage">VPN 無法使用：儲存空間尚未就緒。</string>
+</resources>

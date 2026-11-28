@@ -20,6 +20,8 @@ internal class ManagedRollbackJournal private constructor(
 ) {
     override fun toString() = "ManagedRollbackJournal(redacted)"
 
+    internal fun belongsTo(currentSource: SavedSubscription): Boolean = currentSource == source
+
     fun restore(currentSource: SavedSubscription?, current: ManagedProfileState,
                 foregroundDisconnected: Boolean): ManagedProfileState? {
         if (!foregroundDisconnected || currentSource != source ||

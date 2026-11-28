@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">עדכון מינוי</string>
+    <string name="managed_rollback_title">ביטול עדכון</string>
+    <string name="managed_detach_title">הסרת מינוי</string>
+    <string name="managed_edit_title">ניתוק פרופיל</string>
+    <string name="managed_recovery_title">שחזור אחסון</string>
+    <string name="managed_confirm">אישור</string>
+    <string name="managed_cancel">ביטול</string>
+    <string name="managed_add">הוספה</string>
+    <string name="managed_update">שינוי</string>
+    <string name="managed_remove">הסרה</string>
+    <string name="managed_replace_journal">ברור לי שלא יהיה אפשר לבטל את העדכון הקודם.</string>
+    <string name="managed_review_notice">יש לבדוק את השינויים. תוקף האישור פג לאחר חמש דקות או כשהמצב משתנה.</string>
+    <string name="managed_detach_notice">הפרופילים נשארים במכשיר זה. מספר הפרופילים לניתוק: %1$d.</string>
+    <string name="managed_edit_notice">הפרופיל שנערך לא ינוהל עוד על ידי המינוי.</string>
+    <string name="managed_recovery_before">המצב הקודם אומת. האישור יסיר את החסימה בלי לשנות פרופילים.</string>
+    <string name="managed_recovery_after">המצב החדש אומת. האישור יסיר את החסימה בלי לשנות פרופילים.</string>
+    <string name="managed_applied">השינויים נשמרו.</string>
+    <string name="managed_stale">המצב השתנה או שתוקף האישור פג. יש לפתוח תצוגה מקדימה חדשה.</string>
+    <string name="managed_restored">הכתיבה לא הושלמה. המצב הקודם שוחזר.</string>
+    <string name="managed_busy">האחסון תפוס. יש להתנתק ולפתוח תצוגה מקדימה חדשה.</string>
+    <string name="managed_unavailable">האחסון אינו זמין. השינויים לא אושרו.</string>
+    <string name="managed_recovery_required">יש לבדוק את שחזור האחסון. אין לחזור על הפעולה לפני הבדיקה.</string>
+    <string name="managed_followup_uncertain">הפרופילים נשארים מנותקים מהמינוי. הסרת המינוי לא אושרה. יש לבדוק את הקטלוג ולא לנסות שוב אוטומטית.</string>
+    <string name="managed_vpn_unavailable">VPN אינו זמין</string>
+    <string name="managed_vpn_busy">VPN אינו זמין: האחסון תפוס.</string>
+    <string name="managed_vpn_pending">VPN אינו זמין: נדרש שחזור אחסון.</string>
+    <string name="managed_vpn_storage">VPN אינו זמין: האחסון אינו מוכן.</string>
+</resources>

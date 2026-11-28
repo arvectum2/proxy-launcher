@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Actualizare abonament</string>
+    <string name="managed_rollback_title">Anulează actualizarea</string>
+    <string name="managed_detach_title">Elimină abonamentul</string>
+    <string name="managed_edit_title">Deconectează profilul</string>
+    <string name="managed_recovery_title">Recuperarea stocării</string>
+    <string name="managed_confirm">Confirmă</string>
+    <string name="managed_cancel">Anulează</string>
+    <string name="managed_add">Adaugă</string>
+    <string name="managed_update">Modifică</string>
+    <string name="managed_remove">Elimină</string>
+    <string name="managed_replace_journal">Înțeleg că actualizarea anterioară nu va mai putea fi anulată.</string>
+    <string name="managed_review_notice">Verificați modificările. Confirmarea expiră după cinci minute sau la schimbarea stării.</string>
+    <string name="managed_detach_notice">Profilurile rămân pe dispozitiv. Profiluri de disociat: %1$d.</string>
+    <string name="managed_edit_notice">Profilul editat nu va mai fi gestionat de abonament.</string>
+    <string name="managed_recovery_before">Starea anterioară a fost verificată. Confirmarea elimină blocarea fără a modifica profilurile.</string>
+    <string name="managed_recovery_after">Starea nouă a fost verificată. Confirmarea elimină blocarea fără a modifica profilurile.</string>
+    <string name="managed_applied">Modificări salvate.</string>
+    <string name="managed_stale">Starea s-a schimbat sau confirmarea a expirat. Deschideți o nouă previzualizare.</string>
+    <string name="managed_restored">Scrierea nu s-a finalizat. Starea anterioară a fost restaurată.</string>
+    <string name="managed_busy">Stocarea este ocupată. Deconectați-vă și deschideți o nouă previzualizare.</string>
+    <string name="managed_unavailable">Stocarea este indisponibilă. Modificările nu sunt confirmate.</string>
+    <string name="managed_recovery_required">Verificați recuperarea stocării. Nu repetați operația înainte de verificare.</string>
+    <string name="managed_followup_uncertain">Profilurile rămân disociate. Eliminarea abonamentului nu este confirmată. Verificați catalogul; nu reîncercați automat.</string>
+    <string name="managed_vpn_unavailable">VPN indisponibil</string>
+    <string name="managed_vpn_busy">VPN indisponibil: stocare ocupată.</string>
+    <string name="managed_vpn_pending">VPN indisponibil: este necesară recuperarea stocării.</string>
+    <string name="managed_vpn_storage">VPN indisponibil: stocarea nu este pregătită.</string>
+</resources>

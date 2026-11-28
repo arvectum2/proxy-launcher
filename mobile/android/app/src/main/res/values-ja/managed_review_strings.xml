@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">サブスクリプションの更新</string>
+    <string name="managed_rollback_title">更新を元に戻す</string>
+    <string name="managed_detach_title">サブスクリプションを削除</string>
+    <string name="managed_edit_title">プロファイルの関連付けを解除</string>
+    <string name="managed_recovery_title">ストレージの復旧</string>
+    <string name="managed_confirm">確認</string>
+    <string name="managed_cancel">キャンセル</string>
+    <string name="managed_add">追加</string>
+    <string name="managed_update">変更</string>
+    <string name="managed_remove">削除</string>
+    <string name="managed_replace_journal">以前の更新を元に戻せなくなることを理解しました。</string>
+    <string name="managed_review_notice">変更を確認してください。確認は5分後、または状態が変わると無効になります。</string>
+    <string name="managed_detach_notice">プロファイルはこの端末に残ります。関連付けを解除するプロファイル数：%1$d。</string>
+    <string name="managed_edit_notice">編集したプロファイルはサブスクリプションの管理対象外になります。</string>
+    <string name="managed_recovery_before">以前の状態を検証済みです。確認するとプロファイルを変更せずにブロックを解除します。</string>
+    <string name="managed_recovery_after">新しい状態を検証済みです。確認するとプロファイルを変更せずにブロックを解除します。</string>
+    <string name="managed_applied">変更を保存しました。</string>
+    <string name="managed_stale">状態が変わったか確認期限が切れました。新しいプレビューを開いてください。</string>
+    <string name="managed_restored">書き込みは完了しませんでした。以前の状態に復旧しました。</string>
+    <string name="managed_busy">ストレージは使用中です。接続を解除して新しいプレビューを開いてください。</string>
+    <string name="managed_unavailable">ストレージを使用できません。変更は未確認です。</string>
+    <string name="managed_recovery_required">ストレージの復旧を確認する必要があります。確認前に操作を繰り返さないでください。</string>
+    <string name="managed_followup_uncertain">プロファイルは関連付け解除済みです。サブスクリプションの削除は未確認です。カタログを確認し、自動再試行しないでください。</string>
+    <string name="managed_vpn_unavailable">VPN を使用できません</string>
+    <string name="managed_vpn_busy">VPN を使用できません：ストレージは使用中です。</string>
+    <string name="managed_vpn_pending">VPN を使用できません：ストレージの復旧が必要です。</string>
+    <string name="managed_vpn_storage">VPN を使用できません：ストレージの準備ができていません。</string>
+</resources>

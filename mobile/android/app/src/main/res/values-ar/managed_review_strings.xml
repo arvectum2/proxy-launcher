@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">تحديث الاشتراك</string>
+    <string name="managed_rollback_title">التراجع عن التحديث</string>
+    <string name="managed_detach_title">إزالة الاشتراك</string>
+    <string name="managed_edit_title">فصل الملف الشخصي</string>
+    <string name="managed_recovery_title">استعادة التخزين</string>
+    <string name="managed_confirm">تأكيد</string>
+    <string name="managed_cancel">إلغاء</string>
+    <string name="managed_add">إضافة</string>
+    <string name="managed_update">تعديل</string>
+    <string name="managed_remove">إزالة</string>
+    <string name="managed_replace_journal">أفهم أنه لن يمكن التراجع عن التحديث السابق بعد الآن.</string>
+    <string name="managed_review_notice">راجع التغييرات. تنتهي صلاحية التأكيد بعد خمس دقائق أو عند تغير الحالة.</string>
+    <string name="managed_detach_notice">تبقى الملفات الشخصية على هذا الجهاز. عدد الملفات المراد فصلها: %1$d.</string>
+    <string name="managed_edit_notice">لن يدير الاشتراك الملف الشخصي المعدل بعد الآن.</string>
+    <string name="managed_recovery_before">تم التحقق من الحالة السابقة. يزيل التأكيد الحظر دون تغيير الملفات الشخصية.</string>
+    <string name="managed_recovery_after">تم التحقق من الحالة الجديدة. يزيل التأكيد الحظر دون تغيير الملفات الشخصية.</string>
+    <string name="managed_applied">تم حفظ التغييرات.</string>
+    <string name="managed_stale">تغيرت الحالة أو انتهت صلاحية التأكيد. افتح معاينة جديدة.</string>
+    <string name="managed_restored">لم تكتمل الكتابة. تمت استعادة الحالة السابقة.</string>
+    <string name="managed_busy">التخزين مشغول. اقطع الاتصال وافتح معاينة جديدة.</string>
+    <string name="managed_unavailable">التخزين غير متاح. لم يتم تأكيد التغييرات.</string>
+    <string name="managed_recovery_required">يجب التحقق من استعادة التخزين. لا تكرر العملية قبل التحقق.</string>
+    <string name="managed_followup_uncertain">تبقى الملفات الشخصية مفصولة. لم يتم تأكيد إزالة الاشتراك. تحقق من القائمة ولا تعد المحاولة تلقائيًا.</string>
+    <string name="managed_vpn_unavailable">VPN غير متاح</string>
+    <string name="managed_vpn_busy">VPN غير متاح: التخزين مشغول.</string>
+    <string name="managed_vpn_pending">VPN غير متاح: يلزم استعادة التخزين.</string>
+    <string name="managed_vpn_storage">VPN غير متاح: التخزين غير جاهز.</string>
+</resources>

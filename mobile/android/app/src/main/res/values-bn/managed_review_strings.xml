@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">সাবস্ক্রিপশন আপডেট করুন</string>
+    <string name="managed_rollback_title">আপডেট পূর্বাবস্থায় ফেরান</string>
+    <string name="managed_detach_title">সাবস্ক্রিপশন সরান</string>
+    <string name="managed_edit_title">প্রোফাইল বিচ্ছিন্ন করুন</string>
+    <string name="managed_recovery_title">স্টোরেজ পুনরুদ্ধার</string>
+    <string name="managed_confirm">নিশ্চিত করুন</string>
+    <string name="managed_cancel">বাতিল করুন</string>
+    <string name="managed_add">যোগ করুন</string>
+    <string name="managed_update">পরিবর্তন করুন</string>
+    <string name="managed_remove">সরান</string>
+    <string name="managed_replace_journal">আমি বুঝতে পারছি যে আগের আপডেট আর পূর্বাবস্থায় ফেরানো যাবে না।</string>
+    <string name="managed_review_notice">পরিবর্তনগুলি পরীক্ষা করুন। পাঁচ মিনিট পরে বা অবস্থা বদলালে নিশ্চিতকরণ বাতিল হয়।</string>
+    <string name="managed_detach_notice">প্রোফাইলগুলি এই ডিভাইসে থাকবে। বিচ্ছিন্ন করার প্রোফাইল: %1$d।</string>
+    <string name="managed_edit_notice">সম্পাদিত প্রোফাইলটি আর সাবস্ক্রিপশন দ্বারা পরিচালিত হবে না।</string>
+    <string name="managed_recovery_before">আগের অবস্থা যাচাই করা হয়েছে। নিশ্চিত করলে প্রোফাইল না বদলে বাধা সরবে।</string>
+    <string name="managed_recovery_after">নতুন অবস্থা যাচাই করা হয়েছে। নিশ্চিত করলে প্রোফাইল না বদলে বাধা সরবে।</string>
+    <string name="managed_applied">পরিবর্তনগুলি সংরক্ষিত হয়েছে।</string>
+    <string name="managed_stale">অবস্থা বদলেছে বা নিশ্চিতকরণের মেয়াদ শেষ হয়েছে। নতুন পূর্বরূপ খুলুন।</string>
+    <string name="managed_restored">লেখা সম্পূর্ণ হয়নি। আগের অবস্থা পুনরুদ্ধার হয়েছে।</string>
+    <string name="managed_busy">স্টোরেজ ব্যস্ত। সংযোগ বিচ্ছিন্ন করে নতুন পূর্বরূপ খুলুন।</string>
+    <string name="managed_unavailable">স্টোরেজ উপলব্ধ নয়। পরিবর্তনগুলি নিশ্চিত হয়নি।</string>
+    <string name="managed_recovery_required">স্টোরেজ পুনরুদ্ধার পরীক্ষা করতে হবে। পরীক্ষার আগে কাজটি পুনরাবৃত্তি করবেন না।</string>
+    <string name="managed_followup_uncertain">প্রোফাইলগুলি বিচ্ছিন্ন থাকবে। সাবস্ক্রিপশন সরানো নিশ্চিত হয়নি। তালিকা পরীক্ষা করুন; স্বয়ংক্রিয়ভাবে আবার চেষ্টা করবেন না।</string>
+    <string name="managed_vpn_unavailable">VPN উপলব্ধ নয়</string>
+    <string name="managed_vpn_busy">VPN উপলব্ধ নয়: স্টোরেজ ব্যস্ত।</string>
+    <string name="managed_vpn_pending">VPN উপলব্ধ নয়: স্টোরেজ পুনরুদ্ধার প্রয়োজন।</string>
+    <string name="managed_vpn_storage">VPN উপলব্ধ নয়: স্টোরেজ প্রস্তুত নয়।</string>
+</resources>

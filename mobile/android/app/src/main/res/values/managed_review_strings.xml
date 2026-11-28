@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Обновление подписки</string>
+    <string name="managed_rollback_title">Откат обновления</string>
+    <string name="managed_detach_title">Удаление подписки</string>
+    <string name="managed_edit_title">Отвязка профиля</string>
+    <string name="managed_recovery_title">Восстановление хранилища</string>
+    <string name="managed_confirm">Подтвердить</string>
+    <string name="managed_cancel">Отмена</string>
+    <string name="managed_add">Добавить</string>
+    <string name="managed_update">Изменить</string>
+    <string name="managed_remove">Удалить</string>
+    <string name="managed_replace_journal">Я понимаю, что предыдущий откат станет недоступен.</string>
+    <string name="managed_review_notice">Проверьте изменения. Подтверждение действует 5 минут и отменяется при изменении состояния.</string>
+    <string name="managed_detach_notice">Профили останутся на устройстве. Отвязано будет профилей: %1$d.</string>
+    <string name="managed_edit_notice">Изменённый профиль больше не будет управляться подпиской.</string>
+    <string name="managed_recovery_before">Подтверждено прежнее состояние. Подтверждение снимет блокировку без изменения профилей.</string>
+    <string name="managed_recovery_after">Подтверждено новое состояние. Подтверждение снимет блокировку без изменения профилей.</string>
+    <string name="managed_applied">Изменения сохранены.</string>
+    <string name="managed_stale">Состояние изменилось или подтверждение истекло. Откройте новый предварительный просмотр.</string>
+    <string name="managed_restored">Запись не завершилась. Прежнее состояние восстановлено.</string>
+    <string name="managed_busy">Хранилище занято. Завершите подключение и повторите просмотр.</string>
+    <string name="managed_unavailable">Хранилище недоступно. Изменения не подтверждены.</string>
+    <string name="managed_recovery_required">Требуется проверка восстановления хранилища. Не повторяйте операцию до проверки.</string>
+    <string name="managed_followup_uncertain">Профили сохранены отдельно. Удаление подписки не подтверждено. Проверьте каталог; не повторяйте автоматически.</string>
+    <string name="managed_vpn_unavailable">VPN недоступен</string>
+    <string name="managed_vpn_busy">VPN недоступен: хранилище занято.</string>
+    <string name="managed_vpn_pending">VPN недоступен: требуется восстановление хранилища.</string>
+    <string name="managed_vpn_storage">VPN недоступен: хранилище не готово.</string>
+</resources>

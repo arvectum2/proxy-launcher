@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">சந்தாவைப் புதுப்பிக்கவும்</string>
+    <string name="managed_rollback_title">புதுப்பிப்பைச் செயல்தவிர்க்கவும்</string>
+    <string name="managed_detach_title">சந்தாவை அகற்றவும்</string>
+    <string name="managed_edit_title">சுயவிவர இணைப்பை நீக்கவும்</string>
+    <string name="managed_recovery_title">சேமிப்பக மீட்பு</string>
+    <string name="managed_confirm">உறுதிப்படுத்தவும்</string>
+    <string name="managed_cancel">ரத்துசெய்</string>
+    <string name="managed_add">சேர்</string>
+    <string name="managed_update">மாற்று</string>
+    <string name="managed_remove">அகற்று</string>
+    <string name="managed_replace_journal">முந்தைய புதுப்பிப்பை இனி செயல்தவிர்க்க முடியாது என்பதைப் புரிந்துகொள்கிறேன்.</string>
+    <string name="managed_review_notice">மாற்றங்களைச் சரிபார்க்கவும். ஐந்து நிமிடங்களுக்குப் பிறகு அல்லது நிலை மாறும்போது உறுதிப்படுத்தல் ரத்தாகும்.</string>
+    <string name="managed_detach_notice">சுயவிவரங்கள் இந்தச் சாதனத்தில் இருக்கும். இணைப்பு நீக்கப்பட வேண்டிய சுயவிவரங்கள்: %1$d.</string>
+    <string name="managed_edit_notice">திருத்திய சுயவிவரம் இனி சந்தாவால் நிர்வகிக்கப்படாது.</string>
+    <string name="managed_recovery_before">முந்தைய நிலை சரிபார்க்கப்பட்டது. உறுதிப்படுத்தல் சுயவிவரங்களை மாற்றாமல் தடையை நீக்கும்.</string>
+    <string name="managed_recovery_after">புதிய நிலை சரிபார்க்கப்பட்டது. உறுதிப்படுத்தல் சுயவிவரங்களை மாற்றாமல் தடையை நீக்கும்.</string>
+    <string name="managed_applied">மாற்றங்கள் சேமிக்கப்பட்டன.</string>
+    <string name="managed_stale">நிலை மாறியது அல்லது உறுதிப்படுத்தல் காலாவதியானது. புதிய முன்னோட்டத்தைத் திறக்கவும்.</string>
+    <string name="managed_restored">எழுதுதல் நிறைவடையவில்லை. முந்தைய நிலை மீட்டமைக்கப்பட்டது.</string>
+    <string name="managed_busy">சேமிப்பகம் பயன்பாட்டில் உள்ளது. இணைப்பைத் துண்டித்து புதிய முன்னோட்டத்தைத் திறக்கவும்.</string>
+    <string name="managed_unavailable">சேமிப்பகம் கிடைக்கவில்லை. மாற்றங்கள் உறுதிப்படுத்தப்படவில்லை.</string>
+    <string name="managed_recovery_required">சேமிப்பக மீட்பைச் சரிபார்க்க வேண்டும். சரிபார்ப்புக்கு முன் செயல்பாட்டை மீண்டும் செய்ய வேண்டாம்.</string>
+    <string name="managed_followup_uncertain">சுயவிவரங்கள் தனியாக இருக்கும். சந்தா அகற்றம் உறுதிப்படுத்தப்படவில்லை. பட்டியலைச் சரிபார்க்கவும்; தானாக மீண்டும் முயற்சிக்க வேண்டாம்.</string>
+    <string name="managed_vpn_unavailable">VPN கிடைக்கவில்லை</string>
+    <string name="managed_vpn_busy">VPN கிடைக்கவில்லை: சேமிப்பகம் பயன்பாட்டில் உள்ளது.</string>
+    <string name="managed_vpn_pending">VPN கிடைக்கவில்லை: சேமிப்பக மீட்பு தேவை.</string>
+    <string name="managed_vpn_storage">VPN கிடைக்கவில்லை: சேமிப்பகம் தயாராக இல்லை.</string>
+</resources>

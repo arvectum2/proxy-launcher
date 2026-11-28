@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Aboneliği güncelle</string>
+    <string name="managed_rollback_title">Güncellemeyi geri al</string>
+    <string name="managed_detach_title">Aboneliği kaldır</string>
+    <string name="managed_edit_title">Profilin bağlantısını kaldır</string>
+    <string name="managed_recovery_title">Depolama kurtarma</string>
+    <string name="managed_confirm">Onayla</string>
+    <string name="managed_cancel">İptal</string>
+    <string name="managed_add">Ekle</string>
+    <string name="managed_update">Değiştir</string>
+    <string name="managed_remove">Kaldır</string>
+    <string name="managed_replace_journal">Önceki güncellemenin artık geri alınamayacağını anlıyorum.</string>
+    <string name="managed_review_notice">Değişiklikleri inceleyin. Onay beş dakika sonra veya durum değiştiğinde geçersiz olur.</string>
+    <string name="managed_detach_notice">Profiller cihazda kalır. Bağlantısı kaldırılacak profil sayısı: %1$d.</string>
+    <string name="managed_edit_notice">Düzenlenen profil artık abonelik tarafından yönetilmeyecek.</string>
+    <string name="managed_recovery_before">Önceki durum doğrulandı. Onay, profilleri değiştirmeden engeli kaldırır.</string>
+    <string name="managed_recovery_after">Yeni durum doğrulandı. Onay, profilleri değiştirmeden engeli kaldırır.</string>
+    <string name="managed_applied">Değişiklikler kaydedildi.</string>
+    <string name="managed_stale">Durum değişti veya onay süresi doldu. Yeni bir önizleme açın.</string>
+    <string name="managed_restored">Yazma tamamlanmadı. Önceki durum geri yüklendi.</string>
+    <string name="managed_busy">Depolama meşgul. Bağlantıyı kesin ve yeni bir önizleme açın.</string>
+    <string name="managed_unavailable">Depolama kullanılamıyor. Değişiklikler onaylanmadı.</string>
+    <string name="managed_recovery_required">Depolama kurtarma işlemi doğrulanmalıdır. Doğrulamadan işlemi tekrarlamayın.</string>
+    <string name="managed_followup_uncertain">Profiller abonelikten ayrılmış olarak kalır. Aboneliğin kaldırılması onaylanmadı. Kataloğu kontrol edin; otomatik olarak yeniden denemeyin.</string>
+    <string name="managed_vpn_unavailable">VPN kullanılamıyor</string>
+    <string name="managed_vpn_busy">VPN kullanılamıyor: depolama meşgul.</string>
+    <string name="managed_vpn_pending">VPN kullanılamıyor: depolama kurtarma gerekli.</string>
+    <string name="managed_vpn_storage">VPN kullanılamıyor: depolama hazır değil.</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">更新订阅</string>
+    <string name="managed_rollback_title">撤销更新</string>
+    <string name="managed_detach_title">删除订阅</string>
+    <string name="managed_edit_title">解除配置关联</string>
+    <string name="managed_recovery_title">存储恢复</string>
+    <string name="managed_confirm">确认</string>
+    <string name="managed_cancel">取消</string>
+    <string name="managed_add">添加</string>
+    <string name="managed_update">修改</string>
+    <string name="managed_remove">删除</string>
+    <string name="managed_replace_journal">我了解之前的更新将无法再撤销。</string>
+    <string name="managed_review_notice">请检查更改。确认在五分钟后或状态变化时失效。</string>
+    <string name="managed_detach_notice">配置将保留在此设备上。要解除关联的配置数：%1$d。</string>
+    <string name="managed_edit_notice">编辑后的配置将不再由订阅管理。</string>
+    <string name="managed_recovery_before">旧状态已验证。确认后将解除阻止，不会更改配置。</string>
+    <string name="managed_recovery_after">新状态已验证。确认后将解除阻止，不会更改配置。</string>
+    <string name="managed_applied">更改已保存。</string>
+    <string name="managed_stale">状态已变化或确认已过期。请重新预览。</string>
+    <string name="managed_restored">写入未完成。旧状态已恢复。</string>
+    <string name="managed_busy">存储正忙。请断开连接并重新预览。</string>
+    <string name="managed_unavailable">存储不可用。更改未确认。</string>
+    <string name="managed_recovery_required">必须检查存储恢复。检查前请勿重复操作。</string>
+    <string name="managed_followup_uncertain">配置保持解除关联。订阅删除尚未确认。请检查目录，不要自动重试。</string>
+    <string name="managed_vpn_unavailable">VPN 不可用</string>
+    <string name="managed_vpn_busy">VPN 不可用：存储正忙。</string>
+    <string name="managed_vpn_pending">VPN 不可用：需要恢复存储。</string>
+    <string name="managed_vpn_storage">VPN 不可用：存储未就绪。</string>
+</resources>

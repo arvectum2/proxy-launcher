@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Ενημέρωση συνδρομής</string>
+    <string name="managed_rollback_title">Αναίρεση ενημέρωσης</string>
+    <string name="managed_detach_title">Κατάργηση συνδρομής</string>
+    <string name="managed_edit_title">Αποσύνδεση προφίλ</string>
+    <string name="managed_recovery_title">Ανάκτηση αποθήκευσης</string>
+    <string name="managed_confirm">Επιβεβαίωση</string>
+    <string name="managed_cancel">Ακύρωση</string>
+    <string name="managed_add">Προσθήκη</string>
+    <string name="managed_update">Αλλαγή</string>
+    <string name="managed_remove">Κατάργηση</string>
+    <string name="managed_replace_journal">Κατανοώ ότι η προηγούμενη ενημέρωση δεν θα μπορεί πλέον να αναιρεθεί.</string>
+    <string name="managed_review_notice">Ελέγξτε τις αλλαγές. Η επιβεβαίωση λήγει σε πέντε λεπτά ή όταν αλλάξει η κατάσταση.</string>
+    <string name="managed_detach_notice">Τα προφίλ παραμένουν στη συσκευή. Προφίλ προς αποσύνδεση: %1$d.</string>
+    <string name="managed_edit_notice">Η συνδρομή δεν θα διαχειρίζεται πλέον το επεξεργασμένο προφίλ.</string>
+    <string name="managed_recovery_before">Η προηγούμενη κατάσταση επαληθεύτηκε. Η επιβεβαίωση αίρει τον αποκλεισμό χωρίς αλλαγή προφίλ.</string>
+    <string name="managed_recovery_after">Η νέα κατάσταση επαληθεύτηκε. Η επιβεβαίωση αίρει τον αποκλεισμό χωρίς αλλαγή προφίλ.</string>
+    <string name="managed_applied">Οι αλλαγές αποθηκεύτηκαν.</string>
+    <string name="managed_stale">Η κατάσταση άλλαξε ή η επιβεβαίωση έληξε. Ανοίξτε νέα προεπισκόπηση.</string>
+    <string name="managed_restored">Η εγγραφή δεν ολοκληρώθηκε. Η προηγούμενη κατάσταση αποκαταστάθηκε.</string>
+    <string name="managed_busy">Ο χώρος αποθήκευσης είναι απασχολημένος. Αποσυνδεθείτε και ανοίξτε νέα προεπισκόπηση.</string>
+    <string name="managed_unavailable">Ο χώρος αποθήκευσης δεν είναι διαθέσιμος. Οι αλλαγές δεν επιβεβαιώθηκαν.</string>
+    <string name="managed_recovery_required">Πρέπει να ελεγχθεί η ανάκτηση αποθήκευσης. Μην επαναλάβετε πριν από τον έλεγχο.</string>
+    <string name="managed_followup_uncertain">Τα προφίλ παραμένουν αποσυνδεδεμένα. Η κατάργηση της συνδρομής δεν επιβεβαιώθηκε. Ελέγξτε τον κατάλογο· μην επαναλάβετε αυτόματα.</string>
+    <string name="managed_vpn_unavailable">Το VPN δεν είναι διαθέσιμο</string>
+    <string name="managed_vpn_busy">Το VPN δεν είναι διαθέσιμο: ο χώρος αποθήκευσης είναι απασχολημένος.</string>
+    <string name="managed_vpn_pending">Το VPN δεν είναι διαθέσιμο: απαιτείται ανάκτηση αποθήκευσης.</string>
+    <string name="managed_vpn_storage">Το VPN δεν είναι διαθέσιμο: ο χώρος αποθήκευσης δεν είναι έτοιμος.</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Atualizar assinatura</string>
+    <string name="managed_rollback_title">Desfazer atualização</string>
+    <string name="managed_detach_title">Remover assinatura</string>
+    <string name="managed_edit_title">Desvincular perfil</string>
+    <string name="managed_recovery_title">Recuperação do armazenamento</string>
+    <string name="managed_confirm">Confirmar</string>
+    <string name="managed_cancel">Cancelar</string>
+    <string name="managed_add">Adicionar</string>
+    <string name="managed_update">Alterar</string>
+    <string name="managed_remove">Remover</string>
+    <string name="managed_replace_journal">Entendo que não será mais possível desfazer a atualização anterior.</string>
+    <string name="managed_review_notice">Revise as alterações. A confirmação expira em cinco minutos ou quando o estado muda.</string>
+    <string name="managed_detach_notice">Os perfis permanecem neste dispositivo. Perfis a desvincular: %1$d.</string>
+    <string name="managed_edit_notice">O perfil editado deixará de ser gerenciado pela assinatura.</string>
+    <string name="managed_recovery_before">O estado anterior foi verificado. Confirmar remove o bloqueio sem alterar perfis.</string>
+    <string name="managed_recovery_after">O novo estado foi verificado. Confirmar remove o bloqueio sem alterar perfis.</string>
+    <string name="managed_applied">Alterações salvas.</string>
+    <string name="managed_stale">O estado mudou ou a confirmação expirou. Abra uma nova prévia.</string>
+    <string name="managed_restored">A gravação não foi concluída. O estado anterior foi restaurado.</string>
+    <string name="managed_busy">O armazenamento está ocupado. Desconecte e abra uma nova prévia.</string>
+    <string name="managed_unavailable">O armazenamento está indisponível. As alterações não foram confirmadas.</string>
+    <string name="managed_recovery_required">É necessário verificar a recuperação do armazenamento. Não repita a operação antes da verificação.</string>
+    <string name="managed_followup_uncertain">Os perfis continuam desvinculados. A remoção da assinatura não foi confirmada. Verifique o catálogo; não tente novamente de forma automática.</string>
+    <string name="managed_vpn_unavailable">VPN indisponível</string>
+    <string name="managed_vpn_busy">VPN indisponível: armazenamento ocupado.</string>
+    <string name="managed_vpn_pending">VPN indisponível: recuperação do armazenamento necessária.</string>
+    <string name="managed_vpn_storage">VPN indisponível: armazenamento não está pronto.</string>
+</resources>

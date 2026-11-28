@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Aktualizuj subskrypcję</string>
+    <string name="managed_rollback_title">Cofnij aktualizację</string>
+    <string name="managed_detach_title">Usuń subskrypcję</string>
+    <string name="managed_edit_title">Odłącz profil</string>
+    <string name="managed_recovery_title">Odzyskiwanie pamięci</string>
+    <string name="managed_confirm">Potwierdź</string>
+    <string name="managed_cancel">Anuluj</string>
+    <string name="managed_add">Dodaj</string>
+    <string name="managed_update">Zmień</string>
+    <string name="managed_remove">Usuń</string>
+    <string name="managed_replace_journal">Rozumiem, że cofnięcie poprzedniej aktualizacji nie będzie już możliwe.</string>
+    <string name="managed_review_notice">Sprawdź zmiany. Potwierdzenie wygasa po pięciu minutach lub po zmianie stanu.</string>
+    <string name="managed_detach_notice">Profile pozostaną na tym urządzeniu. Profile do odłączenia: %1$d.</string>
+    <string name="managed_edit_notice">Edytowany profil nie będzie już zarządzany przez subskrypcję.</string>
+    <string name="managed_recovery_before">Poprzedni stan został zweryfikowany. Potwierdzenie usuwa blokadę bez zmiany profili.</string>
+    <string name="managed_recovery_after">Nowy stan został zweryfikowany. Potwierdzenie usuwa blokadę bez zmiany profili.</string>
+    <string name="managed_applied">Zmiany zapisano.</string>
+    <string name="managed_stale">Stan się zmienił lub potwierdzenie wygasło. Otwórz nowy podgląd.</string>
+    <string name="managed_restored">Zapis nie został ukończony. Przywrócono poprzedni stan.</string>
+    <string name="managed_busy">Pamięć jest zajęta. Rozłącz się i otwórz nowy podgląd.</string>
+    <string name="managed_unavailable">Pamięć jest niedostępna. Zmiany nie są potwierdzone.</string>
+    <string name="managed_recovery_required">Należy sprawdzić odzyskiwanie pamięci. Nie powtarzaj operacji przed sprawdzeniem.</string>
+    <string name="managed_followup_uncertain">Profile pozostają odłączone. Usunięcie subskrypcji nie jest potwierdzone. Sprawdź katalog; nie ponawiaj automatycznie.</string>
+    <string name="managed_vpn_unavailable">VPN niedostępny</string>
+    <string name="managed_vpn_busy">VPN niedostępny: pamięć zajęta.</string>
+    <string name="managed_vpn_pending">VPN niedostępny: wymagane odzyskanie pamięci.</string>
+    <string name="managed_vpn_storage">VPN niedostępny: pamięć niegotowa.</string>
+</resources>

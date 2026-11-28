@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">I-update ang subscription</string>
+    <string name="managed_rollback_title">I-undo ang update</string>
+    <string name="managed_detach_title">Alisin ang subscription</string>
+    <string name="managed_edit_title">Ihiwalay ang profile</string>
+    <string name="managed_recovery_title">Pagbawi ng storage</string>
+    <string name="managed_confirm">Kumpirmahin</string>
+    <string name="managed_cancel">Kanselahin</string>
+    <string name="managed_add">Idagdag</string>
+    <string name="managed_update">Baguhin</string>
+    <string name="managed_remove">Alisin</string>
+    <string name="managed_replace_journal">Nauunawaan kong hindi na maa-undo ang naunang update.</string>
+    <string name="managed_review_notice">Suriin ang mga pagbabago. Mag-e-expire ang kumpirmasyon pagkalipas ng limang minuto o kapag nagbago ang estado.</string>
+    <string name="managed_detach_notice">Mananatili ang mga profile sa device na ito. Mga profile na ihihiwalay: %1$d.</string>
+    <string name="managed_edit_notice">Hindi na pamamahalaan ng subscription ang inedit na profile.</string>
+    <string name="managed_recovery_before">Napatunayan ang dating estado. Aalisin ng kumpirmasyon ang pag-block nang hindi binabago ang mga profile.</string>
+    <string name="managed_recovery_after">Napatunayan ang bagong estado. Aalisin ng kumpirmasyon ang pag-block nang hindi binabago ang mga profile.</string>
+    <string name="managed_applied">Na-save ang mga pagbabago.</string>
+    <string name="managed_stale">Nagbago ang estado o nag-expire ang kumpirmasyon. Magbukas ng bagong preview.</string>
+    <string name="managed_restored">Hindi nakumpleto ang pagsulat. Naibalik ang dating estado.</string>
+    <string name="managed_busy">Ginagamit ang storage. Idiskonekta at magbukas ng bagong preview.</string>
+    <string name="managed_unavailable">Hindi available ang storage. Hindi kumpirmado ang mga pagbabago.</string>
+    <string name="managed_recovery_required">Kailangang suriin ang pagbawi ng storage. Huwag ulitin ang operasyon bago masuri.</string>
+    <string name="managed_followup_uncertain">Mananatiling hiwalay ang mga profile. Hindi kumpirmado ang pag-alis ng subscription. Suriin ang catalog; huwag awtomatikong ulitin.</string>
+    <string name="managed_vpn_unavailable">Hindi available ang VPN</string>
+    <string name="managed_vpn_busy">Hindi available ang VPN: ginagamit ang storage.</string>
+    <string name="managed_vpn_pending">Hindi available ang VPN: kailangan ang pagbawi ng storage.</string>
+    <string name="managed_vpn_storage">Hindi available ang VPN: hindi handa ang storage.</string>
+</resources>

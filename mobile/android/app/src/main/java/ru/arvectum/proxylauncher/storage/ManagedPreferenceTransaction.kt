@@ -3,6 +3,8 @@ package ru.arvectum.proxylauncher.storage
 import ru.arvectum.proxylauncher.model.ManagedProfileRow
 import ru.arvectum.proxylauncher.model.ManagedProfileState
 import ru.arvectum.proxylauncher.model.ManagedSelection
+import ru.arvectum.proxylauncher.model.ManagedRollbackJournal
+import ru.arvectum.proxylauncher.model.SavedSubscription
 import ru.arvectum.proxylauncher.model.ManagedSubscriptionRefresh
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
@@ -51,18 +53,100 @@ internal object ManagedPreferenceSchema {
             ?: state.rows.minWithOrNull(compareBy<ManagedProfileRow> { it.profile.name.lowercase(java.util.Locale.ROOT) }
                 .thenBy { it.profile.id })?.profile?.id
 
+    /** Same fallback ordering as runtime primary selection, before showing a confirmable review. */
+    fun validateRefreshPreview(raw: Map<String,Any>, before: ManagedProfileState,
+                               projection: ManagedSubscriptionRefresh.Projection): Boolean = runCatching {
+        require(snapshot(raw,before.selection.selected) == before)
+        val prior = before.rows.map { it.profile.id }.toSet()
+        val primary = effectivePrimary(before)
+        require(projection.changedIds.isNotEmpty() && projection.changedIds.none { it in before.protectedIds || it == primary })
+        val nextPrimary = before.selection.primary?.takeIf { it in projection.names }
+            ?: projection.names.entries.minWithOrNull(compareBy<Map.Entry<String,String>> { it.value.lowercase(java.util.Locale.ROOT) }.thenBy { it.key })?.key
+        require(primary == null || primary == nextPrimary)
+        require((projection.names.keys-prior).all { id -> fields.none { field(id,it) in raw } && secret(id) !in raw })
+        true
+    }.getOrDefault(false)
+
     /** All changed profile keys, index and journal in one patch; never writes selection or telemetry. */
     fun patch(raw: Map<String,Any>, before: ManagedProfileState, after: ManagedProfileState,
-              sourceId: String, journal: String?): Map<String,Any?> {
+              sourceId: String, journal: String?): Map<String,Any?> =
+        buildPatch(raw,before,after,sourceId,journal,false)
+
+    /** The exception for implicit primary is available only through authenticated journal restore. */
+    fun rollbackPatch(raw: Map<String,Any>, before: ManagedProfileState, source: SavedSubscription,
+                      journalKey: javax.crypto.SecretKey, allowed: Boolean): Map<String,Any?>? {
+        if (!allowed || snapshot(raw,before.selection.selected) != before) return null
+        val encoded = raw[JOURNAL] as? String ?: return null
+        val journal = runCatching { ManagedRollbackJournal.open(encoded,journalKey) }.getOrNull() ?: return null
+        val after = journal.restore(source,before,allowed) ?: return null
+        val firstImport = before.rows.isNotEmpty() && after.rows.isEmpty() &&
+            before.selection.protectedIds.isEmpty() && !before.selection.auto &&
+            before.rows.all { it.owner == source.id }
+        return buildPatch(raw,before,after,source.id,null,firstImport)
+    }
+
+    /** Explicit detach only; preserve every field and ciphertext, even for selected profiles.
+     * Invalidate the single global rollback journal, whose exact fingerprint would be stale.
+     * Source removal must occur AFTER this patch is durably verified; never the reverse.
+     */
+    fun detachPatch(raw: Map<String,Any>, before: ManagedProfileState, sourceId: String,
+                    profileId: String? = null): Map<String,Any?> {
+        require(snapshot(raw,before.selection.selected) == before)
+        require(java.util.UUID.fromString(sourceId).toString() == sourceId)
+        val owned = before.rows.filter { it.owner == sourceId && (profileId == null || it.profile.id == profileId) }
+        if (profileId == null) {
+            // An unindexed owner is ambiguous; never silently abandon it during source removal.
+            val indexed = owned.map { field(it.profile.id,"subscription_owner") }.toSet()
+            require(raw.filter { (k,v) -> k.startsWith("profile.") && k.endsWith(".subscription_owner") && v == sourceId }.keys == indexed)
+        } else require(owned.size == 1)
+        if (owned.isEmpty()) return emptyMap()
+        return owned.associate { field(it.profile.id,"subscription_owner") to null } + (JOURNAL to null)
+    }
+
+    /** Manual edit of an owned row detaches in the very same patch, never before/after the edit.
+     * Only offline candidate: selection changes and Android UI integration are separate.
+     */
+    fun manualEditPatch(raw: Map<String,Any>, before: ManagedProfileState, sourceId: String,
+                        edited: ProxyProfile, encryptedCredential: String?): Map<String,Any?> {
+        val patch = detachPatch(raw,before,sourceId,edited.id).toMutableMap()
+        require((edited.passwordRef == null) == (encryptedCredential == null))
+        require(edited.passwordRef == null || edited.passwordRef == "android-keystore:${edited.id}")
+        require(encryptedCredential?.isNotBlank() != false)
+        val values = listOf(edited.name,edited.host,edited.port,edited.type.name,edited.username,edited.passwordRef)
+        fields.take(6).zip(values).forEach { (f,v) -> patch[field(edited.id,f)] = v }
+        patch[secret(edited.id)] = encryptedCredential
+        val target = raw.toMutableMap().apply { patch.forEach { (k,v) -> if(v==null) remove(k) else put(k,v) } }
+        val after = snapshot(target,before.selection.selected)
+        require(after.rows.single { it.profile.id == edited.id } == ManagedProfileRow(edited,null,encryptedCredential))
+        require(effectivePrimary(before) == effectivePrimary(after)) { "Manual edit would change implicit priority" }
+        return patch
+    }
+
+    /** Explicit deletion is deliberately limited to unprotected rows; no hidden selection changes. */
+    fun manualDeletePatch(raw: Map<String,Any>, before: ManagedProfileState, sourceId: String,
+                          profileId: String): Map<String,Any?> {
+        val patch=detachPatch(raw,before,sourceId,profileId).toMutableMap()
+        require(profileId !in before.protectedIds && profileId != effectivePrimary(before))
+        patch[IDS]=before.rows.filterNot { it.profile.id==profileId }.map { it.profile.id }.toSet()
+        fields.forEach { patch[field(profileId,it)]=null }
+        patch[secret(profileId)]=null
+        val target=raw.toMutableMap().apply { patch.forEach { (k,v) -> if(v==null) remove(k) else put(k,v) } }
+        val after=snapshot(target,before.selection.selected)
+        require(before.selection==after.selection && effectivePrimary(before)==effectivePrimary(after))
+        return patch
+    }
+
+    private fun buildPatch(raw: Map<String,Any>, before: ManagedProfileState, after: ManagedProfileState,
+                           sourceId: String, journal: String?, firstImportRollback: Boolean): Map<String,Any?> {
         require(snapshot(raw,before.selection.selected) == before)
         require(before.selection == after.selection && ManagedSubscriptionRefresh.validState(after))
         val prior = before.rows.associateBy { it.profile.id }
         val next = after.rows.associateBy { it.profile.id }
         val changed = (prior.keys+next.keys).filter { prior[it] != next[it] }
         require(changed.size in 1..400)
-        require(changed.none { it in before.protectedIds || it == effectivePrimary(before) })
+        require(changed.none { it in before.protectedIds || (!firstImportRollback && it == effectivePrimary(before)) })
         // Never silently change a non-empty effective fallback primary via alphabetical order.
-        require(effectivePrimary(before) == null || effectivePrimary(before) == effectivePrimary(after))
+        require(firstImportRollback || effectivePrimary(before) == null || effectivePrimary(before) == effectivePrimary(after))
         require(changed.all { (prior[it] == null || prior[it]?.owner == sourceId) &&
             (next[it] == null || next[it]?.owner == sourceId) })
         val patch = linkedMapOf<String,Any?>(IDS to next.keys.toSet(), JOURNAL to journal)

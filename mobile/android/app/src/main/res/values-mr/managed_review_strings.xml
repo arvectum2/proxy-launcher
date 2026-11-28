@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">सदस्यत्व अपडेट करा</string>
+    <string name="managed_rollback_title">अपडेट मागे घ्या</string>
+    <string name="managed_detach_title">सदस्यत्व काढा</string>
+    <string name="managed_edit_title">प्रोफाइल वेगळे करा</string>
+    <string name="managed_recovery_title">स्टोरेज पुनर्प्राप्ती</string>
+    <string name="managed_confirm">पुष्टी करा</string>
+    <string name="managed_cancel">रद्द करा</string>
+    <string name="managed_add">जोडा</string>
+    <string name="managed_update">बदला</string>
+    <string name="managed_remove">काढा</string>
+    <string name="managed_replace_journal">मागील अपडेट आता मागे घेता येणार नाही हे मला समजते.</string>
+    <string name="managed_review_notice">बदल तपासा. पुष्टी पाच मिनिटांनंतर किंवा स्थिती बदलल्यास रद्द होते.</string>
+    <string name="managed_detach_notice">प्रोफाइल या डिव्हाइसवर राहतील. वेगळी करायची प्रोफाइल: %1$d.</string>
+    <string name="managed_edit_notice">संपादित प्रोफाइल यापुढे सदस्यत्वाद्वारे व्यवस्थापित होणार नाही.</string>
+    <string name="managed_recovery_before">मागील स्थिती पडताळली आहे. पुष्टी प्रोफाइल न बदलता अवरोध दूर करेल.</string>
+    <string name="managed_recovery_after">नवीन स्थिती पडताळली आहे. पुष्टी प्रोफाइल न बदलता अवरोध दूर करेल.</string>
+    <string name="managed_applied">बदल जतन केले.</string>
+    <string name="managed_stale">स्थिती बदलली किंवा पुष्टीची मुदत संपली. नवीन पूर्वावलोकन उघडा.</string>
+    <string name="managed_restored">लेखन पूर्ण झाले नाही. मागील स्थिती पुनर्संचयित केली.</string>
+    <string name="managed_busy">स्टोरेज व्यस्त आहे. कनेक्शन तोडा आणि नवीन पूर्वावलोकन उघडा.</string>
+    <string name="managed_unavailable">स्टोरेज उपलब्ध नाही. बदलांची पुष्टी झालेली नाही.</string>
+    <string name="managed_recovery_required">स्टोरेज पुनर्प्राप्ती तपासणे आवश्यक आहे. तपासणीपूर्वी कृती पुन्हा करू नका.</string>
+    <string name="managed_followup_uncertain">प्रोफाइल वेगळी राहतील. सदस्यत्व काढल्याची पुष्टी झालेली नाही. सूची तपासा; आपोआप पुन्हा प्रयत्न करू नका.</string>
+    <string name="managed_vpn_unavailable">VPN उपलब्ध नाही</string>
+    <string name="managed_vpn_busy">VPN उपलब्ध नाही: स्टोरेज व्यस्त आहे.</string>
+    <string name="managed_vpn_pending">VPN उपलब्ध नाही: स्टोरेज पुनर्प्राप्ती आवश्यक आहे.</string>
+    <string name="managed_vpn_storage">VPN उपलब्ध नाही: स्टोरेज तयार नाही.</string>
+</resources>

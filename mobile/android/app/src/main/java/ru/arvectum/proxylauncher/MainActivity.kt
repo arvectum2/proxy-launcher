@@ -69,6 +69,9 @@ import ru.arvectum.proxylauncher.model.SavedSubscription
 import ru.arvectum.proxylauncher.model.SavedSubscriptionReview
 import ru.arvectum.proxylauncher.ui.ProfileActionMetrics
 import ru.arvectum.proxylauncher.ui.ResponsiveUiPolicy
+import ru.arvectum.proxylauncher.ui.ManagedSubscriptionActivation
+import ru.arvectum.proxylauncher.ui.ManagedSubscriptionController
+import ru.arvectum.proxylauncher.storage.ManagedRecoveryRequiredException
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 import ru.arvectum.proxylauncher.tunnel.TunnelResumeAction
@@ -91,6 +94,32 @@ class MainActivity : Activity() {
     private lateinit var store: SecureProfileStore
     private lateinit var subscriptionStore: SecureSubscriptionStore
     private var subscriptionReviewDialog: AlertDialog? = null
+    private val managedSubscriptions by lazy {
+        if (!ManagedSubscriptionActivation.ENABLED) null else ManagedSubscriptionController(
+            this,store,subscriptionStore,{ currentProfileId },{ cameraUiResumed && canBatchImport() },
+            { cameraUiResumed && canRecoveryReview() },::showManagedResult)
+    }
+    private fun canRecoveryReview():Boolean = !isFinishing && !isDestroyed && !switchInProgress &&
+        currentState in setOf(ProxyVpnService.STATE_DISCONNECTED,ProxyVpnService.STATE_ERROR) &&
+        poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) in setOf(ProxyVpnService.STATE_DISCONNECTED,ProxyVpnService.STATE_ERROR) &&
+        subscriptionFetch == null && !batchFileReadInProgress && !batchFilePending && !qrImagePending &&
+        !qrCameraPermissionPending && qrCameraPermissionOutcome == null && qrCameraDialog == null && store.requiresManagedRecovery()
+    private fun syncManagedSession() {
+        val managed=managedSubscriptions ?: return
+        managed.update(cameraUiResumed,(!switchInProgress &&
+            currentState == ProxyVpnService.STATE_DISCONNECTED &&
+            poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED) == ProxyVpnService.STATE_DISCONNECTED) || canRecoveryReview(),
+            currentSelectionKey() + ":" + currentProfileId.orEmpty())
+        if(managedFetchRequest?.let { !managed.isCurrent(it) } == true) cancelSubscription()
+    }
+    private fun showManagedResult(message:Int) {
+        if (isFinishing || isDestroyed || !cameraUiResumed) return
+        refreshProfileChoices(currentSelectionKey())
+        AlertDialog.Builder(this).setMessage(message).setPositiveButton(android.R.string.ok,null).show()
+    }
+    private fun storageError(error:Throwable,fallback:Int):Int =
+        if(error is ManagedRecoveryRequiredException) R.string.managed_recovery_required else fallback
+
     private lateinit var poolUiStore: PoolUiStateStore
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -108,6 +137,7 @@ class MainActivity : Activity() {
     private var qrImagePending = false
     private var batchFileReadInProgress = false
     private var subscriptionFetch: ProxySubscriptionFetch? = null
+    private var managedFetchRequest: ManagedSubscriptionController.Request? = null
     private var subscriptionDialog: AlertDialog? = null
     private var subscriptionProgress: AlertDialog? = null
     private lateinit var subscriptionButton: Button
@@ -234,6 +264,7 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        managedSubscriptions?.invalidate()
         qrCameraPermissionPending = false
         qrCameraPermissionOutcome = null
         runCatching { unregisterReceiver(stateReceiver) }
@@ -406,6 +437,7 @@ class MainActivity : Activity() {
         }
 
     private fun showDestination(destination: Destination) {
+        if(managedSubscriptions!=null) cancelSubscription()
         currentDestination = destination
         destinationViews.forEach { (key, view) ->
             view.visibility = if (key == destination) View.VISIBLE else View.GONE
@@ -494,7 +526,7 @@ class MainActivity : Activity() {
                         if (enabled) PrimaryRestorePolicy.RETURN_TO_PRIMARY
                         else PrimaryRestorePolicy.STAY_ON_CURRENT,
                     )
-                }
+                }.onFailure { if(it is ManagedRecoveryRequiredException) showManagedResult(R.string.managed_recovery_required) }
                 dialog.dismiss()
             }
             .setNegativeButton(getString(R.string.apl_close_a7a40), null)
@@ -904,7 +936,7 @@ class MainActivity : Activity() {
                         if (checked) PrimaryRestorePolicy.RETURN_TO_PRIMARY
                         else PrimaryRestorePolicy.STAY_ON_CURRENT,
                     )
-                }
+                }.onFailure { if(it is ManagedRecoveryRequiredException) { popup.dismiss();showManagedResult(R.string.managed_recovery_required) } }
             }
         }
         rows.addView(
@@ -1115,8 +1147,8 @@ class MainActivity : Activity() {
                 }
                 try {
                     store.setSiteExclusions(normalized)
-                } catch (_: Exception) {
-                    input.error = getString(R.string.apl_failed_to_save_exceptions_1877d)
+                } catch (error: Exception) {
+                    input.error = getString(storageError(error,R.string.apl_failed_to_save_exceptions_1877d))
                     return@setOnClickListener
                 }
                 dialog.dismiss()
@@ -1245,10 +1277,10 @@ class MainActivity : Activity() {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 try {
                     store.setAppExclusions(selected)
-                } catch (_: Exception) {
+                } catch (error: Exception) {
                     renderState(
                         ProxyVpnService.STATE_ERROR,
-                        getString(R.string.apl_failed_to_save_application_exce_43bab),
+                        getString(storageError(error,R.string.apl_failed_to_save_application_exce_43bab)),
                     )
                     return@setOnClickListener
                 }
@@ -1301,6 +1333,7 @@ class MainActivity : Activity() {
     }
 
     private fun applySelection(choice: ProfileChoice): Boolean {
+        if(managedSubscriptions!=null) cancelSubscription()
         return try {
             when (choice.kind) {
                 ChoiceKind.AUTO -> {
@@ -1320,8 +1353,8 @@ class MainActivity : Activity() {
             profileSelectionText.text = choice.label
             updateProfileControls()
             true
-        } catch (_: Exception) {
-            renderState(ProxyVpnService.STATE_ERROR, getString(R.string.apl_failed_to_select_proxy_c4629))
+        } catch (error: Exception) {
+            renderState(ProxyVpnService.STATE_ERROR, getString(storageError(error,R.string.apl_failed_to_select_proxy_c4629)))
             refreshProfileChoices(currentSelectionKey())
             false
         }
@@ -1456,7 +1489,14 @@ class MainActivity : Activity() {
     }
 
     private fun showSavedSubscriptions() {
-        if (!cameraUiResumed || !canBatchImport()) return
+        if (!cameraUiResumed) return
+        if(canRecoveryReview()) {
+            val managed=managedSubscriptions
+            if(managed!=null) { syncManagedSession();managed.recover() }
+            else showManagedResult(R.string.managed_recovery_required)
+            return
+        }
+        if (!canBatchImport()) return
         val sources = runCatching { subscriptionStore.list() }.getOrElse {
             showImportFailure()
             return
@@ -1474,6 +1514,28 @@ class MainActivity : Activity() {
 
     private fun showSavedSubscriptionActions(source: SavedSubscription) {
         if (!cameraUiResumed || !canBatchImport()) return
+        if(store.requiresManagedRecovery()) { showSavedSubscriptions();return }
+        val managed=managedSubscriptions
+        if(managed!=null) {
+            syncManagedSession()
+            val labels=intArrayOf(R.string.apl_subscription_download,R.string.managed_rollback_title,R.string.apl_subscription_remove,R.string.apl_delete_profile_b745f)
+            trackSubscriptionDialog(AlertDialog.Builder(this).setTitle(source.host)
+                .setItems(labels.map { getString(it) }.toTypedArray()) { _,index ->
+                    if(!cameraUiResumed || !canBatchImport()) return@setItems
+                    when(index) {
+                        0 -> {
+                            val request=managed.beginFetch(source)
+                            val fetch=request?.let { runCatching { ProxySubscriptionFetch(it.url) }.getOrNull() }
+                            if(fetch==null || request==null) { managed.invalidate();showImportFailure() }
+                            else startSubscription(fetch,source,request)
+                        }
+                        1 -> managed.rollback(source)
+                        2 -> managed.remove(source)
+                        3 -> showManagedProfileDeletion(source,managed)
+                    }
+                }.setNegativeButton(R.string.apl_cancel_8fbe9,null).create())
+            return
+        }
         trackSubscriptionDialog(AlertDialog.Builder(this)
             .setTitle(source.host)
             .setMessage(R.string.apl_subscription_refresh_notice)
@@ -1488,6 +1550,31 @@ class MainActivity : Activity() {
             }.create())
     }
 
+    /** Selected/active/priority rows cannot be deleted implicitly. The store checks all protection again. */
+    private fun showManagedProfileDeletion(source:SavedSubscription,managed:ManagedSubscriptionController) {
+        if(!ManagedSubscriptionActivation.ENABLED || !cameraUiResumed || !canBatchImport()) return
+        val choices=runCatching { store.listProfiles().filter { store.managedOwner(it.id)==source.id &&
+            it.id!=currentProfileId && it.id!=store.getActiveProfileId() && it.id!=store.getPrimaryProfileId() } }.getOrElse {
+            showManagedResult(R.string.managed_unavailable);return
+        }
+        if(choices.isEmpty()) { showManagedResult(R.string.managed_stale);return }
+        val labels=choices.map { p ->
+            val name=p.name.filter { !it.isISOControl() && Character.getType(it)!=Character.FORMAT.toInt() }.take(160)
+            val host=p.host.filter { !it.isISOControl() && Character.getType(it)!=Character.FORMAT.toInt() }.take(253)
+            "$name · ${p.type.name} · $host:${p.port}"
+        }.toTypedArray()
+        trackSubscriptionDialog(AlertDialog.Builder(this).setTitle(R.string.apl_delete_profile_b745f)
+            .setItems(labels) { _,index ->
+                if(!cameraUiResumed || !canBatchImport()) return@setItems
+                val profile=choices[index]
+                val current=runCatching { store.loadProfile(profile.id) }.getOrNull()
+                if(current==null || current.profile!=profile || runCatching { store.managedOwner(profile.id) }.getOrNull()!=source.id) {
+                    showManagedResult(R.string.managed_stale);return@setItems
+                }
+                syncManagedSession();managed.delete(current)
+            }.setNegativeButton(R.string.managed_cancel,null).create())
+    }
+
     private fun confirmRemoveSubscription(source: SavedSubscription) {
         if (!cameraUiResumed || !canBatchImport()) return
         trackSubscriptionDialog(AlertDialog.Builder(this)
@@ -1496,6 +1583,10 @@ class MainActivity : Activity() {
             .setNegativeButton(R.string.apl_cancel_8fbe9, null)
             .setPositiveButton(R.string.apl_subscription_remove) { _, _ ->
                 if (!cameraUiResumed || !canBatchImport()) return@setPositiveButton
+                if(!store.additiveSourceRemovalAllowed(source)) {
+                    showManagedResult(if(store.requiresManagedRecovery()) R.string.managed_recovery_required else R.string.managed_unavailable)
+                    return@setPositiveButton
+                }
                 if (runCatching { subscriptionStore.remove(source) }.getOrDefault(false)) showSavedSubscriptions()
                 else showImportFailure()
             }.create())
@@ -1551,9 +1642,11 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun startSubscription(fetch: ProxySubscriptionFetch, source: SavedSubscription? = null) {
-        if (!cameraUiResumed || !canBatchImport()) { fetch.cancel(); return }
+    private fun startSubscription(fetch: ProxySubscriptionFetch, source: SavedSubscription? = null,
+                                  managedRequest: ManagedSubscriptionController.Request? = null) {
+        if (!cameraUiResumed || !canBatchImport()) { fetch.cancel();managedSubscriptions?.invalidate();return }
         subscriptionFetch = fetch
+        managedFetchRequest = managedRequest
         val progress = AlertDialog.Builder(this)
             .setMessage(R.string.apl_subscription_loading)
             .setNegativeButton(R.string.apl_cancel_8fbe9, null)
@@ -1570,11 +1663,13 @@ class MainActivity : Activity() {
             mainHandler.post {
                 if (subscriptionFetch !== fetch) return@post
                 subscriptionFetch = null
+                managedFetchRequest = null
                 subscriptionProgress = null
                 progress.dismiss()
                 if (isFinishing || isDestroyed) return@post
                 updateProfileControls()
                 if (!cameraUiResumed || !canBatchImport()) return@post
+                if (managedRequest != null) { managedSubscriptions?.receive(managedRequest,items);return@post }
                 if (items == null) showImportFailure()
                 else if (source == null) showBatchPreview(items)
                 else if (runCatching { subscriptionStore.contains(source) }.getOrDefault(false)) showBatchPreview(items, source)
@@ -1584,8 +1679,10 @@ class MainActivity : Activity() {
     }
 
     private fun cancelSubscription() {
+        managedSubscriptions?.invalidate()
         val active = subscriptionFetch
         subscriptionFetch = null
+        managedFetchRequest = null
         active?.cancel()
         subscriptionDialog?.dismiss()
         subscriptionDialog = null
@@ -1654,10 +1751,10 @@ class MainActivity : Activity() {
                 refreshProfileChoices(selection)
                 renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_import_proxy_link) + ": $count")
                 dialog.dismiss()
-            } catch (_: Exception) {
+            } catch (error: Exception) {
                 dialog.dismiss()
                 refreshProfileChoices(currentSelectionKey())
-                AlertDialog.Builder(this).setMessage(getString(R.string.apl_failed_to_save_profile_securely_c836f))
+                AlertDialog.Builder(this).setMessage(getString(storageError(error,R.string.apl_failed_to_save_profile_securely_c836f)))
                     .setPositiveButton(android.R.string.ok, null).show()
             }
         }
@@ -2099,8 +2196,14 @@ class MainActivity : Activity() {
                             .setMessage(existing.profile.name)
                             .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
                             .setPositiveButton(getString(R.string.apl_delete_be99b)) { _, _ ->
-                                deleteProfile(existing.profile.id)
-                                dialog.dismiss()
+                                if(managedSubscriptions!=null && store.hasManagedOwner(existing.profile.id)) {
+                                    if(!cameraUiResumed || !canBatchImport()) return@setPositiveButton
+                                    syncManagedSession()
+                                    if(managedSubscriptions?.delete(existing)==true) dialog.dismiss()
+                                } else {
+                                    deleteProfile(existing.profile.id)
+                                    dialog.dismiss()
+                                }
                             }
                             .show()
                     }
@@ -2159,6 +2262,18 @@ class MainActivity : Activity() {
                         username = username,
                     )
 
+                    if(managedSubscriptions!=null && existing!=null && store.hasManagedOwner(id)) {
+                        try {
+                            if(!cameraUiResumed || !canBatchImport() ||
+                                primaryCheck.isChecked != (store.getPrimaryProfileId()==id)) {
+                                hostField.error=getString(R.string.managed_stale)
+                                return@setOnClickListener
+                            }
+                            syncManagedSession()
+                            if(managedSubscriptions?.edit(existing,profile,password)==true) dialog.dismiss()
+                        } finally { password?.fill('\u0000') }
+                        return@setOnClickListener
+                    }
                     try {
                         store.saveProfile(
                             profile,
@@ -2175,8 +2290,8 @@ class MainActivity : Activity() {
                                     ?.let { store.setPrimaryProfileId(it.id) }
                             }
                         }
-                    } catch (_: Exception) {
-                        hostField.error = getString(R.string.apl_failed_to_save_profile_securely_c836f)
+                    } catch (error: Exception) {
+                        hostField.error = getString(storageError(error,R.string.apl_failed_to_save_profile_securely_c836f))
                         return@setOnClickListener
                     } finally {
                         password?.fill('\u0000')
@@ -2264,8 +2379,8 @@ class MainActivity : Activity() {
         try {
             store.deleteProfile(id)
             poolUiStore.removeHealth(id)
-        } catch (_: Exception) {
-            renderState(ProxyVpnService.STATE_ERROR, getString(R.string.apl_failed_to_delete_profile_838f1))
+        } catch (error: Exception) {
+            renderState(ProxyVpnService.STATE_ERROR, getString(storageError(error,R.string.apl_failed_to_delete_profile_838f1)))
             return
         }
         refreshProfileChoices(currentSelectionKey())
@@ -2492,6 +2607,7 @@ class MainActivity : Activity() {
             .trim()
 
     private fun updateProfileControls() {
+        syncManagedSession()
         val editable = currentState in editableStates && !switchInProgress
         val creatable = currentState in creatableStates && !switchInProgress
         val namedSelected = currentSelectionKey() != AUTO_KEY && currentProfileId != null
@@ -2505,7 +2621,7 @@ class MainActivity : Activity() {
             batchImportButton.alpha = if (batchImportButton.isEnabled) 1f else 0.5f
         }
         if (::subscriptionButton.isInitialized) {
-            subscriptionButton.isEnabled = canBatchImport()
+            subscriptionButton.isEnabled = canBatchImport() || canRecoveryReview()
             subscriptionButton.alpha = if (subscriptionButton.isEnabled) 1f else 0.5f
         }
         if (::qrImportButton.isInitialized) {

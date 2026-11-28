@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="ru.arvectum.apl.acceptance.client">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="ru.arvectum.apl.acceptance.FIXTURE" />
+    <application android:label="APL local client fixture" android:allowBackup="false" android:debuggable="true">
+        <activity android:name=".NativeClient" android:exported="true" android:permission="ru.arvectum.apl.acceptance.FIXTURE" />
+        <service android:name=".NativeClient$ConsentService" android:exported="false" android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter><action android:name="android.net.VpnService" /></intent-filter>
+            <meta-data android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON" android:value="false" />
+        </service>
+    </application>
+</manifest>

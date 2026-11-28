@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Cập nhật đăng ký</string>
+    <string name="managed_rollback_title">Hoàn tác cập nhật</string>
+    <string name="managed_detach_title">Xóa đăng ký</string>
+    <string name="managed_edit_title">Tách hồ sơ</string>
+    <string name="managed_recovery_title">Khôi phục bộ nhớ</string>
+    <string name="managed_confirm">Xác nhận</string>
+    <string name="managed_cancel">Hủy</string>
+    <string name="managed_add">Thêm</string>
+    <string name="managed_update">Thay đổi</string>
+    <string name="managed_remove">Xóa</string>
+    <string name="managed_replace_journal">Tôi hiểu rằng không thể hoàn tác bản cập nhật trước đó nữa.</string>
+    <string name="managed_review_notice">Kiểm tra các thay đổi. Xác nhận hết hạn sau năm phút hoặc khi trạng thái thay đổi.</string>
+    <string name="managed_detach_notice">Hồ sơ vẫn còn trên thiết bị này. Số hồ sơ cần tách: %1$d.</string>
+    <string name="managed_edit_notice">Hồ sơ đã sửa sẽ không còn do đăng ký quản lý.</string>
+    <string name="managed_recovery_before">Trạng thái trước đã được xác minh. Xác nhận sẽ gỡ chặn mà không thay đổi hồ sơ.</string>
+    <string name="managed_recovery_after">Trạng thái mới đã được xác minh. Xác nhận sẽ gỡ chặn mà không thay đổi hồ sơ.</string>
+    <string name="managed_applied">Đã lưu thay đổi.</string>
+    <string name="managed_stale">Trạng thái đã thay đổi hoặc xác nhận hết hạn. Mở bản xem trước mới.</string>
+    <string name="managed_restored">Quá trình ghi chưa hoàn tất. Đã khôi phục trạng thái trước.</string>
+    <string name="managed_busy">Bộ nhớ đang bận. Ngắt kết nối và mở bản xem trước mới.</string>
+    <string name="managed_unavailable">Bộ nhớ không khả dụng. Thay đổi chưa được xác nhận.</string>
+    <string name="managed_recovery_required">Cần kiểm tra việc khôi phục bộ nhớ. Không lặp lại thao tác trước khi kiểm tra.</string>
+    <string name="managed_followup_uncertain">Hồ sơ vẫn được tách. Việc xóa đăng ký chưa được xác nhận. Kiểm tra danh mục; không tự động thử lại.</string>
+    <string name="managed_vpn_unavailable">VPN không khả dụng</string>
+    <string name="managed_vpn_busy">VPN không khả dụng: bộ nhớ đang bận.</string>
+    <string name="managed_vpn_pending">VPN không khả dụng: cần khôi phục bộ nhớ.</string>
+    <string name="managed_vpn_storage">VPN không khả dụng: bộ nhớ chưa sẵn sàng.</string>
+</resources>

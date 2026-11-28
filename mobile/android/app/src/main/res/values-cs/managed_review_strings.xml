@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Aktualizace předplatného</string>
+    <string name="managed_rollback_title">Vrátit aktualizaci</string>
+    <string name="managed_detach_title">Odebrat předplatné</string>
+    <string name="managed_edit_title">Odpojit profil</string>
+    <string name="managed_recovery_title">Obnova úložiště</string>
+    <string name="managed_confirm">Potvrdit</string>
+    <string name="managed_cancel">Zrušit</string>
+    <string name="managed_add">Přidat</string>
+    <string name="managed_update">Změnit</string>
+    <string name="managed_remove">Odebrat</string>
+    <string name="managed_replace_journal">Rozumím, že předchozí aktualizaci již nebude možné vrátit.</string>
+    <string name="managed_review_notice">Zkontrolujte změny. Potvrzení platí pět minut a při změně stavu se zruší.</string>
+    <string name="managed_detach_notice">Profily zůstanou v zařízení. Počet odpojovaných profilů: %1$d.</string>
+    <string name="managed_edit_notice">Upravený profil již nebude spravován předplatným.</string>
+    <string name="managed_recovery_before">Předchozí stav je ověřen. Potvrzení odstraní blokování bez změny profilů.</string>
+    <string name="managed_recovery_after">Nový stav je ověřen. Potvrzení odstraní blokování bez změny profilů.</string>
+    <string name="managed_applied">Změny uloženy.</string>
+    <string name="managed_stale">Stav se změnil nebo potvrzení vypršelo. Otevřete nový náhled.</string>
+    <string name="managed_restored">Zápis nebyl dokončen. Předchozí stav byl obnoven.</string>
+    <string name="managed_busy">Úložiště je obsazeno. Odpojte se a otevřete nový náhled.</string>
+    <string name="managed_unavailable">Úložiště není dostupné. Změny nejsou potvrzeny.</string>
+    <string name="managed_recovery_required">Je nutné ověřit obnovu úložiště. Do té doby operaci neopakujte.</string>
+    <string name="managed_followup_uncertain">Profily zůstávají odpojené. Odebrání předplatného není potvrzeno. Zkontrolujte katalog; neopakujte automaticky.</string>
+    <string name="managed_vpn_unavailable">VPN není dostupná</string>
+    <string name="managed_vpn_busy">VPN není dostupná: úložiště je obsazeno.</string>
+    <string name="managed_vpn_pending">VPN není dostupná: je nutná obnova úložiště.</string>
+    <string name="managed_vpn_storage">VPN není dostupná: úložiště není připraveno.</string>
+</resources>

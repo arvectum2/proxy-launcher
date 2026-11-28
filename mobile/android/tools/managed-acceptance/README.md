@@ -1,0 +1,93 @@
+# Disposable Android managed-storage acceptance
+
+This is a separate instrumentation APK (`ru.arvectum.apl.acceptance`), never the production package. It compiles the actual gate, process lease, XML verifier and authenticated recovery implementation directly from the checkout. No INTERNET permission, real source URLs, production app signing, installed app data or existing emulator snapshots are used. Fixture signing keys are generated in the disposable build directory. The original component probe is supplemented by StoreProbe (real profile and catalog stores) and VpnProbe (actual VPN service in a separate process, offline lifecycle only). The notification activity is a fixture, not the production UI; native library and INTERNET permission are deliberately absent.
+
+## Build and run
+
+Prerequisites: local Android SDK API 35, build-tools 36, cached Kotlin 2.0.21, JDK 17, and a **fresh disposable** ARM64 Android 36 AVD (separate AVD home, cold boot, `-no-snapshot`). Do not use a personal or production device. Use explicit serial throughout and verify the AVD name before installing. From repository root:
+
+```sh
+python3 mobile/android/tools/managed-acceptance/build.py /absolute/empty/disposable-build-dir
+adb -s emulator-5580 emu avd name
+adb -s emulator-5580 install /absolute/empty/disposable-build-dir/acceptance.apk
+adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.Probe
+adb -s emulator-5580 shell am force-stop ru.arvectum.apl.acceptance
+adb -s emulator-5580 shell am instrument -w -r -e phase after ru.arvectum.apl.acceptance/.Probe
+adb -s emulator-5580 uninstall ru.arvectum.apl.acceptance
+adb -s emulator-5580 emu kill
+```
+
+Check the named results and `result=PASS` for both phases, not just adb exit code. Phase one must run on fresh fixture data. Phase two intentionally leaves an unknown recovery marker, so do not reuse this app data; uninstall or discard the disposable AVD. No automatic marker cleanup. On a failed run preserve the bounded instrumentation output, stop only the explicitly identified disposable emulator, and investigate before retrying with fresh data.
+
+## Acceptance evidence (2026-11-28, Mac mini, ARM64 API 36)
+
+Source baseline: `bad6f33dd725cd16dc5dbedeb27b4d549174194a` (PR400, 15/15 CI). The final two-phase fixture returned `result=PASS` and instrumentation code 0 in each phase:
+
+| Probe | Result |
+| --- | --- |
+| `xml_fsync` | PASS: actual Android SharedPreferences typed XML and file/directory force |
+| `keystore` | PASS: real AndroidKeyStore AES/GCM, authenticated fingerprint and tamper rejection |
+| `process_lease` | PASS: separate bound worker service, confirmed onDestroy, same process retained lease, process exit released it |
+| `crash_recovery` | PASS: forced worker death after marker, exact BEFORE acknowledged once |
+| `durable_change` | PASS: second process committed exact AFTER, persistent verifier matched it |
+| `stale_cache_blocked` | PASS: default process cache still BEFORE, acknowledgement refused |
+| `fresh_after_recovery` | PASS: fresh process cache matches disk, authenticates persisted key/marker and acknowledges AFTER |
+| `mixed_fail_closed` | PASS: mixed state refused, marker retained, ordinary writes blocked |
+
+These are emulator component acceptance results, not production or physical-device acceptance. Existing AVD data and real profiles were not touched.
+
+## Actual stores and offline VPN lifecycle
+
+On a fresh installation, run the store probe, then the VPN probe (the former leaves an empty pool). Use the same explicitly verified disposable emulator serial. Do not run after the component probe's mixed-state phase without uninstalling the fixture first.
+
+```sh
+adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.StoreProbe
+adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.VpnProbe
+```
+
+Source baseline `982326e8f998bdf5a6d24c01fe336cd1c1481f43`, ARM64 API 36. Both phases returned result=PASS and instrumentation code 0.
+
+| Probe | Result |
+| --- | --- |
+| catalog_encryption | PASS, authenticated source and exact persistent catalog, URL not plaintext |
+| managed_import | PASS, real profile store and credential encryption, primary preserved |
+| reviewed_update | PASS, consent required for old journal, one-shot confirmation |
+| reviewed_rollback | PASS, old credential restored, journal removed |
+| source_detach | PASS, old APIs reject owned row edit/delete, explicit consent, source removed after detach, profile/other source preserved |
+| stale_catalog | PASS, changed catalog rejects captured fetch revision |
+| first_import_rollback | PASS, selected first import blocked, deselected empty pool restored |
+| vpn_empty_pool_stop | PASS, real foreground service exits safely with no profile |
+| vpn_busy_denied | PASS, real service denied while common gate held, disk unchanged |
+| vpn_pending_denied | PASS, real service denied with pending marker, disk unchanged and marker preserved |
+
+VPN checks confirm terminal broadcast, removed notification, process exit and 3 exit records with no crash/ANR. Actual service and JNI wrapper sources compiled; no native library linked, no network permission, no tunnel established. This is not full VPN permission/revoke/network/engine acceptance. Production UI, physical device and power loss durability remain pending. The fixture contains synthetic catalog URLs only; no fetch occurs.
+
+## Reviewed dialogs and localized outcomes
+
+On a fresh fixture install run `adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.DialogProbe`. This uses the actual reviewed dialog class and real stores in a fixture activity with lifecycle hooks; production MainActivity is not wired. On ARM64 API36, baseline `b997f1671ee8179991c0cd0997e8ef424f40a2aa`, all seven named checks passed (code 0): explicit apply, replacement consent, selection invalidation, onPause/onResume callback invalidation, rollback, detach, stale fetch ticket. The lifecycle callbacks were invoked by instrumentation; full OS background/foreground navigation is still pending. A fresh reinstall then passed StoreProbe 7/7 and VpnProbe 3/3 with localized busy/pending messages, three exit records, no crash/ANR. New messages are Russian/default and English; other locales use default fallback. Recovery and manual-edit dialog branches are compiled but not independently exercised. Native routing, real production UI and physical device remain pending.
+
+## Extended dialog acceptance and localization repair
+
+Baseline `e80e94bbe73a3f9f6ab2408edc88e50245c82f3d`, ARM64 API36: DialogProbe 10/10 named checks PASS, code 0. Seven earlier checks repeated; three additional checks passed: `dialog_manual_edit` (actual store atomic name edit plus detach, encrypted credential unchanged, source preserved), `dialog_recovery_ack` (authenticated exact BEFORE, ordinary write refused while marker exists, explicit acknowledgement removes blocker without changing disk), `dialog_os_background` (real moveTaskToBack, onPause observed, dialog dismissed and old ticket remains invalid after reorder-to-front/onResume). Production activity is not connected. No live source fetch, native routing or physical device tested. All 40 existing resource sets now contain 27 review strings; placeholder parity, AAPT2 compile/link, and exact-head CI 15/15 passed on localization commit. Translations are model-drafted and require linguistic/visual QA before release; no lint suppression.
+
+## Managed subscription controller
+
+Baseline `fb0f586e4b596d4613aecbe1565f68a73413477b`, disposable ARM64 API36: `adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.ControllerProbe` on a fresh fixture install returned four named checks PASS, code 0. Actual production candidate controller and stores reject stale selection/catalog/connection round trips, do not write before explicit click, and accept only one confirmation for duplicate delivery. Production flag remains false; the fixture constructs the controller directly. No HTTP fetch, native engine, production activity or physical device acceptance claimed.
+
+## Owned profile edit/delete and actual disabled-mode UI smoke
+
+Prior exact CI head `ab4382b838a2fc4b48e2cefad495802e6a102b0c` passed 15/15. Artifact `proxy-launcher-android-debug` run 46134169707, private APK SHA256 `1c7ad584e796a2d763d97a0f14df345bca86237cd4f666640cfc7a22cb793026` matched manifest. Fresh disposable API36 installed actual private APK, launched exported LauncherActivity to MainActivity, opened Profiles and Saved subscriptions, saved synthetic example.com URL, verified additive-only action message and absence of Undo, force-stopped/relaunched, verified persistence, explicitly removed and observed empty catalog. No Download click or real VPN connection. Native ELF arm64-v8a/armeabi-v7a/x86/x86_64 present with machine IDs 183/40/3/62; no native runtime/routing evidence.
+
+Extended ControllerProbe on disposable API36: result PASS/code 0, 6/6 including credential edit/detach and protected deletion. Preview leaves durable baseline unchanged, replacement requires journal-loss consent, credential reopens under Keystore after confirmation, source and priority preserved; selected deletion refused; unprotected deletion removes row and ciphertext. Final additive-removal downgrade guard was added after fixture compilation, covered by final 111 JVM/53 Python and Kotlin/API35 storage compile, runtime regression remains pending. Production activation false. Adding a credential to a previously keyless store is refused in preview; no new key created before confirmation. APKs uninstalled and emulators stopped. Real network, physical device, visual/linguistic review and enabled production UI remain pending.
+
+## Native fixture (partial acceptance, not routing PASS)
+
+Prior exact CI head 8a6424bb 15/15. Optional native APK build: python3 build.py OUT CI_PRIVATE_APK SHA256, with digest-verified ARM64 library. Default build lacks INTERNET permission/native service. Run .NativeProbe exclusively on fresh disposable ARM64 API36 AVD. Normal Android consent, one documentation address route, loopback proxy never forwards. JNI load/consent/TUN route PASS twice; first traffic attempt EPERM on explicit VPN binding, second failed active-network equality before client traffic. Overall NativeProbe FAIL:traffic; payload, stop and revoke not verified. Next design: separate client APK/UID, allowlist only client, single route, no permission override. Offline ControllerProbe 7/7 PASS including final downgrade guard; 55 Python contracts PASS. APKs removed and emulator stopped.
+
+## Two-UID native acceptance (supersedes partial fixture result)
+
+Prior exact head 746314e1 CI 15/15. Source abaab7d0. Build native variant as above; it now also emits client.apk with the same disposable signing key and a distinct package/UID. Install acceptance.apk first, then client.apk on a fresh disposable ARM64 API36 AVD. Run NativeProbe for explicit stop; uninstall both apps, reinstall both, run NativeProbe with -e phase revoke for system takeover. Both final build-v4 runs result=PASS/code 0 (6/6 normal, 7/7 takeover); native run=0 stop=0, no engine exception. Client is signature-guarded and checks its active VPN and exact documentation route before opening ordinary socket. Only the client package is routed; loopback HTTP proxy asserts CONNECT and nine-byte request/reply, never forwards externally. Initial stopService-only fixture timed out waiting onDestroy while TUN open; explicit stop/close before stopSelf fixed it. Takeover invokes onRevoke after second app's normal consent; it does not establish a new TUN and does not prove permanent saved-consent revocation. Both APKs removed, emulator stopped. This proves native adapter with real Android VPN/TUN in an isolated fixture, not full production service or enabled MainActivity; DNS, other protocols, external routing, physical device and power-loss remain unverified.
+
+## Enabled actual MainActivity offline acceptance
+
+Prior exact CI head 1246c280 15/15. Source 82fd4310. Local offline Gradle 9.9.2 could not resolve kotlin-reflect 2.4.21; pinned CI uses Gradle 8.9. Alternative reproducible direct build: python3 build-enabled-ui.py OUT CI_PRIVATE_APK SHA256 ZXING_JAR. This copies main/private sources, changes activation only in copy, replaces fetch.load result producer only for exact synthetic URL, retains production parser/controller/stores and full activity, links all locale resources, uses distinct package and disposable key; removes INTERNET permission and omits native libraries. Cached AndroidX core and pinned digest-verified ZXing/OkHttp/Okio are linked. Branding PNGs from digest-verified prior CI APK. Not a standard Gradle artifact or real HTTP test. On fresh named apl_enabled_ui API36 ARM64 AVD, install acceptance-ui.apk then run python3 run-enabled-ui.py. Manual and automated 8/8 PASS (launch, import preview/confirm, update preview, journal-loss consent, rollback, actual background cancel, source detach preserving profile, system VPN permission denial without service startup); script result PASS exit 0. APK uninstalled and emulator stopped. Actual production service networking, remaining owned edit/delete/recovery UI branches, fetch/TLS, physical/power-loss and translation/visual review remain pending. Committed activation false.

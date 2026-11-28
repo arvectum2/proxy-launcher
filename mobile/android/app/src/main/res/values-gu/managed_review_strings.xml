@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">સબ્સ્ક્રિપ્શન અપડેટ કરો</string>
+    <string name="managed_rollback_title">અપડેટ પાછું ફેરવો</string>
+    <string name="managed_detach_title">સબ્સ્ક્રિપ્શન દૂર કરો</string>
+    <string name="managed_edit_title">પ્રોફાઇલ અલગ કરો</string>
+    <string name="managed_recovery_title">સ્ટોરેજ પુનઃપ્રાપ્તિ</string>
+    <string name="managed_confirm">પુષ્ટિ કરો</string>
+    <string name="managed_cancel">રદ કરો</string>
+    <string name="managed_add">ઉમેરો</string>
+    <string name="managed_update">બદલો</string>
+    <string name="managed_remove">દૂર કરો</string>
+    <string name="managed_replace_journal">હું સમજું છું કે અગાઉનું અપડેટ હવે પાછું ફેરવી શકાશે નહીં.</string>
+    <string name="managed_review_notice">ફેરફારો તપાસો. પુષ્ટિ પાંચ મિનિટ પછી અથવા સ્થિતિ બદલાય ત્યારે રદ થાય છે.</string>
+    <string name="managed_detach_notice">પ્રોફાઇલ આ ઉપકરણ પર રહેશે. અલગ કરવાની પ્રોફાઇલ: %1$d.</string>
+    <string name="managed_edit_notice">સંપાદિત પ્રોફાઇલ હવે સબ્સ્ક્રિપ્શન દ્વારા સંચાલિત થશે નહીં.</string>
+    <string name="managed_recovery_before">અગાઉની સ્થિતિ ચકાસાઈ છે. પુષ્ટિ પ્રોફાઇલ બદલ્યા વિના અવરોધ દૂર કરશે.</string>
+    <string name="managed_recovery_after">નવી સ્થિતિ ચકાસાઈ છે. પુષ્ટિ પ્રોફાઇલ બદલ્યા વિના અવરોધ દૂર કરશે.</string>
+    <string name="managed_applied">ફેરફારો સાચવ્યા.</string>
+    <string name="managed_stale">સ્થિતિ બદલાઈ અથવા પુષ્ટિની મુદત પૂરી થઈ. નવું પૂર્વાવલોકન ખોલો.</string>
+    <string name="managed_restored">લખવાનું પૂર્ણ થયું નથી. અગાઉની સ્થિતિ પુનઃસ્થાપિત થઈ.</string>
+    <string name="managed_busy">સ્ટોરેજ વ્યસ્ત છે. કનેક્શન તોડો અને નવું પૂર્વાવલોકન ખોલો.</string>
+    <string name="managed_unavailable">સ્ટોરેજ ઉપલબ્ધ નથી. ફેરફારોની પુષ્ટિ થઈ નથી.</string>
+    <string name="managed_recovery_required">સ્ટોરેજ પુનઃપ્રાપ્તિ તપાસવી જરૂરી છે. તપાસ પહેલાં ક્રિયા ફરી ન કરો.</string>
+    <string name="managed_followup_uncertain">પ્રોફાઇલ અલગ રહેશે. સબ્સ્ક્રિપ્શન દૂર કરવાની પુષ્ટિ થઈ નથી. સૂચિ તપાસો; આપમેળે ફરી પ્રયાસ ન કરો.</string>
+    <string name="managed_vpn_unavailable">VPN ઉપલબ્ધ નથી</string>
+    <string name="managed_vpn_busy">VPN ઉપલબ્ધ નથી: સ્ટોરેજ વ્યસ્ત છે.</string>
+    <string name="managed_vpn_pending">VPN ઉપલબ્ધ નથી: સ્ટોરેજ પુનઃપ્રાપ્તિ જરૂરી છે.</string>
+    <string name="managed_vpn_storage">VPN ઉપલબ્ધ નથી: સ્ટોરેજ તૈયાર નથી.</string>
+</resources>

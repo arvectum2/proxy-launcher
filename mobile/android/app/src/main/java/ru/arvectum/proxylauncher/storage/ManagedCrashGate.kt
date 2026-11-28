@@ -28,6 +28,17 @@ internal class ManagedCrashGate(
         val heldPaths = mutableSetOf<Path>()
     }
 
+    /** Read-only marker probe; not a substitute for acquiring the managed lease.
+     * Default-process callers serialize this probe and writes with all managed operations.
+     * The VPN process already holds the lifetime lease, so it cannot race a managed mutation.
+     */
+    internal fun ordinaryWritesAllowed(): Boolean = runCatching {
+        if (Files.notExists(directory,LinkOption.NOFOLLOW_LINKS))
+            Files.isDirectory(directory.toAbsolutePath().parent,LinkOption.NOFOLLOW_LINKS)
+        else Files.isDirectory(directory,LinkOption.NOFOLLOW_LINKS) &&
+            Files.notExists(directory.resolve("managed.pending"),LinkOption.NOFOLLOW_LINKS)
+    }.getOrDefault(false)
+
     /** Nonblocking; any uncertainty fails closed. */
     fun acquire(): Acquisition = acquireInternal(false)
 
@@ -105,6 +116,9 @@ internal class ManagedCrashGate(
         private var resolved = false
         private var markerDurable = false
         private fun usable() = !closed && channel.isOpen && lock.isValid
+
+        @Synchronized
+        internal fun isHeld(): Boolean = usable()
 
         /** Authenticated fingerprints only. Never overwrite an existing marker. */
         @Synchronized
@@ -194,5 +208,19 @@ internal class ManagedCrashGate(
                 try { channel.close() } finally { releaseReservation() }
             }
         }
+    }
+}
+
+/** Shared monitor across every store instance in one process, not a cross-process cache fix. */
+internal class ManagedRecoveryRequiredException : IllegalStateException("Profile storage recovery required")
+
+internal object ManagedOrdinaryWriteGuard {
+    val monitor = Any()
+    fun <T> write(gate: ManagedCrashGate, latched: () -> Boolean, block: () -> T): T = synchronized(monitor) {
+        if (latched() || !gate.ordinaryWritesAllowed()) throw ManagedRecoveryRequiredException()
+        block()
+    }
+    fun ifAvailable(gate: ManagedCrashGate, latched: () -> Boolean, block: () -> Unit) = synchronized(monitor) {
+        if (!latched() && gate.ordinaryWritesAllowed()) block()
     }
 }
