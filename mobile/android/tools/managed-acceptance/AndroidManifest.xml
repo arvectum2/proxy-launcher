@@ -1,7 +1,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="ru.arvectum.apl.acceptance">
     <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application android:label="APL disposable acceptance" android:allowBackup="false" android:debuggable="true">
+        <activity android:name="ru.arvectum.proxylauncher.MainActivity" android:exported="false" />
+        <receiver android:name="ru.arvectum.proxylauncher.tunnel.PoolStateRelayReceiver" android:exported="false" />
+        <service android:name="ru.arvectum.proxylauncher.tunnel.ProxyVpnService" android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false" android:foregroundServiceType="specialUse" android:process=":vpn">
+            <intent-filter><action android:name="android.net.VpnService" /></intent-filter>
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Disposable offline lifecycle fixture" />
+            <meta-data android:name="android.net.VpnService.SUPPORTS_ALWAYS_ON" android:value="false" />
+        </service>
         <service android:name=".Worker" android:process=":worker" android:exported="false" />
     </application>
     <instrumentation android:name=".Probe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
+    <instrumentation android:name=".StoreProbe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
+    <instrumentation android:name=".VpnProbe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
 </manifest>

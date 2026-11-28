@@ -1,6 +1,6 @@
 # Disposable Android managed-storage acceptance
 
-This is a separate instrumentation APK (`ru.arvectum.apl.acceptance`), never the production package. It compiles the actual gate, process lease, XML verifier and authenticated recovery implementation directly from the checkout. No INTERNET permission, real source URLs, production app signing, installed app data or existing emulator snapshots are used. Fixture signing keys are generated in the disposable build directory. It does not test the real `ProxyVpnService`, `SecureProfileStore` or subscription catalog adapter.
+This is a separate instrumentation APK (`ru.arvectum.apl.acceptance`), never the production package. It compiles the actual gate, process lease, XML verifier and authenticated recovery implementation directly from the checkout. No INTERNET permission, real source URLs, production app signing, installed app data or existing emulator snapshots are used. Fixture signing keys are generated in the disposable build directory. The original component probe is supplemented by StoreProbe (real profile and catalog stores) and VpnProbe (actual VPN service in a separate process, offline lifecycle only). The notification activity is a fixture, not the production UI; native library and INTERNET permission are deliberately absent.
 
 ## Build and run
 
@@ -34,4 +34,30 @@ Source baseline: `bad6f33dd725cd16dc5dbedeb27b4d549174194a` (PR400, 15/15 CI). T
 | `fresh_after_recovery` | PASS: fresh process cache matches disk, authenticates persisted key/marker and acknowledges AFTER |
 | `mixed_fail_closed` | PASS: mixed state refused, marker retained, ordinary writes blocked |
 
-These are emulator component acceptance results, not production or physical-device acceptance. Real VPN foreground-service permission/notification/stop behavior, actual store and catalog integration, real routing, power loss durability and physical device remain pending. Existing AVD data and real profiles were not touched.
+These are emulator component acceptance results, not production or physical-device acceptance. Existing AVD data and real profiles were not touched.
+
+## Actual stores and offline VPN lifecycle
+
+On a fresh installation, run the store probe, then the VPN probe (the former leaves an empty pool). Use the same explicitly verified disposable emulator serial. Do not run after the component probe's mixed-state phase without uninstalling the fixture first.
+
+```sh
+adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.StoreProbe
+adb -s emulator-5580 shell am instrument -w -r ru.arvectum.apl.acceptance/.VpnProbe
+```
+
+Source baseline `982326e8f998bdf5a6d24c01fe336cd1c1481f43`, ARM64 API 36. Both phases returned result=PASS and instrumentation code 0.
+
+| Probe | Result |
+| --- | --- |
+| catalog_encryption | PASS, authenticated source and exact persistent catalog, URL not plaintext |
+| managed_import | PASS, real profile store and credential encryption, primary preserved |
+| reviewed_update | PASS, consent required for old journal, one-shot confirmation |
+| reviewed_rollback | PASS, old credential restored, journal removed |
+| source_detach | PASS, old APIs reject owned row edit/delete, explicit consent, source removed after detach, profile/other source preserved |
+| stale_catalog | PASS, changed catalog rejects captured fetch revision |
+| first_import_rollback | PASS, selected first import blocked, deselected empty pool restored |
+| vpn_empty_pool_stop | PASS, real foreground service exits safely with no profile |
+| vpn_busy_denied | PASS, real service denied while common gate held, disk unchanged |
+| vpn_pending_denied | PASS, real service denied with pending marker, disk unchanged and marker preserved |
+
+VPN checks confirm terminal broadcast, removed notification, process exit and 3 exit records with no crash/ANR. Actual service and JNI wrapper sources compiled; no native library linked, no network permission, no tunnel established. This is not full VPN permission/revoke/network/engine acceptance. Production UI, physical device and power loss durability remain pending. The fixture contains synthetic catalog URLs only; no fetch occurs.
