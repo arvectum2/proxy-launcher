@@ -6,6 +6,7 @@ import ru.arvectum.proxylauncher.storage.ManagedPreferenceBackend
 import ru.arvectum.proxylauncher.storage.ManagedCrashGate
 import ru.arvectum.proxylauncher.storage.ManagedCrashTransaction
 import ru.arvectum.proxylauncher.storage.ManagedOwnershipReview
+import ru.arvectum.proxylauncher.storage.ManagedChangeReview
 import ru.arvectum.proxylauncher.storage.ManagedOrdinaryWriteGuard
 import java.nio.file.Files
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceSchema as Schema
@@ -386,6 +387,78 @@ class ManagedPreferenceTransactionTest {
             Files.delete(path);Files.createSymbolicLink(path,root.resolve("missing"))
             assertFalse(gate.ordinaryWritesAllowed())
         } finally { root.toFile().deleteRecursively() }
+    }
+
+    @Test fun rollbackReviewIsExactOneShotAndShowsOnlyEndpoint() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val review=ManagedChangeReview.rollback(source,"rev",raw,null,{1L},key){}!!
+        assertEquals(ManagedChangeReview.Kind.ROLLBACK,review.kind)
+        assertEquals(listOf(ManagedSubscriptionRefresh.Line(ManagedSubscriptionRefresh.Kind.UPDATE,ProxyType.HTTP,"owned.invalid",80)),review.lines)
+        assertFalse(review.toString().contains("cipher"))
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,review.confirm(tx,backend::read,{"rev"},{null},{true},false))
+        assertEquals("Owned",backend.values["profile.owned.name"])
+        assertFalse(Schema.JOURNAL in backend.values)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review.confirm(tx,backend::read,{"rev"},{null},{true},false))
+        assertEquals(1,backend.calls)
+    }
+
+    @Test fun rollbackReviewRejectsExpiredCancelledStaleSelectionCatalogAndJournal() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,_,_->fail("unexpected write");false}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){true}
+        var now=1L
+        fun review()=ManagedChangeReview.rollback(source,"rev",raw,null,{now},key){}!!
+        fun confirm(r:ManagedChangeReview, revision:String="rev",selected:String?=null,allowed:Boolean=true)=
+            r.confirm(tx,backend::read,{revision},{selected},{allowed},false)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,confirm(review(),revision="changed"))
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,confirm(review(),selected="manual"))
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,confirm(review(),allowed=false))
+        val cancelled=review();cancelled.cancel();assertEquals(ManagedCrashTransaction.Outcome.STALE,confirm(cancelled))
+        val expired=review();now+=ManagedChangeReview.TTL_MS;assertEquals(ManagedCrashTransaction.Outcome.STALE,confirm(expired))
+        val changed=review();backend.values["site_exclusions"]=setOf("different.invalid")
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,confirm(changed))
+        assertNull(ManagedChangeReview.rollback(source,"rev",raw+(Schema.JOURNAL to "corrupt"),null,{now},key){})
+        assertEquals(0,backend.calls)
+    }
+
+    @Test fun refreshReviewRequiresReplacementConsentAndExactRawBeforeBuilding() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        var builds=0
+        fun review():ManagedChangeReview {
+            val before=Schema.snapshot(raw,null)
+            val incoming=ImportedProxy("owned.invalid",80,ProxyType.HTTP,"u","password","New")
+            val plan=ManagedSubscriptionRefresh.prepare(source,listOf(incoming),before,{1L},{_,_->false})!!
+            return ManagedChangeReview.refresh(source,"rev",raw,null,plan,{1L},
+                { ManagedRollbackJournal.open(raw[Schema.JOURNAL] as String,key) }) { approved,expected ->
+                builds++
+                val state=Schema.snapshot(expected,null)
+                val txn=approved.confirm(source,state,true){_,_->"cipher-new"}!!
+                Schema.patch(expected,state,txn.after,source.id,ManagedRollbackJournal.from(txn).seal(key))
+            }!!
+        }
+        val rejected=review();assertTrue(rejected.replacesRollback)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,rejected.confirm(tx,backend::read,{"rev"},{null},{true},false))
+        assertEquals(0,builds)
+        val stale=review();backend.values["site_exclusions"]=setOf("changed.invalid")
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,stale.confirm(tx,backend::read,{"rev"},{null},{true},true))
+        assertEquals(0,builds)
+        backend.values["site_exclusions"]=raw.getValue("site_exclusions")
+        val approved=review()
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,approved.confirm(tx,backend::read,{"rev"},{null},{true},true))
+        assertEquals(1,builds);assertEquals("cipher-new",backend.values["secret.owned"])
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,approved.confirm(tx,backend::read,{"rev"},{null},{true},true))
+        assertEquals(1,builds)
+    }
+
+    @Test fun rollbackReviewRechecksCredentialAndFailsBeforeWrite() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,_,_->fail("unexpected write");false}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){true}
+        var available=true
+        val review=ManagedChangeReview.rollback(source,"rev",raw,null,{1L},key){check(available)}!!
+        available=false
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review.confirm(tx,backend::read,{"rev"},{null},{true},false))
+        assertEquals(0,backend.calls)
     }
 
     @Test fun newIdCannotOverwriteOrphan() {

@@ -8,7 +8,7 @@ class OrdinaryWriteContract(unittest.TestCase):
             body=STORE.split('fun '+name+'(',1)[1].split('\n    }',1)[0]
             self.assertIn('ordinaryWrite {',body,name)
     def test_managed_and_ordinary_share_monitor(self):
-        for name in ('inspectManagedCrash','prepareManagedRecoveryReview','acknowledgeManagedRecovery','prepareManagedRefresh','applyManagedRefresh','rollbackManagedRefresh','prepareManagedOwnership','confirmManagedOwnership'):
+        for name in ('inspectManagedCrash','prepareManagedRecoveryReview','acknowledgeManagedRecovery','prepareManagedRefresh','prepareManagedRollback','confirmManagedChange','prepareManagedOwnership','confirmManagedOwnership'):
             body=STORE.split('fun '+name+'(',1)[1].split('\n    }',1)[0]
             self.assertIn('synchronized(ManagedOrdinaryWriteGuard.monitor)',body,name)
     def test_constructor_migration_and_read_only_decryption(self):

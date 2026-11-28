@@ -5,6 +5,7 @@ import unittest
 BASE = Path(__file__).resolve().parents[1] / 'mobile/android/app/src/main/java/ru/arvectum/proxylauncher'
 STORE = (BASE/'storage/SecureProfileStore.kt').read_text()
 TX = (BASE/'storage/ManagedPreferenceTransaction.kt').read_text()
+REVIEW = (BASE/'storage/ManagedChangeReview.kt').read_text()
 MAIN = (BASE/'MainActivity.kt').read_text()
 
 class ManagedStorageContract(unittest.TestCase):
@@ -32,11 +33,12 @@ class ManagedStorageContract(unittest.TestCase):
         for text in ('managed_rollback.v1','managedJournalKey(false)','existingCredentialKey()',
                      'ManagedRollbackJournal.open(previousJournal as String,journalKey)',
                      'ManagedRollbackJournal.from(txn).seal(journalKey)',
-                     'journal.restore(source,before,gate())','ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,gate())',
-                     'managedTransaction.execute(raw,patch,gate)','manager.runningAppProcesses',
+                     'review.confirm(managedTransaction,managedBackend::read','manager.runningAppProcesses',
                      'android.os.Looper.myLooper() != android.os.Looper.getMainLooper()'):
             self.assertIn(text,STORE)
-        for text in ('prepareManagedRefresh(','applyManagedRefresh(','rollbackManagedRefresh('):
+        for text in ('journal.restore(source,before,true)','ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,true)','transaction.execute(expected,patch,permitted)'):
+            self.assertIn(text,REVIEW)
+        for text in ('prepareManagedRefresh(','prepareManagedRollback(','confirmManagedChange('):
             self.assertNotIn(text,MAIN)
         self.assertNotIn('startVpnService',TX)
 

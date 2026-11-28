@@ -29,6 +29,20 @@ class SecureSubscriptionStore(context: Context) {
         }.getOrNull()
     }
 
+    /** Capture authenticated source URL and exact revision together, before network fetch. */
+    internal class ManagedFetchInput internal constructor(val source: SavedSubscription,
+        internal val revision: String, internal val url: String) {
+        override fun toString() = "ManagedFetchInput(redacted)"
+    }
+
+    internal fun managedFetchInput(expected: SavedSubscription): ManagedFetchInput? = synchronized(lock) {
+        runCatching {
+            val revision = managedRevision(expected) ?: return@synchronized null
+            val entry = SavedSubscriptionCatalog.decode(revision).single { it.metadata == expected }
+            ManagedFetchInput(expected,revision,SavedSubscriptionCatalog.open(entry,key(allowCreate = false)))
+        }.getOrNull()
+    }
+
     /** Never retry or reattach profiles on a false/ambiguous catalog commit. */
     internal fun removeManagedExact(expected: SavedSubscription, revision: String): Boolean = synchronized(lock) {
         runCatching {

@@ -153,74 +153,90 @@ class SecureProfileStore(context: Context) {
     }
 
     @Synchronized
-    internal fun prepareManagedRefresh(source: SavedSubscription, items: List<ImportedProxy>, selected: String?,
-                                       allowed: () -> Boolean): ManagedSubscriptionRefresh? {
+    internal fun prepareManagedRefresh(catalog: SecureSubscriptionStore, fetched: SecureSubscriptionStore.ManagedFetchInput,
+                                       items: List<ImportedProxy>, selected: String?,
+                                       allowed: () -> Boolean): ManagedChangeReview? {
         return synchronized(ManagedOrdinaryWriteGuard.monitor) {
             if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
-            return runCatching {
-                val lease = managedGate.acquire().lease ?: return null
-                lease.use {
-                    val raw = managedBackend.read()
-                    if (!managedProcessIdle() || !allowed() || !managedDisk.matches(raw)) return null
-                    val snapshot = ManagedPreferenceSchema.snapshot(raw,selected)
-                    ManagedSubscriptionRefresh.prepare(source,items,snapshot,android.os.SystemClock::elapsedRealtime,
-                        { row,item ->
-                            val secret = row.encryptedCredential
-                            if (secret == null) item.username.isEmpty() && item.password.isEmpty()
-                            else decrypt(secret, existingCredentialKey()) == item.password
-                        })
+            runCatching {
+                catalog.withManagedCatalog {
+                    val lease = managedGate.acquire().lease ?: return@withManagedCatalog null
+                    lease.use {
+                        val raw = verifiedManagedDiskState()
+                        val source = fetched.source
+                        val revision = catalog.managedRevision(source) ?: return@use null
+                        if (revision != fetched.revision || !managedProcessIdle() || !allowed()) return@use null
+                        val before = ManagedPreferenceSchema.snapshot(raw,selected)
+                        val plan = ManagedSubscriptionRefresh.prepare(source,items,before,android.os.SystemClock::elapsedRealtime,
+                            { row,item ->
+                                val secret = row.encryptedCredential
+                                if (secret == null) item.username.isEmpty() && item.password.isEmpty()
+                                else decrypt(secret,existingCredentialKey()) == item.password
+                            }) ?: return@use null
+                        ManagedChangeReview.refresh(source,revision,raw,selected,plan,android.os.SystemClock::elapsedRealtime,
+                            { ManagedRollbackJournal.open(raw[ManagedPreferenceSchema.JOURNAL] as String,managedJournalKey(false)) },
+                            { reviewed,expected -> buildManagedRefreshPatch(reviewed,expected,source,selected) })
+                    }
+                }
+            }.getOrNull()
+        }
+    }
+
+    private fun buildManagedRefreshPatch(review: ManagedSubscriptionRefresh, raw: Map<String,Any>,
+                                         source: SavedSubscription, selected: String?): Map<String,Any?>? {
+        val before = ManagedPreferenceSchema.snapshot(raw,selected)
+        val key by lazy {
+            if (before.rows.any { it.encryptedCredential != null }) existingCredentialKey() else getOrCreateKey()
+        }
+        val txn = review.confirm(source,before,true) { _,item ->
+            if (item.username.isEmpty()) null else {
+                val chars = item.password.toCharArray()
+                try { encrypt(chars,key) } finally { chars.fill(Char.MIN_VALUE) }
+            }
+        } ?: return null
+        val previousJournal = raw[ManagedPreferenceSchema.JOURNAL]
+        val journalKey = managedJournalKey(previousJournal == null)
+        if (previousJournal != null) ManagedRollbackJournal.open(previousJournal as String,journalKey)
+        for (row in before.rows) if (row.profile.id in txn.changedIds && row.encryptedCredential != null)
+            decrypt(row.encryptedCredential,existingCredentialKey())
+        val journal = ManagedRollbackJournal.from(txn).seal(journalKey)
+        return ManagedPreferenceSchema.patch(raw,before,txn.after,txn.source.id,journal)
+    }
+
+    @Synchronized
+    internal fun prepareManagedRollback(catalog: SecureSubscriptionStore, source: SavedSubscription,
+                                        selected: String?, allowed: () -> Boolean): ManagedChangeReview? {
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
+            runCatching {
+                catalog.withManagedCatalog {
+                    val lease = managedGate.acquire().lease ?: return@withManagedCatalog null
+                    lease.use {
+                        val raw=verifiedManagedDiskState()
+                        val revision=catalog.managedRevision(source) ?: return@use null
+                        if (!managedProcessIdle() || !allowed()) return@use null
+                        ManagedChangeReview.rollback(source,revision,raw,selected,android.os.SystemClock::elapsedRealtime,
+                            managedJournalKey(false)) { row ->
+                            row.encryptedCredential?.let { decrypt(it,existingCredentialKey()) }
+                        }
+                    }
                 }
             }.getOrNull()
         }
     }
 
     @Synchronized
-    internal fun applyManagedRefresh(review: ManagedSubscriptionRefresh, source: SavedSubscription?, selected: String?,
-                                     allowed: () -> Boolean): ManagedPreferenceTransaction.Outcome {
+    internal fun confirmManagedChange(review: ManagedChangeReview, catalog: SecureSubscriptionStore,
+                                      selected: () -> String?, allowed: () -> Boolean,
+                                      acceptRollbackReplacement: Boolean): ManagedCrashTransaction.Outcome {
         return synchronized(ManagedOrdinaryWriteGuard.monitor) {
-            val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
-            if (!gate()) { review.cancel(); return ManagedPreferenceTransaction.Outcome.STALE }
-            val raw = managedBackend.read()
-            val before = ManagedPreferenceSchema.snapshot(raw,selected)
-            val key by lazy {
-                if (before.rows.any { it.encryptedCredential != null }) existingCredentialKey() else getOrCreateKey()
+            val permitted = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
+            val outcome = catalog.withManagedCatalog {
+                review.confirm(managedTransaction,managedBackend::read,{ catalog.managedRevision(review.source) },
+                    selected,permitted,acceptRollbackReplacement)
             }
-            val txn = review.confirm(source,before,gate()) { _,item ->
-                if (item.username.isEmpty()) null else {
-                    val chars = item.password.toCharArray()
-                    try { encrypt(chars,key) } finally { chars.fill(Char.MIN_VALUE) }
-                }
-            } ?: return ManagedPreferenceTransaction.Outcome.STALE
-            // Reject loss/corruption of the previous journal rather than silently discarding it.
-            val previousJournal = raw[ManagedPreferenceSchema.JOURNAL]
-            val journalKey = managedJournalKey(previousJournal == null)
-            if (previousJournal != null) ManagedRollbackJournal.open(previousJournal as String,journalKey)
-            // Verify each previous affected ciphertext is decryptable before it becomes rollback evidence.
-            for (row in before.rows) if (row.profile.id in txn.changedIds && row.encryptedCredential != null)
-                decrypt(row.encryptedCredential,existingCredentialKey())
-            val journal = ManagedRollbackJournal.from(txn).seal(journalKey)
-            val patch = ManagedPreferenceSchema.patch(raw,before,txn.after,txn.source.id,journal)
-            return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
-        }
-    }
-
-    @Synchronized
-    internal fun rollbackManagedRefresh(source: SavedSubscription?, selected: String?,
-                                        allowed: () -> Boolean): ManagedPreferenceTransaction.Outcome {
-        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
-            val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
-            if (!gate() || source == null) return ManagedPreferenceTransaction.Outcome.STALE
-            val raw = managedBackend.read()
-            val encoded = raw[ManagedPreferenceSchema.JOURNAL] as? String ?: return ManagedPreferenceTransaction.Outcome.STALE
-            val before = ManagedPreferenceSchema.snapshot(raw,selected)
-            val journalKey = managedJournalKey(false)
-            val journal = ManagedRollbackJournal.open(encoded,journalKey)
-            val after = journal.restore(source,before,gate()) ?: return ManagedPreferenceTransaction.Outcome.STALE
-            // Verify old encrypted credentials still decrypt under the existing key before restoring.
-            for (row in after.rows) if (row.encryptedCredential != null) decrypt(row.encryptedCredential,existingCredentialKey())
-            val patch = ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,gate())
-                ?: return ManagedPreferenceTransaction.Outcome.STALE
-            return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+            if (outcome == ManagedCrashTransaction.Outcome.RECOVERY_REQUIRED) managedRecoveryRequired = true
+            outcome
         }
     }
 
@@ -262,18 +278,6 @@ class SecureProfileStore(context: Context) {
             return outcome
         }
     }
-
-    private fun recordManagedOutcome(outcome: ManagedCrashTransaction.Outcome): ManagedPreferenceTransaction.Outcome =
-        when (outcome) {
-            ManagedCrashTransaction.Outcome.APPLIED -> ManagedPreferenceTransaction.Outcome.APPLIED
-            ManagedCrashTransaction.Outcome.RESTORED -> ManagedPreferenceTransaction.Outcome.RESTORED
-            ManagedCrashTransaction.Outcome.RECOVERY_REQUIRED -> {
-                managedRecoveryRequired = true
-                ManagedPreferenceTransaction.Outcome.RECOVERY_REQUIRED
-            }
-            else -> ManagedPreferenceTransaction.Outcome.STALE
-        }
-
 
     init {
         ordinaryWriteIfAvailable {
