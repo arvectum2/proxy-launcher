@@ -68,6 +68,12 @@ class SecureProfileStore(context: Context) {
         ManagedCrashTransaction(managedGate,managedBackend,{ managedEvidenceKey(true) },managedDisk::matches)
     }
 
+    private fun <T> ordinaryWrite(block: () -> T): T =
+        ManagedOrdinaryWriteGuard.write(managedGate,{ managedRecoveryRequired },block)
+
+    private fun ordinaryWriteIfAvailable(block: () -> Unit) =
+        ManagedOrdinaryWriteGuard.ifAvailable(managedGate,{ managedRecoveryRequired },block)
+
     private fun managedEvidenceKey(allowCreate: Boolean): SecretKey {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (ks.getKey(MANAGED_EVIDENCE_ALIAS,null) as? SecretKey)?.let { return it }
@@ -84,10 +90,12 @@ class SecureProfileStore(context: Context) {
     /** Read-only classification, never clears an abandoned marker or restores data. */
     @Synchronized
     internal fun inspectManagedCrash(allowed: () -> Boolean): ManagedRecoveryEvidence.State {
-        if (!managedProcessIdle() || !allowed()) return ManagedRecoveryEvidence.State.UNKNOWN
-        return managedGate.inspectPending { payload ->
-            if (!managedProcessIdle() || !allowed()) ManagedRecoveryEvidence.State.UNKNOWN
-            else ManagedRecoveryEvidence.open(payload,managedEvidenceKey(false)).classify(managedDisk.readVerified())
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            if (!managedProcessIdle() || !allowed()) return ManagedRecoveryEvidence.State.UNKNOWN
+            return managedGate.inspectPending { payload ->
+                if (!managedProcessIdle() || !allowed()) ManagedRecoveryEvidence.State.UNKNOWN
+                else ManagedRecoveryEvidence.open(payload,managedEvidenceKey(false)).classify(managedDisk.readVerified())
+            }
         }
     }
 
@@ -100,16 +108,20 @@ class SecureProfileStore(context: Context) {
 
     @Synchronized
     internal fun prepareManagedRecoveryReview(allowed: () -> Boolean): ManagedRecoveryReview? =
-        ManagedRecoveryReview.prepare(managedGate,{ managedEvidenceKey(false) },::verifiedManagedDiskState,
-            android.os.SystemClock::elapsedRealtime) { managedProcessIdle() && allowed() }
+        synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            ManagedRecoveryReview.prepare(managedGate,{ managedEvidenceKey(false) },::verifiedManagedDiskState,
+                android.os.SystemClock::elapsedRealtime) { managedProcessIdle() && allowed() }
+        }
 
     @Synchronized
     internal fun acknowledgeManagedRecovery(review: ManagedRecoveryReview,allowed: () -> Boolean): Boolean {
-        val success=review.confirm(managedGate,{ managedEvidenceKey(false) },::verifiedManagedDiskState) {
-            managedProcessIdle() && allowed()
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            val success=review.confirm(managedGate,{ managedEvidenceKey(false) },::verifiedManagedDiskState) {
+                managedProcessIdle() && allowed()
+            }
+            if (success) managedRecoveryRequired=false
+            return success
         }
-        if (success) managedRecoveryRequired=false
-        return success
     }
 
     /** Conservative preliminary process guard, not a cross-process lock. No caller in production yet. */
@@ -143,67 +155,73 @@ class SecureProfileStore(context: Context) {
     @Synchronized
     internal fun prepareManagedRefresh(source: SavedSubscription, items: List<ImportedProxy>, selected: String?,
                                        allowed: () -> Boolean): ManagedSubscriptionRefresh? {
-        if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
-        return runCatching {
-            val lease = managedGate.acquire().lease ?: return null
-            lease.use {
-                val raw = managedBackend.read()
-                if (!managedProcessIdle() || !allowed() || !managedDisk.matches(raw)) return null
-                val snapshot = ManagedPreferenceSchema.snapshot(raw,selected)
-                ManagedSubscriptionRefresh.prepare(source,items,snapshot,android.os.SystemClock::elapsedRealtime,
-                    { row,item ->
-                        val secret = row.encryptedCredential
-                        if (secret == null) item.username.isEmpty() && item.password.isEmpty()
-                        else decrypt(secret, existingCredentialKey()) == item.password
-                    })
-            }
-        }.getOrNull()
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
+            return runCatching {
+                val lease = managedGate.acquire().lease ?: return null
+                lease.use {
+                    val raw = managedBackend.read()
+                    if (!managedProcessIdle() || !allowed() || !managedDisk.matches(raw)) return null
+                    val snapshot = ManagedPreferenceSchema.snapshot(raw,selected)
+                    ManagedSubscriptionRefresh.prepare(source,items,snapshot,android.os.SystemClock::elapsedRealtime,
+                        { row,item ->
+                            val secret = row.encryptedCredential
+                            if (secret == null) item.username.isEmpty() && item.password.isEmpty()
+                            else decrypt(secret, existingCredentialKey()) == item.password
+                        })
+                }
+            }.getOrNull()
+        }
     }
 
     @Synchronized
     internal fun applyManagedRefresh(review: ManagedSubscriptionRefresh, source: SavedSubscription?, selected: String?,
                                      allowed: () -> Boolean): ManagedPreferenceTransaction.Outcome {
-        val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
-        if (!gate()) { review.cancel(); return ManagedPreferenceTransaction.Outcome.STALE }
-        val raw = managedBackend.read()
-        val before = ManagedPreferenceSchema.snapshot(raw,selected)
-        val key by lazy {
-            if (before.rows.any { it.encryptedCredential != null }) existingCredentialKey() else getOrCreateKey()
-        }
-        val txn = review.confirm(source,before,gate()) { _,item ->
-            if (item.username.isEmpty()) null else {
-                val chars = item.password.toCharArray()
-                try { encrypt(chars,key) } finally { chars.fill(Char.MIN_VALUE) }
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
+            if (!gate()) { review.cancel(); return ManagedPreferenceTransaction.Outcome.STALE }
+            val raw = managedBackend.read()
+            val before = ManagedPreferenceSchema.snapshot(raw,selected)
+            val key by lazy {
+                if (before.rows.any { it.encryptedCredential != null }) existingCredentialKey() else getOrCreateKey()
             }
-        } ?: return ManagedPreferenceTransaction.Outcome.STALE
-        // Reject loss/corruption of the previous journal rather than silently discarding it.
-        val previousJournal = raw[ManagedPreferenceSchema.JOURNAL]
-        val journalKey = managedJournalKey(previousJournal == null)
-        if (previousJournal != null) ManagedRollbackJournal.open(previousJournal as String,journalKey)
-        // Verify each previous affected ciphertext is decryptable before it becomes rollback evidence.
-        for (row in before.rows) if (row.profile.id in txn.changedIds && row.encryptedCredential != null)
-            decrypt(row.encryptedCredential,existingCredentialKey())
-        val journal = ManagedRollbackJournal.from(txn).seal(journalKey)
-        val patch = ManagedPreferenceSchema.patch(raw,before,txn.after,txn.source.id,journal)
-        return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+            val txn = review.confirm(source,before,gate()) { _,item ->
+                if (item.username.isEmpty()) null else {
+                    val chars = item.password.toCharArray()
+                    try { encrypt(chars,key) } finally { chars.fill(Char.MIN_VALUE) }
+                }
+            } ?: return ManagedPreferenceTransaction.Outcome.STALE
+            // Reject loss/corruption of the previous journal rather than silently discarding it.
+            val previousJournal = raw[ManagedPreferenceSchema.JOURNAL]
+            val journalKey = managedJournalKey(previousJournal == null)
+            if (previousJournal != null) ManagedRollbackJournal.open(previousJournal as String,journalKey)
+            // Verify each previous affected ciphertext is decryptable before it becomes rollback evidence.
+            for (row in before.rows) if (row.profile.id in txn.changedIds && row.encryptedCredential != null)
+                decrypt(row.encryptedCredential,existingCredentialKey())
+            val journal = ManagedRollbackJournal.from(txn).seal(journalKey)
+            val patch = ManagedPreferenceSchema.patch(raw,before,txn.after,txn.source.id,journal)
+            return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+        }
     }
 
     @Synchronized
     internal fun rollbackManagedRefresh(source: SavedSubscription?, selected: String?,
                                         allowed: () -> Boolean): ManagedPreferenceTransaction.Outcome {
-        val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
-        if (!gate() || source == null) return ManagedPreferenceTransaction.Outcome.STALE
-        val raw = managedBackend.read()
-        val encoded = raw[ManagedPreferenceSchema.JOURNAL] as? String ?: return ManagedPreferenceTransaction.Outcome.STALE
-        val before = ManagedPreferenceSchema.snapshot(raw,selected)
-        val journalKey = managedJournalKey(false)
-        val journal = ManagedRollbackJournal.open(encoded,journalKey)
-        val after = journal.restore(source,before,gate()) ?: return ManagedPreferenceTransaction.Outcome.STALE
-        // Verify old encrypted credentials still decrypt under the existing key before restoring.
-        for (row in after.rows) if (row.encryptedCredential != null) decrypt(row.encryptedCredential,existingCredentialKey())
-        val patch = ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,gate())
-            ?: return ManagedPreferenceTransaction.Outcome.STALE
-        return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            val gate = { !managedRecoveryRequired && managedProcessIdle() && allowed() }
+            if (!gate() || source == null) return ManagedPreferenceTransaction.Outcome.STALE
+            val raw = managedBackend.read()
+            val encoded = raw[ManagedPreferenceSchema.JOURNAL] as? String ?: return ManagedPreferenceTransaction.Outcome.STALE
+            val before = ManagedPreferenceSchema.snapshot(raw,selected)
+            val journalKey = managedJournalKey(false)
+            val journal = ManagedRollbackJournal.open(encoded,journalKey)
+            val after = journal.restore(source,before,gate()) ?: return ManagedPreferenceTransaction.Outcome.STALE
+            // Verify old encrypted credentials still decrypt under the existing key before restoring.
+            for (row in after.rows) if (row.encryptedCredential != null) decrypt(row.encryptedCredential,existingCredentialKey())
+            val patch = ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,gate())
+                ?: return ManagedPreferenceTransaction.Outcome.STALE
+            return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
+        }
     }
 
     /** Dormant adapter: caller must cancel on lifecycle/selection change and show rollback-loss warning. */
@@ -211,34 +229,38 @@ class SecureProfileStore(context: Context) {
     internal fun prepareManagedOwnership(catalog: SecureSubscriptionStore, source: SavedSubscription,
                                          selected: String?, allowed: () -> Boolean,
                                          edited: ProxyProfile? = null, encryptedCredential: String? = null): ManagedOwnershipReview? {
-        if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
-        return runCatching {
-            catalog.withManagedCatalog {
-                val lease = managedGate.acquire().lease ?: return@withManagedCatalog null
-                lease.use {
-                    val raw = verifiedManagedDiskState()
-                    val revision = catalog.managedRevision(source) ?: return@use null
-                    if (!managedProcessIdle() || !allowed()) return@use null
-                    if (edited != null && encryptedCredential != null) decrypt(encryptedCredential,existingCredentialKey())
-                    ManagedOwnershipReview.prepare(source,revision,raw,selected,android.os.SystemClock::elapsedRealtime,
-                        { managedJournalKey(false) },edited,encryptedCredential)
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
+            return runCatching {
+                catalog.withManagedCatalog {
+                    val lease = managedGate.acquire().lease ?: return@withManagedCatalog null
+                    lease.use {
+                        val raw = verifiedManagedDiskState()
+                        val revision = catalog.managedRevision(source) ?: return@use null
+                        if (!managedProcessIdle() || !allowed()) return@use null
+                        if (edited != null && encryptedCredential != null) decrypt(encryptedCredential,existingCredentialKey())
+                        ManagedOwnershipReview.prepare(source,revision,raw,selected,android.os.SystemClock::elapsedRealtime,
+                            { managedJournalKey(false) },edited,encryptedCredential)
+                    }
                 }
-            }
-        }.getOrNull()
+            }.getOrNull()
+        }
     }
 
     @Synchronized
     internal fun confirmManagedOwnership(review: ManagedOwnershipReview, catalog: SecureSubscriptionStore,
                                          selected: () -> String?, allowed: () -> Boolean,
                                          acceptRollbackLoss: Boolean): ManagedCrashTransaction.Outcome {
-        val permitted = { !managedRecoveryRequired && managedProcessIdle() && allowed() && selected() == review.selected }
-        val outcome = catalog.withManagedCatalog {
-            review.confirm(managedTransaction,{ catalog.managedRevision(review.source) },permitted,acceptRollbackLoss,
-                if (review.kind == ManagedOwnershipReview.Kind.REMOVE_SOURCE)
-                    ({ catalog.removeManagedExact(review.source,review.revision) }) else null)
+        return synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            val permitted = { !managedRecoveryRequired && managedProcessIdle() && allowed() && selected() == review.selected }
+            val outcome = catalog.withManagedCatalog {
+                review.confirm(managedTransaction,{ catalog.managedRevision(review.source) },permitted,acceptRollbackLoss,
+                    if (review.kind == ManagedOwnershipReview.Kind.REMOVE_SOURCE)
+                        ({ catalog.removeManagedExact(review.source,review.revision) }) else null)
+            }
+            if (outcome == ManagedCrashTransaction.Outcome.RECOVERY_REQUIRED) managedRecoveryRequired = true
+            return outcome
         }
-        if (outcome == ManagedCrashTransaction.Outcome.RECOVERY_REQUIRED) managedRecoveryRequired = true
-        return outcome
     }
 
     private fun recordManagedOutcome(outcome: ManagedCrashTransaction.Outcome): ManagedPreferenceTransaction.Outcome =
@@ -254,14 +276,15 @@ class SecureProfileStore(context: Context) {
 
 
     init {
-        // Friend builds could persist a temporary gateway selection. Public builds
-        // only support user-owned proxy profiles, so remove obsolete gateway state.
-        prefs.edit()
-            .remove(LEGACY_GATEWAY_LOCATION_ID)
-            .remove(LEGACY_GATEWAY_LOCATION_LABEL)
-            .remove(LEGACY_GATEWAY_RECOVERY_WINDOW)
-            .remove(LEGACY_GATEWAY_RECOVERY_ATTEMPT)
-            .apply()
+        ordinaryWriteIfAvailable {
+            val obsolete = listOf(LEGACY_GATEWAY_LOCATION_ID,LEGACY_GATEWAY_LOCATION_LABEL,
+                LEGACY_GATEWAY_RECOVERY_WINDOW,LEGACY_GATEWAY_RECOVERY_ATTEMPT)
+            if (obsolete.any(prefs::contains)) {
+                val editor = prefs.edit()
+                obsolete.forEach { editor.remove(it) }
+                check(editor.commit()) { "Failed to clear obsolete profile state" }
+            }
+        }
     }
 
     /**
@@ -273,77 +296,82 @@ class SecureProfileStore(context: Context) {
     }
 
     fun saveProfile(profile: ProxyProfile, password: CharArray?, makeActive: Boolean = true) {
-        ensureLegacyProfileIndexed()
+        ordinaryWrite {
+            check(!prefs.contains(profileKey(profile.id,"subscription_owner"))) { "Managed profile requires review" }
+            ensureLegacyProfileIndexed()
 
-        val passwordRef = if (password != null) {
-            val ok = prefs.edit().putString(secretKey(profile.id), encrypt(password)).commit()
-            check(ok) { "Failed to persist encrypted credential" }
-            "android-keystore:${profile.id}"
-        } else {
-            val ok = prefs.edit().remove(secretKey(profile.id)).commit()
-            check(ok) { "Failed to clear encrypted credential" }
-            null
-        }
+            val passwordRef = if (password != null) {
+                val ok = prefs.edit().putString(secretKey(profile.id), encrypt(password)).commit()
+                check(ok) { "Failed to persist encrypted credential" }
+                "android-keystore:${profile.id}"
+            } else {
+                val ok = prefs.edit().remove(secretKey(profile.id)).commit()
+                check(ok) { "Failed to clear encrypted credential" }
+                null
+            }
 
-        val ids = profileIds().toMutableSet().apply { add(profile.id) }
-        val editor = prefs.edit()
-            .putStringSet(KEY_PROFILE_IDS, ids)
-            .putString(profileKey(profile.id, "name"), profile.name)
-            .putString(profileKey(profile.id, "host"), profile.host)
-            .putInt(profileKey(profile.id, "port"), profile.port)
-            .putString(profileKey(profile.id, "type"), profile.type.name)
-            .putString(profileKey(profile.id, "username"), profile.username)
-            .putString(profileKey(profile.id, "password_ref"), passwordRef)
-        if (makeActive) {
-            editor.putString(KEY_ACTIVE_ID, profile.id)
-                .putBoolean(KEY_AUTO_SELECTION, false)
+            val ids = profileIds().toMutableSet().apply { add(profile.id) }
+            val editor = prefs.edit()
+                .putStringSet(KEY_PROFILE_IDS, ids)
+                .putString(profileKey(profile.id, "name"), profile.name)
+                .putString(profileKey(profile.id, "host"), profile.host)
+                .putInt(profileKey(profile.id, "port"), profile.port)
+                .putString(profileKey(profile.id, "type"), profile.type.name)
+                .putString(profileKey(profile.id, "username"), profile.username)
+                .putString(profileKey(profile.id, "password_ref"), passwordRef)
+            if (makeActive) {
+                editor.putString(KEY_ACTIVE_ID, profile.id)
+                    .putBoolean(KEY_AUTO_SELECTION, false)
+            }
+            check(editor.commit()) { "Failed to persist proxy profile" }
         }
-        check(editor.commit()) { "Failed to persist proxy profile" }
     }
 
     /** UI-only disconnected import. Existing profiles, selection and priority are untouched. */
     @Synchronized
     fun appendImportedProfiles(items: List<ImportedProxy>): Int {
-        require(items.size in 1..ProxyBatchImport.MAX_ENTRIES)
-        ensureLegacyProfileIndexed()
-        check(ProxyBatchImport.preview(items, listProfiles()).skipped == 0) {
-            "Import preview is stale"
-        }
-        val originalIds = profileIds()
-        val ids = originalIds.toMutableSet()
-        val key by lazy { getOrCreateKey() }
-        val staged = items.map { item ->
-            val id = "profile-${UUID.randomUUID()}"
-            check(ids.add(id)) { "Profile identity collision" }
-            val secret = if (item.username.isNotEmpty()) {
-                val chars = item.password.toCharArray()
-                try { encrypt(chars, key) } finally { chars.fill(Char.MIN_VALUE) }
-            } else null
-            Triple(id, item, secret)
-        }
-        val editor = prefs.edit().putStringSet(KEY_PROFILE_IDS, ids)
-        for ((id, item, secret) in staged) {
-            editor.putString(profileKey(id, "name"), item.name)
-                .putString(profileKey(id, "host"), item.host)
-                .putInt(profileKey(id, "port"), item.port)
-                .putString(profileKey(id, "type"), item.type.name)
-                .putString(profileKey(id, "username"), item.username.takeIf { it.isNotEmpty() })
-                .putString(profileKey(id, "password_ref"), secret?.let { "android-keystore:$id" })
-            if (secret != null) editor.putString(secretKey(id), secret)
-        }
-        if (!editor.commit()) {
-            // SharedPreferences may update memory even on disk failure. Attempt bounded rollback.
-            val rollback = prefs.edit().putStringSet(KEY_PROFILE_IDS, originalIds)
-            for ((id, _, _) in staged) {
-                for (field in listOf("name", "host", "port", "type", "username", "password_ref")) {
-                    rollback.remove(profileKey(id, field))
-                }
-                rollback.remove(secretKey(id))
+        return ordinaryWrite {
+            require(items.size in 1..ProxyBatchImport.MAX_ENTRIES)
+            ensureLegacyProfileIndexed()
+            check(ProxyBatchImport.preview(items, listProfiles()).skipped == 0) {
+                "Import preview is stale"
             }
-            check(rollback.commit()) { "Import storage recovery failed" }
-            error("Import storage failed")
+            val originalIds = profileIds()
+            val ids = originalIds.toMutableSet()
+            val key by lazy { getOrCreateKey() }
+            val staged = items.map { item ->
+                val id = "profile-${UUID.randomUUID()}"
+                check(ids.add(id)) { "Profile identity collision" }
+                val secret = if (item.username.isNotEmpty()) {
+                    val chars = item.password.toCharArray()
+                    try { encrypt(chars, key) } finally { chars.fill(Char.MIN_VALUE) }
+                } else null
+                Triple(id, item, secret)
+            }
+            val editor = prefs.edit().putStringSet(KEY_PROFILE_IDS, ids)
+            for ((id, item, secret) in staged) {
+                editor.putString(profileKey(id, "name"), item.name)
+                    .putString(profileKey(id, "host"), item.host)
+                    .putInt(profileKey(id, "port"), item.port)
+                    .putString(profileKey(id, "type"), item.type.name)
+                    .putString(profileKey(id, "username"), item.username.takeIf { it.isNotEmpty() })
+                    .putString(profileKey(id, "password_ref"), secret?.let { "android-keystore:$id" })
+                if (secret != null) editor.putString(secretKey(id), secret)
+            }
+            if (!editor.commit()) {
+                // SharedPreferences may update memory even on disk failure. Attempt bounded rollback.
+                val rollback = prefs.edit().putStringSet(KEY_PROFILE_IDS, originalIds)
+                for ((id, _, _) in staged) {
+                    for (field in listOf("name", "host", "port", "type", "username", "password_ref")) {
+                        rollback.remove(profileKey(id, field))
+                    }
+                    rollback.remove(secretKey(id))
+                }
+                check(rollback.commit()) { "Import storage recovery failed" }
+                error("Import storage failed")
+            }
+            return@ordinaryWrite staged.size
         }
-        return staged.size
     }
 
     fun listProfiles(): List<ProxyProfile> {
@@ -364,9 +392,11 @@ class SecureProfileStore(context: Context) {
     }
 
     fun setAutoProfileSelection(enabled: Boolean) {
-        ensureLegacyProfileIndexed()
-        val editor = prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled)
-        check(editor.commit()) { "Failed to persist Auto proxy selection" }
+        ordinaryWrite {
+            ensureLegacyProfileIndexed()
+            val editor = prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled)
+            check(editor.commit()) { "Failed to persist Auto proxy selection" }
+        }
     }
 
     fun getLastAutoProfileId(): String? {
@@ -375,27 +405,31 @@ class SecureProfileStore(context: Context) {
     }
 
     fun setLastAutoProfileId(id: String?) {
-        ensureLegacyProfileIndexed()
-        val editor = prefs.edit()
-        if (id == null) {
-            editor.remove(KEY_LAST_AUTO_ID)
-        } else {
-            require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
-            editor.putString(KEY_LAST_AUTO_ID, id)
+        ordinaryWrite {
+            ensureLegacyProfileIndexed()
+            val editor = prefs.edit()
+            if (id == null) {
+                editor.remove(KEY_LAST_AUTO_ID)
+            } else {
+                require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+                editor.putString(KEY_LAST_AUTO_ID, id)
+            }
+            check(editor.commit()) { "Failed to persist last Auto proxy" }
         }
-        check(editor.commit()) { "Failed to persist last Auto proxy" }
     }
 
     fun setActiveProfile(id: String) {
-        ensureLegacyProfileIndexed()
-        require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
-        check(
-            prefs.edit()
-                .putString(KEY_ACTIVE_ID, id)
-                .putBoolean(KEY_AUTO_SELECTION, false)
-                .commit(),
-        ) {
-            "Failed to persist active proxy profile"
+        ordinaryWrite {
+            ensureLegacyProfileIndexed()
+            require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+            check(
+                prefs.edit()
+                    .putString(KEY_ACTIVE_ID, id)
+                    .putBoolean(KEY_AUTO_SELECTION, false)
+                    .commit(),
+            ) {
+                "Failed to persist active proxy profile"
+            }
         }
     }
 
@@ -418,51 +452,54 @@ class SecureProfileStore(context: Context) {
     }
 
     fun deleteProfile(id: String) {
-        ensureLegacyProfileIndexed()
-        if (loadProfileMetadata(id) == null) return
+        ordinaryWrite {
+            check(!prefs.contains(profileKey(id,"subscription_owner"))) { "Managed profile requires review" }
+            ensureLegacyProfileIndexed()
+            if (loadProfileMetadata(id) == null) return@ordinaryWrite
 
-        val remainingIds = profileIds().toMutableSet().apply { remove(id) }
-        val nextActiveId = if (prefs.getString(KEY_ACTIVE_ID, null) == id) {
-            remainingIds
-                .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
-                .firstOrNull()
-                ?.id
-        } else {
-            prefs.getString(KEY_ACTIVE_ID, null)
-        }
+            val remainingIds = profileIds().toMutableSet().apply { remove(id) }
+            val nextActiveId = if (prefs.getString(KEY_ACTIVE_ID, null) == id) {
+                remainingIds
+                    .mapNotNull(::loadProfileMetadata)
+                    .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
+                    .firstOrNull()
+                    ?.id
+            } else {
+                prefs.getString(KEY_ACTIVE_ID, null)
+            }
 
-        val editor = prefs.edit()
-            .putStringSet(KEY_PROFILE_IDS, remainingIds)
-            .remove(secretKey(id))
-            .remove(profileKey(id, "name"))
-            .remove(profileKey(id, "host"))
-            .remove(profileKey(id, "port"))
-            .remove(profileKey(id, "type"))
-            .remove(profileKey(id, "username"))
-            .remove(profileKey(id, "password_ref"))
+            val editor = prefs.edit()
+                .putStringSet(KEY_PROFILE_IDS, remainingIds)
+                .remove(secretKey(id))
+                .remove(profileKey(id, "name"))
+                .remove(profileKey(id, "host"))
+                .remove(profileKey(id, "port"))
+                .remove(profileKey(id, "type"))
+                .remove(profileKey(id, "username"))
+                .remove(profileKey(id, "password_ref"))
 
-        if (nextActiveId == null) {
-            editor.remove(KEY_ACTIVE_ID)
-        } else {
-            editor.putString(KEY_ACTIVE_ID, nextActiveId)
+            if (nextActiveId == null) {
+                editor.remove(KEY_ACTIVE_ID)
+            } else {
+                editor.putString(KEY_ACTIVE_ID, nextActiveId)
+            }
+            if (prefs.getString(KEY_LAST_AUTO_ID, null) == id) {
+                editor.remove(KEY_LAST_AUTO_ID)
+            }
+            if (prefs.getString(KEY_PRIMARY_ID, null) == id) {
+                val nextPrimary = remainingIds
+                    .mapNotNull(::loadProfileMetadata)
+                    .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
+                    .firstOrNull()
+                    ?.id
+                if (nextPrimary == null) editor.remove(KEY_PRIMARY_ID)
+                else editor.putString(KEY_PRIMARY_ID, nextPrimary)
+            }
+            if (prefs.getString(KEY_RECENTLY_FAILED_ID, null) == id) {
+                editor.remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT)
+            }
+            check(editor.commit()) { "Failed to delete proxy profile" }
         }
-        if (prefs.getString(KEY_LAST_AUTO_ID, null) == id) {
-            editor.remove(KEY_LAST_AUTO_ID)
-        }
-        if (prefs.getString(KEY_PRIMARY_ID, null) == id) {
-            val nextPrimary = remainingIds
-                .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
-                .firstOrNull()
-                ?.id
-            if (nextPrimary == null) editor.remove(KEY_PRIMARY_ID)
-            else editor.putString(KEY_PRIMARY_ID, nextPrimary)
-        }
-        if (prefs.getString(KEY_RECENTLY_FAILED_ID, null) == id) {
-            editor.remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT)
-        }
-        check(editor.commit()) { "Failed to delete proxy profile" }
     }
 
     fun getPrimaryProfileId(): String? {
@@ -473,10 +510,12 @@ class SecureProfileStore(context: Context) {
     }
 
     fun setPrimaryProfileId(id: String) {
-        ensureLegacyProfileIndexed()
-        require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
-        check(prefs.edit().putString(KEY_PRIMARY_ID, id).commit()) {
-            "Failed to persist primary proxy"
+        ordinaryWrite {
+            ensureLegacyProfileIndexed()
+            require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+            check(prefs.edit().putString(KEY_PRIMARY_ID, id).commit()) {
+                "Failed to persist primary proxy"
+            }
         }
     }
 
@@ -487,18 +526,22 @@ class SecureProfileStore(context: Context) {
     }.getOrDefault(PrimaryRestorePolicy.STAY_ON_CURRENT)
 
     fun setRestorePolicy(policy: PrimaryRestorePolicy) {
-        check(prefs.edit().putString(KEY_RESTORE_POLICY, policy.name).commit()) {
-            "Failed to persist primary restore policy"
+        ordinaryWrite {
+            check(prefs.edit().putString(KEY_RESTORE_POLICY, policy.name).commit()) {
+                "Failed to persist primary restore policy"
+            }
         }
     }
 
     fun markRecentlyFailedProfile(id: String, atMs: Long = System.currentTimeMillis()) {
-        check(
-            prefs.edit()
-                .putString(KEY_RECENTLY_FAILED_ID, id)
-                .putLong(KEY_RECENTLY_FAILED_AT, atMs)
-                .commit(),
-        ) { "Failed to persist failed proxy state" }
+        ordinaryWrite {
+            check(
+                prefs.edit()
+                    .putString(KEY_RECENTLY_FAILED_ID, id)
+                    .putLong(KEY_RECENTLY_FAILED_AT, atMs)
+                    .commit(),
+            ) { "Failed to persist failed proxy state" }
+        }
     }
 
     fun getRecentlyFailedProfileId(): String? = prefs.getString(KEY_RECENTLY_FAILED_ID, null)
@@ -506,32 +549,42 @@ class SecureProfileStore(context: Context) {
     fun getRecentlyFailedAtMs(): Long = prefs.getLong(KEY_RECENTLY_FAILED_AT, 0L)
 
     fun clearRecentlyFailedProfile() {
-        prefs.edit().remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT).commit()
+        ordinaryWrite {
+            prefs.edit().remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT).commit()
+        }
     }
 
     fun setLastFailoverAtMs(value: Long) {
-        prefs.edit().putLong(KEY_LAST_FAILOVER_AT, value).commit()
+        ordinaryWrite {
+            prefs.edit().putLong(KEY_LAST_FAILOVER_AT, value).commit()
+        }
     }
 
     fun getLastFailoverAtMs(): Long = prefs.getLong(KEY_LAST_FAILOVER_AT, 0L)
 
     fun markVpnProcessRestartPending() {
-        check(prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, true).commit()) {
-            "Failed to persist VPN restart handoff state"
+        ordinaryWrite {
+            check(prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, true).commit()) {
+                "Failed to persist VPN restart handoff state"
+            }
         }
     }
 
     @Synchronized
     fun consumeVpnProcessRestartPending(): Boolean {
-        val pending = prefs.getBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false)
-        if (pending) {
-            prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+        return ordinaryWrite {
+            val pending = prefs.getBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false)
+            if (pending) {
+                prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+            }
+            return@ordinaryWrite pending
         }
-        return pending
     }
 
     fun clearVpnProcessRestartPending() {
-        prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+        ordinaryWrite {
+            prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+        }
     }
 
     fun getSiteExclusions(): List<String> =
@@ -541,9 +594,11 @@ class SecureProfileStore(context: Context) {
             .sorted()
 
     fun setSiteExclusions(entries: Collection<String>) {
-        val normalized = SiteExclusionPolicy.normalizeAll(entries)
-        check(prefs.edit().putStringSet(KEY_SITE_EXCLUSIONS, normalized.toSet()).commit()) {
-            "Failed to persist site exclusions"
+        ordinaryWrite {
+            val normalized = SiteExclusionPolicy.normalizeAll(entries)
+            check(prefs.edit().putStringSet(KEY_SITE_EXCLUSIONS, normalized.toSet()).commit()) {
+                "Failed to persist site exclusions"
+            }
         }
     }
 
@@ -554,32 +609,32 @@ class SecureProfileStore(context: Context) {
             .sorted()
 
     fun setAppExclusions(packageIds: Collection<String>) {
-        val normalized = ApplicationExclusionPolicy.normalizeAll(packageIds)
-        check(prefs.edit().putStringSet(KEY_APP_EXCLUSIONS, normalized.toSet()).commit()) {
-            "Failed to persist application exclusions"
+        ordinaryWrite {
+            val normalized = ApplicationExclusionPolicy.normalizeAll(packageIds)
+            check(prefs.edit().putStringSet(KEY_APP_EXCLUSIONS, normalized.toSet()).commit()) {
+                "Failed to persist application exclusions"
+            }
         }
+    }
+
+    private fun legacyProfileIds(): Set<String> {
+        val activeId = prefs.getString(KEY_ACTIVE_ID, null)
+        return if (activeId != null && prefs.getString(profileKey(activeId,"host"),null) != null)
+            setOf(activeId) else emptySet()
     }
 
     private fun ensureLegacyProfileIndexed() {
         if (prefs.contains(KEY_PROFILE_IDS)) return
-
-        val activeId = prefs.getString(KEY_ACTIVE_ID, null)
-        val legacyIds = if (
-            activeId != null &&
-            prefs.getString(profileKey(activeId, "host"), null) != null
-        ) {
-            setOf(activeId)
-        } else {
-            emptySet()
-        }
-
-        check(prefs.edit().putStringSet(KEY_PROFILE_IDS, legacyIds).commit()) {
-            "Failed to initialize proxy profile index"
+        ordinaryWriteIfAvailable {
+            if (!prefs.contains(KEY_PROFILE_IDS)) check(prefs.edit().putStringSet(KEY_PROFILE_IDS,legacyProfileIds()).commit()) {
+                "Failed to initialize proxy profile index"
+            }
         }
     }
 
     private fun profileIds(): Set<String> =
-        prefs.getStringSet(KEY_PROFILE_IDS, emptySet())?.toSet().orEmpty()
+        if (prefs.contains(KEY_PROFILE_IDS)) prefs.getStringSet(KEY_PROFILE_IDS,emptySet())?.toSet().orEmpty()
+        else legacyProfileIds()
 
     private fun loadProfileMetadata(id: String): ProxyProfile? {
         val host = prefs.getString(profileKey(id, "host"), null) ?: return null
@@ -613,7 +668,7 @@ class SecureProfileStore(context: Context) {
         }
     }
 
-    private fun decrypt(encoded: String, key: SecretKey = getOrCreateKey()): String {
+    private fun decrypt(encoded: String, key: SecretKey = existingCredentialKey()): String {
         val parts = encoded.split(':', limit = 2)
         require(parts.size == 2) { "Invalid encrypted credential format" }
         val iv = Base64.decode(parts[0], Base64.NO_WRAP)

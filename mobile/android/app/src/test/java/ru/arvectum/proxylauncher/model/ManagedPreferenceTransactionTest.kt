@@ -6,6 +6,7 @@ import ru.arvectum.proxylauncher.storage.ManagedPreferenceBackend
 import ru.arvectum.proxylauncher.storage.ManagedCrashGate
 import ru.arvectum.proxylauncher.storage.ManagedCrashTransaction
 import ru.arvectum.proxylauncher.storage.ManagedOwnershipReview
+import ru.arvectum.proxylauncher.storage.ManagedOrdinaryWriteGuard
 import java.nio.file.Files
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceSchema as Schema
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceTransaction
@@ -334,6 +335,57 @@ class ManagedPreferenceTransactionTest {
         assertEquals(ManagedCrashTransaction.Outcome.STALE,review().confirm(tx,{"rev"},{true},true){false})
         assertEquals(ManagedCrashTransaction.Outcome.APPLIED,review().confirm(tx,{"rev"},{true},true))
         assertEquals(ManagedProfileRow(edited,null,"cipher-new"),Schema.snapshot(backend.read(),"owned").rows.single{it.profile.id=="owned"})
+    }
+
+    @Test fun ordinaryWritesRemainAvailableWhileVpnHoldsLeaseWithoutMarker() = withOwnershipFixture { _,_,gate ->
+        val lease=gate.acquire().lease!!
+        lease.use {
+            assertEquals(7,ManagedOrdinaryWriteGuard.write(gate,{false}){7})
+            assertEquals(ManagedCrashGate.Status.BUSY,gate.acquire().status)
+        }
+    }
+
+    @Test fun ordinaryWritesAndConstructorCleanupBlockOnMarkerOrLatch() = withOwnershipFixture { _,_,gate ->
+        var writes=0
+        ManagedOrdinaryWriteGuard.ifAvailable(gate,{true}){writes++}
+        reject { ManagedOrdinaryWriteGuard.write(gate,{true}){writes++} }
+        gate.acquire().lease!!.use { assertTrue(it.beginMutation()) }
+        assertFalse(gate.ordinaryWritesAllowed())
+        ManagedOrdinaryWriteGuard.ifAvailable(gate,{false}){writes++}
+        reject { ManagedOrdinaryWriteGuard.write(gate,{false}){writes++} }
+        assertEquals(0,writes)
+    }
+
+    @Test fun ordinaryWriteWaitsForSameProcessMutationAndRechecksMarker() = withOwnershipFixture { _,_,gate ->
+        val attempted=java.util.concurrent.CountDownLatch(1)
+        val finished=java.util.concurrent.CountDownLatch(1)
+        val allowed=java.util.concurrent.atomic.AtomicBoolean(true)
+        val wrote=java.util.concurrent.atomic.AtomicBoolean(false)
+        lateinit var worker:Thread
+        synchronized(ManagedOrdinaryWriteGuard.monitor) {
+            worker=Thread {
+                attempted.countDown()
+                allowed.set(runCatching { ManagedOrdinaryWriteGuard.write(gate,{false}){wrote.set(true)} }.isSuccess)
+                finished.countDown()
+            }.apply { start() }
+            assertTrue(attempted.await(2,java.util.concurrent.TimeUnit.SECONDS))
+            gate.acquire().lease!!.use { assertTrue(it.beginMutation()) }
+            assertFalse(finished.await(50,java.util.concurrent.TimeUnit.MILLISECONDS))
+        }
+        worker.join(2000)
+        assertFalse(worker.isAlive);assertFalse(allowed.get());assertFalse(wrote.get())
+    }
+
+    @Test fun markerProbeDoesNotCreateFilesAndRejectsAmbiguousDirectory() {
+        val root=Files.createTempDirectory("apl-ordinary-")
+        try {
+            val path=root.resolve("gate")
+            val gate=ManagedCrashGate(path)
+            assertTrue(gate.ordinaryWritesAllowed());assertFalse(Files.exists(path))
+            Files.write(path,byteArrayOf(1));assertFalse(gate.ordinaryWritesAllowed())
+            Files.delete(path);Files.createSymbolicLink(path,root.resolve("missing"))
+            assertFalse(gate.ordinaryWritesAllowed())
+        } finally { root.toFile().deleteRecursively() }
     }
 
     @Test fun newIdCannotOverwriteOrphan() {
