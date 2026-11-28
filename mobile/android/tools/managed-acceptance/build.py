@@ -20,11 +20,16 @@ model=storage.parent/'model'
 routing=storage.parent/'routing'
 classes=out/'probe.jar'
 java_classes=out/'java';java_classes.mkdir()
-run(jdk/'bin/javac','-source','8','-target','8','-d',java_classes,storage.parent.parent.parent.parent/'com/github/shadowsocks/bg/Tun2proxy.java')
-run(jdk/'bin/java','-cp',os.pathsep.join(compiler),'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-jvm-target','1.8','-classpath',os.pathsep.join([std,str(platform),str(java_classes)]),'-d',classes,here/'Probe.kt',here/'StoreProbe.kt',here/'VpnProbe.kt',here/'FixtureActivity.kt',*[storage/(name+'.kt') for name in ('ManagedCrashGate','ManagedProfileGateLocation','ManagedVpnProcessLease','ManagedPreferenceDiskVerifier','ManagedRecoveryEvidence','ManagedRecoveryReview','SecureProfileStore','SecureSubscriptionStore','ManagedPreferenceTransaction','ManagedCrashTransaction','ManagedChangeReview','ManagedOwnershipReview')],*[model/(name+'.kt') for name in ('ProxyProfile','ProxyImport','ProxyBatchImport','ProxySubscriptionImport','ProxyStructuredImport','StructuredJsonReader','SavedSubscriptionCatalog','ManagedSubscriptionRefresh','ManagedRollbackJournal','ProxyPoolState')],routing/'ApplicationExclusionPolicy.kt',routing/'SiteExclusionPolicy.kt',storage/'PoolUiStateStore.kt',*sorted((storage.parent/'tunnel').glob('*.kt')))
-run(bt/'d8','--min-api','26','--lib',platform,'--output',out,classes,std,*sorted(java_classes.rglob('*.class')))
 unsigned=out/'unsigned.apk';aligned=out/'aligned.apk';signed=out/'acceptance.apk'
-run(bt/'aapt2','link','-I',platform,'--manifest',here/'AndroidManifest.xml','-o',unsigned)
+res=here.parents[1]/'app/src/main/res'
+flats=out/'flats';flats.mkdir();generated=out/'generated';generated.mkdir()
+for locale in ('values','values-en'):
+    run(bt/'aapt2','compile','-o',flats,res/locale/'managed_review_strings.xml')
+run(bt/'aapt2','link','-I',platform,'--manifest',here/'AndroidManifest.xml','--java',generated,'--custom-package','ru.arvectum.proxylauncher','-o',unsigned,*sorted(flats.glob('*.flat')))
+run(jdk/'bin/javac','-source','8','-target','8','-d',java_classes,*sorted(generated.rglob('*.java')))
+run(jdk/'bin/javac','-source','8','-target','8','-d',java_classes,storage.parent.parent.parent.parent/'com/github/shadowsocks/bg/Tun2proxy.java')
+run(jdk/'bin/java','-cp',os.pathsep.join(compiler),'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-jvm-target','1.8','-classpath',os.pathsep.join([std,str(platform),str(java_classes)]),'-d',classes,here/'Probe.kt',here/'StoreProbe.kt',here/'VpnProbe.kt',here/'FixtureActivity.kt',here/'DialogProbe.kt',storage.parent/'ui/ManagedReviewMessages.kt',storage.parent/'ui/ManagedReviewDialogs.kt',*[storage/(name+'.kt') for name in ('ManagedCrashGate','ManagedProfileGateLocation','ManagedVpnProcessLease','ManagedPreferenceDiskVerifier','ManagedRecoveryEvidence','ManagedRecoveryReview','SecureProfileStore','SecureSubscriptionStore','ManagedPreferenceTransaction','ManagedCrashTransaction','ManagedChangeReview','ManagedOwnershipReview','ManagedReviewSession')],*[model/(name+'.kt') for name in ('ProxyProfile','ProxyImport','ProxyBatchImport','ProxySubscriptionImport','ProxyStructuredImport','StructuredJsonReader','SavedSubscriptionCatalog','ManagedSubscriptionRefresh','ManagedRollbackJournal','ProxyPoolState')],routing/'ApplicationExclusionPolicy.kt',routing/'SiteExclusionPolicy.kt',storage/'PoolUiStateStore.kt',*sorted((storage.parent/'tunnel').glob('*.kt')))
+run(bt/'d8','--min-api','26','--lib',platform,'--output',out,classes,std,*sorted(java_classes.rglob('*.class')))
 with zipfile.ZipFile(unsigned,'a') as apk:
     for dex in sorted(out.glob('classes*.dex')): apk.write(dex,dex.name)
 run(bt/'zipalign','-f','4',unsigned,aligned)

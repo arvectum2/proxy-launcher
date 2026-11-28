@@ -17,4 +17,5 @@
     <instrumentation android:name=".Probe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
     <instrumentation android:name=".StoreProbe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
     <instrumentation android:name=".VpnProbe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
+    <instrumentation android:name=".DialogProbe" android:targetPackage="ru.arvectum.apl.acceptance" android:functionalTest="true" />
 </manifest>

@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.content.*
 import android.os.*
 import ru.arvectum.proxylauncher.MainActivity
+import ru.arvectum.proxylauncher.R
 import ru.arvectum.proxylauncher.storage.*
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 import java.util.concurrent.CountDownLatch
@@ -59,13 +60,13 @@ class VpnProbe:Instrumentation() {
             val baseline=disk.readVerified()
             stage="busy"
             gate.acquire().lease!!.use {
-                launch("VPN unavailable: profile storage is not ready")
+                launch(c.getString(R.string.managed_vpn_busy))
                 check(it.isHeld());check(disk.matches(baseline))
             }
             report.putString("vpn_busy_denied","PASS")
             stage="pending"
             gate.acquire().lease!!.use { check(it.beginMutation()) }
-            launch("VPN unavailable: profile storage is not ready")
+            launch(c.getString(R.string.managed_vpn_pending))
             check(gate.acquire().status==ManagedCrashGate.Status.RECOVERY_REQUIRED)
             check(disk.matches(baseline));report.putString("vpn_pending_denied","PASS")
             stage="exit_reasons"

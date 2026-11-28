@@ -21,6 +21,8 @@ import android.os.Process
 import android.os.SystemClock
 import java.net.InetAddress
 import ru.arvectum.proxylauncher.MainActivity
+import ru.arvectum.proxylauncher.R
+import ru.arvectum.proxylauncher.ui.ManagedReviewMessages
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
@@ -80,8 +82,8 @@ class ProxyVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (profileGateStatus != ManagedCrashGate.Status.ACQUIRED) {
             // A startForegroundService caller still needs foreground acknowledgement.
-            if (intent?.action != ACTION_DISCONNECT) startForegroundCompat("VPN unavailable")
-            publishState(STATE_ERROR, "VPN unavailable: profile storage is not ready")
+            if (intent?.action != ACTION_DISCONNECT) startForegroundCompat(getString(R.string.managed_vpn_unavailable))
+            publishState(STATE_ERROR, getString(ManagedReviewMessages.vpnDenied(profileGateStatus)))
             stopForegroundCompat()
             stopSelf(startId)
             terminateVpnProcess()

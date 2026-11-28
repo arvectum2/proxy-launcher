@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Subscription update</string>
+    <string name="managed_rollback_title">Undo update</string>
+    <string name="managed_detach_title">Remove subscription</string>
+    <string name="managed_edit_title">Detach profile</string>
+    <string name="managed_recovery_title">Storage recovery</string>
+    <string name="managed_confirm">Confirm</string>
+    <string name="managed_cancel">Cancel</string>
+    <string name="managed_add">Add</string>
+    <string name="managed_update">Update</string>
+    <string name="managed_remove">Remove</string>
+    <string name="managed_replace_journal">I understand that the previous undo will no longer be available.</string>
+    <string name="managed_review_notice">Review these changes. Confirmation expires in five minutes and is cancelled when state changes.</string>
+    <string name="managed_detach_notice">Profiles remain on this device. Profiles to detach: %1$d.</string>
+    <string name="managed_edit_notice">The edited profile will no longer be managed by the subscription.</string>
+    <string name="managed_recovery_before">The previous state is verified. Confirmation removes the blocker without changing profiles.</string>
+    <string name="managed_recovery_after">The new state is verified. Confirmation removes the blocker without changing profiles.</string>
+    <string name="managed_applied">Changes saved.</string>
+    <string name="managed_stale">State changed or confirmation expired. Open a new review.</string>
+    <string name="managed_restored">The write did not complete. The previous state was restored.</string>
+    <string name="managed_busy">Storage is busy. Disconnect and open a new review.</string>
+    <string name="managed_unavailable">Storage is unavailable. Changes are not confirmed.</string>
+    <string name="managed_recovery_required">Storage recovery must be checked. Do not repeat the operation until checked.</string>
+    <string name="managed_followup_uncertain">Profiles remain separate. Subscription removal is unconfirmed. Check the catalog; do not retry automatically.</string>
+    <string name="managed_vpn_unavailable">VPN unavailable</string>
+    <string name="managed_vpn_busy">VPN unavailable: storage is busy.</string>
+    <string name="managed_vpn_pending">VPN unavailable: storage recovery required.</string>
+    <string name="managed_vpn_storage">VPN unavailable: storage is not ready.</string>
+</resources>
