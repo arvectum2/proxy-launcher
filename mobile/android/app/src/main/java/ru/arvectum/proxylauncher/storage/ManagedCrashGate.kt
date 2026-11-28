@@ -29,7 +29,28 @@ internal class ManagedCrashGate(
     }
 
     /** Nonblocking; any uncertainty fails closed. */
-    fun acquire(): Acquisition {
+    fun acquire(): Acquisition = acquireInternal(false)
+
+    /** Read-only inspection of an abandoned marker, never clears it. */
+    fun inspectPending(inspect: (ByteArray) -> ManagedRecoveryEvidence.State): ManagedRecoveryEvidence.State {
+        val lease=acquireInternal(true).lease ?: return ManagedRecoveryEvidence.State.UNKNOWN
+        return lease.use {
+            runCatching { inspect(lease.readPending()) }.getOrDefault(ManagedRecoveryEvidence.State.UNKNOWN)
+        }
+    }
+
+    /**
+     * Explicit recovery confirmation only. Caller must authenticate the reviewed payload
+     * and independently verify the exact durable state under this same exclusive lease.
+     */
+    internal fun acknowledgePending(expectedPayload: ByteArray, verify: (ByteArray) -> Boolean): Boolean {
+        val lease=acquireInternal(true).lease ?: return false
+        return lease.use {
+            runCatching { lease.resolvePending(expectedPayload,verify) }.getOrDefault(false)
+        }
+    }
+
+    private fun acquireInternal(recovery: Boolean): Acquisition {
         var channel: FileChannel? = null
         var lock: FileLock? = null
         var reserved: Path? = null
@@ -51,9 +72,10 @@ internal class ManagedCrashGate(
                 LinkOption.NOFOLLOW_LINKS)
             lock = channel.tryLock() ?: return Acquisition(Status.BUSY)
             // notExists is false on an indeterminate filesystem result as well.
-            if (!Files.notExists(markerPath, LinkOption.NOFOLLOW_LINKS))
-                return Acquisition(Status.RECOVERY_REQUIRED)
-            val lease = Lease(channel, lock, canonical, markerPath, syncDirectory) { synchronized(heldPaths) { heldPaths.remove(lockPath) } }
+            val absent = Files.notExists(markerPath, LinkOption.NOFOLLOW_LINKS)
+            if (!recovery && !absent) return Acquisition(Status.RECOVERY_REQUIRED)
+            if (recovery && absent) return Acquisition(Status.UNAVAILABLE)
+            val lease = Lease(channel, lock, canonical, markerPath, syncDirectory, recovery) { synchronized(heldPaths) { heldPaths.remove(lockPath) } }
             channel = null
             lock = null
             reserved = null
@@ -75,6 +97,7 @@ internal class ManagedCrashGate(
         private val directory: Path,
         private val marker: Path,
         private val syncDirectory: (Path) -> Unit,
+        private val recovery: Boolean,
         private val releaseReservation: () -> Unit,
     ) : AutoCloseable {
         private var closed = false
@@ -83,22 +106,49 @@ internal class ManagedCrashGate(
         private var markerDurable = false
         private fun usable() = !closed && channel.isOpen && lock.isValid
 
-        /** No data or credentials in the marker. Never overwrite an existing marker. */
+        /** Authenticated fingerprints only. Never overwrite an existing marker. */
         @Synchronized
-        fun beginMutation(): Boolean {
-            if (!usable() || started || resolved) return false
+        fun beginMutation(payload: ByteArray = "APL-MANAGED-PENDING-v1\n".toByteArray(Charsets.US_ASCII)): Boolean {
+            if (recovery || !usable() || started || resolved || payload.isEmpty() || payload.size > 4096) return false
             started = true
             return try {
                 FileChannel.open(marker, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE,
                     LinkOption.NOFOLLOW_LINKS).use { file ->
-                    val bytes = ByteBuffer.wrap("APL-MANAGED-PENDING-v1\n".toByteArray(Charsets.US_ASCII))
-                    while (bytes.hasRemaining()) file.write(bytes)
+                    val bytes = ByteBuffer.wrap(payload)
+                    while (bytes.hasRemaining()) require(file.write(bytes)>0)
                     file.force(true)
                 }
                 syncDirectory(directory)
                 markerDurable = true
                 true
             } catch (_: Exception) { false }
+        }
+
+        @Synchronized
+        internal fun readPending(): ByteArray {
+            check(recovery && usable())
+            return readMarker()
+        }
+
+        private fun readMarker(): ByteArray {
+            check(Files.isRegularFile(marker,LinkOption.NOFOLLOW_LINKS))
+            return FileChannel.open(marker,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS).use { file ->
+                val size=file.size()
+                require(size in 1..4096)
+                val buffer=ByteBuffer.allocate(size.toInt())
+                while(buffer.hasRemaining()) require(file.read(buffer)>0)
+                require(file.size()==size && file.read(ByteBuffer.allocate(1)) == -1)
+                buffer.array()
+            }
+        }
+
+        @Synchronized
+        internal fun resolvePending(expectedPayload: ByteArray, verify: (ByteArray) -> Boolean): Boolean {
+            if (!recovery || !usable() || resolved) return false
+            val actual=readPending()
+            if (!java.security.MessageDigest.isEqual(expectedPayload,actual) ||
+                !runCatching { verify(actual) }.getOrDefault(false)) return false
+            return removeMarker(actual)
         }
 
         /**
@@ -108,21 +158,31 @@ internal class ManagedCrashGate(
          */
         @Synchronized
         fun resolve(verifyDurableOutcome: () -> Boolean): Boolean {
-            if (!usable() || !started || !markerDurable || resolved ||
+            if (recovery || !usable() || !started || !markerDurable || resolved ||
                 !runCatching(verifyDurableOutcome).getOrDefault(false)) return false
-            return try {
-                Files.delete(marker)
-                syncDirectory(directory)
-                resolved = true
-                true
-            } catch (_: Exception) {
-                runCatching {
-                    FileChannel.open(marker, StandardOpenOption.CREATE, StandardOpenOption.WRITE,
-                        LinkOption.NOFOLLOW_LINKS).use { file -> file.force(true) }
+            // Preserve the original authenticated evidence if deletion cannot be synced.
+            val original = runCatching { readMarker() }.getOrNull() ?: return false
+            return removeMarker(original)
+        }
+
+        private fun removeMarker(original: ByteArray): Boolean = try {
+            Files.delete(marker)
+            syncDirectory(directory)
+            resolved = true
+            true
+        } catch (_: Exception) {
+            runCatching {
+                if (Files.notExists(marker,LinkOption.NOFOLLOW_LINKS)) {
+                    FileChannel.open(marker,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,
+                        LinkOption.NOFOLLOW_LINKS).use { file ->
+                        val bytes=ByteBuffer.wrap(original)
+                        while(bytes.hasRemaining()) require(file.write(bytes)>0)
+                        file.force(true)
+                    }
                     syncDirectory(directory)
                 }
-                false
             }
+            false
         }
 
         /** Releasing exclusion does not clear an unresolved marker. */

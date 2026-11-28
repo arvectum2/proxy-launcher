@@ -9,6 +9,7 @@ package ru.arvectum.proxylauncher.storage
 internal class ManagedCrashTransaction(
     private val gate: ManagedCrashGate,
     private val backend: ManagedPreferenceBackend,
+    private val evidenceKey: () -> javax.crypto.SecretKey,
     private val durableMatches: (Map<String,Any>) -> Boolean,
 ) {
     enum class Outcome { APPLIED, STALE, RESTORED, BUSY, UNAVAILABLE, RECOVERY_REQUIRED }
@@ -27,10 +28,13 @@ internal class ManagedCrashTransaction(
                 runCatching { durableMatches(state) }.getOrDefault(false)
             if (!permitted() || !runCatching { backend.read() == expected }.getOrDefault(false) ||
                 !durable(expected)) return@use Outcome.STALE
-            if (!lease.beginMutation()) return@use Outcome.RECOVERY_REQUIRED
             val target = expected.toMutableMap().apply {
                 patch.forEach { (k,v) -> if (v == null) remove(k) else put(k,v) }
             }
+            if (expected==target) return@use Outcome.STALE
+            val evidence = runCatching { ManagedRecoveryEvidence.create(expected,target).seal(evidenceKey()) }.getOrNull()
+                ?: return@use Outcome.UNAVAILABLE
+            if (!lease.beginMutation(evidence)) return@use Outcome.RECOVERY_REQUIRED
             val outcome = ManagedPreferenceTransaction(backend).execute(expected,patch,::permitted)
             val verified = when(outcome) {
                 ManagedPreferenceTransaction.Outcome.APPLIED -> target
