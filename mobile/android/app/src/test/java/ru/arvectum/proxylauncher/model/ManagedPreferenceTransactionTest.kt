@@ -7,6 +7,7 @@ import ru.arvectum.proxylauncher.storage.ManagedCrashGate
 import ru.arvectum.proxylauncher.storage.ManagedCrashTransaction
 import ru.arvectum.proxylauncher.storage.ManagedOwnershipReview
 import ru.arvectum.proxylauncher.storage.ManagedChangeReview
+import ru.arvectum.proxylauncher.storage.ManagedReviewSession
 import ru.arvectum.proxylauncher.storage.ManagedOrdinaryWriteGuard
 import java.nio.file.Files
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceSchema as Schema
@@ -459,6 +460,64 @@ class ManagedPreferenceTransactionTest {
         available=false
         assertEquals(ManagedCrashTransaction.Outcome.STALE,review.confirm(tx,backend::read,{"rev"},{null},{true},false))
         assertEquals(0,backend.calls)
+    }
+
+    @Test fun patchPreparationRequiresLeaseAndDurableBaseline() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        var builds=0
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val lease=gate.acquire().lease!!
+        lease.use {
+            assertEquals(ManagedCrashTransaction.Outcome.BUSY,tx.executePrepared(raw,{true}){builds++;emptyMap()})
+        }
+        assertEquals(0,builds)
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,tx.executePrepared(raw,{true}){
+            builds++;assertEquals(ManagedCrashGate.Status.BUSY,gate.acquire().status)
+            mapOf("site_exclusions" to setOf("other.invalid"))
+        })
+        assertEquals(1,builds)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,tx.executePrepared(raw,{true}){builds++;emptyMap()})
+        assertEquals(1,builds)
+    }
+
+    @Test fun patchPreparationRechecksPermissionBeforeWriting() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,_,_->fail("unexpected write");false}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){true}
+        var allowed=true
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,tx.executePrepared(raw,{allowed}){
+            allowed=false;mapOf("site_exclusions" to emptySet<String>())
+        })
+        assertEquals(0,backend.calls);assertTrue(gate.ordinaryWritesAllowed())
+    }
+
+    @Test fun previewRejectsChangingImplicitPrimaryAndOrphanId() = withOwnershipFixture { raw,key,_ ->
+        val withoutPrimary=raw-"active_profile_id"-"pool_primary_profile_id"
+        val state=Schema.snapshot(withoutPrimary,null)
+        val early=ImportedProxy("new.invalid",80,ProxyType.HTTP,"","","A")
+        val keep=ImportedProxy("owned.invalid",80,ProxyType.HTTP,"u","password","Updated")
+        val plan=ManagedSubscriptionRefresh.prepare(source,listOf(early,keep),state,{1L},{_,_->true},{"new"})!!
+        assertFalse(Schema.validateRefreshPreview(withoutPrimary,state,plan.projection(state)!!))
+        val explicit=Schema.snapshot(raw,null)
+        val orphan=raw+("profile.new.name" to "Orphan")
+        val second=ManagedSubscriptionRefresh.prepare(source,listOf(early,keep),explicit,{1L},{_,_->true},{"new"})!!
+        assertTrue(Schema.validateRefreshPreview(raw,explicit,second.projection(explicit)!!))
+        assertFalse(Schema.validateRefreshPreview(orphan,explicit,second.projection(explicit)!!))
+    }
+
+    @Test fun lifecycleSessionDiscardsStaleFetchAndCancelsOnRoundTrip() {
+        val session=ManagedReviewSession();var cancelled=0
+        assertNull(session.begin())
+        session.update(true,true,"a");val first=session.begin()!!
+        assertTrue(session.attach(first){cancelled++})
+        session.update(false,true,"a");session.update(true,true,"a")
+        assertFalse(session.permits(first));assertEquals(1,cancelled)
+        val second=session.begin()!!
+        assertFalse(session.attach(first){cancelled++});assertTrue(session.permits(second))
+        assertTrue(session.attach(second){cancelled++})
+        session.update(true,false,"a");session.update(true,true,"a")
+        assertFalse(session.permits(second));assertEquals(3,cancelled)
+        val third=session.begin()!!;session.update(true,true,"b");session.update(true,true,"a")
+        assertFalse(session.permits(third))
     }
 
     @Test fun newIdCannotOverwriteOrphan() {

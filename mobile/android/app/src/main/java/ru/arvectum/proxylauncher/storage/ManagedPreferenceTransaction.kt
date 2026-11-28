@@ -53,6 +53,20 @@ internal object ManagedPreferenceSchema {
             ?: state.rows.minWithOrNull(compareBy<ManagedProfileRow> { it.profile.name.lowercase(java.util.Locale.ROOT) }
                 .thenBy { it.profile.id })?.profile?.id
 
+    /** Same fallback ordering as runtime primary selection, before showing a confirmable review. */
+    fun validateRefreshPreview(raw: Map<String,Any>, before: ManagedProfileState,
+                               projection: ManagedSubscriptionRefresh.Projection): Boolean = runCatching {
+        require(snapshot(raw,before.selection.selected) == before)
+        val prior = before.rows.map { it.profile.id }.toSet()
+        val primary = effectivePrimary(before)
+        require(projection.changedIds.isNotEmpty() && projection.changedIds.none { it in before.protectedIds || it == primary })
+        val nextPrimary = before.selection.primary?.takeIf { it in projection.names }
+            ?: projection.names.entries.minWithOrNull(compareBy<Map.Entry<String,String>> { it.value.lowercase(java.util.Locale.ROOT) }.thenBy { it.key })?.key
+        require(primary == null || primary == nextPrimary)
+        require((projection.names.keys-prior).all { id -> fields.none { field(id,it) in raw } && secret(id) !in raw })
+        true
+    }.getOrDefault(false)
+
     /** All changed profile keys, index and journal in one patch; never writes selection or telemetry. */
     fun patch(raw: Map<String,Any>, before: ManagedProfileState, after: ManagedProfileState,
               sourceId: String, journal: String?): Map<String,Any?> =

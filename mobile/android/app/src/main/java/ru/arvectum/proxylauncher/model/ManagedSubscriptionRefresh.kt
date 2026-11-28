@@ -47,6 +47,18 @@ internal class ManagedSubscriptionRefresh private constructor(
     private var consumed = false
     override fun toString() = "ManagedSubscriptionRefresh(redacted)"
 
+    /** Structural projection for review-time primary and orphan checks; no credentials. */
+    internal class Projection(val names: Map<String,String>, val changedIds: Set<String>)
+    internal fun projection(current: ManagedProfileState): Projection? {
+        if (consumed || current != baseline || elapsed()-started !in 0 until TTL_MS) return null
+        val names = current.rows.associate { it.profile.id to it.profile.name }.toMutableMap()
+        for (change in changes) {
+            if (change.kind == Kind.REMOVE) names.remove(change.id)
+            else names[change.id] = change.item?.name ?: return null
+        }
+        return Projection(names.toMap(),changes.map { it.id }.toSet())
+    }
+
     fun cancel() { consumed = true }
 
     fun confirm(currentSource: SavedSubscription?, current: ManagedProfileState, foregroundDisconnected: Boolean,

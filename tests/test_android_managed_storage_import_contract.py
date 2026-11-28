@@ -36,7 +36,7 @@ class ManagedStorageContract(unittest.TestCase):
                      'review.confirm(managedTransaction,managedBackend::read','manager.runningAppProcesses',
                      'android.os.Looper.myLooper() != android.os.Looper.getMainLooper()'):
             self.assertIn(text,STORE)
-        for text in ('journal.restore(source,before,true)','ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,true)','transaction.execute(expected,patch,permitted)'):
+        for text in ('journal.restore(source,before,true)','ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,true)','transaction.executePrepared(expected,permitted,makePatch)'):
             self.assertIn(text,REVIEW)
         for text in ('prepareManagedRefresh(','prepareManagedRollback(','confirmManagedChange('):
             self.assertNotIn(text,MAIN)

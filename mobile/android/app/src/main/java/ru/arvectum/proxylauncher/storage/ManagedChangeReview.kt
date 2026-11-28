@@ -37,8 +37,7 @@ internal class ManagedChangeReview private constructor(
         try {
             if (replacesRollback && !acceptRollbackReplacement || !permitted() ||
                 !runCatching { currentRaw() == expected }.getOrDefault(false)) return ManagedCrashTransaction.Outcome.STALE
-            val patch = runCatching(makePatch).getOrNull() ?: return ManagedCrashTransaction.Outcome.STALE
-            return transaction.execute(expected,patch,permitted)
+            return transaction.executePrepared(expected,permitted,makePatch)
         } finally { cancelPlan() }
     }
 
@@ -49,6 +48,9 @@ internal class ManagedChangeReview private constructor(
                     plan: ManagedSubscriptionRefresh, elapsed: () -> Long, authenticateJournal: () -> Unit,
                     build: (ManagedSubscriptionRefresh,Map<String,Any>) -> Map<String,Any?>?): ManagedChangeReview? = runCatching {
             require(revision.isNotEmpty() && revision.length<=100_000 && plan.summary.lines.isNotEmpty())
+            val baseline=ManagedPreferenceSchema.snapshot(raw,selected)
+            val projection=plan.projection(baseline) ?: return null
+            if (!ManagedPreferenceSchema.validateRefreshPreview(raw,baseline,projection)) { plan.cancel(); return null }
             val previous = ManagedPreferenceSchema.JOURNAL in raw
             if (previous) authenticateJournal()
             val now = elapsed(); require(now>=0)

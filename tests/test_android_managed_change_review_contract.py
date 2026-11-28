@@ -13,6 +13,19 @@ class ChangeReviewContract(unittest.TestCase):
         review=(BASE/'storage/ManagedChangeReview.kt').read_text()
         for token in ('currentRaw() == expected','currentRevision() == revision','currentSelection() == selected','elapsed()-started in 0 until TTL_MS','replacesRollback && !acceptRollbackReplacement','finally { cancelPlan() }'):
             self.assertIn(token,review)
+    def test_exclusive_preparation_and_preview(self):
+        tx=(BASE/'storage/ManagedCrashTransaction.kt').read_text()
+        self.assertLess(tx.index('val acquisition = gate.acquire()'),tx.index('val patch = runCatching(prepare)'))
+        self.assertLess(tx.index('!durable(expected)'),tx.index('val patch = runCatching(prepare)'))
+        self.assertLess(tx.index('val patch = runCatching(prepare)'),tx.index('lease.beginMutation(evidence)'))
+        review=(BASE/'storage/ManagedChangeReview.kt').read_text()
+        self.assertIn('transaction.executePrepared(expected,permitted,makePatch)',review)
+        self.assertIn('validateRefreshPreview(raw,baseline,projection)',review)
+    def test_session_remains_dormant(self):
+        session=(BASE/'storage/ManagedReviewSession.kt').read_text()
+        self.assertIn('current === ticket',session)
+        self.assertIn('cancel?.invoke()',session)
+        self.assertNotIn('ManagedReviewSession(', (BASE/'MainActivity.kt').read_text())
     def test_no_unreviewed_rollback_or_ui_activation(self):
         store=(BASE/'storage/SecureProfileStore.kt').read_text()
         self.assertNotIn('fun rollbackManagedRefresh(',store)
