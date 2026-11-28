@@ -106,6 +106,9 @@ internal class ManagedCrashGate(
         private var markerDurable = false
         private fun usable() = !closed && channel.isOpen && lock.isValid
 
+        @Synchronized
+        internal fun isHeld(): Boolean = usable()
+
         /** Authenticated fingerprints only. Never overwrite an existing marker. */
         @Synchronized
         fun beginMutation(payload: ByteArray = "APL-MANAGED-PENDING-v1\n".toByteArray(Charsets.US_ASCII)): Boolean {

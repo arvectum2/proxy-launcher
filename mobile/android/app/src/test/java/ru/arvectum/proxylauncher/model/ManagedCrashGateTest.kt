@@ -7,6 +7,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import ru.arvectum.proxylauncher.storage.ManagedCrashGate
 import ru.arvectum.proxylauncher.storage.ManagedCrashGate.Status
+import ru.arvectum.proxylauncher.storage.ManagedVpnProcessLease
 
 class ManagedCrashGateTest {
     private fun withDirectory(block: (Path) -> Unit) {
@@ -81,6 +82,35 @@ class ManagedCrashGateTest {
         }
     }
 
+    @Test fun vpnLeaseSurvivesServiceRecreationUntilProcessExit() = withDirectory { dir ->
+        val cp = listOf(CrashGateChild::class.java, ManagedCrashGate::class.java, kotlin.Unit::class.java)
+            .map { java.io.File(requireNotNull(it.protectionDomain).codeSource.location.toURI()).path }
+            .distinct().joinToString(java.io.File.pathSeparator)
+        val java = java.io.File(System.getProperty("java.home"), "bin/java").path
+        val child = ProcessBuilder(java,"-cp",cp,CrashGateChild::class.java.name,dir.toString(),"vpn")
+            .redirectErrorStream(true).start()
+        try {
+            val deadline = System.nanoTime()+TimeUnit.SECONDS.toNanos(10)
+            while (!Files.exists(dir.resolve("child.ready")) && child.isAlive && System.nanoTime()<deadline)
+                Thread.sleep(20)
+            assertTrue(Files.exists(dir.resolve("child.ready")))
+            assertEquals(Status.BUSY, ManagedCrashGate(dir).acquire().status)
+            assertFalse(Files.exists(dir.resolve("managed.pending")))
+            child.destroyForcibly()
+            assertTrue(child.waitFor(10,TimeUnit.SECONDS))
+            ManagedCrashGate(dir).acquire().lease!!.close()
+        } finally { child.destroyForcibly(); child.waitFor(10,TimeUnit.SECONDS) }
+    }
+
+    @Test fun vpnCannotEnterWhileManagedMutationOrRecoveryIsPending() = withDirectory { dir ->
+        val gate = ManagedCrashGate(dir)
+        gate.acquire().lease!!.use {
+            assertEquals(Status.BUSY, ManagedVpnProcessLease.enter(gate))
+            assertTrue(it.beginMutation())
+        }
+        assertEquals(Status.RECOVERY_REQUIRED, ManagedVpnProcessLease.enter(gate))
+    }
+
     @Test fun separateJvmContentionAndAbruptExit() = withDirectory { dir ->
         // Gradle's test worker classpath can be indirect. Resolve actual code source paths.
         val cp = listOf(CrashGateChild::class.java,ManagedCrashGate::class.java,kotlin.Unit::class.java)
@@ -112,6 +142,14 @@ object CrashGateChild {
             val result=ManagedCrashGate(dir).acquire()
             result.lease?.close()
             println(result.status.name)
+            return
+        }
+        if (args.getOrNull(1)=="vpn") {
+            check(ManagedVpnProcessLease.enter(ManagedCrashGate(dir)) == Status.ACQUIRED)
+            // A new service instance enters the same process; it reuses the retained lease.
+            check(ManagedVpnProcessLease.enter(ManagedCrashGate(dir)) == Status.ACQUIRED)
+            Files.createFile(dir.resolve("child.ready"))
+            Thread.sleep(60_000)
             return
         }
         val lease=checkNotNull(ManagedCrashGate(dir).acquire().lease)

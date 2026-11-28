@@ -59,7 +59,7 @@ class SecureProfileStore(context: Context) {
     }
 
     private val managedGate by lazy {
-        ManagedCrashGate(appContext.noBackupFilesDir.toPath().resolve("managed-profile-gate"))
+        managedProfileGate(appContext)
     }
     private val managedDisk by lazy {
         ManagedPreferenceDiskVerifier(appContext.dataDir.toPath().resolve("shared_prefs").resolve("$PREFS_NAME.xml"))
