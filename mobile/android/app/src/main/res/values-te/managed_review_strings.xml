@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">సబ్‌స్క్రిప్షన్‌ను నవీకరించండి</string>
+    <string name="managed_rollback_title">నవీకరణను రద్దు చేయండి</string>
+    <string name="managed_detach_title">సబ్‌స్క్రిప్షన్‌ను తొలగించండి</string>
+    <string name="managed_edit_title">ప్రొఫైల్‌ను వేరు చేయండి</string>
+    <string name="managed_recovery_title">స్టోరేజ్ పునరుద్ధరణ</string>
+    <string name="managed_confirm">నిర్ధారించండి</string>
+    <string name="managed_cancel">రద్దు చేయండి</string>
+    <string name="managed_add">జోడించండి</string>
+    <string name="managed_update">మార్చండి</string>
+    <string name="managed_remove">తొలగించండి</string>
+    <string name="managed_replace_journal">మునుపటి నవీకరణను ఇక వెనక్కి తీసుకోలేమని నాకు అర్థమైంది.</string>
+    <string name="managed_review_notice">మార్పులను పరిశీలించండి. ఐదు నిమిషాల తర్వాత లేదా స్థితి మారితే నిర్ధారణ రద్దవుతుంది.</string>
+    <string name="managed_detach_notice">ప్రొఫైల్‌లు ఈ పరికరంలోనే ఉంటాయి. వేరు చేయాల్సిన ప్రొఫైల్‌లు: %1$d.</string>
+    <string name="managed_edit_notice">సవరించిన ప్రొఫైల్‌ను ఇక సబ్‌స్క్రిప్షన్ నిర్వహించదు.</string>
+    <string name="managed_recovery_before">మునుపటి స్థితి ధృవీకరించబడింది. నిర్ధారణ ప్రొఫైల్‌లను మార్చకుండా అడ్డంకిని తొలగిస్తుంది.</string>
+    <string name="managed_recovery_after">కొత్త స్థితి ధృవీకరించబడింది. నిర్ధారణ ప్రొఫైల్‌లను మార్చకుండా అడ్డంకిని తొలగిస్తుంది.</string>
+    <string name="managed_applied">మార్పులు సేవ్ అయ్యాయి.</string>
+    <string name="managed_stale">స్థితి మారింది లేదా నిర్ధారణ గడువు ముగిసింది. కొత్త ప్రివ్యూను తెరవండి.</string>
+    <string name="managed_restored">రాయడం పూర్తికాలేదు. మునుపటి స్థితి పునరుద్ధరించబడింది.</string>
+    <string name="managed_busy">స్టోరేజ్ బిజీగా ఉంది. కనెక్షన్‌ను ముగించి కొత్త ప్రివ్యూను తెరవండి.</string>
+    <string name="managed_unavailable">స్టోరేజ్ అందుబాటులో లేదు. మార్పులు నిర్ధారించబడలేదు.</string>
+    <string name="managed_recovery_required">స్టోరేజ్ పునరుద్ధరణను పరిశీలించాలి. పరిశీలనకు ముందు చర్యను పునరావృతం చేయవద్దు.</string>
+    <string name="managed_followup_uncertain">ప్రొఫైల్‌లు వేరుగానే ఉంటాయి. సబ్‌స్క్రిప్షన్ తొలగింపు నిర్ధారించబడలేదు. జాబితాను పరిశీలించండి; స్వయంచాలకంగా మళ్లీ ప్రయత్నించవద్దు.</string>
+    <string name="managed_vpn_unavailable">VPN అందుబాటులో లేదు</string>
+    <string name="managed_vpn_busy">VPN అందుబాటులో లేదు: స్టోరేజ్ బిజీగా ఉంది.</string>
+    <string name="managed_vpn_pending">VPN అందుబాటులో లేదు: స్టోరేజ్ పునరుద్ధరణ అవసరం.</string>
+    <string name="managed_vpn_storage">VPN అందుబాటులో లేదు: స్టోరేజ్ సిద్ధంగా లేదు.</string>
+</resources>

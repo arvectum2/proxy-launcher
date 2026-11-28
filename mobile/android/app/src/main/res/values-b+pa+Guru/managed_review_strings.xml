@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">ਗਾਹਕੀ ਅੱਪਡੇਟ ਕਰੋ</string>
+    <string name="managed_rollback_title">ਅੱਪਡੇਟ ਵਾਪਸ ਲਓ</string>
+    <string name="managed_detach_title">ਗਾਹਕੀ ਹਟਾਓ</string>
+    <string name="managed_edit_title">ਪ੍ਰੋਫਾਈਲ ਵੱਖ ਕਰੋ</string>
+    <string name="managed_recovery_title">ਸਟੋਰੇਜ ਮੁੜ ਪ੍ਰਾਪਤੀ</string>
+    <string name="managed_confirm">ਪੁਸ਼ਟੀ ਕਰੋ</string>
+    <string name="managed_cancel">ਰੱਦ ਕਰੋ</string>
+    <string name="managed_add">ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="managed_update">ਬਦਲੋ</string>
+    <string name="managed_remove">ਹਟਾਓ</string>
+    <string name="managed_replace_journal">ਮੈਂ ਸਮਝਦਾ ਹਾਂ ਕਿ ਪਿਛਲਾ ਅੱਪਡੇਟ ਹੁਣ ਵਾਪਸ ਨਹੀਂ ਲਿਆ ਜਾ ਸਕੇਗਾ।</string>
+    <string name="managed_review_notice">ਬਦਲਾਅ ਜਾਂਚੋ। ਪੁਸ਼ਟੀ ਪੰਜ ਮਿੰਟ ਬਾਅਦ ਜਾਂ ਸਥਿਤੀ ਬਦਲਣ ਤੇ ਰੱਦ ਹੋ ਜਾਂਦੀ ਹੈ।</string>
+    <string name="managed_detach_notice">ਪ੍ਰੋਫਾਈਲ ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ ਰਹਿਣਗੇ। ਵੱਖ ਕੀਤੇ ਜਾਣ ਵਾਲੇ ਪ੍ਰੋਫਾਈਲ: %1$d।</string>
+    <string name="managed_edit_notice">ਸੰਪਾਦਿਤ ਪ੍ਰੋਫਾਈਲ ਹੁਣ ਗਾਹਕੀ ਦੁਆਰਾ ਪ੍ਰਬੰਧਿਤ ਨਹੀਂ ਹੋਵੇਗਾ।</string>
+    <string name="managed_recovery_before">ਪਿਛਲੀ ਸਥਿਤੀ ਦੀ ਜਾਂਚ ਹੋ ਚੁੱਕੀ ਹੈ। ਪੁਸ਼ਟੀ ਪ੍ਰੋਫਾਈਲ ਬਦਲੇ ਬਿਨਾਂ ਰੋਕ ਹਟਾਏਗੀ।</string>
+    <string name="managed_recovery_after">ਨਵੀਂ ਸਥਿਤੀ ਦੀ ਜਾਂਚ ਹੋ ਚੁੱਕੀ ਹੈ। ਪੁਸ਼ਟੀ ਪ੍ਰੋਫਾਈਲ ਬਦਲੇ ਬਿਨਾਂ ਰੋਕ ਹਟਾਏਗੀ।</string>
+    <string name="managed_applied">ਬਦਲਾਅ ਸੁਰੱਖਿਅਤ ਕੀਤੇ ਗਏ।</string>
+    <string name="managed_stale">ਸਥਿਤੀ ਬਦਲ ਗਈ ਜਾਂ ਪੁਸ਼ਟੀ ਦੀ ਮਿਆਦ ਮੁੱਕ ਗਈ। ਨਵੀਂ ਝਲਕ ਖੋਲ੍ਹੋ।</string>
+    <string name="managed_restored">ਲਿਖਣ ਦੀ ਪ੍ਰਕਿਰਿਆ ਪੂਰੀ ਨਹੀਂ ਹੋਈ। ਪਿਛਲੀ ਸਥਿਤੀ ਬਹਾਲ ਹੋ ਗਈ।</string>
+    <string name="managed_busy">ਸਟੋਰੇਜ ਵਿਅਸਤ ਹੈ। ਕਨੈਕਸ਼ਨ ਤੋੜੋ ਅਤੇ ਨਵੀਂ ਝਲਕ ਖੋਲ੍ਹੋ।</string>
+    <string name="managed_unavailable">ਸਟੋਰੇਜ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਬਦਲਾਅ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਹੋਈ।</string>
+    <string name="managed_recovery_required">ਸਟੋਰੇਜ ਮੁੜ ਪ੍ਰਾਪਤੀ ਦੀ ਜਾਂਚ ਲਾਜ਼ਮੀ ਹੈ। ਜਾਂਚ ਤੋਂ ਪਹਿਲਾਂ ਕਾਰਵਾਈ ਨਾ ਦੁਹਰਾਓ।</string>
+    <string name="managed_followup_uncertain">ਪ੍ਰੋਫਾਈਲ ਵੱਖ ਰਹਿਣਗੇ। ਗਾਹਕੀ ਹਟਾਉਣ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਹੋਈ। ਸੂਚੀ ਜਾਂਚੋ; ਆਪਣੇ ਆਪ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਨਾ ਕਰੋ।</string>
+    <string name="managed_vpn_unavailable">VPN ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
+    <string name="managed_vpn_busy">VPN ਉਪਲਬਧ ਨਹੀਂ ਹੈ: ਸਟੋਰੇਜ ਵਿਅਸਤ ਹੈ।</string>
+    <string name="managed_vpn_pending">VPN ਉਪਲਬਧ ਨਹੀਂ ਹੈ: ਸਟੋਰੇਜ ਮੁੜ ਪ੍ਰਾਪਤੀ ਲੋੜੀਂਦੀ ਹੈ।</string>
+    <string name="managed_vpn_storage">VPN ਉਪਲਬਧ ਨਹੀਂ ਹੈ: ਸਟੋਰੇਜ ਤਿਆਰ ਨਹੀਂ ਹੈ।</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Sasisha usajili</string>
+    <string name="managed_rollback_title">Tendua sasisho</string>
+    <string name="managed_detach_title">Ondoa usajili</string>
+    <string name="managed_edit_title">Tenganisha wasifu</string>
+    <string name="managed_recovery_title">Urejeshaji wa hifadhi</string>
+    <string name="managed_confirm">Thibitisha</string>
+    <string name="managed_cancel">Ghairi</string>
+    <string name="managed_add">Ongeza</string>
+    <string name="managed_update">Badilisha</string>
+    <string name="managed_remove">Ondoa</string>
+    <string name="managed_replace_journal">Ninaelewa kuwa sitaweza kutendua sasisho la awali.</string>
+    <string name="managed_review_notice">Kagua mabadiliko. Uthibitisho unaisha baada ya dakika tano au hali ikibadilika.</string>
+    <string name="managed_detach_notice">Wasifu utabaki kwenye kifaa hiki. Wasifu wa kutenganisha: %1$d.</string>
+    <string name="managed_edit_notice">Wasifu uliohaririwa hautadhibitiwa tena na usajili.</string>
+    <string name="managed_recovery_before">Hali ya awali imethibitishwa. Uthibitisho huondoa kizuizi bila kubadilisha wasifu.</string>
+    <string name="managed_recovery_after">Hali mpya imethibitishwa. Uthibitisho huondoa kizuizi bila kubadilisha wasifu.</string>
+    <string name="managed_applied">Mabadiliko yamehifadhiwa.</string>
+    <string name="managed_stale">Hali imebadilika au uthibitisho umeisha. Fungua hakiki mpya.</string>
+    <string name="managed_restored">Uandishi haukukamilika. Hali ya awali imerejeshwa.</string>
+    <string name="managed_busy">Hifadhi inatumika. Katisha muunganisho na ufungue hakiki mpya.</string>
+    <string name="managed_unavailable">Hifadhi haipatikani. Mabadiliko hayajathibitishwa.</string>
+    <string name="managed_recovery_required">Urejeshaji wa hifadhi lazima ukaguliwe. Usirudie operesheni kabla ya ukaguzi.</string>
+    <string name="managed_followup_uncertain">Wasifu unabaki umetenganishwa. Kuondolewa kwa usajili hakujathibitishwa. Kagua katalogi; usijaribu tena kiotomatiki.</string>
+    <string name="managed_vpn_unavailable">VPN haipatikani</string>
+    <string name="managed_vpn_busy">VPN haipatikani: hifadhi inatumika.</string>
+    <string name="managed_vpn_pending">VPN haipatikani: hifadhi inahitaji kurejeshwa.</string>
+    <string name="managed_vpn_storage">VPN haipatikani: hifadhi haiko tayari.</string>
+</resources>

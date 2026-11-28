@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Actualizar suscripción</string>
+    <string name="managed_rollback_title">Deshacer actualización</string>
+    <string name="managed_detach_title">Eliminar suscripción</string>
+    <string name="managed_edit_title">Desvincular perfil</string>
+    <string name="managed_recovery_title">Recuperación del almacenamiento</string>
+    <string name="managed_confirm">Confirmar</string>
+    <string name="managed_cancel">Cancelar</string>
+    <string name="managed_add">Añadir</string>
+    <string name="managed_update">Modificar</string>
+    <string name="managed_remove">Eliminar</string>
+    <string name="managed_replace_journal">Entiendo que ya no podré deshacer la actualización anterior.</string>
+    <string name="managed_review_notice">Revise los cambios. La confirmación caduca en cinco minutos o si cambia el estado.</string>
+    <string name="managed_detach_notice">Los perfiles permanecen en este dispositivo. Perfiles que se desvincularán: %1$d.</string>
+    <string name="managed_edit_notice">La suscripción dejará de gestionar el perfil editado.</string>
+    <string name="managed_recovery_before">Se ha verificado el estado anterior. Confirmar elimina el bloqueo sin cambiar los perfiles.</string>
+    <string name="managed_recovery_after">Se ha verificado el nuevo estado. Confirmar elimina el bloqueo sin cambiar los perfiles.</string>
+    <string name="managed_applied">Cambios guardados.</string>
+    <string name="managed_stale">El estado cambió o caducó la confirmación. Abra una nueva vista previa.</string>
+    <string name="managed_restored">No se completó la escritura. Se restauró el estado anterior.</string>
+    <string name="managed_busy">El almacenamiento está ocupado. Desconecte y abra una nueva vista previa.</string>
+    <string name="managed_unavailable">El almacenamiento no está disponible. Los cambios no están confirmados.</string>
+    <string name="managed_recovery_required">Debe comprobarse la recuperación del almacenamiento. No repita la operación hasta comprobarla.</string>
+    <string name="managed_followup_uncertain">Los perfiles siguen desvinculados. No se ha confirmado la eliminación de la suscripción. Compruebe el catálogo; no reintente automáticamente.</string>
+    <string name="managed_vpn_unavailable">VPN no disponible</string>
+    <string name="managed_vpn_busy">VPN no disponible: almacenamiento ocupado.</string>
+    <string name="managed_vpn_pending">VPN no disponible: se requiere recuperar el almacenamiento.</string>
+    <string name="managed_vpn_storage">VPN no disponible: almacenamiento no preparado.</string>
+</resources>

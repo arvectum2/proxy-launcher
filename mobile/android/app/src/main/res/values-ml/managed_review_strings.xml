@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">സബ്‌സ്‌ക്രിപ്‌ഷൻ അപ്‌ഡേറ്റ് ചെയ്യുക</string>
+    <string name="managed_rollback_title">അപ്‌ഡേറ്റ് പഴയപടിയാക്കുക</string>
+    <string name="managed_detach_title">സബ്‌സ്‌ക്രിപ്‌ഷൻ നീക്കംചെയ്യുക</string>
+    <string name="managed_edit_title">പ്രൊഫൈൽ വേർപെടുത്തുക</string>
+    <string name="managed_recovery_title">സ്റ്റോറേജ് വീണ്ടെടുക്കൽ</string>
+    <string name="managed_confirm">സ്ഥിരീകരിക്കുക</string>
+    <string name="managed_cancel">റദ്ദാക്കുക</string>
+    <string name="managed_add">ചേർക്കുക</string>
+    <string name="managed_update">മാറ്റുക</string>
+    <string name="managed_remove">നീക്കംചെയ്യുക</string>
+    <string name="managed_replace_journal">മുമ്പത്തെ അപ്‌ഡേറ്റ് ഇനി പഴയപടിയാക്കാൻ കഴിയില്ലെന്ന് ഞാൻ മനസ്സിലാക്കുന്നു.</string>
+    <string name="managed_review_notice">മാറ്റങ്ങൾ പരിശോധിക്കുക. അഞ്ച് മിനിറ്റിനു ശേഷമോ നില മാറുമ്പോഴോ സ്ഥിരീകരണം റദ്ദാകും.</string>
+    <string name="managed_detach_notice">പ്രൊഫൈലുകൾ ഈ ഉപകരണത്തിൽ തുടരും. വേർപെടുത്തേണ്ട പ്രൊഫൈലുകൾ: %1$d.</string>
+    <string name="managed_edit_notice">എഡിറ്റ് ചെയ്ത പ്രൊഫൈൽ ഇനി സബ്‌സ്‌ക്രിപ്‌ഷൻ നിയന്ത്രിക്കില്ല.</string>
+    <string name="managed_recovery_before">മുമ്പത്തെ നില പരിശോധിച്ചു. പ്രൊഫൈലുകൾ മാറ്റാതെ സ്ഥിരീകരണം തടസ്സം നീക്കും.</string>
+    <string name="managed_recovery_after">പുതിയ നില പരിശോധിച്ചു. പ്രൊഫൈലുകൾ മാറ്റാതെ സ്ഥിരീകരണം തടസ്സം നീക്കും.</string>
+    <string name="managed_applied">മാറ്റങ്ങൾ സംരക്ഷിച്ചു.</string>
+    <string name="managed_stale">നില മാറി അല്ലെങ്കിൽ സ്ഥിരീകരണ കാലാവധി കഴിഞ്ഞു. പുതിയ പ്രിവ്യൂ തുറക്കുക.</string>
+    <string name="managed_restored">എഴുത്ത് പൂർത്തിയായില്ല. മുമ്പത്തെ നില വീണ്ടെടുത്തു.</string>
+    <string name="managed_busy">സ്റ്റോറേജ് തിരക്കിലാണ്. കണക്ഷൻ വിച്ഛേദിച്ച് പുതിയ പ്രിവ്യൂ തുറക്കുക.</string>
+    <string name="managed_unavailable">സ്റ്റോറേജ് ലഭ്യമല്ല. മാറ്റങ്ങൾ സ്ഥിരീകരിച്ചിട്ടില്ല.</string>
+    <string name="managed_recovery_required">സ്റ്റോറേജ് വീണ്ടെടുക്കൽ പരിശോധിക്കണം. പരിശോധനയ്ക്ക് മുമ്പ് പ്രവർത്തനം ആവർത്തിക്കരുത്.</string>
+    <string name="managed_followup_uncertain">പ്രൊഫൈലുകൾ വേർപെടുത്തിയ നിലയിൽ തുടരും. സബ്‌സ്‌ക്രിപ്‌ഷൻ നീക്കംചെയ്തത് സ്ഥിരീകരിച്ചിട്ടില്ല. പട്ടിക പരിശോധിക്കുക; സ്വയമേവ വീണ്ടും ശ്രമിക്കരുത്.</string>
+    <string name="managed_vpn_unavailable">VPN ലഭ്യമല്ല</string>
+    <string name="managed_vpn_busy">VPN ലഭ്യമല്ല: സ്റ്റോറേജ് തിരക്കിലാണ്.</string>
+    <string name="managed_vpn_pending">VPN ലഭ്യമല്ല: സ്റ്റോറേജ് വീണ്ടെടുക്കണം.</string>
+    <string name="managed_vpn_storage">VPN ലഭ്യമല്ല: സ്റ്റോറേജ് തയ്യാറല്ല.</string>
+</resources>

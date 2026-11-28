@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">อัปเดตการสมัครสมาชิก</string>
+    <string name="managed_rollback_title">เลิกทำการอัปเดต</string>
+    <string name="managed_detach_title">ลบการสมัครสมาชิก</string>
+    <string name="managed_edit_title">ยกเลิกการเชื่อมโยงโปรไฟล์</string>
+    <string name="managed_recovery_title">กู้คืนพื้นที่จัดเก็บ</string>
+    <string name="managed_confirm">ยืนยัน</string>
+    <string name="managed_cancel">ยกเลิก</string>
+    <string name="managed_add">เพิ่ม</string>
+    <string name="managed_update">แก้ไข</string>
+    <string name="managed_remove">ลบ</string>
+    <string name="managed_replace_journal">ฉันเข้าใจว่าจะไม่สามารถเลิกทำการอัปเดตก่อนหน้าได้อีก</string>
+    <string name="managed_review_notice">ตรวจสอบการเปลี่ยนแปลง การยืนยันจะหมดอายุในห้านาทีหรือเมื่อสถานะเปลี่ยน</string>
+    <string name="managed_detach_notice">โปรไฟล์จะยังอยู่ในอุปกรณ์นี้ จำนวนโปรไฟล์ที่จะยกเลิกการเชื่อมโยง: %1$d</string>
+    <string name="managed_edit_notice">โปรไฟล์ที่แก้ไขจะไม่อยู่ภายใต้การจัดการของการสมัครสมาชิกอีก</string>
+    <string name="managed_recovery_before">ตรวจสอบสถานะก่อนหน้าแล้ว การยืนยันจะยกเลิกการบล็อกโดยไม่เปลี่ยนโปรไฟล์</string>
+    <string name="managed_recovery_after">ตรวจสอบสถานะใหม่แล้ว การยืนยันจะยกเลิกการบล็อกโดยไม่เปลี่ยนโปรไฟล์</string>
+    <string name="managed_applied">บันทึกการเปลี่ยนแปลงแล้ว</string>
+    <string name="managed_stale">สถานะเปลี่ยนหรือการยืนยันหมดอายุ เปิดตัวอย่างใหม่</string>
+    <string name="managed_restored">การเขียนไม่เสร็จสมบูรณ์ กู้คืนสถานะก่อนหน้าแล้ว</string>
+    <string name="managed_busy">พื้นที่จัดเก็บกำลังถูกใช้งาน ตัดการเชื่อมต่อแล้วเปิดตัวอย่างใหม่</string>
+    <string name="managed_unavailable">พื้นที่จัดเก็บไม่พร้อมใช้งาน ยังไม่ได้ยืนยันการเปลี่ยนแปลง</string>
+    <string name="managed_recovery_required">ต้องตรวจสอบการกู้คืนพื้นที่จัดเก็บ อย่าทำซ้ำก่อนตรวจสอบ</string>
+    <string name="managed_followup_uncertain">โปรไฟล์ยังคงถูกยกเลิกการเชื่อมโยง ยังไม่ได้ยืนยันการลบการสมัครสมาชิก ตรวจสอบรายการและอย่าลองใหม่โดยอัตโนมัติ</string>
+    <string name="managed_vpn_unavailable">VPN ไม่พร้อมใช้งาน</string>
+    <string name="managed_vpn_busy">VPN ไม่พร้อมใช้งาน: พื้นที่จัดเก็บกำลังถูกใช้งาน</string>
+    <string name="managed_vpn_pending">VPN ไม่พร้อมใช้งาน: ต้องกู้คืนพื้นที่จัดเก็บ</string>
+    <string name="managed_vpn_storage">VPN ไม่พร้อมใช้งาน: พื้นที่จัดเก็บยังไม่พร้อม</string>
+</resources>

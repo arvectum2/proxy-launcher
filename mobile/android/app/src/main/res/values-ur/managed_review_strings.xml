@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">سبسکرپشن اپ ڈیٹ کریں</string>
+    <string name="managed_rollback_title">اپ ڈیٹ واپس لیں</string>
+    <string name="managed_detach_title">سبسکرپشن ہٹائیں</string>
+    <string name="managed_edit_title">پروفائل الگ کریں</string>
+    <string name="managed_recovery_title">اسٹوریج کی بحالی</string>
+    <string name="managed_confirm">تصدیق کریں</string>
+    <string name="managed_cancel">منسوخ کریں</string>
+    <string name="managed_add">شامل کریں</string>
+    <string name="managed_update">تبدیل کریں</string>
+    <string name="managed_remove">ہٹائیں</string>
+    <string name="managed_replace_journal">میں سمجھتا ہوں کہ پچھلی اپ ڈیٹ دوبارہ واپس نہیں لی جا سکے گی۔</string>
+    <string name="managed_review_notice">تبدیلیوں کا جائزہ لیں۔ تصدیق پانچ منٹ بعد یا حالت بدلنے پر ختم ہو جاتی ہے۔</string>
+    <string name="managed_detach_notice">پروفائل اس آلے پر رہیں گے۔ الگ کیے جانے والے پروفائلز: %1$d۔</string>
+    <string name="managed_edit_notice">ترمیم شدہ پروفائل اب سبسکرپشن کے زیر انتظام نہیں ہوگا۔</string>
+    <string name="managed_recovery_before">پچھلی حالت کی تصدیق ہو گئی ہے۔ تصدیق پروفائلز بدلے بغیر رکاوٹ ختم کرے گی۔</string>
+    <string name="managed_recovery_after">نئی حالت کی تصدیق ہو گئی ہے۔ تصدیق پروفائلز بدلے بغیر رکاوٹ ختم کرے گی۔</string>
+    <string name="managed_applied">تبدیلیاں محفوظ ہو گئیں۔</string>
+    <string name="managed_stale">حالت بدل گئی یا تصدیق کی مدت ختم ہو گئی۔ نیا پیش منظر کھولیں۔</string>
+    <string name="managed_restored">لکھنے کا عمل مکمل نہیں ہوا۔ پچھلی حالت بحال ہو گئی۔</string>
+    <string name="managed_busy">اسٹوریج مصروف ہے۔ کنکشن ختم کریں اور نیا پیش منظر کھولیں۔</string>
+    <string name="managed_unavailable">اسٹوریج دستیاب نہیں۔ تبدیلیوں کی تصدیق نہیں ہوئی۔</string>
+    <string name="managed_recovery_required">اسٹوریج کی بحالی کی جانچ ضروری ہے۔ جانچ سے پہلے عمل نہ دہرائیں۔</string>
+    <string name="managed_followup_uncertain">پروفائل الگ رہیں گے۔ سبسکرپشن ہٹانے کی تصدیق نہیں ہوئی۔ فہرست چیک کریں؛ خودکار طور پر دوبارہ کوشش نہ کریں۔</string>
+    <string name="managed_vpn_unavailable">VPN دستیاب نہیں</string>
+    <string name="managed_vpn_busy">VPN دستیاب نہیں: اسٹوریج مصروف ہے۔</string>
+    <string name="managed_vpn_pending">VPN دستیاب نہیں: اسٹوریج کی بحالی درکار ہے۔</string>
+    <string name="managed_vpn_storage">VPN دستیاب نہیں: اسٹوریج تیار نہیں۔</string>
+</resources>

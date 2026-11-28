@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Abonnement bijwerken</string>
+    <string name="managed_rollback_title">Update ongedaan maken</string>
+    <string name="managed_detach_title">Abonnement verwijderen</string>
+    <string name="managed_edit_title">Profiel ontkoppelen</string>
+    <string name="managed_recovery_title">Opslagherstel</string>
+    <string name="managed_confirm">Bevestigen</string>
+    <string name="managed_cancel">Annuleren</string>
+    <string name="managed_add">Toevoegen</string>
+    <string name="managed_update">Wijzigen</string>
+    <string name="managed_remove">Verwijderen</string>
+    <string name="managed_replace_journal">Ik begrijp dat de vorige update niet meer ongedaan kan worden gemaakt.</string>
+    <string name="managed_review_notice">Controleer de wijzigingen. Bevestiging vervalt na vijf minuten of bij een statuswijziging.</string>
+    <string name="managed_detach_notice">Profielen blijven op dit apparaat. Te ontkoppelen profielen: %1$d.</string>
+    <string name="managed_edit_notice">Het gewijzigde profiel wordt niet meer door het abonnement beheerd.</string>
+    <string name="managed_recovery_before">De vorige toestand is geverifieerd. Bevestigen heft de blokkering op zonder profielen te wijzigen.</string>
+    <string name="managed_recovery_after">De nieuwe toestand is geverifieerd. Bevestigen heft de blokkering op zonder profielen te wijzigen.</string>
+    <string name="managed_applied">Wijzigingen opgeslagen.</string>
+    <string name="managed_stale">De toestand is gewijzigd of de bevestiging is verlopen. Open een nieuw overzicht.</string>
+    <string name="managed_restored">Schrijven is niet voltooid. De vorige toestand is hersteld.</string>
+    <string name="managed_busy">Opslag is bezet. Verbreek de verbinding en open een nieuw overzicht.</string>
+    <string name="managed_unavailable">Opslag is niet beschikbaar. Wijzigingen zijn niet bevestigd.</string>
+    <string name="managed_recovery_required">Opslagherstel moet worden gecontroleerd. Herhaal de handeling pas na controle.</string>
+    <string name="managed_followup_uncertain">Profielen blijven ontkoppeld. Verwijdering van het abonnement is niet bevestigd. Controleer de catalogus; probeer niet automatisch opnieuw.</string>
+    <string name="managed_vpn_unavailable">VPN niet beschikbaar</string>
+    <string name="managed_vpn_busy">VPN niet beschikbaar: opslag bezet.</string>
+    <string name="managed_vpn_pending">VPN niet beschikbaar: opslagherstel vereist.</string>
+    <string name="managed_vpn_storage">VPN niet beschikbaar: opslag niet gereed.</string>
+</resources>

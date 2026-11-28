@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Aggiorna abbonamento</string>
+    <string name="managed_rollback_title">Annulla aggiornamento</string>
+    <string name="managed_detach_title">Rimuovi abbonamento</string>
+    <string name="managed_edit_title">Scollega profilo</string>
+    <string name="managed_recovery_title">Ripristino dell’archivio</string>
+    <string name="managed_confirm">Conferma</string>
+    <string name="managed_cancel">Annulla</string>
+    <string name="managed_add">Aggiungi</string>
+    <string name="managed_update">Modifica</string>
+    <string name="managed_remove">Rimuovi</string>
+    <string name="managed_replace_journal">Comprendo che non sarà più possibile annullare l’aggiornamento precedente.</string>
+    <string name="managed_review_notice">Controlla le modifiche. La conferma scade dopo cinque minuti o al cambio di stato.</string>
+    <string name="managed_detach_notice">I profili restano su questo dispositivo. Profili da scollegare: %1$d.</string>
+    <string name="managed_edit_notice">Il profilo modificato non sarà più gestito dall’abbonamento.</string>
+    <string name="managed_recovery_before">Lo stato precedente è verificato. La conferma rimuove il blocco senza modificare i profili.</string>
+    <string name="managed_recovery_after">Il nuovo stato è verificato. La conferma rimuove il blocco senza modificare i profili.</string>
+    <string name="managed_applied">Modifiche salvate.</string>
+    <string name="managed_stale">Lo stato è cambiato o la conferma è scaduta. Apri una nuova anteprima.</string>
+    <string name="managed_restored">La scrittura non è stata completata. Lo stato precedente è stato ripristinato.</string>
+    <string name="managed_busy">L’archivio è occupato. Disconnettiti e apri una nuova anteprima.</string>
+    <string name="managed_unavailable">L’archivio non è disponibile. Le modifiche non sono confermate.</string>
+    <string name="managed_recovery_required">Verifica il ripristino dell’archivio. Non ripetere l’operazione prima della verifica.</string>
+    <string name="managed_followup_uncertain">I profili restano scollegati. La rimozione dell’abbonamento non è confermata. Controlla il catalogo; non riprovare automaticamente.</string>
+    <string name="managed_vpn_unavailable">VPN non disponibile</string>
+    <string name="managed_vpn_busy">VPN non disponibile: archivio occupato.</string>
+    <string name="managed_vpn_pending">VPN non disponibile: ripristino dell’archivio necessario.</string>
+    <string name="managed_vpn_storage">VPN non disponibile: archivio non pronto.</string>
+</resources>

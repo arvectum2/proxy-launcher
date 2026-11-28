@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">به‌روزرسانی اشتراک</string>
+    <string name="managed_rollback_title">واگرد به‌روزرسانی</string>
+    <string name="managed_detach_title">حذف اشتراک</string>
+    <string name="managed_edit_title">جدا کردن نمایه</string>
+    <string name="managed_recovery_title">بازیابی فضای ذخیره‌سازی</string>
+    <string name="managed_confirm">تأیید</string>
+    <string name="managed_cancel">لغو</string>
+    <string name="managed_add">افزودن</string>
+    <string name="managed_update">تغییر</string>
+    <string name="managed_remove">حذف</string>
+    <string name="managed_replace_journal">می‌دانم که دیگر امکان واگرد به‌روزرسانی قبلی وجود ندارد.</string>
+    <string name="managed_review_notice">تغییرات را بررسی کنید. تأیید پس از پنج دقیقه یا با تغییر وضعیت منقضی می‌شود.</string>
+    <string name="managed_detach_notice">نمایه‌ها در این دستگاه باقی می‌مانند. تعداد نمایه‌های قابل جداسازی: %1$d.</string>
+    <string name="managed_edit_notice">نمایه ویرایش‌شده دیگر تحت مدیریت اشتراک نیست.</string>
+    <string name="managed_recovery_before">وضعیت قبلی تأیید شده است. تأیید، مسدودی را بدون تغییر نمایه‌ها برطرف می‌کند.</string>
+    <string name="managed_recovery_after">وضعیت جدید تأیید شده است. تأیید، مسدودی را بدون تغییر نمایه‌ها برطرف می‌کند.</string>
+    <string name="managed_applied">تغییرات ذخیره شد.</string>
+    <string name="managed_stale">وضعیت تغییر کرده یا تأیید منقضی شده است. پیش‌نمایش جدیدی باز کنید.</string>
+    <string name="managed_restored">نوشتن کامل نشد. وضعیت قبلی بازیابی شد.</string>
+    <string name="managed_busy">فضای ذخیره‌سازی مشغول است. اتصال را قطع کنید و پیش‌نمایش جدیدی باز کنید.</string>
+    <string name="managed_unavailable">فضای ذخیره‌سازی در دسترس نیست. تغییرات تأیید نشده‌اند.</string>
+    <string name="managed_recovery_required">بازیابی فضای ذخیره‌سازی باید بررسی شود. پیش از بررسی عملیات را تکرار نکنید.</string>
+    <string name="managed_followup_uncertain">نمایه‌ها جدا باقی می‌مانند. حذف اشتراک تأیید نشده است. فهرست را بررسی کنید؛ خودکار دوباره تلاش نکنید.</string>
+    <string name="managed_vpn_unavailable">VPN در دسترس نیست</string>
+    <string name="managed_vpn_busy">VPN در دسترس نیست: فضای ذخیره‌سازی مشغول است.</string>
+    <string name="managed_vpn_pending">VPN در دسترس نیست: بازیابی فضای ذخیره‌سازی لازم است.</string>
+    <string name="managed_vpn_storage">VPN در دسترس نیست: فضای ذخیره‌سازی آماده نیست.</string>
+</resources>

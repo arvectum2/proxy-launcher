@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Előfizetés frissítése</string>
+    <string name="managed_rollback_title">Frissítés visszavonása</string>
+    <string name="managed_detach_title">Előfizetés eltávolítása</string>
+    <string name="managed_edit_title">Profil leválasztása</string>
+    <string name="managed_recovery_title">Tárhely helyreállítása</string>
+    <string name="managed_confirm">Megerősítés</string>
+    <string name="managed_cancel">Mégse</string>
+    <string name="managed_add">Hozzáadás</string>
+    <string name="managed_update">Módosítás</string>
+    <string name="managed_remove">Eltávolítás</string>
+    <string name="managed_replace_journal">Tudomásul veszem, hogy az előző frissítés már nem vonható vissza.</string>
+    <string name="managed_review_notice">Ellenőrizze a változásokat. A megerősítés öt percig érvényes, állapotváltozáskor megszűnik.</string>
+    <string name="managed_detach_notice">A profilok az eszközön maradnak. Leválasztandó profilok: %1$d.</string>
+    <string name="managed_edit_notice">A szerkesztett profilt többé nem kezeli az előfizetés.</string>
+    <string name="managed_recovery_before">Az előző állapot ellenőrizve. A megerősítés feloldja a zárolást a profilok módosítása nélkül.</string>
+    <string name="managed_recovery_after">Az új állapot ellenőrizve. A megerősítés feloldja a zárolást a profilok módosítása nélkül.</string>
+    <string name="managed_applied">Változások mentve.</string>
+    <string name="managed_stale">Az állapot megváltozott vagy a megerősítés lejárt. Nyisson új előnézetet.</string>
+    <string name="managed_restored">Az írás nem fejeződött be. Az előző állapot helyreállt.</string>
+    <string name="managed_busy">A tárhely foglalt. Bontsa a kapcsolatot és nyisson új előnézetet.</string>
+    <string name="managed_unavailable">A tárhely nem érhető el. A változások nincsenek megerősítve.</string>
+    <string name="managed_recovery_required">Ellenőrizni kell a tárhely helyreállítását. Addig ne ismételje meg a műveletet.</string>
+    <string name="managed_followup_uncertain">A profilok leválasztva maradnak. Az előfizetés eltávolítása nincs megerősítve. Ellenőrizze a katalógust; ne próbálkozzon automatikusan újra.</string>
+    <string name="managed_vpn_unavailable">VPN nem érhető el</string>
+    <string name="managed_vpn_busy">VPN nem érhető el: a tárhely foglalt.</string>
+    <string name="managed_vpn_pending">VPN nem érhető el: tárhely-helyreállítás szükséges.</string>
+    <string name="managed_vpn_storage">VPN nem érhető el: a tárhely nem áll készen.</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">구독 업데이트</string>
+    <string name="managed_rollback_title">업데이트 실행 취소</string>
+    <string name="managed_detach_title">구독 삭제</string>
+    <string name="managed_edit_title">프로필 연결 해제</string>
+    <string name="managed_recovery_title">저장소 복구</string>
+    <string name="managed_confirm">확인</string>
+    <string name="managed_cancel">취소</string>
+    <string name="managed_add">추가</string>
+    <string name="managed_update">변경</string>
+    <string name="managed_remove">삭제</string>
+    <string name="managed_replace_journal">이전 업데이트를 더 이상 실행 취소할 수 없음을 이해합니다.</string>
+    <string name="managed_review_notice">변경 사항을 확인하세요. 확인은 5분 후 또는 상태가 바뀌면 만료됩니다.</string>
+    <string name="managed_detach_notice">프로필은 이 기기에 남습니다. 연결을 해제할 프로필: %1$d개.</string>
+    <string name="managed_edit_notice">편집한 프로필은 더 이상 구독으로 관리되지 않습니다.</string>
+    <string name="managed_recovery_before">이전 상태가 검증되었습니다. 확인하면 프로필 변경 없이 차단이 해제됩니다.</string>
+    <string name="managed_recovery_after">새 상태가 검증되었습니다. 확인하면 프로필 변경 없이 차단이 해제됩니다.</string>
+    <string name="managed_applied">변경 사항이 저장되었습니다.</string>
+    <string name="managed_stale">상태가 바뀌었거나 확인 기간이 만료되었습니다. 새 미리보기를 여세요.</string>
+    <string name="managed_restored">쓰기가 완료되지 않았습니다. 이전 상태가 복원되었습니다.</string>
+    <string name="managed_busy">저장소가 사용 중입니다. 연결을 끊고 새 미리보기를 여세요.</string>
+    <string name="managed_unavailable">저장소를 사용할 수 없습니다. 변경 사항이 확인되지 않았습니다.</string>
+    <string name="managed_recovery_required">저장소 복구를 확인해야 합니다. 확인 전 작업을 반복하지 마세요.</string>
+    <string name="managed_followup_uncertain">프로필은 연결 해제된 상태로 남습니다. 구독 삭제가 확인되지 않았습니다. 카탈로그를 확인하고 자동으로 재시도하지 마세요.</string>
+    <string name="managed_vpn_unavailable">VPN 사용 불가</string>
+    <string name="managed_vpn_busy">VPN 사용 불가: 저장소 사용 중.</string>
+    <string name="managed_vpn_pending">VPN 사용 불가: 저장소 복구 필요.</string>
+    <string name="managed_vpn_storage">VPN 사용 불가: 저장소 준비 안 됨.</string>
+</resources>

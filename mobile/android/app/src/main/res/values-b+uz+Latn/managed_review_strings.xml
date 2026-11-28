@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Obunani yangilash</string>
+    <string name="managed_rollback_title">Yangilanishni bekor qilish</string>
+    <string name="managed_detach_title">Obunani olib tashlash</string>
+    <string name="managed_edit_title">Profilni ajratish</string>
+    <string name="managed_recovery_title">Xotirani tiklash</string>
+    <string name="managed_confirm">Tasdiqlash</string>
+    <string name="managed_cancel">Bekor qilish</string>
+    <string name="managed_add">Qo‘shish</string>
+    <string name="managed_update">O‘zgartirish</string>
+    <string name="managed_remove">Olib tashlash</string>
+    <string name="managed_replace_journal">Avvalgi yangilanishni endi bekor qilib bo‘lmasligini tushunaman.</string>
+    <string name="managed_review_notice">O‘zgarishlarni tekshiring. Tasdiq besh daqiqadan so‘ng yoki holat o‘zgarganda bekor bo‘ladi.</string>
+    <string name="managed_detach_notice">Profillar qurilmada qoladi. Ajratiladigan profillar: %1$d.</string>
+    <string name="managed_edit_notice">Tahrirlangan profil endi obuna orqali boshqarilmaydi.</string>
+    <string name="managed_recovery_before">Avvalgi holat tekshirildi. Tasdiq profillarni o‘zgartirmasdan blokni olib tashlaydi.</string>
+    <string name="managed_recovery_after">Yangi holat tekshirildi. Tasdiq profillarni o‘zgartirmasdan blokni olib tashlaydi.</string>
+    <string name="managed_applied">O‘zgarishlar saqlandi.</string>
+    <string name="managed_stale">Holat o‘zgardi yoki tasdiq muddati tugadi. Yangi ko‘rib chiqishni oching.</string>
+    <string name="managed_restored">Yozish tugallanmadi. Avvalgi holat tiklandi.</string>
+    <string name="managed_busy">Xotira band. Ulanishni uzing va yangi ko‘rib chiqishni oching.</string>
+    <string name="managed_unavailable">Xotira mavjud emas. O‘zgarishlar tasdiqlanmadi.</string>
+    <string name="managed_recovery_required">Xotira tiklanishini tekshirish kerak. Tekshirmasdan amalni takrorlamang.</string>
+    <string name="managed_followup_uncertain">Profillar ajratilgan holda qoladi. Obunani olib tashlash tasdiqlanmadi. Katalogni tekshiring; avtomatik qayta urinmang.</string>
+    <string name="managed_vpn_unavailable">VPN mavjud emas</string>
+    <string name="managed_vpn_busy">VPN mavjud emas: xotira band.</string>
+    <string name="managed_vpn_pending">VPN mavjud emas: xotirani tiklash kerak.</string>
+    <string name="managed_vpn_storage">VPN mavjud emas: xotira tayyor emas.</string>
+</resources>

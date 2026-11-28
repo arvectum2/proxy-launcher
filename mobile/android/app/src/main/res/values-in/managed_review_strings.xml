@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Perbarui langganan</string>
+    <string name="managed_rollback_title">Urungkan pembaruan</string>
+    <string name="managed_detach_title">Hapus langganan</string>
+    <string name="managed_edit_title">Lepaskan profil</string>
+    <string name="managed_recovery_title">Pemulihan penyimpanan</string>
+    <string name="managed_confirm">Konfirmasi</string>
+    <string name="managed_cancel">Batal</string>
+    <string name="managed_add">Tambah</string>
+    <string name="managed_update">Ubah</string>
+    <string name="managed_remove">Hapus</string>
+    <string name="managed_replace_journal">Saya memahami bahwa pembaruan sebelumnya tidak dapat diurungkan lagi.</string>
+    <string name="managed_review_notice">Periksa perubahan. Konfirmasi kedaluwarsa setelah lima menit atau jika status berubah.</string>
+    <string name="managed_detach_notice">Profil tetap di perangkat ini. Profil yang akan dilepaskan: %1$d.</string>
+    <string name="managed_edit_notice">Profil yang diedit tidak lagi dikelola oleh langganan.</string>
+    <string name="managed_recovery_before">Status sebelumnya telah diverifikasi. Konfirmasi membuka blokir tanpa mengubah profil.</string>
+    <string name="managed_recovery_after">Status baru telah diverifikasi. Konfirmasi membuka blokir tanpa mengubah profil.</string>
+    <string name="managed_applied">Perubahan disimpan.</string>
+    <string name="managed_stale">Status berubah atau konfirmasi kedaluwarsa. Buka pratinjau baru.</string>
+    <string name="managed_restored">Penulisan belum selesai. Status sebelumnya dipulihkan.</string>
+    <string name="managed_busy">Penyimpanan sedang digunakan. Putuskan koneksi dan buka pratinjau baru.</string>
+    <string name="managed_unavailable">Penyimpanan tidak tersedia. Perubahan belum dikonfirmasi.</string>
+    <string name="managed_recovery_required">Pemulihan penyimpanan harus diperiksa. Jangan ulangi operasi sebelum diperiksa.</string>
+    <string name="managed_followup_uncertain">Profil tetap terlepas. Penghapusan langganan belum dikonfirmasi. Periksa katalog; jangan coba lagi secara otomatis.</string>
+    <string name="managed_vpn_unavailable">VPN tidak tersedia</string>
+    <string name="managed_vpn_busy">VPN tidak tersedia: penyimpanan sedang digunakan.</string>
+    <string name="managed_vpn_pending">VPN tidak tersedia: pemulihan penyimpanan diperlukan.</string>
+    <string name="managed_vpn_storage">VPN tidak tersedia: penyimpanan belum siap.</string>
+</resources>

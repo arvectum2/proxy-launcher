@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Abonnement aktualisieren</string>
+    <string name="managed_rollback_title">Aktualisierung rückgängig machen</string>
+    <string name="managed_detach_title">Abonnement entfernen</string>
+    <string name="managed_edit_title">Profil entkoppeln</string>
+    <string name="managed_recovery_title">Speicherwiederherstellung</string>
+    <string name="managed_confirm">Bestätigen</string>
+    <string name="managed_cancel">Abbrechen</string>
+    <string name="managed_add">Hinzufügen</string>
+    <string name="managed_update">Ändern</string>
+    <string name="managed_remove">Entfernen</string>
+    <string name="managed_replace_journal">Ich verstehe, dass die vorherige Rückgängig-Option verloren geht.</string>
+    <string name="managed_review_notice">Prüfen Sie die Änderungen. Die Bestätigung gilt fünf Minuten und verfällt bei einer Zustandsänderung.</string>
+    <string name="managed_detach_notice">Die Profile bleiben auf diesem Gerät. Zu entkoppelnde Profile: %1$d.</string>
+    <string name="managed_edit_notice">Das bearbeitete Profil wird nicht mehr vom Abonnement verwaltet.</string>
+    <string name="managed_recovery_before">Der vorherige Zustand ist verifiziert. Die Bestätigung hebt die Sperre auf, ohne Profile zu ändern.</string>
+    <string name="managed_recovery_after">Der neue Zustand ist verifiziert. Die Bestätigung hebt die Sperre auf, ohne Profile zu ändern.</string>
+    <string name="managed_applied">Änderungen gespeichert.</string>
+    <string name="managed_stale">Der Zustand hat sich geändert oder die Bestätigung ist abgelaufen. Öffnen Sie eine neue Vorschau.</string>
+    <string name="managed_restored">Der Schreibvorgang wurde nicht abgeschlossen. Der vorherige Zustand wurde wiederhergestellt.</string>
+    <string name="managed_busy">Der Speicher ist belegt. Trennen Sie die Verbindung und öffnen Sie eine neue Vorschau.</string>
+    <string name="managed_unavailable">Der Speicher ist nicht verfügbar. Änderungen sind nicht bestätigt.</string>
+    <string name="managed_recovery_required">Die Speicherwiederherstellung muss geprüft werden. Wiederholen Sie den Vorgang erst danach.</string>
+    <string name="managed_followup_uncertain">Die Profile bleiben getrennt. Das Entfernen des Abonnements ist nicht bestätigt. Prüfen Sie den Katalog; nicht automatisch wiederholen.</string>
+    <string name="managed_vpn_unavailable">VPN nicht verfügbar</string>
+    <string name="managed_vpn_busy">VPN nicht verfügbar: Speicher belegt.</string>
+    <string name="managed_vpn_pending">VPN nicht verfügbar: Speicherwiederherstellung erforderlich.</string>
+    <string name="managed_vpn_storage">VPN nicht verfügbar: Speicher nicht bereit.</string>
+</resources>

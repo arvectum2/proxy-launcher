@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">ಚಂದಾದಾರಿಕೆಯನ್ನು ನವೀಕರಿಸಿ</string>
+    <string name="managed_rollback_title">ನವೀಕರಣವನ್ನು ರದ್ದುಮಾಡಿ</string>
+    <string name="managed_detach_title">ಚಂದಾದಾರಿಕೆಯನ್ನು ತೆಗೆದುಹಾಕಿ</string>
+    <string name="managed_edit_title">ಪ್ರೊಫೈಲ್ ಬೇರ್ಪಡಿಸಿ</string>
+    <string name="managed_recovery_title">ಸಂಗ್ರಹಣೆ ಮರುಪಡೆಯುವಿಕೆ</string>
+    <string name="managed_confirm">ದೃಢೀಕರಿಸಿ</string>
+    <string name="managed_cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="managed_add">ಸೇರಿಸಿ</string>
+    <string name="managed_update">ಬದಲಾಯಿಸಿ</string>
+    <string name="managed_remove">ತೆಗೆದುಹಾಕಿ</string>
+    <string name="managed_replace_journal">ಹಿಂದಿನ ನವೀಕರಣವನ್ನು ಇನ್ನು ಹಿಂದಕ್ಕೆ ಪಡೆಯಲಾಗುವುದಿಲ್ಲ ಎಂದು ನನಗೆ ತಿಳಿದಿದೆ.</string>
+    <string name="managed_review_notice">ಬದಲಾವಣೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ಐದು ನಿಮಿಷಗಳ ನಂತರ ಅಥವಾ ಸ್ಥಿತಿ ಬದಲಾದಾಗ ದೃಢೀಕರಣ ರದ್ದಾಗುತ್ತದೆ.</string>
+    <string name="managed_detach_notice">ಪ್ರೊಫೈಲ್‌ಗಳು ಈ ಸಾಧನದಲ್ಲೇ ಉಳಿಯುತ್ತವೆ. ಬೇರ್ಪಡಿಸುವ ಪ್ರೊಫೈಲ್‌ಗಳು: %1$d.</string>
+    <string name="managed_edit_notice">ಸಂಪಾದಿಸಿದ ಪ್ರೊಫೈಲ್ ಇನ್ನು ಚಂದಾದಾರಿಕೆಯಿಂದ ನಿರ್ವಹಿಸಲ್ಪಡುವುದಿಲ್ಲ.</string>
+    <string name="managed_recovery_before">ಹಿಂದಿನ ಸ್ಥಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ. ದೃಢೀಕರಣವು ಪ್ರೊಫೈಲ್‌ಗಳನ್ನು ಬದಲಾಯಿಸದೆ ನಿರ್ಬಂಧವನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ.</string>
+    <string name="managed_recovery_after">ಹೊಸ ಸ್ಥಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ. ದೃಢೀಕರಣವು ಪ್ರೊಫೈಲ್‌ಗಳನ್ನು ಬದಲಾಯಿಸದೆ ನಿರ್ಬಂಧವನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ.</string>
+    <string name="managed_applied">ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಲಾಗಿದೆ.</string>
+    <string name="managed_stale">ಸ್ಥಿತಿ ಬದಲಾಗಿದೆ ಅಥವಾ ದೃಢೀಕರಣದ ಅವಧಿ ಮುಗಿದಿದೆ. ಹೊಸ ಪೂರ್ವವೀಕ್ಷಣೆ ತೆರೆಯಿರಿ.</string>
+    <string name="managed_restored">ಬರವಣಿಗೆ ಪೂರ್ಣಗೊಂಡಿಲ್ಲ. ಹಿಂದಿನ ಸ್ಥಿತಿಯನ್ನು ಮರುಸ್ಥಾಪಿಸಲಾಗಿದೆ.</string>
+    <string name="managed_busy">ಸಂಗ್ರಹಣೆ ಕಾರ್ಯನಿರತವಾಗಿದೆ. ಸಂಪರ್ಕ ಕಡಿದು ಹೊಸ ಪೂರ್ವವೀಕ್ಷಣೆ ತೆರೆಯಿರಿ.</string>
+    <string name="managed_unavailable">ಸಂಗ್ರಹಣೆ ಲಭ್ಯವಿಲ್ಲ. ಬದಲಾವಣೆಗಳು ದೃಢೀಕೃತವಾಗಿಲ್ಲ.</string>
+    <string name="managed_recovery_required">ಸಂಗ್ರಹಣೆ ಮರುಪಡೆಯುವಿಕೆಯನ್ನು ಪರಿಶೀಲಿಸಬೇಕು. ಪರಿಶೀಲನೆಗೂ ಮುನ್ನ ಕಾರ್ಯವನ್ನು ಪುನರಾವರ್ತಿಸಬೇಡಿ.</string>
+    <string name="managed_followup_uncertain">ಪ್ರೊಫೈಲ್‌ಗಳು ಬೇರ್ಪಟ್ಟೇ ಇರುತ್ತವೆ. ಚಂದಾದಾರಿಕೆ ತೆಗೆದುಹಾಕಿರುವುದು ದೃಢೀಕೃತವಾಗಿಲ್ಲ. ಪಟ್ಟಿಯನ್ನು ಪರಿಶೀಲಿಸಿ; ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಮರುಪ್ರಯತ್ನಿಸಬೇಡಿ.</string>
+    <string name="managed_vpn_unavailable">VPN ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="managed_vpn_busy">VPN ಲಭ್ಯವಿಲ್ಲ: ಸಂಗ್ರಹಣೆ ಕಾರ್ಯನಿರತವಾಗಿದೆ.</string>
+    <string name="managed_vpn_pending">VPN ಲಭ್ಯವಿಲ್ಲ: ಸಂಗ್ರಹಣೆ ಮರುಪಡೆಯುವಿಕೆ ಅಗತ್ಯ.</string>
+    <string name="managed_vpn_storage">VPN ಲಭ್ಯವಿಲ್ಲ: ಸಂಗ್ರಹಣೆ ಸಿದ್ಧವಾಗಿಲ್ಲ.</string>
+</resources>

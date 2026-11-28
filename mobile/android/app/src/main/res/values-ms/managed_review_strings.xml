@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Kemas kini langganan</string>
+    <string name="managed_rollback_title">Buat asal kemas kini</string>
+    <string name="managed_detach_title">Alih keluar langganan</string>
+    <string name="managed_edit_title">Nyahpaut profil</string>
+    <string name="managed_recovery_title">Pemulihan storan</string>
+    <string name="managed_confirm">Sahkan</string>
+    <string name="managed_cancel">Batal</string>
+    <string name="managed_add">Tambah</string>
+    <string name="managed_update">Ubah</string>
+    <string name="managed_remove">Alih keluar</string>
+    <string name="managed_replace_journal">Saya faham bahawa kemas kini terdahulu tidak lagi boleh dibuat asal.</string>
+    <string name="managed_review_notice">Semak perubahan. Pengesahan tamat selepas lima minit atau apabila keadaan berubah.</string>
+    <string name="managed_detach_notice">Profil kekal pada peranti ini. Profil untuk dinyahpaut: %1$d.</string>
+    <string name="managed_edit_notice">Profil yang diedit tidak lagi diurus oleh langganan.</string>
+    <string name="managed_recovery_before">Keadaan terdahulu telah disahkan. Pengesahan membuka sekatan tanpa mengubah profil.</string>
+    <string name="managed_recovery_after">Keadaan baharu telah disahkan. Pengesahan membuka sekatan tanpa mengubah profil.</string>
+    <string name="managed_applied">Perubahan disimpan.</string>
+    <string name="managed_stale">Keadaan berubah atau pengesahan tamat. Buka pratonton baharu.</string>
+    <string name="managed_restored">Penulisan tidak selesai. Keadaan terdahulu dipulihkan.</string>
+    <string name="managed_busy">Storan sedang digunakan. Putuskan sambungan dan buka pratonton baharu.</string>
+    <string name="managed_unavailable">Storan tidak tersedia. Perubahan belum disahkan.</string>
+    <string name="managed_recovery_required">Pemulihan storan mesti disemak. Jangan ulang operasi sebelum semakan.</string>
+    <string name="managed_followup_uncertain">Profil kekal dinyahpaut. Pengalihan keluar langganan belum disahkan. Semak katalog; jangan cuba semula secara automatik.</string>
+    <string name="managed_vpn_unavailable">VPN tidak tersedia</string>
+    <string name="managed_vpn_busy">VPN tidak tersedia: storan sedang digunakan.</string>
+    <string name="managed_vpn_pending">VPN tidak tersedia: pemulihan storan diperlukan.</string>
+    <string name="managed_vpn_storage">VPN tidak tersedia: storan belum sedia.</string>
+</resources>

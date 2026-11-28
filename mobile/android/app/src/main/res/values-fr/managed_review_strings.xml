@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="managed_refresh_title">Mise à jour de l’abonnement</string>
+    <string name="managed_rollback_title">Annuler la mise à jour</string>
+    <string name="managed_detach_title">Supprimer l’abonnement</string>
+    <string name="managed_edit_title">Dissocier le profil</string>
+    <string name="managed_recovery_title">Récupération du stockage</string>
+    <string name="managed_confirm">Confirmer</string>
+    <string name="managed_cancel">Annuler</string>
+    <string name="managed_add">Ajouter</string>
+    <string name="managed_update">Modifier</string>
+    <string name="managed_remove">Supprimer</string>
+    <string name="managed_replace_journal">Je comprends que l’annulation précédente ne sera plus disponible.</string>
+    <string name="managed_review_notice">Vérifiez les modifications. La confirmation expire après cinq minutes ou si l’état change.</string>
+    <string name="managed_detach_notice">Les profils restent sur cet appareil. Profils à dissocier : %1$d.</string>
+    <string name="managed_edit_notice">Le profil modifié ne sera plus géré par l’abonnement.</string>
+    <string name="managed_recovery_before">L’état précédent est vérifié. La confirmation lève le blocage sans modifier les profils.</string>
+    <string name="managed_recovery_after">Le nouvel état est vérifié. La confirmation lève le blocage sans modifier les profils.</string>
+    <string name="managed_applied">Modifications enregistrées.</string>
+    <string name="managed_stale">L’état a changé ou la confirmation a expiré. Ouvrez un nouvel aperçu.</string>
+    <string name="managed_restored">L’écriture n’a pas abouti. L’état précédent a été restauré.</string>
+    <string name="managed_busy">Le stockage est occupé. Déconnectez-vous et ouvrez un nouvel aperçu.</string>
+    <string name="managed_unavailable">Le stockage est indisponible. Les modifications ne sont pas confirmées.</string>
+    <string name="managed_recovery_required">La récupération du stockage doit être vérifiée. Ne répétez pas l’opération avant cette vérification.</string>
+    <string name="managed_followup_uncertain">Les profils restent dissociés. La suppression de l’abonnement n’est pas confirmée. Vérifiez le catalogue ; ne réessayez pas automatiquement.</string>
+    <string name="managed_vpn_unavailable">VPN indisponible</string>
+    <string name="managed_vpn_busy">VPN indisponible : stockage occupé.</string>
+    <string name="managed_vpn_pending">VPN indisponible : récupération du stockage requise.</string>
+    <string name="managed_vpn_storage">VPN indisponible : stockage non prêt.</string>
+</resources>
