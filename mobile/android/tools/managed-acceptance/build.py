@@ -3,10 +3,19 @@ Usage: python3 build.py /absolute/empty/output-dir
 Requires installed Android SDK 35 + build-tools 36, JDK 17 and cached Kotlin 2.0.21.
 """
 from pathlib import Path
-import os, subprocess, sys, zipfile
+import hashlib, os, subprocess, sys, zipfile
+import xml.etree.ElementTree as ET
 here=Path(__file__).resolve().parent
 out=Path(sys.argv[1]).resolve(); out.mkdir(parents=True,exist_ok=True)
 assert not any(out.iterdir()), 'Use an empty disposable output directory'
+# Optional native fixture only: explicitly provided, digest-verified CI artifact.
+assert len(sys.argv) in (2,4), 'build.py OUT [CI_PRIVATE_APK SHA256]'
+native=None
+if len(sys.argv)==4:
+    source=Path(sys.argv[2]);assert hashlib.sha256(source.read_bytes()).hexdigest()==sys.argv[3]
+    with zipfile.ZipFile(source) as archive:
+        native=archive.read('lib/arm64-v8a/libtun2proxy.so')
+    assert native[:4]==b'\x7fELF' and native[18:20]==bytes((183,0))
 sdk=Path(os.environ.get('ANDROID_HOME',Path.home()/'Library/Android/sdk'))
 jdk=Path(os.environ.get('JAVA_HOME','/opt/homebrew/opt/openjdk@17'))
 cache=Path.home()/'.gradle/caches/modules-2/files-2.1'
@@ -25,13 +34,24 @@ res=here.parents[1]/'app/src/main/res'
 flats=out/'flats';flats.mkdir();generated=out/'generated';generated.mkdir()
 for locale in ('values','values-en'):
     run(bt/'aapt2','compile','-o',flats,res/locale/'managed_review_strings.xml')
-run(bt/'aapt2','link','-I',platform,'--manifest',here/'AndroidManifest.xml','--java',generated,'--custom-package','ru.arvectum.proxylauncher','-o',unsigned,*sorted(flats.glob('*.flat')))
+manifest=here/'AndroidManifest.xml'
+if native is not None:
+    ns='{http://schemas.android.com/apk/res/android}'
+    ET.register_namespace('android',ns[1:-1]);tree=ET.parse(manifest);root=tree.getroot()
+    ET.SubElement(root,'uses-permission',{ns+'name':'android.permission.INTERNET'})
+    service=ET.SubElement(root.find('application'),'service',{ns+'name':'.NativeFixtureService',ns+'exported':'false',ns+'permission':'android.permission.BIND_VPN_SERVICE',ns+'foregroundServiceType':'specialUse'})
+    intent=ET.SubElement(service,'intent-filter');ET.SubElement(intent,'action',{ns+'name':'android.net.VpnService'})
+    ET.SubElement(service,'meta-data',{ns+'name':'android.net.VpnService.SUPPORTS_ALWAYS_ON',ns+'value':'false'})
+    ET.SubElement(root,'instrumentation',{ns+'name':'.NativeProbe',ns+'targetPackage':'ru.arvectum.apl.acceptance',ns+'functionalTest':'true'})
+    manifest=out/'NativeManifest.xml';tree.write(manifest,encoding='utf-8',xml_declaration=True)
+run(bt/'aapt2','link','-I',platform,'--manifest',manifest,'--java',generated,'--custom-package','ru.arvectum.proxylauncher','-o',unsigned,*sorted(flats.glob('*.flat')))
 run(jdk/'bin/javac','-source','8','-target','8','-d',java_classes,*sorted(generated.rglob('*.java')))
 run(jdk/'bin/javac','-source','8','-target','8','-d',java_classes,storage.parent.parent.parent.parent/'com/github/shadowsocks/bg/Tun2proxy.java')
-run(jdk/'bin/java','-cp',os.pathsep.join(compiler),'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-jvm-target','1.8','-classpath',os.pathsep.join([std,str(platform),str(java_classes)]),'-d',classes,here/'Probe.kt',here/'StoreProbe.kt',here/'VpnProbe.kt',here/'FixtureActivity.kt',here/'DialogProbe.kt',here/'ControllerProbe.kt',storage.parent/'ui/ManagedSubscriptionController.kt',storage.parent/'ui/ManagedReviewMessages.kt',storage.parent/'ui/ManagedReviewDialogs.kt',*[storage/(name+'.kt') for name in ('ManagedCrashGate','ManagedProfileGateLocation','ManagedVpnProcessLease','ManagedPreferenceDiskVerifier','ManagedRecoveryEvidence','ManagedRecoveryReview','SecureProfileStore','SecureSubscriptionStore','ManagedPreferenceTransaction','ManagedCrashTransaction','ManagedChangeReview','ManagedOwnershipReview','ManagedReviewSession')],*[model/(name+'.kt') for name in ('ProxyProfile','ProxyImport','ProxyBatchImport','ProxySubscriptionImport','ProxyStructuredImport','StructuredJsonReader','SavedSubscriptionCatalog','ManagedSubscriptionRefresh','ManagedRollbackJournal','ProxyPoolState')],routing/'ApplicationExclusionPolicy.kt',routing/'SiteExclusionPolicy.kt',storage/'PoolUiStateStore.kt',*sorted((storage.parent/'tunnel').glob('*.kt')))
+run(jdk/'bin/java','-cp',os.pathsep.join(compiler),'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-jvm-target','1.8','-classpath',os.pathsep.join([std,str(platform),str(java_classes)]),'-d',classes,here/'Probe.kt',here/'StoreProbe.kt',here/'VpnProbe.kt',here/'FixtureActivity.kt',here/'DialogProbe.kt',here/'ControllerProbe.kt',*([here/'NativeProbe.kt'] if native is not None else []),storage.parent/'ui/ManagedSubscriptionController.kt',storage.parent/'ui/ManagedReviewMessages.kt',storage.parent/'ui/ManagedReviewDialogs.kt',*[storage/(name+'.kt') for name in ('ManagedCrashGate','ManagedProfileGateLocation','ManagedVpnProcessLease','ManagedPreferenceDiskVerifier','ManagedRecoveryEvidence','ManagedRecoveryReview','SecureProfileStore','SecureSubscriptionStore','ManagedPreferenceTransaction','ManagedCrashTransaction','ManagedChangeReview','ManagedOwnershipReview','ManagedReviewSession')],*[model/(name+'.kt') for name in ('ProxyProfile','ProxyImport','ProxyBatchImport','ProxySubscriptionImport','ProxyStructuredImport','StructuredJsonReader','SavedSubscriptionCatalog','ManagedSubscriptionRefresh','ManagedRollbackJournal','ProxyPoolState')],routing/'ApplicationExclusionPolicy.kt',routing/'SiteExclusionPolicy.kt',storage/'PoolUiStateStore.kt',*sorted((storage.parent/'tunnel').glob('*.kt')))
 run(bt/'d8','--min-api','26','--lib',platform,'--output',out,classes,std,*sorted(java_classes.rglob('*.class')))
 with zipfile.ZipFile(unsigned,'a') as apk:
     for dex in sorted(out.glob('classes*.dex')): apk.write(dex,dex.name)
+    if native is not None: apk.writestr('lib/arm64-v8a/libtun2proxy.so',native)
 run(bt/'zipalign','-f','4',unsigned,aligned)
 # Temporary local debug fixture only, with no relation to the production signing chain.
 ks=out/'disposable.p12'; password='acceptance-only'

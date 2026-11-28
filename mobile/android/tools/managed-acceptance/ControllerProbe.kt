@@ -84,6 +84,16 @@ class ControllerProbe:Instrumentation() {
                     check(store.loadProfile(victim.id)==null && store.getPrimaryProfileId()==anchor.id && catalog.contains(source))
                     check(disk.readVerified().keys.none { it.startsWith("profile.${victim.id}.") || it=="secret.${victim.id}" })
                     report.putString("owned_delete","PASS")
+                    stage="downgrade_guard"
+                    check(store.additiveSourceRemovalAllowed(source))
+                    val next=store.prepareManagedRefresh(catalog,catalog.managedFetchInput(source)!!,newItems,null){true}!!
+                    check(store.confirmManagedChange(next,catalog,{null},{true},false)==ManagedCrashTransaction.Outcome.APPLIED)
+                    check(!store.additiveSourceRemovalAllowed(source))
+                    check(!store.additiveSourceRemovalAllowed(catalog.list().single { it.id!=source.id }))
+                    val removal=store.prepareManagedOwnership(catalog,source,null,{true})!!
+                    check(store.confirmManagedOwnership(removal,catalog,{null},{true},true)==ManagedCrashTransaction.Outcome.APPLIED)
+                    check(store.additiveSourceRemovalAllowed(source));check(!catalog.contains(source))
+                    report.putString("downgrade_guard","PASS")
                 } catch(t:Throwable) { failure=t }
             }
         } catch(t:Throwable) { failure=t }
