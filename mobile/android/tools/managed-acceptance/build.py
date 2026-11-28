@@ -39,6 +39,10 @@ if native is not None:
     ns='{http://schemas.android.com/apk/res/android}'
     ET.register_namespace('android',ns[1:-1]);tree=ET.parse(manifest);root=tree.getroot()
     ET.SubElement(root,'uses-permission',{ns+'name':'android.permission.INTERNET'})
+    ET.SubElement(root,'permission',{ns+'name':'ru.arvectum.apl.acceptance.FIXTURE',ns+'protectionLevel':'signature'})
+    ET.SubElement(root,'uses-permission',{ns+'name':'ru.arvectum.apl.acceptance.FIXTURE'})
+    queries=ET.SubElement(root,'queries')
+    ET.SubElement(queries,'package',{ns+'name':'ru.arvectum.apl.acceptance.client'})
     service=ET.SubElement(root.find('application'),'service',{ns+'name':'.NativeFixtureService',ns+'exported':'false',ns+'permission':'android.permission.BIND_VPN_SERVICE',ns+'foregroundServiceType':'specialUse'})
     intent=ET.SubElement(service,'intent-filter');ET.SubElement(intent,'action',{ns+'name':'android.net.VpnService'})
     ET.SubElement(service,'meta-data',{ns+'name':'android.net.VpnService.SUPPORTS_ALWAYS_ON',ns+'value':'false'})
@@ -59,3 +63,15 @@ run(jdk/'bin/keytool','-genkeypair','-keystore',ks,'-storepass',password,'-keypa
 run(bt/'apksigner','sign','--ks',ks,'--ks-pass','pass:'+password,'--key-pass','pass:'+password,'--out',signed,aligned)
 run(bt/'apksigner','verify',signed)
 print(signed)
+
+if native is not None:
+    client=out/'client';client.mkdir()
+    client_classes=client/'java';client_classes.mkdir()
+    run(jdk/'bin/javac','-source','8','-target','8','-classpath',platform,'-d',client_classes,here/'NativeClient.java')
+    run(bt/'d8','--min-api','26','--lib',platform,'--output',client,*sorted(client_classes.rglob('*.class')))
+    client_unsigned=client/'unsigned.apk';client_aligned=client/'aligned.apk'
+    run(bt/'aapt2','link','-I',platform,'--manifest',here/'NativeClientManifest.xml','-o',client_unsigned)
+    with zipfile.ZipFile(client_unsigned,'a') as apk: apk.write(client/'classes.dex','classes.dex')
+    run(bt/'zipalign','-f','4',client_unsigned,client_aligned)
+    run(bt/'apksigner','sign','--ks',ks,'--ks-pass','pass:'+password,'--key-pass','pass:'+password,'--out',out/'client.apk',client_aligned)
+    run(bt/'apksigner','verify',out/'client.apk')
