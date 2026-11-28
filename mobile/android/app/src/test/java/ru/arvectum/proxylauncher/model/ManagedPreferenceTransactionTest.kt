@@ -152,6 +152,100 @@ class ManagedPreferenceTransactionTest {
         assertEquals(1,backend.calls)
     }
 
+    @Test fun detachPreservesAllFieldsAndCredentialsAndDoesNotAdoptOnRefresh() {
+        val raw=raw(); val before=Schema.snapshot(raw,"owned")
+        val patch=Schema.detachPatch(raw,before,owner,"owned")
+        assertEquals(setOf("profile.owned.subscription_owner",Schema.JOURNAL),patch.keys)
+        val next=raw.toMutableMap();apply(next,patch)
+        assertEquals(raw-patch.keys,next)
+        val detached=Schema.snapshot(next,"owned")
+        assertNull(detached.rows.single{it.profile.id=="owned"}.owner)
+        val incoming=ImportedProxy(host="owned.invalid",port=80,type=ProxyType.HTTP,username="u",password="secret",name="Owned")
+        val review=ManagedSubscriptionRefresh.prepare(source,listOf(incoming),detached,{1L},{_,_->false})!!
+        assertEquals(1,review.summary.skipped)
+        assertTrue(review.summary.lines.isEmpty())
+    }
+
+    @Test fun manualEditDetachesInSamePatchWithoutChangingSelection() {
+        val raw=raw();val before=Schema.snapshot(raw,"owned")
+        val edited=before.rows.single{it.profile.id=="owned"}.profile.copy(name="Manual edit")
+        val patch=Schema.manualEditPatch(raw,before,owner,edited,"cipher-new")
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        assertEquals(Outcome.APPLIED,ManagedPreferenceTransaction(backend).execute(raw,patch){true})
+        val after=Schema.snapshot(backend.read(),"owned")
+        assertEquals(1,backend.calls);assertEquals(before.selection,after.selection)
+        assertEquals(ManagedProfileRow(edited,null,"cipher-new"),after.rows.single{it.profile.id=="owned"})
+        assertFalse(Schema.JOURNAL in backend.values)
+        assertEquals(before.rows.single{it.profile.id=="manual"},after.rows.single{it.profile.id=="manual"})
+    }
+
+    @Test fun detachRejectsWrongOwnerStaleAndForeignRow() {
+        val raw=raw();val before=Schema.snapshot(raw,null)
+        reject { Schema.detachPatch(raw,before,owner,"manual") }
+        reject { Schema.detachPatch(raw,before,java.util.UUID.randomUUID().toString(),"owned") }
+        reject { Schema.detachPatch(raw+("secret.owned" to "other"),before,owner) }
+        val patch=Schema.detachPatch(raw,before,owner)
+        val detached=raw.toMutableMap();apply(detached,patch)
+        assertTrue(Schema.detachPatch(detached,Schema.snapshot(detached,null),owner).isEmpty())
+    }
+
+    @Test fun sourceDetachPreservesOtherOwnersAndRejectsOrphanOwnership() {
+        val other=java.util.UUID.randomUUID().toString()
+        val raw=raw()+("profile.manual.subscription_owner" to other)
+        val before=Schema.snapshot(raw,null)
+        val patch=Schema.detachPatch(raw,before,owner)
+        assertEquals(setOf("profile.owned.subscription_owner",Schema.JOURNAL),patch.keys)
+        val target=raw.toMutableMap();apply(target,patch)
+        assertEquals(other,target["profile.manual.subscription_owner"])
+        val orphan=raw+("profile.orphan.subscription_owner" to owner)
+        reject { Schema.detachPatch(orphan,Schema.snapshot(orphan,null),owner) }
+    }
+
+    @Test fun detachFailureRestoresOwnershipAndJournal() {
+        val raw=raw();val before=Schema.snapshot(raw,null)
+        val patch=Schema.detachPatch(raw,before,owner)
+        val backend=Fake(raw){n,v,p->apply(v,p);n>1}
+        assertEquals(Outcome.RESTORED,ManagedPreferenceTransaction(backend).execute(raw,patch){true})
+        assertEquals(raw,backend.read())
+    }
+
+    @Test fun authenticatedFirstImportRollbackCanRemoveOnlyImplicitPrimary() {
+        val raw=mapOf<String,Any>(Schema.IDS to emptySet<String>(),"site_exclusions" to setOf("keep.invalid"))
+        val empty=Schema.snapshot(raw,null)
+        val added=ManagedProfileRow(ProxyProfile("new","New","new.invalid",80,ProxyType.HTTP),owner,null)
+        val imported=ManagedProfileState(listOf(added),empty.selection)
+        val key=javax.crypto.KeyGenerator.getInstance("AES").apply{init(256)}.generateKey()
+        val sealed=ManagedRollbackJournal.from(ManagedRefreshTransaction(source,empty,imported,setOf("new"))).seal(key)
+        val current=raw.toMutableMap();apply(current,Schema.patch(raw,empty,imported,owner,sealed))
+        reject { Schema.patch(current,imported,empty,owner,null) }
+        val patch=Schema.rollbackPatch(current,imported,source,key,true)!!
+        assertNull(Schema.rollbackPatch(current,imported,source,key,false))
+        assertNull(Schema.rollbackPatch(current,imported,source.copy(createdAt=source.createdAt+1),key,true))
+        val selected=Schema.snapshot(current,"new")
+        assertNull(Schema.rollbackPatch(current,selected,source,key,true))
+        val auto=current+("auto_profile_selection" to true)
+        assertNull(Schema.rollbackPatch(auto,Schema.snapshot(auto,null),source,key,true))
+        assertNull(Schema.rollbackPatch(current-Schema.JOURNAL,imported,source,key,true))
+        assertNull(Schema.rollbackPatch(current+(Schema.JOURNAL to "invalid"),imported,source,key,true))
+        val wrongKey=javax.crypto.KeyGenerator.getInstance("AES").apply{init(256)}.generateKey()
+        assertNull(Schema.rollbackPatch(current,imported,source,wrongKey,true))
+        apply(current,patch);assertEquals(raw,current)
+    }
+
+    @Test fun rollbackCannotDropImplicitPrimaryWhenExistingProfilesRemain() {
+        val raw=raw()-"active_profile_id"-"pool_primary_profile_id"
+        val before=Schema.snapshot(raw,null)
+        val new=ManagedProfileRow(ProxyProfile("new","A","new.invalid",80,ProxyType.HTTP),owner,null)
+        val after=ManagedProfileState(before.rows+new,before.selection)
+        val key=javax.crypto.KeyGenerator.getInstance("AES").apply{init(256)}.generateKey()
+        val journal=ManagedRollbackJournal.from(ManagedRefreshTransaction(source,before,after,setOf("new"))).seal(key)
+        val artificial=raw.toMutableMap();artificial[Schema.IDS]=setOf("manual","owned","new")
+        artificial["profile.new.name"]="A";artificial["profile.new.host"]="new.invalid"
+        artificial["profile.new.port"]=80;artificial["profile.new.type"]="HTTP";artificial["profile.new.subscription_owner"]=owner
+        artificial[Schema.JOURNAL]=journal
+        reject { Schema.rollbackPatch(artificial,after,source,key,true) }
+    }
+
     @Test fun newIdCannotOverwriteOrphan() {
         val raw=raw()+("profile.new.name" to "Orphan")
         val before=Schema.snapshot(raw,"manual")

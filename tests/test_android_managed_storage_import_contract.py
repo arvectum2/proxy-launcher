@@ -11,7 +11,7 @@ class ManagedStorageContract(unittest.TestCase):
     def test_atomic_affected_keys_and_strict_raw_snapshot(self):
         for text in ('const val IDS = "profile_ids"','const val JOURNAL = "managed_rollback_v1"',
                      'snapshot(raw,before.selection.selected) == before','before.selection == after.selection',
-                     'it in before.protectedIds || it == effectivePrimary(before)',
+                     'it in before.protectedIds || (!firstImportRollback && it == effectivePrimary(before))',
                      'effectivePrimary(before) == effectivePrimary(after)',
                      'prior[it]?.owner == sourceId','next[it]?.owner == sourceId',
                      'fields.none { field(id,it) in raw }','IDS to next.keys.toSet(), JOURNAL to journal',
@@ -32,7 +32,7 @@ class ManagedStorageContract(unittest.TestCase):
         for text in ('managed_rollback.v1','managedJournalKey(false)','existingCredentialKey()',
                      'ManagedRollbackJournal.open(previousJournal as String,journalKey)',
                      'ManagedRollbackJournal.from(txn).seal(journalKey)',
-                     'journal.restore(source,before,gate())','ManagedPreferenceSchema.patch(raw,before,after,source.id,null)',
+                     'journal.restore(source,before,gate())','ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,gate())',
                      'managedTransaction.execute(raw,patch,gate)','manager.runningAppProcesses',
                      'android.os.Looper.myLooper() != android.os.Looper.getMainLooper()'):
             self.assertIn(text,STORE)

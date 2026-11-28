@@ -196,11 +196,13 @@ class SecureProfileStore(context: Context) {
         val raw = managedBackend.read()
         val encoded = raw[ManagedPreferenceSchema.JOURNAL] as? String ?: return ManagedPreferenceTransaction.Outcome.STALE
         val before = ManagedPreferenceSchema.snapshot(raw,selected)
-        val journal = ManagedRollbackJournal.open(encoded,managedJournalKey(false))
+        val journalKey = managedJournalKey(false)
+        val journal = ManagedRollbackJournal.open(encoded,journalKey)
         val after = journal.restore(source,before,gate()) ?: return ManagedPreferenceTransaction.Outcome.STALE
         // Verify old encrypted credentials still decrypt under the existing key before restoring.
         for (row in after.rows) if (row.encryptedCredential != null) decrypt(row.encryptedCredential,existingCredentialKey())
-        val patch = ManagedPreferenceSchema.patch(raw,before,after,source.id,null)
+        val patch = ManagedPreferenceSchema.rollbackPatch(raw,before,source,journalKey,gate())
+            ?: return ManagedPreferenceTransaction.Outcome.STALE
         return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
     }
 
