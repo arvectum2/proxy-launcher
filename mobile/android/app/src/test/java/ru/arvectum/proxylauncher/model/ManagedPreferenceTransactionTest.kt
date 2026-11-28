@@ -3,6 +3,10 @@ package ru.arvectum.proxylauncher.model
 import org.junit.Assert.*
 import org.junit.Test
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceBackend
+import ru.arvectum.proxylauncher.storage.ManagedCrashGate
+import ru.arvectum.proxylauncher.storage.ManagedCrashTransaction
+import ru.arvectum.proxylauncher.storage.ManagedOwnershipReview
+import java.nio.file.Files
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceSchema as Schema
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceTransaction
 import ru.arvectum.proxylauncher.storage.ManagedPreferenceTransaction.Outcome
@@ -244,6 +248,92 @@ class ManagedPreferenceTransactionTest {
         artificial["profile.new.port"]=80;artificial["profile.new.type"]="HTTP";artificial["profile.new.subscription_owner"]=owner
         artificial[Schema.JOURNAL]=journal
         reject { Schema.rollbackPatch(artificial,after,source,key,true) }
+    }
+
+    private fun withOwnershipFixture(block:(Map<String,Any>,javax.crypto.SecretKey,ManagedCrashGate)->Unit) {
+        val dir=Files.createTempDirectory("apl-ownership-")
+        try {
+            val key=javax.crypto.KeyGenerator.getInstance("AES").apply{init(256)}.generateKey()
+            val raw=raw()-Schema.JOURNAL
+            val before=Schema.snapshot(raw,null)
+            val after=ManagedProfileState(before.rows.map { if(it.owner==owner) ManagedProfileRow(it.profile.copy(name="Updated"),owner,it.encryptedCredential) else it },before.selection)
+            val journal=ManagedRollbackJournal.from(ManagedRefreshTransaction(source,before,after,setOf("owned"))).seal(key)
+            val updated=raw.toMutableMap();apply(updated,Schema.patch(raw,before,after,owner,journal))
+            block(updated,key,ManagedCrashGate(dir))
+        } finally { dir.toFile().deleteRecursively() }
+    }
+
+    @Test fun reviewedSourceRemovalHoldsGateAndOnlyRunsAfterDurableDetach() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val review=ManagedOwnershipReview.prepare(source,"rev",raw,null,{1L},{key})!!
+        assertEquals(1,review.detachedCount);assertTrue(review.invalidatesRollback)
+        var calls=0
+        val outcome=review.confirm(tx,{"rev"},{true},true){
+            calls++;assertEquals(ManagedCrashGate.Status.BUSY,gate.acquire().status)
+            assertFalse("profile.owned.subscription_owner" in backend.values)
+            assertEquals(raw["secret.owned"],backend.values["secret.owned"]);true
+        }
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,outcome);assertEquals(1,calls)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review.confirm(tx,{"rev"},{true},true){calls++;true})
+        assertEquals(1,calls)
+    }
+
+    @Test fun catalogFailureNeverReattachesOrRetries() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val review=ManagedOwnershipReview.prepare(source,"rev",raw,null,{1L},{key})!!
+        var calls=0
+        assertEquals(ManagedCrashTransaction.Outcome.FOLLOWUP_UNCERTAIN,review.confirm(tx,{"rev"},{true},true){calls++;false})
+        assertEquals(1,calls);assertEquals(1,backend.calls)
+        assertNull(Schema.snapshot(backend.read(),null).rows.single{it.profile.id=="owned"}.owner)
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review.confirm(tx,{"rev"},{true},true){calls++;true})
+        assertEquals(1,calls)
+    }
+
+    @Test fun noCatalogCallOnFailedDetachOrUnknownDisk() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){n,v,p->apply(v,p);n>1}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val review=ManagedOwnershipReview.prepare(source,"rev",raw,null,{1L},{key})!!
+        assertEquals(ManagedCrashTransaction.Outcome.RESTORED,review.confirm(tx,{"rev"},{true},true){fail("catalog called");false})
+        assertEquals(raw,backend.read())
+        val bad=ManagedCrashTransaction(gate,backend,{key}){false}
+        val next=ManagedOwnershipReview.prepare(source,"rev",raw,null,{1L},{key})!!
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,next.confirm(bad,{"rev"},{true},true){fail("catalog called");false})
+    }
+
+    @Test fun reviewRejectsExpiredChangedRevisionAndUnacceptedJournalLoss() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,_,_->fail("unexpected write");false}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){true}
+        var now=1L
+        fun review()=ManagedOwnershipReview.prepare(source,"rev",raw,null,{now},{key})!!
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review().confirm(tx,{"rev"},{true},false){false})
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review().confirm(tx,{"changed"},{true},true){false})
+        val expired=review();now+=ManagedOwnershipReview.TTL_MS
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,expired.confirm(tx,{"rev"},{true},true){false})
+        assertNull(ManagedOwnershipReview.prepare(source,"rev",raw+(Schema.JOURNAL to "bad"),null,{now},{key}))
+        assertEquals(0,backend.calls)
+    }
+
+    @Test fun emptyDetachStillRequiresDurableStateAndExplicitReview() = withOwnershipFixture { raw,key,gate ->
+        val detached=raw-Schema.JOURNAL-"profile.owned.subscription_owner"
+        val backend=Fake(detached){_,_,_->fail("unexpected profile write");false}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val review=ManagedOwnershipReview.prepare(source,"rev",detached,null,{1L},{key})!!
+        assertEquals(0,review.detachedCount);assertFalse(review.invalidatesRollback)
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,review.confirm(tx,{"rev"},{true},false){
+            assertEquals(ManagedCrashGate.Status.BUSY,gate.acquire().status);true})
+        assertEquals(0,backend.calls)
+    }
+
+    @Test fun reviewedManualEditNeverCallsCatalogRemoval() = withOwnershipFixture { raw,key,gate ->
+        val backend=Fake(raw){_,v,p->apply(v,p);true}
+        val tx=ManagedCrashTransaction(gate,backend,{key}){it==backend.read()}
+        val edited=Schema.snapshot(raw,"owned").rows.single{it.profile.id=="owned"}.profile.copy(name="Manual")
+        fun review()=ManagedOwnershipReview.prepare(source,"rev",raw,"owned",{1L},{key},edited,"cipher-new")!!
+        assertEquals(ManagedCrashTransaction.Outcome.STALE,review().confirm(tx,{"rev"},{true},true){false})
+        assertEquals(ManagedCrashTransaction.Outcome.APPLIED,review().confirm(tx,{"rev"},{true},true))
+        assertEquals(ManagedProfileRow(edited,null,"cipher-new"),Schema.snapshot(backend.read(),"owned").rows.single{it.profile.id=="owned"})
     }
 
     @Test fun newIdCannotOverwriteOrphan() {

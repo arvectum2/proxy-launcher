@@ -206,6 +206,41 @@ class SecureProfileStore(context: Context) {
         return recordManagedOutcome(managedTransaction.execute(raw,patch,gate))
     }
 
+    /** Dormant adapter: caller must cancel on lifecycle/selection change and show rollback-loss warning. */
+    @Synchronized
+    internal fun prepareManagedOwnership(catalog: SecureSubscriptionStore, source: SavedSubscription,
+                                         selected: String?, allowed: () -> Boolean,
+                                         edited: ProxyProfile? = null, encryptedCredential: String? = null): ManagedOwnershipReview? {
+        if (managedRecoveryRequired || !managedProcessIdle() || !allowed()) return null
+        return runCatching {
+            catalog.withManagedCatalog {
+                val lease = managedGate.acquire().lease ?: return@withManagedCatalog null
+                lease.use {
+                    val raw = verifiedManagedDiskState()
+                    val revision = catalog.managedRevision(source) ?: return@use null
+                    if (!managedProcessIdle() || !allowed()) return@use null
+                    if (edited != null && encryptedCredential != null) decrypt(encryptedCredential,existingCredentialKey())
+                    ManagedOwnershipReview.prepare(source,revision,raw,selected,android.os.SystemClock::elapsedRealtime,
+                        { managedJournalKey(false) },edited,encryptedCredential)
+                }
+            }
+        }.getOrNull()
+    }
+
+    @Synchronized
+    internal fun confirmManagedOwnership(review: ManagedOwnershipReview, catalog: SecureSubscriptionStore,
+                                         selected: () -> String?, allowed: () -> Boolean,
+                                         acceptRollbackLoss: Boolean): ManagedCrashTransaction.Outcome {
+        val permitted = { !managedRecoveryRequired && managedProcessIdle() && allowed() && selected() == review.selected }
+        val outcome = catalog.withManagedCatalog {
+            review.confirm(managedTransaction,{ catalog.managedRevision(review.source) },permitted,acceptRollbackLoss,
+                if (review.kind == ManagedOwnershipReview.Kind.REMOVE_SOURCE)
+                    ({ catalog.removeManagedExact(review.source,review.revision) }) else null)
+        }
+        if (outcome == ManagedCrashTransaction.Outcome.RECOVERY_REQUIRED) managedRecoveryRequired = true
+        return outcome
+    }
+
     private fun recordManagedOutcome(outcome: ManagedCrashTransaction.Outcome): ManagedPreferenceTransaction.Outcome =
         when (outcome) {
             ManagedCrashTransaction.Outcome.APPLIED -> ManagedPreferenceTransaction.Outcome.APPLIED

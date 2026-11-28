@@ -12,7 +12,33 @@ import ru.arvectum.proxylauncher.model.SavedSubscriptionEntry
 
 /** Main-process UI store; catalog is a single bounded preference commit. */
 class SecureSubscriptionStore(context: Context) {
-    private val prefs = context.getSharedPreferences("apl_saved_subscriptions_v1",Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE)
+    private val disk by lazy { ManagedPreferenceDiskVerifier(context.applicationContext.dataDir.toPath()
+        .resolve("shared_prefs").resolve("$PREFS_NAME.xml")) }
+
+    /** Only the dormant managed coordinator uses these while holding the common profile lease. */
+    internal fun <T> withManagedCatalog(block: () -> T): T = synchronized(lock) { block() }
+
+    internal fun managedRevision(expected: SavedSubscription): String? = synchronized(lock) {
+        runCatching {
+            val encoded = prefs.getString(CATALOG,null) ?: return@synchronized null
+            val entry = SavedSubscriptionCatalog.decode(encoded).singleOrNull { it.metadata == expected }
+                ?: return@synchronized null
+            SavedSubscriptionCatalog.open(entry,key(allowCreate = false))
+            if (!disk.matches(mapOf(CATALOG to encoded))) null else encoded
+        }.getOrNull()
+    }
+
+    /** Never retry or reattach profiles on a false/ambiguous catalog commit. */
+    internal fun removeManagedExact(expected: SavedSubscription, revision: String): Boolean = synchronized(lock) {
+        runCatching {
+            if (managedRevision(expected) != revision) return@synchronized false
+            val updated = SavedSubscriptionCatalog.encode(SavedSubscriptionCatalog.decode(revision)
+                .filterNot { it.metadata == expected })
+            prefs.edit().putString(CATALOG,updated).commit() &&
+                prefs.getString(CATALOG,null) == updated && disk.matches(mapOf(CATALOG to updated))
+        }.getOrDefault(false)
+    }
 
     private fun entries(): List<SavedSubscriptionEntry> =
         prefs.getString(CATALOG,null)?.let(SavedSubscriptionCatalog::decode).orEmpty()
@@ -70,6 +96,7 @@ class SecureSubscriptionStore(context: Context) {
     }
 
     private companion object {
+        const val PREFS_NAME = "apl_saved_subscriptions_v1"
         const val CATALOG = "catalog"
         const val ALIAS = "ru.arvectum.proxylauncher.subscription_sources.v1"
         val lock = Any()
