@@ -10,14 +10,16 @@ definition_of_done:
 completed:
   - "PR396, PR397, PR398 each 15/15 CI PASS; PR398 merged d1bd0af8fe0c2016d7ceadacb986d1583f788e81; GitVerse main verified."
   - "Disk/recovery source eda91960404ff403ddfd7eda95699aa98da3e3f4: strict persistent XML verification, authenticated pre/post fingerprints, expiring one-shot acknowledgement for exact durable state, dormant SecureProfileStore integration. Local tests PASS."
-current: "Disk/recovery core CI pending. Full managed feature remains in_progress."
+  - "PR399 exact head 1bdec5739fc24ab503960d0ef6867f1629dd09f3 CI 15/15 PASS, merged e4818e1c3c14cb6677f895d9fc15a967376e903c."
+  - "VPN participant source 54988d6049ca046d3af84e0775258897654e5b3b: common private gate before preference construction, retained process-wide lease, denied start handling, no managed activation."
+current: "VPN process participant candidate implemented and tested on JVM; exact-head CI and Android runtime acceptance pending. Full feature in_progress."
 pending:
-  - "Verify exact-head PR CI build/lint/unit, fix actual failures and merge when green."
-  - "Integrate common gate in actual VPN process before SecureProfileStore construction; ensure exclusion survives retained VPN process/cache and avoids lock-release races. Device proof of FileChannel/file/directory fsync and SharedPreferences XML/cache, process crash, actual Android Keystore. Do not activate managed operations until this gate passes."
+  - "Verify exact-head candidate CI and review denied foreground service lifecycle, localization and retained cache; hold integration until runtime acceptance. Device proof of FileChannel/file/directory fsync and SharedPreferences XML/cache, process crash, actual Android Keystore. Do not activate managed operations until this gate passes."
   - "Explicit partial/unknown recovery policy (currently fail-closed, no rewrite), ownership detach on manual edit/source removal, safe implicit primary and first-import rollback, explicit review/apply/rollback UI. Preserve existing additive mode."
   - "Full storage/UI CI, physical device acceptance and resolved dependency graph audit before release; backup/native transports thereafter."
-last_verified_commit: "eda91960404ff403ddfd7eda95699aa98da3e3f4"
+last_verified_commit: "54988d6049ca046d3af84e0775258897654e5b3b"
 test_results:
+  - "83/83 JVM tests including 2 new VPN lease tests; 41/41 Python Android source contracts; SecureProfileStore and new gate factory Kotlin/API35 compiled; git diff check PASS. VPN service full compile/lint via CI pending; no adb device attached."
   - "81/81 JVM tests (9 new), 39 unique Python source contracts, actual SecureProfileStore Kotlin/API35 compilation, git diff check PASS. Real synthetic XML file transaction and cache-only false success, wrong key/tamper, backup/symlink/race, expiry/stale/cancel/marker substitution and explicit acknowledgement verified on Mac mini."
   - "Android disk, Keystore, VPN participant and power-loss durability unverified. Unknown/mixed states remain blocked; acknowledgement only recognizes exact before/after and never rewrites profiles. No UI or VPN runtime wiring, no live profile writes."
-resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-managed-disk-verify-20261126 branch feat/android-managed-disk-verify-20261126. Verify exact-head disk/recovery PR CI, fix and merge after green, then mandatory VPN participant and actual Android process/cache/FS acceptance per Spec Kit 011. Do not activate live managed mutation before gates. No real profiles, production signing/release, iOS reupload or RuStore resubmission."
+resume_instruction: "ARC only. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-android-managed-vpn-participant-20261128 branch feat/android-managed-vpn-participant-20261128. Verify candidate exact-head CI once; fix failures. Do not merge runtime gate until Android lifecycle/FS acceptance (adb currently no devices); continue independent offline ownership/detach planning when safe. Do not activate live managed mutation before gates. No real profiles, production signing/release, iOS reupload or RuStore resubmission."
